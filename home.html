@@ -561,114 +561,101 @@
       setTimeout(type, 500);
 
     // MODAL LOGIC
-   // grab all our modal elements
-const modal       = document.getElementById('modal');
-const title       = document.getElementById('modal-title');
-const actionBtn   = document.getElementById('modal-action');
-const switchLink  = document.getElementById('switch-link');
-const switchText  = document.getElementById('switch-text');
+  
+document.addEventListener('DOMContentLoaded', ()=>{
+  // Grab elements
+  const modal      = document.getElementById('modal');
+  const title      = document.getElementById('modal-title');
+  const actionBtn  = document.getElementById('modal-action');
+  const switchLink = document.getElementById('switch-link');
+  const switchText = document.getElementById('switch-text');
 
-const nameInput     = document.getElementById('name');
-const emailInput    = document.getElementById('email');
-const passInput     = document.getElementById('password');
-const confirmInput  = document.getElementById('confirm-password');
+  const nameInput    = document.getElementById('name');
+  const emailInput   = document.getElementById('email');
+  const passInput    = document.getElementById('password');
+  const confirmInput = document.getElementById('confirm-password');
 
-// whenever we open the modal, toggle which fields show
-document.querySelectorAll('[data-modal]').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.preventDefault();
-    const mode = btn.dataset.modal; // "signin" or "signup"
-
-    // change headings & button text
-    title.textContent      = mode === 'signup' ? 'Sign Up' : 'Sign In';
-    actionBtn.textContent  = mode === 'signup' ? 'Create Account' : 'Sign In';
-    switchText.textContent = mode === 'signup'
-      ? 'Already have an account?'
-      : 'Don’t have an account?';
-    switchLink.textContent = mode === 'signup' ? 'Sign In' : 'Sign Up';
-    switchLink.dataset.mode = mode === 'signup' ? 'signin' : 'signup';
-
-    // show name & confirm-password only on signup
-    if (mode === 'signup') {
-      nameInput.style.display        = 'block';
-      confirmInput.style.display     = 'block';
-    } else {
-      nameInput.style.display        = 'none';
-      confirmInput.style.display     = 'none';
-    }
-
-    modal.classList.add('active');
+  // Open modal: toggle fields
+  document.querySelectorAll('[data-modal]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.preventDefault();
+      const mode = btn.dataset.modal; // "signin"|"signup"
+      title.textContent     = mode==='signup' ? 'Sign Up' : 'Sign In';
+      actionBtn.textContent = mode==='signup' ? 'Create Account' : 'Sign In';
+      switchText.textContent= mode==='signup'
+          ? 'Already have an account?'
+          : 'Don’t have an account?';
+      switchLink.textContent= mode==='signup' ? 'Sign In' : 'Sign Up';
+      switchLink.dataset.mode = mode==='signup' ? 'signin' : 'signup';
+      nameInput.style.display        = mode==='signup' ? 'block' : 'none';
+      confirmInput.style.display     = mode==='signup' ? 'block' : 'none';
+      modal.classList.add('active');
+    });
   });
+
+  // Handle Signup/Signin
+  actionBtn.addEventListener('click', async e=>{
+    e.preventDefault();
+    const mode = actionBtn.textContent.includes('Create') ? 'signup':'signin';
+    const name     = nameInput.value.trim();
+    const email    = emailInput.value.trim();
+    const password = passInput.value;
+    const confirm  = confirmInput.value;
+
+    // Basic validation
+    if (!email || !password || (mode==='signup' && (!name||!confirm))) {
+      return alert('All fields are required.');
+    }
+    if (mode==='signup' && password!==confirm) {
+      return alert('Passwords do not match.');
+    }
+
+    // Password strength
+    const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/;
+    if (!passRegex.test(password)) {
+      return alert('Password must be 8+ chars, include uppercase, number & special char.');
+    }
+
+    try {
+      if (mode==='signup') {
+        const res = await fetch('/api/signup',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ name,email,password })
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error);
+        alert(json.message);
+        // stay on page, user must click email link before Sign In
+      } else {
+        const res = await fetch('/api/signin',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ email,password })
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error);
+        alert(`Welcome back, ${json.name}!`);
+        localStorage.setItem('ft_current', JSON.stringify(json));
+        window.location.href = 'dashboard.html';
+      }
+    } catch(err) {
+      alert(err.message);
+    }
+  });
+
+  // Toggle link
+  switchLink.addEventListener('click', e=>{
+    e.preventDefault();
+    document.querySelector(`[data-modal="${switchLink.dataset.mode}"]`).click();
+  });
+
+  // Close modal
+  document.querySelectorAll('[data-close], .close')
+    .forEach(el=> el.onclick = ()=> modal.classList.remove('active'));
 });
 
-// handle the actual Sign In / Sign Up click
-actionBtn.addEventListener('click', async e => {
-  e.preventDefault();
-  const mode     = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
-  const name     = nameInput.value.trim();
-  const email    = emailInput.value.trim();
-  const password = passInput.value;
-  const confirm  = confirmInput.value;
 
-  // 1) basic required-field check
-  if (!email || !password || (mode==='signup' && (!name || !confirm))) {
-    return alert('All fields are required.');
-  }
-
-  // 2) on signup: passwords must match
-  if (mode === 'signup' && password !== confirm) {
-    return alert('Passwords do not match.');
-  }
-
-  // 3) password criteria: min 8 chars, 1 uppercase, 1 number, 1 special char
-  const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/;
-  if (!passRegex.test(password)) {
-    return alert(
-      'Password must be at least 8 characters,\n' +
-      'include an uppercase letter, a number & a special character.'
-    );
-  }
-
-  // 4) fetch existing user store (or empty array)
-  const existingUsers = JSON.parse(localStorage.getItem('ft_users')||'[]');
-  const found = existingUsers.find(u=>u.email===email);
-
-  if (mode === 'signup') {
-    if (found) {
-      return alert('An account with that email already exists.');
-    }
-    // register them
-    const newUser = { name, email, password, verified:false };
-    existingUsers.push(newUser);
-    localStorage.setItem('ft_users', JSON.stringify(existingUsers));
-
-    // stub email verification
-    alert(Hello ${name}!\nA verification link has been sent to ${email}.);
-    // here you would POST to your backend to send a real email
-
-    // auto-log them in (once verified in real flow)
-    localStorage.setItem('ft_current', JSON.stringify(newUser));
-    window.location.href = 'dashboard.html';
-
-  } else {
-    // signin
-    if (!found || found.password !== password) {
-      return alert('Invalid email or password.');
-    }
-    if (!found.verified) {
-      return alert('Please verify your email before signing in.');
-    }
-    alert(Welcome back, ${found.name}!);
-    localStorage.setItem('ft_current', JSON.stringify(found));
-    window.location.href = 'dashboard.html';
-  }
-});
-
-// switch link logic
-switchLink.addEventListener('click', e => {
-  e.preventDefault();
-  document.querySelector([data-modal="${switchLink.dataset.mode}"]).click();
-});
 
     // SCROLL REVEAL
     document.querySelectorAll('[data-reveal]').forEach(el=>{
