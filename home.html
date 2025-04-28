@@ -313,18 +313,26 @@
 
   <!-- SIGN-IN/SIGN-UP MODAL -->
   <div class="modal-overlay" id="modal">
-    <div class="modal">
-      <span class="close" data-close>&times;</span>
-      <h2 id="modal-title">Sign In</h2>
-      <input type="email" id="email" placeholder="Email">
-      <input type="password" id="password" placeholder="Password">
-      <button class="btn" id="modal-action">Sign In</button>
-      <p style="text-align:center; color:rgba(255,255,255,0.7);">
-        <span id="switch-text">Don’t have an account?</span>
-        <a href="#" id="switch-link" style="color:var(--gold);">Sign Up</a>
-      </p>
-    </div>
-  </div>
+ <div class="modal">
+  <span class="close" data-close>&times;</span>
+  <h2 id="modal-title">Sign In</h2>
+
+  <!-- NEW: Full Name (only used in Sign Up) -->
+  <input type="text" id="name" placeholder="Full Name" style="display:none" />
+
+  <input type="email" id="email" placeholder="Email" required />
+  <input type="password" id="password" placeholder="Password" required />
+  <!-- NEW: Confirm Password -->
+  <input type="password" id="confirm-password" placeholder="Confirm Password" style="display:none" />
+
+  <button class="btn" id="modal-action">Sign In</button>
+
+  <p style="text-align:center; color:rgba(255,255,255,0.7);">
+    <span id="switch-text">Don’t have an account?</span>
+    <a href="#" id="switch-link" style="color:var(--gold);">Sign Up</a>
+  </p>
+</div>
+</div> 
 
   <!-- NAVBAR -->
   <nav id="navbar">
@@ -553,34 +561,114 @@
       setTimeout(type, 500);
 
     // MODAL LOGIC
-    const modal = document.getElementById('modal'),
-          title = document.getElementById('modal-title'),
-          action = document.getElementById('modal-action'),
-          switchLink = document.getElementById('switch-link'),
-          switchText = document.getElementById('switch-text');
+   // grab all our modal elements
+const modal       = document.getElementById('modal');
+const title       = document.getElementById('modal-title');
+const actionBtn   = document.getElementById('modal-action');
+const switchLink  = document.getElementById('switch-link');
+const switchText  = document.getElementById('switch-text');
 
-    document.querySelectorAll('[data-modal]').forEach(btn=>{
-      btn.addEventListener('click', e=>{
-        e.preventDefault();
-        const mode = btn.dataset.modal; // "signin" or "signup"
-        title.textContent = mode === 'signup' ? 'Sign Up' : 'Sign In';
-        action.textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
-        switchLink.textContent = mode === 'signup' ? 'Sign In' : 'Sign Up';
-        switchLink.dataset.mode = mode === 'signup' ? 'signin' : 'signup';
-        switchText.textContent = mode === 'signup'
-          ? 'Already have an account?'
-          : 'Don’t have an account?';
-        modal.classList.add('active');
-      });
-    });
-    document.querySelectorAll('[data-close], .close').forEach(el=>{
-      el.addEventListener('click', ()=> modal.classList.remove('active'));
-    });
-   document.querySelector(
-  '[data-modal="' + switchLink.dataset.mode + '"]'
-).click();
+const nameInput     = document.getElementById('name');
+const emailInput    = document.getElementById('email');
+const passInput     = document.getElementById('password');
+const confirmInput  = document.getElementById('confirm-password');
 
-    window.addEventListener('keydown', e=> e.key==='Escape' && modal.classList.remove('active'));
+// whenever we open the modal, toggle which fields show
+document.querySelectorAll('[data-modal]').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    const mode = btn.dataset.modal; // "signin" or "signup"
+
+    // change headings & button text
+    title.textContent      = mode === 'signup' ? 'Sign Up' : 'Sign In';
+    actionBtn.textContent  = mode === 'signup' ? 'Create Account' : 'Sign In';
+    switchText.textContent = mode === 'signup'
+      ? 'Already have an account?'
+      : 'Don’t have an account?';
+    switchLink.textContent = mode === 'signup' ? 'Sign In' : 'Sign Up';
+    switchLink.dataset.mode = mode === 'signup' ? 'signin' : 'signup';
+
+    // show name & confirm-password only on signup
+    if (mode === 'signup') {
+      nameInput.style.display        = 'block';
+      confirmInput.style.display     = 'block';
+    } else {
+      nameInput.style.display        = 'none';
+      confirmInput.style.display     = 'none';
+    }
+
+    modal.classList.add('active');
+  });
+});
+
+// handle the actual Sign In / Sign Up click
+actionBtn.addEventListener('click', async e => {
+  e.preventDefault();
+  const mode     = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
+  const name     = nameInput.value.trim();
+  const email    = emailInput.value.trim();
+  const password = passInput.value;
+  const confirm  = confirmInput.value;
+
+  // 1) basic required-field check
+  if (!email || !password || (mode==='signup' && (!name || !confirm))) {
+    return alert('All fields are required.');
+  }
+
+  // 2) on signup: passwords must match
+  if (mode === 'signup' && password !== confirm) {
+    return alert('Passwords do not match.');
+  }
+
+  // 3) password criteria: min 8 chars, 1 uppercase, 1 number, 1 special char
+  const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/;
+  if (!passRegex.test(password)) {
+    return alert(
+      'Password must be at least 8 characters,\n' +
+      'include an uppercase letter, a number & a special character.'
+    );
+  }
+
+  // 4) fetch existing user store (or empty array)
+  const existingUsers = JSON.parse(localStorage.getItem('ft_users')||'[]');
+  const found = existingUsers.find(u=>u.email===email);
+
+  if (mode === 'signup') {
+    if (found) {
+      return alert('An account with that email already exists.');
+    }
+    // register them
+    const newUser = { name, email, password, verified:false };
+    existingUsers.push(newUser);
+    localStorage.setItem('ft_users', JSON.stringify(existingUsers));
+
+    // stub email verification
+    alert(Hello ${name}!\nA verification link has been sent to ${email}.);
+    // here you would POST to your backend to send a real email
+
+    // auto-log them in (once verified in real flow)
+    localStorage.setItem('ft_current', JSON.stringify(newUser));
+    window.location.href = 'dashboard.html';
+
+  } else {
+    // signin
+    if (!found || found.password !== password) {
+      return alert('Invalid email or password.');
+    }
+    if (!found.verified) {
+      return alert('Please verify your email before signing in.');
+    }
+    alert(Welcome back, ${found.name}!);
+    localStorage.setItem('ft_current', JSON.stringify(found));
+    window.location.href = 'dashboard.html';
+  }
+});
+
+// switch link logic
+switchLink.addEventListener('click', e => {
+  e.preventDefault();
+  document.querySelector([data-modal="${switchLink.dataset.mode}"]).click();
+});
 
     // SCROLL REVEAL
     document.querySelectorAll('[data-reveal]').forEach(el=>{
@@ -601,4 +689,4 @@
 });
   </script>
 </body>
-</html>
+</html> 
