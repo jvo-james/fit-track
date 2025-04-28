@@ -1,123 +1,604 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2113.6">
-  <style type="text/css">
-    body {background-color: #000000}
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.4px Helvetica; color: #ffffff; color: rgba(255, 255, 255, 0.7); -webkit-text-stroke: rgba(255, 255, 255, 0.7)}
-    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 11.0px 'Helvetica Neue'; color: #000000; -webkit-text-stroke: #000000; background-color: #fd8508}
-    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px Helvetica; color: #ffffff; color: rgba(255, 255, 255, 0.7); -webkit-text-stroke: rgba(255, 255, 255, 0.7)}
-    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 21.6px Helvetica; color: #fd8508; -webkit-text-stroke: #fd8508}
-    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff; min-height: 14.0px}
-    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff; background-color: #000000; background-color: rgba(0, 0, 0, 0.95)}
-    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff; min-height: 22.0px}
-    p.p10 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px Helvetica; color: #ffffff; color: rgba(255, 255, 255, 0.8); -webkit-text-stroke: rgba(255, 255, 255, 0.8)}
-    p.p11 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff; min-height: 14.0px}
-    p.p13 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 10.8px Helvetica; color: #ffffff; color: rgba(255, 255, 255, 0.8); -webkit-text-stroke: rgba(255, 255, 255, 0.8)}
-    p.p14 {margin: 0.0px 0.0px 12.0px 0.0px; font: 12.0px Helvetica; color: #ffffff; color: rgba(255, 255, 255, 0.85); -webkit-text-stroke: rgba(255, 255, 255, 0.85)}
-    p.p17 {margin: 0.0px 0.0px 12.0px 0.0px; text-align: center; font: 24.0px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff}
-    p.p18 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 11.0px 'Helvetica Neue'; color: #000000; -webkit-text-stroke: #000000; background-color: #fd8508}
-    p.p19 {margin: 0.0px 0.0px 0.0px 0.0px; font: 11.0px 'Helvetica Neue'; color: #ffffff; -webkit-text-stroke: #ffffff; background-color: #ffffff; background-color: rgba(255, 255, 255, 0.051); min-height: 13.0px}
-    p.p20 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff}
-    li.li10 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px Helvetica; color: #ffffff; color: rgba(255, 255, 255, 0.8); -webkit-text-stroke: rgba(255, 255, 255, 0.8)}
-    span.s1 {font-kerning: none; background-color: #000000}
-    span.s2 {font-kerning: none}
-    span.s3 {font-kerning: none; color: #fd8508; background-color: #000000; -webkit-text-stroke: 0px #fd8508}
-    span.s4 {font-kerning: none; background-color: rgba(0, 0, 0, 0.8)}
-    span.s5 {font-kerning: none; background-color: rgba(255, 255, 255, 0.051)}
-    span.s6 {font: 26.4px Helvetica; color: #fd8508; -webkit-text-stroke: 0px #000000}
-    span.s7 {font: 26.4px Helvetica; font-kerning: none; color: #fd8508; -webkit-text-stroke: 0px #fd8508}
-    span.s8 {font-kerning: none; color: #ffffff; background-color: rgba(255, 255, 255, 0.051); -webkit-text-stroke: 0px #ffffff}
-    span.s9 {font: 12.0px Helvetica; font-kerning: none; color: #ffffff; background-color: rgba(255, 255, 255, 0.051); -webkit-text-stroke: 0px #ffffff}
-    ul.ul1 {list-style-type: none}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FitTrack | Home</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
+ <!-- Google Fonts: Raleway & Open Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Open+Sans&display=swap" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Animate.css for animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <style>
+    /* ─── VARIABLES & RESET ─── */
+    :root {
+      --bg: #000;
+      --gold: #ff9800;
+      --white: #fff;
+      --font: 'Poppins', sans-serif;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: fixed; top:0; left:0; width:100%;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 2rem; background:rgba(0,0,0,0.8);
+      backdrop-filter: blur(6px); z-index:1000;
+      transition:background .3s, padding .3s;
+    }
+    nav.scrolled {
+      background:rgba(0,0,0,0.95); padding:.5rem 2rem;
+    }
+    .logo {
+      font-size:1.8rem; font-weight:700;
+      color: var(--gold);
+    }
+    .nav-links {
+      display:flex; gap:1.5rem;
+    }
+    .nav-links a {
+      display:flex; align-items:center; gap:.3rem;
+      font-weight:500; text-transform:uppercase;
+      position:relative; padding:.2rem 0;
+      transition: color .3s;
+    }
+    .nav-links a::after {
+      content:''; position:absolute; left:0; bottom:-3px;
+      width:0; height:2px; background:var(--gold);
+      transition: width .3s;
+    }
+    .nav-links a:hover {
+      color: var(--gold);
+    }
+    .nav-links a:hover::after {
+      width:100%;
+    }
+   .cta-btns button {
+      margin-left: 1rem;
+      padding: .5rem 1.2rem;
+      border: 2px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .3s;
+    }
+    .cta-btns button.primary {
+      background: var(--gold);
+      color: var(--bg);
+    }
+    .cta-btns button:hover {
+      transform: scale(1.05);
+    }
+    .nav-toggle {
+      display:none; font-size:1.5rem; cursor:pointer;
+    }
+
+    @media(max-width:900px){
+      .nav-links { 
+        position: fixed; top:0; right:-100%; height:100vh;
+        width:240px; background:rgba(0,0,0,0.95);
+        flex-direction:column; padding-top:5rem; gap:1.5rem;
+        transition:right .3s;
+      }
+      .nav-links.open { right:0; }
+      .cta-btns { display:none; }
+      .nav-toggle { display:block; }
+    }
+
+    /* ─── HERO ─── */
+    #hero {
+      height:100vh; display:flex; align-items:center; justify-content:center;
+      text-align:center; position:relative; padding:0 1rem;
+      overflow:hidden;
+    }
+    #hero h1 {
+      font-size:3rem; color:var(--gold);
+      line-height:1.2; z-index:2;
+    }
+    #hero p {
+      margin-top:.8rem; color:rgba(255,255,255,0.8);
+      max-width:600px; z-index:2;
+    }
+    .hero-buttons { margin-top:2rem; display:flex; gap:1rem; justify-content:center; z-index:2; }
+    .hero-screenshot {
+      position:absolute; bottom:5%; right:5%;
+      width:300px; border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.7);
+      animation: float 6s ease-in-out infinite;
+      z-index:1;
+    }
+    @keyframes float {
+      0%,100%{transform: translateY(0);}
+      50%{transform: translateY(-20px);}
+    }
+    .typewriter { display:inline-block; overflow:hidden; white-space:nowrap; border-right:.15em solid var(--gold); animation: typing 3s steps(30,end), blink .7s infinite; }
+    @keyframes typing { from{width:0;} to{width:100%;} }
+    @keyframes blink { 50%{border-color:transparent;} }
+
+    /* ─── FEATURES ─── */
+    #features {
+      padding:6rem 1rem; background: var(--bg);
+    }
+    .features-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:2rem;
+      max-width:1100px; margin:0 auto;
+    }
+    .feature-card {
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);
+      transition:transform .3s, box-shadow .3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow:0 12px 30px rgba(0,0,0,0.8);
+    }
+    .feature-card img {
+      width:100%; height:140px; object-fit:cover;
+    }
+    .feature-content {
+      padding:1rem 1.2rem;
+      text-align:center;
+    }
+    .feature-content i {
+      font-size:2rem; color:var(--gold); margin-bottom:.5rem;
+    }
+    .feature-content h3 {
+      font-size:1.2rem; margin-bottom:.3rem;
+    }
+    .feature-content p {
+      font-size:.9rem; color:rgba(255,255,255,0.8);
+    }
+
+    /* ─── TESTIMONIALS ─── */
+    #testimonials {
+      padding:4rem 1rem; background:rgba(0,0,0,0.9);
+    }
+    .testimonials-grid {
+      display:grid; grid-template-columns:1fr 1fr 1fr; gap:2rem;
+      max-width:1000px; margin:0 auto;
+    }
+    .testimonial {
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:1.5rem; position:relative; font-style:italic;
+      transition:transform .3s;
+    }
+    .testimonial:hover { transform: scale(1.03); }
+    .testimonial::before {
+      content:'“'; position:absolute; top:-10px; left:10px;
+      font-size:3rem; color:var(--gold); opacity:.4;
+    }
+    .testimonial p { margin-bottom:1rem; color:rgba(255,255,255,0.85); }
+    .testimonial h5 { text-align:right; color:var(--gold); font-weight:600; }
+
+    /* ─── PRICING ─── */
+    #pricing {
+      padding:4rem 1rem; background: var(--bg);
+    }
+    .pricing-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:2rem;
+      max-width:1000px; margin:0 auto;
+    }
+    .plan {
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:2rem; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.6);
+      transition:transform .3s, box-shadow .3s;
+      position:relative;
+    }
+    .plan:hover {
+      transform: translateY(-8px);
+      box-shadow:0 12px 30px rgba(0,0,0,0.8);
+    }
+    .plan i {
+      font-size:2.2rem; color:var(--gold); margin-bottom:.5rem;
+    }
+    .plan h3 { font-size:1.3rem; margin-bottom:.5rem; }
+    .plan .price {
+      font-size:2rem; font-weight:600; margin:1rem 0;
+    }
+    .plan ul {
+      list-style:none; margin-bottom:1.5rem;
+    }
+    .plan ul li {
+      display:flex; align-items:center; gap:.5rem; color:rgba(255,255,255,0.8);
+    }
+    .plan ul li i { color:var(--gold); }
+    .plan button {
+      padding:.6rem 1.2rem; border:none; border-radius:30px;
+      background:var(--gold); color:var(--bg); font-weight:600;
+      cursor:pointer; transition:transform .3s;
+    }
+    .plan button:hover { transform: scale(1.05); }
+
+    /* ─── CONTACT ─── */
+    #contact {
+      padding:4rem 1rem; background:rgba(0,0,0,0.9);
+    }
+    .contact-form {
+      max-width:500px; margin:0 auto;
+      display:flex; flex-direction:column; gap:1rem;
+    }
+    .contact-form input,
+    .contact-form textarea {
+      padding:.8rem; border-radius:6px;
+      border:1px solid rgba(255,255,255,0.3);
+      background:rgba(255,255,255,0.05); color:var(--white);
+      resize:none;
+    }
+    .contact-form button {
+      padding:.6rem 1.2rem; border:none; border-radius:30px;
+      background:var(--gold); color:var(--bg); font-weight:600;
+      cursor:pointer; transition:transform .3s;
+    }
+    .contact-form button:hover { transform: scale(1.05); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding:2rem 1rem; text-align:center;
+      border-top:2px solid var(--gold);
+    }
+    footer .socials a {
+      margin:0 .5rem; font-size:1.3rem; color:var(--gold);
+      transition:transform .3s;
+    }
+    footer .socials a:hover { transform: scale(1.2); }
+    footer p { margin-top:1rem; opacity:.6; }
+
+    /* ─── MODAL ─── */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.8);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; visibility:hidden; transition:all .3s; z-index:2000;
+    }
+    .modal-overlay.active {
+      opacity:1; visibility:visible;
+    }
+    .modal {
+      background:var(--bg); border:2px solid var(--gold);
+      border-radius:12px; padding:2rem; width:90%; max-width:360px;
+      transform: scale(0.8); transition:transform .3s;
+      box-shadow:0 10px 30px rgba(0,0,0,0.7);
+      position:relative;
+    }
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+    .modal h2 {
+      text-align:center; color:var(--gold); margin-bottom:1rem;
+    }
+    .modal input {
+      width:100%; padding:.8rem; margin-bottom:1rem;
+      border:1px solid rgba(255,255,255,0.3); border-radius:6px;
+      background:rgba(255,255,255,0.05); color:var(--white);
+    }
+    .modal .btn {
+      width:100%; padding:.8rem; border:none; border-radius:30px;
+      background:var(--gold); color:var(--bg); font-weight:600;
+      cursor:pointer; transition:transform .3s;
+    }
+    .modal .btn:hover { transform: scale(1.05); }
+    .modal .close {
+      position:absolute; top:1rem; right:1rem; font-size:1.2rem;
+      cursor:pointer; color:rgba(255,255,255,0.7);
+    }
+
+    @media(max-width:768px){
+      .features-grid, .testimonials-grid, .pricing-grid {
+        grid-template-columns:1fr !important;
+      }
+      #hero h1 { font-size:2.4rem; }
+      .hero-screenshot { display:none; }
+    }
   </style>
 </head>
 <body>
-<p class="p1"><span class="s1">×</span></p>
-<h2 style="margin: 0.0px 0.0px 12.0px 0.0px; text-align: center; font: 18.0px Helvetica; color: #fd8508; -webkit-text-stroke: #fd8508"><span class="s1"><b>Sign In</b></span></h2>
-<p class="p3"><span class="s2"><b>Sign In</b></span></p>
-<p class="p4"><span class="s1">Don’t have an account? </span><span class="s3">Sign Up</span><span class="s1"><span class="Apple-converted-space"> </span></span></p>
-<p class="p5"><span class="s4"><b>FitTrack</b></span></p>
-<p class="p6"><span class="s2"><i></i></span><br></p>
-<p class="p7"><span class="s2">HOME</span></p>
-<p class="p6"><span class="s2"><i></i></span><br></p>
-<p class="p7"><span class="s2">FEATURES</span></p>
-<p class="p6"><span class="s2"><i></i></span><br></p>
-<p class="p7"><span class="s2">PRICING</span></p>
-<p class="p6"><span class="s2"><i></i></span><br></p>
-<p class="p7"><span class="s2">TESTIMONIALS</span></p>
-<p class="p6"><span class="s2"><i></i></span><br></p>
-<p class="p7"><span class="s2">CONTACT</span></p>
-<p class="p8"><span class="s2"></span><br></p>
-<h1 style="margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; line-height: 43.2px; font: 36.0px Helvetica; color: #fd8508; -webkit-text-stroke: #fd8508; min-height: 43.0px"><span class="s2"><b></b></span><br></h1>
-<p class="p10"><span class="s2">Log workouts • Join challenges • Climb leaderboards • Stay motivated</span></p>
-<p class="p11"><span class="s2"></span><br></p>
-<p class="p11"><span class="s2"></span><br></p>
-<p class="p6"><span class="s2"></span><br></p>
-<h3 style="margin: 0.0px 0.0px 3.6px 0.0px; text-align: center; font: 14.4px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Speed Logging</b></span></h3>
-<p class="p13"><span class="s5">Record workouts in under 3 seconds—zero friction.</span></p>
-<p class="p6"><span class="s2"></span><br></p>
-<h3 style="margin: 0.0px 0.0px 3.6px 0.0px; text-align: center; font: 14.4px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Global Community</b></span></h3>
-<p class="p13"><span class="s5">Join &amp; create live challenges with friends worldwide.</span></p>
-<p class="p6"><span class="s2"></span><br></p>
-<h3 style="margin: 0.0px 0.0px 3.6px 0.0px; text-align: center; font: 14.4px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Real-Time Leaderboards</b></span></h3>
-<p class="p13"><span class="s5">See rankings update live as you compete.</span></p>
-<p class="p6"><span class="s2"></span><br></p>
-<h3 style="margin: 0.0px 0.0px 3.6px 0.0px; text-align: center; font: 14.4px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>AI Coaching</b></span></h3>
-<p class="p13"><span class="s5">Personalized workout suggestions powered by AI.</span></p>
-<p class="p6"><span class="s2"></span><br></p>
-<h3 style="margin: 0.0px 0.0px 3.6px 0.0px; text-align: center; font: 14.4px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Insightful Analytics</b></span></h3>
-<p class="p13"><span class="s5">Visualize progress with interactive charts.</span></p>
-<p class="p6"><span class="s2"></span><br></p>
-<h3 style="margin: 0.0px 0.0px 3.6px 0.0px; text-align: center; font: 14.4px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Customizable Plans</b></span></h3>
-<p class="p13"><span class="s5">Build workouts tailored to your goals.</span></p>
-<p class="p6"><span class="s2"></span><br></p>
-<h3 style="margin: 0.0px 0.0px 3.6px 0.0px; text-align: center; font: 14.4px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Challenge Modes</b></span></h3>
-<p class="p13"><span class="s5">Push-up sprints, distance runs, &amp; more.</span></p>
-<p class="p6"><span class="s2"></span><br></p>
-<h3 style="margin: 0.0px 0.0px 3.6px 0.0px; text-align: center; font: 14.4px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Achievements</b></span></h3>
-<p class="p13"><span class="s5">Earn badges for every milestone you hit.</span></p>
-<p class="p14"><span class="s5"><i>“The fastest logging ever! I never miss a rep.”</i></span></p>
-<h5 style="margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 10.0px Helvetica; color: #fd8508; -webkit-text-stroke: #fd8508"><span class="s5"><b><i>— Alex M.</i></b></span></h5>
-<p class="p14"><span class="s5"><i>“AI coach is spot on. My workouts have never been smarter.”</i></span></p>
-<h5 style="margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 10.0px Helvetica; color: #fd8508; -webkit-text-stroke: #fd8508"><span class="s5"><b><i>— Sarah K.</i></b></span></h5>
-<p class="p14"><span class="s5"><i>“The community challenges are insanely fun. Love it!”</i></span></p>
-<h5 style="margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 10.0px Helvetica; color: #fd8508; -webkit-text-stroke: #fd8508"><span class="s5"><b><i>— Jake P.</i></b></span></h5>
-<h3 style="margin: 0.0px 0.0px 6.0px 0.0px; text-align: center; font: 15.6px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Basic</b></span></h3>
-<p class="p17"><span class="s5"><b>$0/mo</b></span></p>
-<ul class="ul1">
-  <li class="li10"><span class="s6"><i></i></span><span class="s7"><i><br>
-</i></span><span class="s5">Speed Logging</span><span class="s8"> </span><span class="s7"><i><br>
-</i></span><span class="s5">Global Community</span><span class="s8"> </span><span class="s7"><i><br>
-</i></span><span class="s5">AI Coaching</span><span class="s8"><span class="Apple-converted-space"> </span></span></li>
-</ul>
-<p class="p18"><span class="s2"><b>Select</b></span><span class="s9"><span class="Apple-converted-space"> </span></span></p>
-<h3 style="margin: 0.0px 0.0px 6.0px 0.0px; text-align: center; font: 15.6px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Pro</b></span></h3>
-<p class="p17"><span class="s5"><b>$9.99/mo</b></span></p>
-<ul class="ul1">
-  <li class="li10"><span class="s6"><i></i></span><span class="s7"><i><br>
-</i></span><span class="s5">Everything in Basic</span><span class="s8"> </span><span class="s7"><i><br>
-</i></span><span class="s5">AI Coaching</span><span class="s8"> </span><span class="s7"><i><br>
-</i></span><span class="s5">Analytics Dashboard</span><span class="s8"><span class="Apple-converted-space"> </span></span></li>
-</ul>
-<p class="p18"><span class="s2"><b>Select</b></span><span class="s9"><span class="Apple-converted-space"> </span></span></p>
-<h3 style="margin: 0.0px 0.0px 6.0px 0.0px; text-align: center; font: 15.6px Helvetica; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s5"><b>Elite</b></span></h3>
-<p class="p17"><span class="s5"><b>$19.99/mo</b></span></p>
-<ul class="ul1">
-  <li class="li10"><span class="s6"><i></i></span><span class="s7"><i><br>
-</i></span><span class="s5">Everything in Pro</span><span class="s8"> </span><span class="s7"><i><br>
-</i></span><span class="s5">Personalized Plans</span><span class="s8"> </span><span class="s7"><i><br>
-</i></span><span class="s5">Premium Support</span><span class="s8"><span class="Apple-converted-space"> </span></span></li>
-</ul>
-<p class="p18"><span class="s2"><b>Select</b></span><span class="s9"><span class="Apple-converted-space"> </span></span></p>
-<p class="p19"><span class="s2"></span><br></p>
-<p class="p19"><span class="s2"></span><br></p>
-<p class="p18"><span class="s2"><b>Send Message</b></span></p>
-<p class="p11"><span class="s2"></span><br></p>
-<p class="p20"><span class="s2">© 2025 FitTrack. All rights reserved.</span></p>
+
+  <!-- SIGN-IN/SIGN-UP MODAL -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <span class="close" data-close>&times;</span>
+      <h2 id="modal-title">Sign In</h2>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button class="btn" id="modal-action">Sign In</button>
+      <p style="text-align:center; color:rgba(255,255,255,0.7);">
+        <span id="switch-text">Don’t have an account?</span>
+        <a href="#" id="switch-link" style="color:var(--gold);">Sign Up</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <div class="logo"><i class="fas fa-heartbeat"></i> FitTrack</div>
+    <div class="nav-links">
+      <a href="#hero"><i class="fas fa-home"></i> Home</a>
+      <a href="#features"><i class="fas fa-cubes"></i> Features</a>
+      <a href="#pricing"><i class="fas fa-tags"></i> Pricing</a>
+      <a href="#testimonials"><i class="fas fa-comments"></i> Testimonials</a>
+      <a href="#contact"><i class="fas fa-envelope"></i> Contact</a>
+    </div>
+    <div class="cta-btns">
+      <button class="primary" data-modal="signin"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+      <button data-modal="signup"><i class="fas fa-user-plus"></i> Sign Up</button>
+    </div>
+    <div class="nav-toggle"><i class="fas fa-bars"></i></div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div>
+      <h1>
+  <span id="typewriter" class="typewriter"></span>
+  <span class="cursor"></span>
+</h1>
+<p>Log workouts • Join challenges • Climb leaderboards • Stay motivated</p>
+      <br>
+      <div class="cta-btns">
+        <button class="primary" data-modal="signin"><i class="fas fa-sign-in-alt"></i> Get Started</button>
+        <button class="" data-modal="signup"><i class="fas fa-user-plus"></i> Join Free</button>
+      </div>
+    </div>
+    <img src="hero-screenshot.jpg" alt="App Screenshot" class="hero-screenshot">
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="features-grid">
+      <div class="feature-card" data-reveal>
+        <img src="feature-speed.jpg" alt="">
+        <div class="feature-content">
+          <i class="fas fa-bolt"></i>
+          <h3>Speed Logging</h3>
+          <p>Record workouts in under 3 seconds—zero friction.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-reveal>
+        <img src="feature-community.jpg" alt="">
+        <div class="feature-content">
+          <i class="fas fa-users"></i>
+          <h3>Global Community</h3>
+          <p>Join & create live challenges with friends worldwide.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-reveal>
+        <img src="feature-leaderboard.jpg" alt="">
+        <div class="feature-content">
+          <i class="fas fa-trophy"></i>
+          <h3>Real-Time Leaderboards</h3>
+          <p>See rankings update live as you compete.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-reveal>
+        <img src="feature-ai.jpg" alt="">
+        <div class="feature-content">
+          <i class="fas fa-robot"></i>
+          <h3>AI Coaching</h3>
+          <p>Personalized workout suggestions powered by AI.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-reveal>
+        <img src="feature-analytics.jpg" alt="">
+        <div class="feature-content">
+          <i class="fas fa-chart-line"></i>
+          <h3>Insightful Analytics</h3>
+          <p>Visualize progress with interactive charts.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-reveal>
+        <img src="feature-gears.jpg" alt="">
+        <div class="feature-content">
+          <i class="fas fa-cogs"></i>
+          <h3>Customizable Plans</h3>
+          <p>Build workouts tailored to your goals.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-reveal>
+        <img src="feature-pushups.jpg" alt="">
+        <div class="feature-content">
+          <i class="fas fa-hand-rock"></i>
+          <h3>Challenge Modes</h3>
+          <p>Push-up sprints, distance runs, & more.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-reveal>
+        <img src="feature-medal.jpg" alt="">
+        <div class="feature-content">
+          <i class="fas fa-medal"></i>
+          <h3>Achievements</h3>
+          <p>Earn badges for every milestone you hit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials">
+    <div class="testimonials-grid">
+      <div class="testimonial" data-reveal>
+        <p>“The fastest logging ever! I never miss a rep.”</p>
+        <h5>— Alex M.</h5>
+      </div>
+      <div class="testimonial" data-reveal>
+        <p>“AI coach is spot on. My workouts have never been smarter.”</p>
+        <h5>— Sarah K.</h5>
+      </div>
+      <div class="testimonial" data-reveal>
+        <p>“The community challenges are insanely fun. Love it!”</p>
+        <h5>— Jake P.</h5>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="pricing-grid">
+      <div class="plan" data-reveal>
+        <i class="fas fa-user"></i>
+        <h3>Basic</h3>
+        <p class="price">$0/mo</p>
+        <ul>
+          <li><i class="fas fa-check"></i> Speed Logging</li>
+          <li><i class="fas fa-check"></i> Global Community</li>
+          <li><i class="fas fa-times"></i> AI Coaching</li>
+        </ul>
+        <button>Select</button>
+      </div>
+      <div class="plan" data-reveal>
+        <i class="fas fa-user-plus"></i>
+        <h3>Pro</h3>
+        <p class="price">$9.99/mo</p>
+        <ul>
+          <li><i class="fas fa-check"></i> Everything in Basic</li>
+          <li><i class="fas fa-check"></i> AI Coaching</li>
+          <li><i class="fas fa-check"></i> Analytics Dashboard</li>
+        </ul>
+        <button>Select</button>
+      </div>
+      <div class="plan" data-reveal>
+        <i class="fas fa-user-shield"></i>
+        <h3>Elite</h3>
+        <p class="price">$19.99/mo</p>
+        <ul>
+          <li><i class="fas fa-check"></i> Everything in Pro</li>
+          <li><i class="fas fa-check"></i> Personalized Plans</li>
+          <li><i class="fas fa-check"></i> Premium Support</li>
+        </ul>
+        <button>Select</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <form class="contact-form" data-reveal>
+      <input type="text" placeholder="Name" required>
+      <input type="email" placeholder="Email" required>
+      <textarea rows="4" placeholder="Message" required></textarea>
+      <button>Send Message</button>
+    </form>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="socials">
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-telegram"></i></a>
+    </div>
+    <p>&copy; 2025 FitTrack. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // NAVBAR SCROLL
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', ()=> {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // MOBILE MENU
+    document.querySelector('.nav-toggle').addEventListener('click', ()=> {
+      document.querySelector('.nav-links').classList.toggle('open');
+    });
+
+    // TYPEWRITER
+    // (we reused CSS animation on .typewriter)
+ /* TYPEWRITER */
+    const texts = [
+      "Welcome to FitTrack",
+      "Log Every Workout",
+      "Join Fun Challenges",
+      "Climb the Leaderboards"
+    ];
+    let idx = 0, chr = 0;
+    function type() {
+      const el = document.getElementById("typewriter");
+      if (chr < texts[idx].length) {
+        el.textContent += texts[idx][chr++];
+        setTimeout(type, 100);
+      } else {
+        setTimeout(erase, 2000);
+      }
+    }
+    function erase() {
+      const el = document.getElementById("typewriter");
+      if (chr > 0) {
+        el.textContent = texts[idx].substring(0, --chr);
+        setTimeout(erase, 50);
+      } else {
+        idx = (idx + 1) % texts.length;
+        setTimeout(type, 500);
+      }
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(type, 500);
+
+    // MODAL LOGIC
+    const modal = document.getElementById('modal'),
+          title = document.getElementById('modal-title'),
+          action = document.getElementById('modal-action'),
+          switchLink = document.getElementById('switch-link'),
+          switchText = document.getElementById('switch-text');
+
+    document.querySelectorAll('[data-modal]').forEach(btn=>{
+      btn.addEventListener('click', e=>{
+        e.preventDefault();
+        const mode = btn.dataset.modal; // "signin" or "signup"
+        title.textContent = mode === 'signup' ? 'Sign Up' : 'Sign In';
+        action.textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
+        switchLink.textContent = mode === 'signup' ? 'Sign In' : 'Sign Up';
+        switchLink.dataset.mode = mode === 'signup' ? 'signin' : 'signup';
+        switchText.textContent = mode === 'signup'
+          ? 'Already have an account?'
+          : 'Don’t have an account?';
+        modal.classList.add('active');
+      });
+    });
+    document.querySelectorAll('[data-close], .close').forEach(el=>{
+      el.addEventListener('click', ()=> modal.classList.remove('active'));
+    });
+   document.querySelector(
+  '[data-modal="' + switchLink.dataset.mode + '"]'
+).click();
+
+    window.addEventListener('keydown', e=> e.key==='Escape' && modal.classList.remove('active'));
+
+    // SCROLL REVEAL
+    document.querySelectorAll('[data-reveal]').forEach(el=>{
+      new IntersectionObserver(entries=>{
+        entries.forEach(ent=>{
+          if(ent.isIntersecting) {
+            ent.target.style.opacity = 1;
+            ent.target.style.transform = 'translateY(0)';
+            ent.target._obs.disconnect();
+          }
+        });
+      },{threshold:0.2})
+      .observe((el._obs = el));
+      // initial hidden
+      el.style.opacity = 0;
+      el.style.transform = 'translateY(30px)';
+    });
+});
+  </script>
 </body>
 </html>
