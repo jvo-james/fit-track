@@ -175,6 +175,8 @@
       header { flex-direction: column; align-items: flex-start; }
     }
   </style>
+    <script src="storage.js"></script>
+
 </head>
 <body>
 
@@ -239,6 +241,9 @@
   </div>
 
   <script>
+    FT.applyTheme();
+FT.updateStats();
+
     document.addEventListener('DOMContentLoaded', () => {
       // Load users & current from localStorage
       const allUsers = JSON.parse(localStorage.getItem('ft_users') || '[]');
@@ -252,6 +257,10 @@
         score: u.lastScore || 0,
         delta: u.lastDelta || 0
       }));
+const avatarUrl = FT.cur.avatarDataUrl
+  || `https://i.pravatar.cc/150?u=${FT.cur.email}`;
+document.querySelector('#yourRank img').src = avatarUrl;
+FT.renderGreeting(document.getElementById('headerGreeting'));
 
       // Simple dummy achievements & challenges
       const achievements = [
