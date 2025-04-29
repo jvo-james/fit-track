@@ -559,12 +559,19 @@
     }
   }
 
-  // ─── MAIN INITIALIZER ───
-  document.addEventListener('DOMContentLoaded', () => {
-    // Start the typewriter effect
-    setTimeout(type, 500);
+  // ─── USER DB HELPERS ───
+  function getUsers() {
+    return JSON.parse(localStorage.getItem('ft_users') || '[]');
+  }
+  function saveUsers(users) {
+    localStorage.setItem('ft_users', JSON.stringify(users));
+  }
 
-    // Modal elements
+  // ─── MAIN INIT ───
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(type, 500);  // start typewriter
+
+    // modal elements
     const modal        = document.getElementById('modal');
     const title        = document.getElementById('modal-title');
     const actionBtn    = document.getElementById('modal-action');
@@ -575,7 +582,7 @@
     const passInput    = document.getElementById('password');
     const confirmInput = document.getElementById('confirm-password');
 
-    // Open Sign-In / Sign-Up modal
+    // open modal
     document.querySelectorAll('[data-modal]').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
@@ -593,74 +600,59 @@
       });
     });
 
-    // Handle Sign-In / Sign-Up submit
-    actionBtn.addEventListener('click', async e => {
+    // sign-in / sign-up handler
+    actionBtn.addEventListener('click', e => {
       e.preventDefault();
-
       const mode = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
-      const url  = mode === 'signup' ? '/api/signup' : '/api/signin';
-      const payload = mode === 'signup'
-        ? {
-            name: nameInput.value.trim(),
-            email: emailInput.value.trim(),
-            password: passInput.value
-          }
-        : {
-            email: emailInput.value.trim(),
-            password: passInput.value
-          };
+      const name  = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const pass  = passInput.value;
+      const conf  = confirmInput.value;
 
-      // Basic front-end validation
-      if (!payload.email || !payload.password ||
-         (mode === 'signup' && (!payload.name || confirmInput.value.trim() !== payload.password))) {
-        return alert('Please fill in all fields correctly.');
+      // basic validation
+      if (!email || !pass || (mode === 'signup' && (!name || !conf))) {
+        return alert('All fields are required.');
       }
+      if (mode === 'signup' && pass !== conf) {
+        return alert('Passwords do not match.');
+      }
+      const users = getUsers();
 
-      try {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        // Guard against non-JSON responses
-        let data, text;
-        const ct = res.headers.get('content-type') || '';
-        if (ct.includes('application/json')) {
-          data = await res.json();
-        } else {
-          text = await res.text();
+      if (mode === 'signup') {
+        if (users.find(u => u.email === email)) {
+          return alert('That email is already registered.');
         }
-
-        if (!res.ok) {
-          const errMsg = (data && data.error) || text || `Server returned ${res.status}`;
-          throw new Error(errMsg);
-        }
-
-        // On success, store { name, isNew } and redirect
-        const userName = (data && data.name) ? data.name : payload.name;
-        localStorage.setItem('ft_current',
-          JSON.stringify({ name: userName, isNew: mode === 'signup' })
-        );
+        // register new user
+        users.push({ name, email, password: pass });
+        saveUsers(users);
+        localStorage.setItem('ft_current', JSON.stringify({ name, isNew: true }));
         window.location.href = 'dashboard.html';
-
-      } catch (err) {
-        alert(err.message);
+      } else {
+        // sign in
+        const user = users.find(u => u.email === email);
+        if (!user) {
+          return alert('No account found with that email.');
+        }
+        if (user.password !== pass) {
+          return alert('Incorrect password.');
+        }
+        localStorage.setItem('ft_current', JSON.stringify({ name: user.name, isNew: false }));
+        window.location.href = 'dashboard.html';
       }
     });
 
-    // Toggle between Sign-Up / Sign-In
+    // toggle between Sign In / Sign Up links
     switchLink.addEventListener('click', e => {
       e.preventDefault();
       document.querySelector(`[data-modal="${switchLink.dataset.mode}"]`).click();
     });
 
-    // Close modal
+    // close modal
     document.querySelectorAll('[data-close], .close').forEach(el =>
       el.addEventListener('click', () => modal.classList.remove('active'))
     );
 
-    // Scroll-Reveal for feature/testimonial/etc. cards
+    // scroll-reveal
     document.querySelectorAll('[data-reveal]').forEach(el => {
       const obs = new IntersectionObserver(entries => {
         entries.forEach(entry => {
