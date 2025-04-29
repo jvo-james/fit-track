@@ -47,6 +47,7 @@
       align-items:center;
       padding:1rem 0;
       transition:transform .3s;
+            color: var(--white);              
     }
     .sidebar.hide { transform: translateX(-100%); }
     .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
@@ -69,7 +70,10 @@
     }
     .menu-item i { font-size:1.4rem; }
     .menu-item span { display:block; font-size:0.6rem; margin-top:0.2rem; }
-
+ .menu-item i,
+    .menu-item span {
+      color: inherit;                  /* white */
+    }
     .sign-in-btn {
       margin-top:auto; margin-bottom:1rem;
       background:var(--gold); width:50px; height:50px; border-radius:50%;
@@ -344,12 +348,13 @@
   </div>
 
   <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 1) Load user + stats from localStorage
       const stored = JSON.parse(localStorage.getItem('ft_current'));
       if (!stored) return window.location.href = 'home.html';
+
       const {
         name,
         isNew,
@@ -384,7 +389,7 @@
       document.getElementById('progressBar').style.width = progress + '%';
 
       // 5) Challenges
-      challenges.forEach((pct,i) => {
+      challenges.forEach((pct, i) => {
         document.getElementById(`challenge${i+1}`).textContent = pct + '%';
       });
 
@@ -410,31 +415,55 @@
       });
 
       // 8) Charts
-      new Chart(document.getElementById('activityChart').getContext('2d'), {
-        type: 'line',
-        data: { labels: chartData.labels, datasets:[{ label:'Activity', data:chartData.activity, fill:false, tension:0.1 }] },
-        options:{ responsive:true, maintainAspectRatio:false }
-      });
-      new Chart(document.getElementById('distributionChart').getContext('2d'), {
-        type: 'pie',
-        data: { labels:['Cardio','Strength','Flexibility','Other'], datasets:[{ data: chartData.distribution }] },
-        options:{ responsive:true, maintainAspectRatio:false }
+      new Chart(
+        document.getElementById('activityChart').getContext('2d'),
+        {
+          type: 'line',
+          data: {
+            labels: chartData.labels,
+            datasets: [{
+              label: 'Activity',
+              data: chartData.activity,
+              fill: false,
+              tension: 0.1
+            }]
+          },
+          options: { responsive:true, maintainAspectRatio:false }
+        }
+      );
+      new Chart(
+        document.getElementById('distributionChart').getContext('2d'),
+        {
+          type: 'pie',
+          data: {
+            labels: ['Cardio','Strength','Flexibility','Other'],
+            datasets: [{ data: chartData.distribution }]
+          },
+          options: { responsive:true, maintainAspectRatio:false }
+        }
+      );
+
+      // 9) Logout button
+      const logout = document.querySelector('.sign-in-btn');
+      logout.addEventListener('click', () => window.location.href = 'home.html');
+      logout.addEventListener('keydown', e => {
+        if (['Enter',' '].includes(e.key)) logout.click();
       });
 
-      // 9) Logout & keyboard nav
-      const logout = document.querySelector('.sign-in-btn');
-      logout.addEventListener('click', () => window.location.href='home.html');
-      logout.addEventListener('keydown', e => { if (['Enter',' '].includes(e.key)) logout.click(); });
-      document.querySelectorAll('.menu-item').forEach(it => {
-        it.addEventListener('keydown', e => { if (['Enter',' '].includes(e.key)) it.click(); });
-         // 10) Make “New Workout” button navigate:
+      // 10) Sidebar keyboard nav
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('keydown', e => {
+          if (['Enter',' '].includes(e.key)) item.click();
+        });
+      });
+
+      // 11) New Workout navigation
       const newWorkout = document.querySelector('.new-workout');
       newWorkout.addEventListener('click', () => {
         window.location.href = 'new-workout.html';
       });
       newWorkout.addEventListener('keydown', e => {
-        if (['Enter', ' '].includes(e.key)) newWorkout.click();
-    
+        if (['Enter',' '].includes(e.key)) newWorkout.click();
       });
     });
   </script>
