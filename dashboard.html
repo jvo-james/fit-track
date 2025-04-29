@@ -229,30 +229,35 @@
 </head>
 <body>
 
-  <aside class="sidebar" role="navigation" aria-label="Main sidebar">
+<aside class="sidebar" role="navigation" aria-label="Main sidebar">
     <div class="logo" aria-hidden="true"><i class="fas fa-heartbeat"></i></div>
 
-    <div class="menu-item active" role="button" tabindex="0" aria-label="Dashboard"><a href="https://jvo-james.github.io/fit-track/dashboard.html">
-      <i class="fas fa-tachometer-alt" aria-hidden="true"></i><span>Dash</span></a>
-    </div>
-    <div class="menu-item" role="button" tabindex="0" aria-label="Workouts"><a href="https://jvo-james.github.io/fit-track/log.html">
-      <i class="fas fa-dumbbell" aria-hidden="true"></i><span>Workouts</span></a>
-    </div>
-    <div class="menu-item" role="button" tabindex="0" aria-label="Challenges">
-      <i class="fas fa-flag-checkered" aria-hidden="true"></i><span>Challenges</span>
-    </div>
-    <div class="menu-item" role="button" tabindex="0" aria-label="Reports">
-      <i class="fas fa-chart-line" aria-hidden="true"></i><span>Reports</span>
-    </div>
-    <div class="menu-item" role="button" tabindex="0" aria-label="Profile">
-      <i class="fas fa-user-circle" aria-hidden="true"></i><span>Profile</span>
-    </div>
+    <!-- all menu items are now anchors, inheriting your styles -->
+    <a href="dashboard.html" class="menu-item active" aria-label="Dashboard">
+      <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+      <span>Dash</span>
+    </a>
+    <a href="log.html" class="menu-item" aria-label="Workouts">
+      <i class="fas fa-dumbbell" aria-hidden="true"></i>
+      <span>Workouts</span>
+    </a>
+    <a href="challenges.html" class="menu-item" aria-label="Challenges">
+      <i class="fas fa-flag-checkered" aria-hidden="true"></i>
+      <span>Challenges</span>
+    </a>
+    <a href="reports.html" class="menu-item" aria-label="Reports">
+      <i class="fas fa-chart-line" aria-hidden="true"></i>
+      <span>Reports</span>
+    </a>
+    <a href="profile.html" class="menu-item" aria-label="Profile">
+      <i class="fas fa-user-circle" aria-hidden="true"></i>
+      <span>Profile</span>
+    </a>
 
     <div class="sign-in-btn" role="button" tabindex="0" aria-label="Logout">
       <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
     </div>
   </aside>
-
   <div class="main" role="main">
     <header>
       <h1 id="greeting">Loading…</h1>
