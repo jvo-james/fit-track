@@ -4,20 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FitTrack | Log Activity</title>
-
+  <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet" />
- <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
- <!-- Google Fonts: Raleway & Open Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Open+Sans&display=swap" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Animate.css for animations -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     :root {
       --bg: #000;
@@ -25,331 +23,431 @@
       --white: #fff;
       --font: 'Raleway', sans-serif;
     }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display: flex;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--white);
-      font-family: var(--font);
-      overflow-y: auto;
+      display:flex;
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--white);
+      font-family:var(--font);
     }
 
-    /* ─── SIDEBAR ─── */
+    /* ─── SIDEBAR (identical to dashboard) ───────────────── */
     .sidebar {
-      width: 80px;
-      background: rgba(0,0,0,0.9);
-      border-right: 2px solid var(--gold);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 1rem 0;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      z-index: 1000;
+      position:sticky;
+      top:0;
+      height:100vh;
+      width:80px;
+      background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:1rem 0;
+      z-index:1000;
+      color:var(--white);
     }
-    .logo {
-      font-size: 1.5rem;
-      color: var(--gold);
-      margin-bottom: 2rem;
-    }
+    .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
     .menu-item {
-      width: 100%;
-      text-align: center;
-      padding: 1rem 0;
-      transition: background .2s;
+      width:100%; text-align:center; padding:1rem 0; transition:background .2s;
     }
     .menu-item:hover,
-    .menu-item.active {
-      background: rgba(255,152,0,0.2);
+    .menu-item.active { background:rgba(255,152,0,0.2); }
+    .menu-item a {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      width:100%; height:100%; color:inherit; text-decoration:none;
     }
-    .menu-item i {
-      font-size: 1.4rem;
-    }
-    .menu-item span {
-      display: block;
-      font-size: .6rem;
-      margin-top: .2rem;
-    }
+    .menu-item i, .menu-item span { color:inherit; }
     .sign-in-btn {
-      margin-top: auto;
-      margin-bottom: 1rem;
-      width: 50px;
-      height: 50px;
-      background: var(--gold);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 10px var(--gold);
-      transition: transform .2s;
+      margin-top:auto; margin-bottom:1rem;
+      width:50px; height:50px; background:var(--gold); border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; box-shadow:0 0 10px var(--gold); transition:transform .2s;
     }
-    .sign-in-btn:hover {
-      transform: scale(1.1);
-    }
+    .sign-in-btn:hover { transform:scale(1.1); }
 
-    /* ─── MAIN AREA ─── */
+    /* ─── MAIN AREA ─────────────────────────────── */
     .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+      flex:1; display:flex; flex-direction:column; overflow-y:auto;
     }
+    /* sticky header just in case you want to reuse it */
     header {
-      position: sticky;
-      top: 0;
-      background: rgba(0,0,0,0.9);
-      border-bottom: 2px solid var(--gold);
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: .5rem;
-      z-index: 500;
+      position:sticky; top:0; z-index:200;
+      background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold);
+      padding:1rem 1.5rem; display:flex; align-items:center; gap:1rem;
     }
-    header h1 {
-      font-size: 1.6rem;
+    header h1 { font-size:1.5rem; }
+    header .tagline { color:rgba(255,255,255,0.7); font-size:0.9rem; }
+
+    /* ─── STATS ➔ PROGRESS ➔ CHARTS ───────────────── */
+    .stats, .charts {
+      display:grid; gap:1.5rem; padding:1.5rem;
     }
-    header button {
-      align-self: flex-start;
-      background: var(--gold);
-      color: var(--bg);
-      border: none;
-      padding: .5rem 1rem;
-      border-radius: 30px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: transform .2s;
+    .stats { grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); }
+    .stat-card {
+      background:rgba(255,255,255,0.05); padding:1.2rem;
+      border-radius:12px; text-align:center;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      transition:transform .2s;
     }
-    header button:hover {
-      transform: scale(1.05);
+    .stat-card:hover { transform:translateY(-4px); }
+    .stat-card i { font-size:1.8rem; color:var(--gold); margin-bottom:.4rem; }
+    .stat-card h3 { font-size:1.3rem; margin-bottom:.2rem; }
+    .stat-card p { color:rgba(255,255,255,0.8); }
+
+    .progress {
+      background:rgba(255,255,255,0.05); margin:0 1.5rem 1.5rem;
+      padding:1rem; border-radius:12px;
+    }
+    .progress h3 {
+      display:flex; align-items:center; gap:.5rem;
+      color:var(--gold); font-size:1.1rem; margin-bottom:.6rem;
+    }
+    .bar-container {
+      background:rgba(255,255,255,0.1); border-radius:6px;
+      overflow:hidden; height:12px;
+    }
+    .bar-fill {
+      width:0; height:100%; background:var(--gold);
+      transition:width 1s ease;
     }
 
-    .content {
-      padding: 1.5rem;
-      flex: 1;
+    .charts { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); padding:0 1.5rem 1.5rem; }
+    .chart-card {
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      transition:transform .2s;
     }
+    .chart-card:hover { transform:translateY(-4px); }
+    .chart-card h3 {
+      display:flex; align-items:center; gap:.5rem;
+      color:var(--gold); font-size:1.1rem; margin-bottom:.6rem;
+    }
+    .chart-card canvas { width:100% !important; height:250px !important; }
 
-    /* ─── LOG FORM ─── */
+    /* ─── LOG FORM ─────────────────────────────── */
+    .log-section {
+      background:rgba(255,255,255,0.05); margin:1.5rem; padding:1.5rem;
+      border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    .log-section h2 { color:var(--gold); margin-bottom:1rem; }
     form {
-      max-width: 400px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+      display:grid; gap:1rem;
+      grid-template-columns:1fr 1fr;
     }
-    form label {
-      font-weight: 600;
+    form label { font-weight:600; grid-column:span 2; }
+    form input, form select, form textarea {
+      padding:.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.3);
+      background:rgba(255,255,255,0.05); color:var(--white); font-size:1rem;
+      grid-column:span 2;
     }
-    form input,
-    form select,
-    form textarea {
-      padding: .8rem;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.05);
-      color: var(--white);
-      font-size: 1rem;
-    }
-    form textarea {
-      resize: vertical;
+    form textarea { resize:vertical; grid-column:span 2; }
+    /* pair duration & distance/calories side by side */
+    input#duration, input#distance, input#calories {
+      grid-column:auto;
     }
     form button {
-      padding: .8rem;
-      border: none;
-      border-radius: 30px;
-      background: var(--gold);
-      color: var(--bg);
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform .2s;
+      padding:.8rem; border:none; border-radius:30px;
+      background:var(--gold); color:var(--bg);
+      font-weight:600; cursor:pointer; transition:transform .2s;
+      grid-column:span 2;
     }
-    form button:hover {
-      transform: scale(1.05);
-    }
+    form button:hover { transform:scale(1.03); }
 
-    /* ─── ACTIVITY LIST ─── */
+    /* ─── ACTIVITY LIST ───────────────────────── */
     .activities {
-      margin-top: 2rem;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+      margin:0 1.5rem 1.5rem;
     }
     .activities h2 {
-      margin-bottom: .75rem;
-      color: var(--gold);
-      font-size: 1.3rem;
+      color:var(--gold); margin-bottom:.75rem; font-size:1.3rem;
     }
-    .activity-list {
-      list-style: none;
-    }
+    .activity-list { list-style:none; }
     .activity-item {
-      background: rgba(255,255,255,0.05);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: .5rem;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: .5rem;
+      background:rgba(255,255,255,0.05); border-radius:8px;
+      padding:1rem; margin-bottom:.6rem;
+      display:grid; grid-template-columns:1fr auto; gap:.5rem;
     }
-    .activity-item time {
-      font-size: .75rem;
-      opacity: .6;
-    }
+    .activity-item time { font-size:.75rem; opacity:.6; }
     .delete-btn {
-      background: transparent;
-      border: none;
-      color: var(--gold);
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: transform .2s;
+      background:transparent; border:none;
+      color:var(--gold); font-size:1.2rem; cursor:pointer;
+      transition:transform .2s;
     }
-    .delete-btn:hover {
-      transform: scale(1.2);
-    }
+    .delete-btn:hover { transform:scale(1.2); }
 
-    /* ─── RESPONSIVE ─── */
-    @media(max-width: 900px) {
-      .sidebar { position: fixed; }
-      .main { margin-left: 80px; }
-    }
-    @media(max-width: 600px) {
-      header { padding: 1rem; }
-      form { width: 100%; padding: 0 1rem; }
+    @media(max-width:900px){
+      .sidebar { position:fixed; }
+      .main { margin-left:80px; }
+      form { grid-template-columns:1fr; }
+      input#duration,input#distance,input#calories { grid-column:span 1; }
     }
   </style>
 </head>
-
 <body>
+
   <aside class="sidebar" role="navigation" aria-label="Main sidebar">
     <div class="logo" aria-hidden="true"><i class="fas fa-heartbeat"></i></div>
-    <a href="https://jvo-james.github.io/fit-track/dashboard.html" class="menu-item" aria-label="Dashboard">
-      <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
-      <span>Dash</span>
+    <a href="dashboard.html" class="menu-item" aria-label="Dashboard">
+      <i class="fas fa-tachometer-alt"></i><span>Dash</span>
     </a>
-    <a href="https://jvo-james.github.io/fit-track/log.html" class="menu-item active" aria-label="Log Activity">
-      <i class="fas fa-pen" aria-hidden="true"></i>
-      <span>Log</span>
+    <a href="log.html" class="menu-item active" aria-label="Log Activity">
+      <i class="fas fa-pen"></i><span>Log</span>
     </a>
-    <a href="https://jvo-james.github.io/fit-track/workouts.html" class="menu-item" aria-label="Workouts & Challenges">
-      <i class="fas fa-tasks" aria-hidden="true"></i>
-      <span>Workouts</span>
+    <a href="workouts.html" class="menu-item" aria-label="Workouts & Challenges">
+      <i class="fas fa-tasks"></i><span>Workouts</span>
     </a>
-    <a href="https://jvo-james.github.io/fit-track/leaderboard.html" class="menu-item" aria-label="Leaderboard">
-      <i class="fas fa-trophy" aria-hidden="true"></i>
-      <span>Board</span>
+    <a href="leaderboard.html" class="menu-item" aria-label="Leaderboard">
+      <i class="fas fa-trophy"></i><span>Board</span>
     </a>
-    <a href="https://jvo-james.github.io/fit-track/profile.html" class="menu-item" aria-label="Profile">
-      <i class="fas fa-user-circle" aria-hidden="true"></i>
-      <span>Profile</span>
+    <a href="profile.html" class="menu-item" aria-label="Profile">
+      <i class="fas fa-user-circle"></i><span>Profile</span>
     </a>
-    <a href="https://jvo-james.github.io/fit-track/home.html" class="sign-in-btn" aria-label="Logout">
-      <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+    <a href="home.html" class="sign-in-btn" aria-label="Logout">
+      <i class="fas fa-sign-out-alt"></i>
     </a>
   </aside>
 
   <div class="main" role="main">
-    <header>
-      <h1>Log New Activity</h1>
-      <button class="new-workout" aria-label="Log a workout">+ Log Activity</button>
-    </header>
 
-    <div class="content">
-      <form id="logForm" aria-label="Activity log form">
+    <!-- STATS -->
+    <section class="stats">
+      <div class="stat-card">
+        <i class="fas fa-dumbbell"></i>
+        <h3 id="statWorkouts">0</h3>
+        <p>Workouts This Month</p>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-road"></i>
+        <h3 id="statDistance">0 km</h3>
+        <p>Total Distance</p>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-fire"></i>
+        <h3 id="statCalories">0</h3>
+        <p>Calories Burned</p>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-calendar-day"></i>
+        <h3 id="statDays">0</h3>
+        <p>Active Days</p>
+      </div>
+    </section>
+
+    <!-- WEEKLY PROGRESS -->
+    <section class="progress" aria-label="Weekly goal progress">
+      <h3><i class="fas fa-chart-line"></i> This Week’s Goal</h3>
+      <div class="bar-container"><div class="bar-fill" id="statProgress"></div></div>
+    </section>
+
+    <!-- CHARTS -->
+    <section class="charts">
+      <div class="chart-card">
+        <h3><i class="fas fa-chart-line"></i> Activity Over Time</h3>
+        <canvas id="chartTime"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-chart-pie"></i> Type Distribution</h3>
+        <canvas id="chartType"></canvas>
+      </div>
+    </section>
+
+    <!-- LOG FORM -->
+    <section class="log-section">
+      <h2><i class="fas fa-pen"></i> Log New Activity</h2>
+      <form id="logForm">
         <label for="date">Date</label>
         <input type="date" id="date" required />
 
-        <label for="type">Activity Type</label>
+        <label for="type">Type</label>
         <select id="type" required>
-          <option value="">Select type</option>
+          <option value="">Choose…</option>
           <option>Running</option>
           <option>Cycling</option>
           <option>Swimming</option>
-          <option>Strength Training</option>
+          <option>Strength</option>
           <option>Yoga</option>
         </select>
 
-        <label for="duration">Duration (minutes)</label>
+        <label for="duration">Duration (min)</label>
         <input type="number" id="duration" min="1" required />
 
         <label for="distance">Distance (km)</label>
         <input type="number" id="distance" min="0" step="0.01" />
 
+        <label for="calories">Calories Burned</label>
+        <input type="number" id="calories" min="0" />
+
         <label for="notes">Notes</label>
-        <textarea id="notes" rows="3" placeholder="Optional notes"></textarea>
+        <textarea id="notes" rows="2" placeholder="Optional"></textarea>
 
         <button type="submit">Save Activity</button>
       </form>
+    </section>
 
-      <section class="activities" aria-label="Logged activities">
-        <h2>My Activities</h2>
-        <ul id="activityList" class="activity-list"></ul>
-      </section>
-    </div>
+    <!-- ACTIVITY LIST -->
+    <section class="activities">
+      <h2><i class="fas fa-list"></i> My Activities</h2>
+      <ul id="activityList" class="activity-list"></ul>
+    </section>
+
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('logForm');
-      const list = document.getElementById('activityList');
+      // utility to load/save JSON arrays
+      const load = (key) => {
+        try { return JSON.parse(localStorage.getItem(key)) || []; }
+        catch { return []; }
+      };
+      const save = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-      function loadActivities() {
-        const data = JSON.parse(localStorage.getItem('ft_activities') || '[]');
-        return Array.isArray(data) ? data : [];
+      // get ft_current or initialize
+      let ftCur = {};
+      try { ftCur = JSON.parse(localStorage.getItem('ft_current')) || {}; }
+      catch { ftCur = {}; }
+      if (!ftCur.stats) {
+        ftCur.stats = { workouts:0, distanceKm:0, calories:0, daysSet:[] };
       }
 
-      function saveActivities(activities) {
-        localStorage.setItem('ft_activities', JSON.stringify(activities));
+      // DOM refs
+      const f = document.getElementById('logForm');
+      const listEl = document.getElementById('activityList');
+      const S = {
+        w: document.getElementById('statWorkouts'),
+        d: document.getElementById('statDistance'),
+        c: document.getElementById('statCalories'),
+        a: document.getElementById('statDays'),
+        p: document.getElementById('statProgress'),
+      };
+
+      // chart placeholders
+      let chartTime, chartType;
+
+      function updateStatsAndCharts() {
+        const acts = load('ft_activities');
+        // stats
+        const workouts = acts.length;
+        const totalDist = acts.reduce((sum, a) => sum + (parseFloat(a.distance)||0), 0);
+        const totalCal = acts.reduce((sum, a) => sum + (parseFloat(a.calories)||0), 0);
+        const daySet = new Set(acts.map(a => a.date));
+        const days = daySet.size;
+
+        // update ft_current.stats
+        ftCur.stats = {
+          workouts,
+          distanceKm: totalDist,
+          calories: totalCal,
+          daysSet: Array.from(daySet)
+        };
+        localStorage.setItem('ft_current', JSON.stringify(ftCur));
+
+        // DOM
+        S.w.textContent = workouts;
+        S.d.textContent = totalDist.toFixed(2) + ' km';
+        S.c.textContent = totalCal;
+        S.a.textContent = days;
+
+        // weekly progress: e.g. goal = 5 workouts/week
+        const thisWeek = acts.filter(a => {
+          const ad = new Date(a.date);
+          const now = new Date();
+          const diff = (now - ad) / (1000*60*60*24);
+          return diff <= 7;
+        }).length;
+        const pct = Math.min(100, Math.round((thisWeek/5)*100));
+        S.p.style.width = pct + '%';
+
+        // prepare data for “time” chart (last 7 days)
+        const labels = [];
+        const dataTime = [];
+        for(let i=6;i>=0;i--){
+          const d = new Date();
+          d.setDate(d.getDate()-i);
+          const key = d.toISOString().slice(0,10);
+          labels.push(key.slice(5)); // MM-DD
+          const sumDur = acts
+            .filter(a=>a.date===key)
+            .reduce((s,a)=>s + (parseFloat(a.duration)||0), 0);
+          dataTime.push(sumDur);
+        }
+        if (chartTime) chartTime.destroy();
+        chartTime = new Chart(
+          document.getElementById('chartTime').getContext('2d'),
+          {
+            type:'line',
+            data:{ labels, datasets:[{ label:'Min', data:dataTime, fill:false, tension:0.3 }] },
+            options:{ responsive:true, maintainAspectRatio:false }
+          }
+        );
+
+        // type distribution
+        const counts = acts.reduce((o,a)=>{
+          o[a.type] = (o[a.type]||0)+1; return o;
+        }, {});
+        if (chartType) chartType.destroy();
+        chartType = new Chart(
+          document.getElementById('chartType').getContext('2d'),
+          {
+            type:'pie',
+            data:{
+              labels:Object.keys(counts),
+              datasets:[{ data:Object.values(counts) }]
+            },
+            options:{ responsive:true, maintainAspectRatio:false }
+          }
+        );
       }
 
-      function renderActivities() {
-        list.innerHTML = '';
-        const activities = loadActivities();
-        activities.forEach((act, idx) => {
+      function renderList() {
+        listEl.innerHTML = '';
+        const acts = load('ft_activities');
+        acts.forEach((a,i) => {
           const li = document.createElement('li');
           li.className = 'activity-item';
           li.innerHTML = `
             <div>
-              <strong>${act.type}</strong> on ${act.date} — ${act.duration} min${act.distance?`, ${act.distance} km`:''}
-              ${act.notes ? `<p>${act.notes}</p>` : ''}
-              <time datetime="${act.date}">${act.date}</time>
+              <strong>${a.type}</strong> on ${a.date} — ${a.duration} min
+              ${a.distance?`, ${a.distance} km`:''}
+              ${a.calories?`, ${a.calories} cal`:''}
+              ${a.notes?`<p>${a.notes}</p>`:''}
+              <time datetime="${a.date}">${a.date}</time>
             </div>
-            <button class="delete-btn" aria-label="Delete activity">
+            <button class="delete-btn" aria-label="Delete">
               <i class="fas fa-trash"></i>
             </button>
           `;
-          // delete handler
           li.querySelector('.delete-btn').addEventListener('click', () => {
-            const a = loadActivities();
-            a.splice(idx, 1);
-            saveActivities(a);
-            renderActivities();
+            acts.splice(i,1);
+            save('ft_activities', acts);
+            updateStatsAndCharts();
+            renderList();
           });
-          list.appendChild(li);
+          listEl.appendChild(li);
         });
       }
 
-      form.addEventListener('submit', e => {
+      // form submit
+      f.addEventListener('submit', e => {
         e.preventDefault();
         const newAct = {
-          date: document.getElementById('date').value,
-          type: document.getElementById('type').value,
-          duration: document.getElementById('duration').value,
-          distance: document.getElementById('distance').value,
-          notes: document.getElementById('notes').value.trim()
+          date: f.date.value,
+          type: f.type.value,
+          duration: f.duration.value,
+          distance: f.distance.value,
+          calories: f.calories.value,
+          notes: f.notes.value.trim()
         };
-        const activities = loadActivities();
-        activities.unshift(newAct);
-        saveActivities(activities);
-        form.reset();
-        renderActivities();
+        const arr = load('ft_activities');
+        arr.unshift(newAct);
+        save('ft_activities', arr);
+        f.reset();
+        updateStatsAndCharts();
+        renderList();
       });
 
-      renderActivities();
+      // init
+      updateStatsAndCharts();
+      renderList();
     });
   </script>
 </body>
