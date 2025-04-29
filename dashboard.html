@@ -245,14 +245,76 @@
     padding: 0.75rem;
   }
 }
+/* ─── COLLAPSIBLE SIDEBAR ON MOBILE ─────────────────────────── */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -80px;               /* hidden by default */
+    width: 80px;
+    height: 100vh;
+    transition: left .3s ease;
+    z-index: 1000;
+  }
+  .sidebar.open {
+    left: 0;                   /* slide in */
+  }
+
+  /* Hide page scroll when sidebar open (optional) */
+  .no-scroll {
+    overflow: hidden;
+  }
+
+  /* Hamburger button */
+  .sidebar-toggle {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1100;
+    background: var(--gold);
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem;
+    color: var(--bg);
+    font-size: 1.2rem;
+  }
+
+  /* Close button inside sidebar */
+  .sidebar-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    font-size: 1.2rem;
+  }
+
+  /* Hide toggle on desktop */
+  .sidebar-toggle, .sidebar-close {
+    display: block;
+  }
+}
+@media (min-width: 901px) {
+  .sidebar-toggle, .sidebar-close {
+    display: none;
+  }
+}
 
   </style>
     <script src="storage.js"></script>
 
 </head>
 <body>
+<!-- Hamburger toggle -->
+<button class="sidebar-toggle" aria-label="Open menu">
+  <i class="fas fa-bars"></i>
+</button>
 
   <aside class="sidebar" role="navigation" aria-label="Main sidebar">
+    <button class="sidebar-close" aria-label="Close menu">
+      <i class="fas fa-times"></i>
+    </button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <div class="menu-item active"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
@@ -455,6 +517,32 @@ document.getElementById('activeDaysCount').textContent = s.daysSet.length;
       // New Workout → log.html
       document.querySelector('.new-workout').onclick = ()=> location.href='log.html';
     });
+    document.addEventListener('DOMContentLoaded', () => {
+  const sidebar      = document.querySelector('.sidebar');
+  const toggleBtn    = document.querySelector('.sidebar-toggle');
+  const closeBtn     = document.querySelector('.sidebar-close');
+  const pageWrapper  = document.body; // to disable scroll if you want
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    pageWrapper.classList.add('no-scroll');
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    pageWrapper.classList.remove('no-scroll');
+  }
+
+  toggleBtn.addEventListener('click', openSidebar);
+  closeBtn .addEventListener('click', closeSidebar);
+
+  // Also auto-close when a menu link is tapped
+  sidebar.querySelectorAll('.menu-item a').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 900) closeSidebar();
+    });
+  });
+});
+
   </script>
 </body>
 </html>
