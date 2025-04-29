@@ -213,6 +213,128 @@
     @media(max-width:600px){
       header { flex-direction:column; align-items:flex-start; }
     }
+    /* ─── PHONE ONLY (≤414px) ───────────────────────────────────────── */
+@media only screen and (max-width: 414px) {
+  /* Sidebar on the right, labels hidden */
+  .sidebar {
+    position: fixed;
+    top: 0; right: 0;
+    width: 60px;
+    height: 100vh;
+    background: var(--bg);
+    border-right: none;
+    border-left: 2px solid var(--gold);
+    padding: 0.5rem 0;
+    overflow: hidden;
+    z-index: 1100;
+  }
+  .sidebar .logo {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  .sidebar .menu-item span {
+    display: none;
+  }
+
+  /* Main content fills width minus 60px */
+  .main {
+    margin: 0;
+    margin-right: 60px;
+  }
+
+  /* Header stacks & shrinks */
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  header h1 {
+    font-size: 1.4rem;
+  }
+  header p {
+    font-size: 0.8rem;
+  }
+  #filters {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  #filters select {
+    width: 100%;
+  }
+
+  /* Leaderboard container & table tweaks */
+  .leaderboard {
+    margin: 1rem;
+  }
+  table {
+    font-size: 0.85rem;
+  }
+  th, td {
+    padding: 0.5rem;
+  }
+  /* allow horizontal scroll if needed */
+  .leaderboard table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  /* Your rank card */
+  #yourRank {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 1rem;
+    padding: 0.75rem;
+  }
+  #yourRank img {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* Top-3 highlights */
+  #highlights {
+    grid-template-columns: 1fr !important;
+    margin: 1rem;
+  }
+  .highlight-card img {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Achievements & badges */
+  .achievements, .community {
+    margin: 1rem;
+  }
+  .badge {
+    width: 60px;
+    height: 60px;
+  }
+  .badge i {
+    font-size: 1.2rem;
+  }
+  .badge span {
+    font-size: 0.65rem;
+  }
+
+  /* Community challenges stack */
+  .challenge-list {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+  .challenge-card {
+    padding: 0.75rem;
+  }
+
+  /* Footer tweak */
+  footer {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+}
+
   </style>
 </head>
 <body>
