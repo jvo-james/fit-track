@@ -10,9 +10,6 @@
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     :root {
       --bg: #000; --gold: #ff9800; --white: #fff; --font: 'Raleway', sans-serif;
@@ -24,7 +21,7 @@
       font-family:var(--font);
     }
 
-    /* ─── SIDEBAR (exact copy from dashboard.html) ───────────────── */
+    /* ─── SIDEBAR (same as dashboard) ───────────────── */
     .sidebar {
       position:sticky; top:0; height:100vh; width:80px;
       background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
@@ -49,74 +46,10 @@
     }
     .sign-in-btn:hover { transform:scale(1.1); }
 
-    /* ─── MAIN AREA ───────────────────────────────────────── */
+    /* ─── MAIN AREA ─────────────────────────────── */
     .main { flex:1; display:flex; flex-direction:column; overflow-y:auto; }
 
-    /* ─── STATS / PROGRESS / CHARTS ───────────────────────── */
-    .stats, .charts {
-      display:grid; gap:1.5rem;
-    }
-    .stats { grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); padding:1.5rem; }
-    .stat-card {
-      background:rgba(255,255,255,0.05); padding:1.2rem; border-radius:12px;
-      text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.5); transition:transform .2s;
-    }
-    .stat-card:hover { transform:translateY(-4px); }
-    .stat-card i { font-size:1.8rem; color:var(--gold); margin-bottom:.4rem; }
-    .stat-card h3 { font-size:1.3rem; margin-bottom:.2rem; }
-    .stat-card p { color:rgba(255,255,255,0.8); }
-
-    .progress {
-      background:rgba(255,255,255,0.05); margin:0 1.5rem 1.5rem;
-      padding:1rem; border-radius:12px;
-    }
-    .progress h3 {
-      display:flex; align-items:center; gap:.5rem;
-      color:var(--gold); font-size:1.1rem; margin-bottom:.6rem;
-    }
-    .bar-container {
-      background:rgba(255,255,255,0.1); border-radius:6px;
-      overflow:hidden; height:12px;
-    }
-    .bar-fill {
-      width:0; height:100%; background:var(--gold);
-      transition:width 1s ease;
-    }
-
-    .charts { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); padding:0 1.5rem 1.5rem; }
-    .chart-card {
-      background:rgba(255,255,255,0.05); border-radius:12px;
-      padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      transition:transform .2s;
-    }
-    .chart-card:hover { transform:translateY(-4px); }
-    .chart-card h3 {
-      display:flex; align-items:center; gap:.5rem;
-      color:var(--gold); font-size:1.1rem; margin-bottom:.6rem;
-    }
-    .chart-card canvas { width:100% !important; height:250px !important; }
-
-    /* ─── GOALS WIDGET ──────────────────────────────────── */
-    .goals {
-      margin:0 1.5rem 1.5rem;
-      padding:1rem; background:rgba(255,255,255,0.05); border-radius:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    }
-    .goals h2 {
-      display:flex; align-items:center; gap:.5rem;
-      color:var(--gold); margin-bottom:1rem; font-size:1.2rem;
-    }
-    .goal-item {
-      margin-bottom:1rem;
-    }
-    .goal-item p { margin-bottom:.4rem; font-size:.95rem; }
-    .goal-container { background:rgba(255,255,255,0.1); border-radius:6px; overflow:hidden; height:12px; }
-    .goal-fill {
-      width:0; height:100%; background:var(--gold);
-      transition:width 1s ease;
-    }
-
-    /* ─── LOG SECTION (with Timer & Presets) ─────────────── */
+    /* ─── LOG SECTION ───────────────────────────── */
     .log-section {
       margin:1.5rem; padding:1.5rem;
       background:rgba(255,255,255,0.05); border-radius:12px;
@@ -127,7 +60,7 @@
       color:var(--gold); margin-bottom:1rem; font-size:1.2rem;
     }
 
-    /* Timer */
+    /* Stopwatch */
     .timer {
       display:flex; align-items:center; gap:1rem;
       margin-bottom:1rem;
@@ -168,9 +101,9 @@
     }
     #logForm textarea { resize:vertical; }
     #duration,#distance,#calories { grid-column:auto; }
-    /* Voice */
+    /* Voice control */
     .voice-control {
-      position:relative; grid-column:span 2; text-align:right;
+      grid-column:span 2; text-align:right;
     }
     .voice-control button {
       background:transparent; border:none; color:var(--gold);
@@ -186,14 +119,22 @@
     }
     #logForm button:hover { transform:scale(1.03); }
 
-    /* ─── ACTIVITY LIST & RECENT SUMMARY ───────────────── */
-    .activities, .recent {
+    /* ─── RECENT & LIST ─────────────────────────── */
+    .recent, .activities {
       margin:0 1.5rem 1.5rem;
     }
-    .activities h2, .recent h2 {
+    .recent h2, .activities h2 {
       display:flex; align-items:center; gap:.5rem;
       color:var(--gold); margin-bottom:.75rem; font-size:1.2rem;
     }
+    .recent p { margin-bottom:.5rem; }
+    #recentEdit {
+      padding:.4rem .8rem; border:none; border-radius:6px;
+      background:rgba(255,152,0,0.8); color:var(--bg);
+      cursor:pointer; transition:transform .2s;
+    }
+    #recentEdit:hover { transform:scale(1.05); }
+
     .activity-list { list-style:none; }
     .activity-item {
       background:rgba(255,255,255,0.05); border-radius:8px;
@@ -208,14 +149,6 @@
     }
     .delete-btn:hover { transform:scale(1.2); }
 
-    .recent p { margin-bottom:.5rem; }
-    #recentEdit {
-      padding:.4rem .8rem; border:none; border-radius:6px;
-      background:rgba(255,152,0,0.8); color:var(--bg);
-      cursor:pointer; transition:transform .2s;
-    }
-    #recentEdit:hover { transform:scale(1.05); }
-
     @media(max-width:900px){
       .sidebar { position:fixed; }
       .main { margin-left:80px; }
@@ -226,7 +159,7 @@
 </head>
 <body>
   <aside class="sidebar" role="navigation" aria-label="Main sidebar">
-    <div class="logo" aria-hidden="true"><i class="fas fa-heartbeat"></i></div>
+    <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
     <div class="menu-item active"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
     <div class="menu-item"><a href="workouts.html"><i class="fas fa-tasks"></i><span>Workouts</span></a></div>
@@ -235,44 +168,8 @@
     <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
   </aside>
 
-  <div class="main" role="main">
-    <!-- STATS -->
-    <section class="stats">
-      <div class="stat-card"><i class="fas fa-dumbbell"></i><h3 id="statWorkouts">0</h3><p>Workouts This Month</p></div>
-      <div class="stat-card"><i class="fas fa-road"></i><h3 id="statDistance">0 km</h3><p>Total Distance</p></div>
-      <div class="stat-card"><i class="fas fa-fire"></i><h3 id="statCalories">0</h3><p>Calories Burned</p></div>
-      <div class="stat-card"><i class="fas fa-calendar-day"></i><h3 id="statDays">0</h3><p>Active Days</p></div>
-      <!-- Live Stats additions -->
-      <div class="stat-card"><i class="fas fa-stopwatch"></i><h3 id="statTodayTime">0 min</h3><p>Today’s Time</p></div>
-      <div class="stat-card"><i class="fas fa-percentage"></i><h3 id="statAvgCal">0</h3><p>Avg Calories</p></div>
-    </section>
-
-    <!-- WEEKLY PROGRESS -->
-    <section class="progress"><h3><i class="fas fa-chart-line"></i> This Week’s Goal</h3>
-      <div class="bar-container"><div class="bar-fill" id="statProgress"></div></div>
-    </section>
-
-    <!-- GOALS -->
-    <section class="goals">
-      <h2><i class="fas fa-bullseye"></i> Goals</h2>
-      <div class="goal-item"><p>Daily Goal (30 min)</p>
-        <div class="goal-container"><div class="goal-fill" id="goalDaily"></div></div>
-      </div>
-      <div class="goal-item"><p>Weekly Goal (5 workouts)</p>
-        <div class="goal-container"><div class="goal-fill" id="goalWeekly"></div></div>
-      </div>
-      <div class="goal-item"><p>Monthly Goal (20 workouts)</p>
-        <div class="goal-container"><div class="goal-fill" id="goalMonthly"></div></div>
-      </div>
-    </section>
-
-    <!-- CHARTS -->
-    <section class="charts">
-      <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Activity Over Time</h3><canvas id="chartTime"></canvas></div>
-      <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Type Distribution</h3><canvas id="chartType"></canvas></div>
-    </section>
-
-    <!-- LOG FORM -->
+  <div class="main">
+    <!-- LOG SECTION -->
     <section class="log-section">
       <h2><i class="fas fa-pen"></i> Log New Activity</h2>
 
@@ -320,16 +217,14 @@
         <textarea id="notes" rows="2" placeholder="Optional"></textarea>
 
         <div class="voice-control">
-          <button type="button" id="voiceBtn" aria-label="Start voice input">
-            <i class="fas fa-microphone"></i>
-          </button>
+          <button type="button" id="voiceBtn"><i class="fas fa-microphone"></i></button>
         </div>
 
         <button type="submit">Save Activity</button>
       </form>
     </section>
 
-    <!-- RECENT ACTIVITY SUMMARY -->
+    <!-- RECENT ACTIVITY -->
     <section class="recent">
       <h2><i class="fas fa-history"></i> Recent Activity</h2>
       <div id="recentSummary"><p>No activity yet.</p></div>
@@ -343,163 +238,123 @@
     </section>
   </div>
 
-
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // storage helpers
-      const load = k => JSON.parse(localStorage.getItem(k)||'[]');
-      const save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
+      const load = k => JSON.parse(localStorage.getItem(k) || '[]');
+      const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
 
-      // initialize ft_current
+      // Initialize ft_current.stats if missing
       let ftCur = {};
-      try { ftCur = JSON.parse(localStorage.getItem('ft_current'))||{}; }
+      try { ftCur = JSON.parse(localStorage.getItem('ft_current')) || {}; }
       catch { ftCur = {}; }
-      if (!ftCur.stats) {
-        ftCur.stats = { workouts:0, distanceKm:0, calories:0, daysSet:[] };
-      }
+      if (!ftCur.stats) ftCur.stats = { workouts:0, distanceKm:0, calories:0, daysSet:[] };
 
-      // DOM refs
       const S = {
-        w: document.getElementById('statWorkouts'),
-        d: document.getElementById('statDistance'),
-        c: document.getElementById('statCalories'),
-        a: document.getElementById('statDays'),
-        t: document.getElementById('statTodayTime'),
-        ac: document.getElementById('statAvgCal'),
-        p: document.getElementById('statProgress'),
-        goalD: document.getElementById('goalDaily'),
-        goalW: document.getElementById('goalWeekly'),
-        goalM: document.getElementById('goalMonthly'),
-        chartTime: null,
-        chartType: null,
         form: document.getElementById('logForm'),
         list: document.getElementById('activityList'),
         recentSum: document.getElementById('recentSummary'),
-        recentEdit: document.getElementById('recentEdit'),
+        recentEdit: document.getElementById('recentEdit')
       };
 
-      // Timer state
-      let timerSec=0, timerInterval=null;
-      const disp = id => String(id).padStart(2,'0');
-      const updateTimerDisplay = () => {
-        const m = Math.floor(timerSec/60), s = timerSec%60;
+      // Stopwatch
+      let sec=0, interval=null;
+      const disp = n => String(n).padStart(2,'0');
+      const updDisp = () => {
+        const m = Math.floor(sec/60), s = sec%60;
         document.getElementById('timerDisplay').textContent = `${disp(m)}:${disp(s)}`;
       };
-      document.getElementById('startTimer').onclick=()=>{
-        if(timerInterval) return;
-        timerInterval=setInterval(()=>{
-          timerSec++; updateTimerDisplay();
-        },1000);
+      document.getElementById('startTimer').onclick = () => {
+        if (interval) return;
+        interval = setInterval(() => { sec++; updDisp(); }, 1000);
       };
-      document.getElementById('stopTimer').onclick=()=>{
-        clearInterval(timerInterval); timerInterval=null;
-        // auto-fill duration in minutes (rounded)
-        document.getElementById('duration').value = Math.round(timerSec/60);
+      document.getElementById('stopTimer').onclick = () => {
+        clearInterval(interval); interval = null;
+        document.getElementById('duration').value = Math.round(sec/60);
       };
-      document.getElementById('resetTimer').onclick=()=>{
-        clearInterval(timerInterval); timerInterval=null;
-        timerSec=0; updateTimerDisplay();
+      document.getElementById('resetTimer').onclick = () => {
+        clearInterval(interval); interval = null; sec = 0; updDisp();
       };
 
       // Voice input
-      let recognition;
-      if('webkitSpeechRecognition' in window) {
-        recognition = new webkitSpeechRecognition();
-        recognition.continuous = false;
-        recognition.onresult = e=>{
-          const text = e.results[0][0].transcript;
+      let recog;
+      if ('webkitSpeechRecognition' in window) {
+        recog = new webkitSpeechRecognition();
+        recog.continuous = false;
+        recog.onresult = e => {
+          const txt = e.results[0][0].transcript;
           const notes = document.getElementById('notes');
-          notes.value += (notes.value? ' ' : '') + text;
+          notes.value += (notes.value ? ' ' : '') + txt;
         };
       }
-      document.getElementById('voiceBtn').onclick = ()=>{
-        if(recognition) recognition.start();
+      document.getElementById('voiceBtn').onclick = () => {
+        if (recog) recog.start();
       };
 
       // Presets
-      document.querySelectorAll('.presets button').forEach(btn=>{
-        btn.onclick = ()=>{
-          const t = btn.dataset.type, d = btn.dataset.duration;
-          document.getElementById('type').value = t;
-          document.getElementById('duration').value = d;
+      document.querySelectorAll('.presets button').forEach(b => {
+        b.onclick = () => {
+          document.getElementById('type').value = b.dataset.type;
+          document.getElementById('duration').value = b.dataset.duration;
           document.getElementById('date').valueAsDate = new Date();
         };
       });
 
-      // Build everything
-      function updateEverything(){
+      // Update ft_current.stats
+      function updateStats() {
         const acts = load('ft_activities');
-        // STATS
-        const workouts = acts.length;
-        const totalDist= acts.reduce((s,a)=>s+(parseFloat(a.distance)||0),0);
-        const totalCal = acts.reduce((s,a)=>s+(parseFloat(a.calories)||0),0);
-        const daysSet = new Set(acts.map(a=>a.date));
-        const days = daysSet.size;
-        // Today’s total time
+        const workouts   = acts.length;
+        const distanceKm = acts.reduce((s,a)=>s+(parseFloat(a.distance)||0),0);
+        const calories   = acts.reduce((s,a)=>s+(parseFloat(a.calories)||0),0);
+        const daysSet    = [...new Set(acts.map(a=>a.date))];
+
+        // build chartData & progress for dashboard
         const today = new Date().toISOString().slice(0,10);
-        const todayTime = acts.filter(a=>a.date===today)
-                              .reduce((s,a)=>s+(parseFloat(a.duration)||0),0);
-        // Avg calories
-        const avgCal = workouts? Math.round(totalCal/workouts) : 0;
-        // Weekly progress
-        const wkCount = acts.filter(a=>{
-          const diff=(new Date()-new Date(a.date))/(1000*60*60*24);
-          return diff<=7;
-        }).length;
-        const pct = Math.min(100,Math.round(wkCount/5*100));
-        // Goals progress
-        const dailyPct   = Math.min(100, Math.round(todayTime/30*100));
-        const weeklyPct  = Math.min(100, Math.round(wkCount/5*100));
-        const monthlyPct = Math.min(100, Math.round(workouts/20*100));
-        // Chart data
-        const labels=[], dataTime=[];
-        for(let i=6;i>=0;i--){
+        const last7  = [];
+        for (let i=6;i>=0;i--) {
           const d=new Date(); d.setDate(d.getDate()-i);
-          const key=d.toISOString().slice(0,10);
-          labels.push(key.slice(5));
-          const sumDur= acts.filter(a=>a.date===key)
-                            .reduce((s,a)=>s+(parseFloat(a.duration)||0),0);
-          dataTime.push(sumDur);
+          last7.push(d.toISOString().slice(0,10));
         }
-        const typeCounts=acts.reduce((o,a)=>{
-          o[a.type]=(o[a.type]||0)+1; return o;
-        },{});
-        const distArr=Object.values(typeCounts);
+        const labels       = last7.map(d=>d.slice(5));
+        const activity     = last7.map(d =>
+          acts.filter(a=>a.date===d).reduce((s,a)=>s+(parseFloat(a.duration)||0),0)
+        );
+        const types        = acts.reduce((o,a)=>{ o[a.type]=(o[a.type]||0)+1; return o; },{});
+        const distribution = Object.values(types);
+        const weekCount    = activity.slice(-7).filter(v=>v>0).length;
+        const progress     = Math.min(100, Math.round(weekCount/5*100));
 
-        // write back to ft_current
-        ftCur.stats     = { workouts, distanceKm: totalDist, calories: totalCal, daysSet:[...daysSet] };
-        ftCur.progress  = pct;
-        ftCur.chartData = { labels, activity:dataTime, distribution:distArr };
+        ftCur.stats     = { workouts, distanceKm, calories, daysSet };
+        ftCur.chartData = { labels, activity, distribution };
+        ftCur.progress  = progress;
         localStorage.setItem('ft_current', JSON.stringify(ftCur));
+      }
 
-        // update DOM
-        S.w.textContent = workouts; 
-        S.d.textContent = totalDist.toFixed(2)+' km';
-        S.c.textContent = totalCal;
-        S.a.textContent = days;
-        S.t.textContent = todayTime+' min';
-        S.ac.textContent = avgCal;
-        S.p.style.width = pct+'%';
-        S.goalD.style.width = dailyPct+'%';
-        S.goalW.style.width = weeklyPct+'%';
-        S.goalM.style.width = monthlyPct+'%';
-
-        // redraw charts
-        if(S.chartTime) S.chartTime.destroy();
-        S.chartTime = new Chart(document.getElementById('chartTime').getContext('2d'), {
-          type:'line',
-          data:{ labels, datasets:[{ label:'Min', data:dataTime, fill:false, tension:0.3 }] },
-          options:{ responsive:true, maintainAspectRatio:false }
+      // Render activity list & recent
+      function renderList() {
+        const acts = load('ft_activities');
+        S.list.innerHTML = '';
+        acts.forEach((a,i) => {
+          const li = document.createElement('li');
+          li.className = 'activity-item';
+          li.innerHTML = `
+            <div>
+              <strong>${a.type}</strong> on ${a.date} — ${a.duration} min
+              ${a.distance?`, ${a.distance} km`:''}
+              ${a.calories?`, ${a.calories} cal`:''}
+              ${a.notes?`<p>${a.notes}</p>`:''}
+              <time datetime="${a.date}">${a.date}</time>
+            </div>
+            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+          `;
+          li.querySelector('.delete-btn').onclick = () => {
+            acts.splice(i,1);
+            save('ft_activities', acts);
+            updateStats(); renderList();
+          };
+          S.list.appendChild(li);
         });
-        if(S.chartType) S.chartType.destroy();
-        S.chartType = new Chart(document.getElementById('chartType').getContext('2d'), {
-          type:'pie',
-          data:{ labels:Object.keys(typeCounts), datasets:[{ data:distArr }] },
-          options:{ responsive:true, maintainAspectRatio:false }
-        });
-
         // recent summary
-        if(acts.length){
+        if (acts.length) {
           const last = acts[0];
           S.recentSum.innerHTML = `
             <p><strong>${last.type}</strong> on ${last.date} — ${last.duration} min
@@ -512,65 +367,44 @@
         }
       }
 
-      // render list & attach delete
-      function renderList(){
-        S.list.innerHTML = '';
-        load('ft_activities').forEach((a,i,arr)=>{
-          const li=document.createElement('li');
-          li.className='activity-item';
-          li.innerHTML=`
-            <div>
-              <strong>${a.type}</strong> on ${a.date} — ${a.duration} min
-              ${a.distance?`, ${a.distance} km`:''}
-              ${a.calories?`, ${a.calories} cal`:''}
-              ${a.notes?`<p>${a.notes}</p>`:''}
-              <time datetime="${a.date}">${a.date}</time>
-            </div>
-            <button class="delete-btn" aria-label="Delete"><i class="fas fa-trash"></i></button>
-          `;
-          li.querySelector('.delete-btn').onclick = ()=>{
-            arr.splice(i,1); save('ft_activities',arr);
-            updateEverything(); renderList();
-          };
-          S.list.appendChild(li);
-        });
-      }
-
-      // edit recent
-      S.recentEdit.onclick = ()=>{
+      // Edit last
+      S.recentEdit.onclick = () => {
         const acts = load('ft_activities');
-        if(!acts.length) return;
-        const last = acts.shift(); // remove it
-        save('ft_activities',acts);
-        // prefill form
+        if (!acts.length) return;
+        const last = acts.shift();
+        save('ft_activities', acts);
+        updateStats(); renderList();
+        // prefill
         S.form.date.value     = last.date;
         S.form.type.value     = last.type;
         S.form.duration.value = last.duration;
         S.form.distance.value = last.distance;
         S.form.calories.value = last.calories;
         S.form.notes.value    = last.notes;
-        updateEverything(); renderList();
       };
 
-      // form submit
-      S.form.onsubmit = e=>{
+      // Form submit
+      S.form.onsubmit = e => {
         e.preventDefault();
-        const f=S.form;
-        const newAct = {
-          date:f.date.value, type:f.type.value,
-          duration:f.duration.value,
-          distance:f.distance.value,
-          calories:f.calories.value,
-          notes:f.notes.value.trim()
+        const f = S.form;
+        const entry = {
+          date: f.date.value,
+          type: f.type.value,
+          duration: f.duration.value,
+          distance: f.distance.value,
+          calories: f.calories.value,
+          notes: f.notes.value.trim()
         };
         const arr = load('ft_activities');
-        arr.unshift(newAct); save('ft_activities',arr);
+        arr.unshift(entry);
+        save('ft_activities', arr);
         f.reset();
-        updateEverything(); renderList();
+        updateStats(); renderList();
       };
 
-      // init
-      updateEverything(); renderList();
+      // Initialize
+      updateStats();
+      renderList();
     });
   </script>
 </body>
