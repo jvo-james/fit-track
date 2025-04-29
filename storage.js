@@ -8,6 +8,10 @@
   function save(key, val) {
     localStorage.setItem(key, JSON.stringify(val));
   }
+// after a successful signup:
+const all = JSON.parse(localStorage.getItem('ft_users')||'[]');
+all.push(FT.cur);
+localStorage.setItem('ft_users', JSON.stringify(all));
 
   // 2) Initialize ft_current if missing
   let cur = load('ft_current', {});
