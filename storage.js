@@ -143,3 +143,24 @@
     initProfileForm
   };
 })(window);
+// storage.js
+
+// ... your existing FT namespace, getUsers(), etc.
+
+// Update the sidebar avatar <img id="sidebarAvatar">
+FT.updateSidebarAvatar = function() {
+  const cur = JSON.parse(localStorage.getItem('ft_current') || '{}');
+  const img = document.getElementById('sidebarAvatar');
+  if (!img) return;
+  if (cur.avatarDataUrl) {
+    img.src = cur.avatarDataUrl;
+  } else {
+    // fallback silhouette
+    img.src = 'https://i.pravatar.cc/150?u=' + encodeURIComponent(cur.email || 'default');
+  }
+};
+
+// Call it on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  FT.updateSidebarAvatar();
+});
