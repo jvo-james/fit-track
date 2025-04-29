@@ -568,33 +568,76 @@
       }
       renderSessions();
 
-      // AI Chatbot
-      const chat=document.querySelector('#chatbot .messages');
-      const input=document.querySelector('#chatbot .input input');
-      const send=document.querySelector('#chatbot .input button');
-      function botReply(msg){
-        msg=msg.toLowerCase();
-        if(msg.includes('cardio')) return 'Try our Full-Body HIIT!';
-        if(msg.includes('strength')) return 'Upper Body Strength is great today.';
-        if(msg.includes('yoga')) return 'Morning Yoga Flow awaits you.';
-        if(msg.includes('help')) return 'Ask me about cardio, strength, or yoga.';
-        return 'Can you say that another way?';
-      }
-      send.onclick=()=>{
-        const t=input.value.trim(); if(!t) return;
-        const u=document.createElement('div');
-        u.className='msg user'; u.textContent=t; chat.append(u);
-        input.value='';
-        setTimeout(()=>{
-          const r=document.createElement('div');
-          r.className='msg bot'; r.textContent=botReply(t); chat.append(r);
-          chat.scrollTop=chat.scrollHeight;
-        },400);
-      };
-      input.addEventListener('keypress',e=>{
-        if(e.key==='Enter') send.click();
+     
       });
     });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const apiKey = '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';  // ← Replace this!
+      const endpoint = 'https://api.openai.com/v1/chat/completions';
+
+      // Chat history for context
+      const chatHistory = [
+        { role: 'system', content: 'You are FitTrack’s intelligent workout coach. Answer user questions about fitness, workouts, routines, and motivation.' }
+      ];
+
+      const container = document.querySelector('#chatbot .messages');
+      const input     = document.querySelector('#chatbot .input input');
+      const sendBtn   = document.querySelector('#chatbot .input button');
+
+      function appendMessage(text, sender) {
+        const div = document.createElement('div');
+        div.className = 'msg ' + sender;
+        div.textContent = text;
+        container.append(div);
+        container.scrollTop = container.scrollHeight;
+      }
+
+      async function queryAI(userText) {
+        chatHistory.push({ role: 'user', content: userText });
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4',
+            messages: chatHistory
+          })
+        });
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(err);
+        }
+        const { choices } = await res.json();
+        const aiText = choices[0].message.content.trim();
+        chatHistory.push({ role: 'assistant', content: aiText });
+        return aiText;
+      }
+
+      sendBtn.addEventListener('click', async () => {
+        const text = input.value.trim();
+        if (!text) return;
+        appendMessage(text, 'user');
+        input.value = '';
+        try {
+          appendMessage('…thinking…', 'bot');
+          const reply = await queryAI(text);
+          // Replace the “thinking” placeholder with the real reply
+          container.lastChild.textContent = reply;
+          container.lastChild.className = 'msg bot';
+        } catch (e) {
+          console.error(e);
+          container.lastChild.textContent = 'Error: could not reach AI.';
+        }
+      });
+
+      input.addEventListener('keypress', e => {
+        if (e.key === 'Enter') sendBtn.click();
+      });
+    
   </script>
 </body>
 </html>
