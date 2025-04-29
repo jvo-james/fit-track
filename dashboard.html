@@ -161,143 +161,109 @@
       .goals   { grid-template-columns:1fr; }
     }
   
-@media (max-width: 414px) {
-  /* Sidebar: slim + fixed */
+/* ─── iPhone 11 Portrait (414px) ───────────────────────────────────────── */
+@media only screen and (max-width: 414px) {
+
+  /* — Sidebar: hidden by default, slides in to 200px — */
   .sidebar {
-    width: 60px;
-    padding: 0.5rem 0;
+    width: 0;
+    left: -80px;
+    transition: left .3s ease, width .3s ease;
   }
-  .sidebar .menu-item span {
-    display: none; /* hide labels */
+  .sidebar.open {
+    width: 200px;
+    left: 0;
   }
-  .sidebar .logo {
-    margin-bottom: 1rem;
+  /* hamburger toggle & close button sizing */
+  .sidebar-toggle {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.75rem;
+    font-size: 1.4rem;
+    z-index: 2100;
+  }
+  .sidebar-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 1.4rem;
   }
 
-  /* Push main content over */
+  /* — Main content always full-width under collapsed sidebar — */
   .main {
-    margin-left: 60px;
+    margin-left: 0 !important;
   }
 
-  /* Header: stack and shrink */
+  /* — Header: stack vertically, shrink fonts, full-width button — */
   header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.5rem;
     padding: 1rem;
   }
   header h1 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
   header p.tagline {
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
+    font-size: 0.75rem;
   }
   header button.new-workout {
-    align-self: stretch;
     width: 100%;
     margin-top: 0.5rem;
+    font-size: 0.9rem;
+    padding: 0.6rem;
   }
 
-  /* Make inner padding tighter */
+  /* — Inner padding — */
   .content {
     padding: 1rem;
   }
 
-  /* Stats, Goals & Charts to single column */
-  .stats,
-  .goals,
-  .charts {
+  /* — Grids collapse to one column — */
+  .stats, .goals, .charts {
     grid-template-columns: 1fr !important;
   }
-  .stat-card,
-  .goal-card,
-  .chart-card {
+  .stat-card, .goal-card, .chart-card {
     padding: 1rem;
   }
+  .stat-card h3, .goal-card p {
+    font-size: 1.1rem;
+  }
 
-  /* Progress bar: full width */
+  /* — Chart heights smaller — */
+  .chart-card canvas {
+    height: 180px !important;
+  }
+
+  /* — Progress section tighter — */
   .progress {
-    padding: 1rem;
     margin-top: 1rem;
+    padding: 1rem;
   }
 
-  /* Challenge list & leaderboard: simpler layout */
-  .challenges .challenge-list li,
-  .leaderboard .leader-list li {
+  /* — Challenge & Leaderboard list items stack — */
+  .challenge-list li, .leader-list li {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  .challenges .challenge-list li span:last-child,
-  .leaderboard .leader-list li span:last-child {
+  .challenge-list span:last-child,
+  .leader-list span:last-child {
     margin-left: 0;
+    margin-top: 0.25rem;
   }
 
-  /* Community feed: vertical scroll */
-  .community .feed-list {
+  /* — Community feed: vertical list — */
+  .feed-list {
     flex-direction: column;
     gap: 1rem;
   }
 
-  /* Footer text slightly larger */
+  /* — Footer text slightly larger & padded — */
   footer {
     font-size: 0.9rem;
     padding: 0.75rem;
-  }
-}
-/* ─── COLLAPSIBLE SIDEBAR ON MOBILE ─────────────────────────── */
-@media (max-width: 900px) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: -80px;               /* hidden by default */
-    width: 80px;
-    height: 100vh;
-    transition: left .3s ease;
-    z-index: 1000;
-  }
-  .sidebar.open {
-    left: 0;                   /* slide in */
-  }
-
-  /* Hide page scroll when sidebar open (optional) */
-  .no-scroll {
-    overflow: hidden;
-  }
-
-  /* Hamburger button */
-  .sidebar-toggle {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1100;
-    background: var(--gold);
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem;
-    color: var(--bg);
-    font-size: 1.2rem;
-  }
-
-  /* Close button inside sidebar */
-  .sidebar-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: transparent;
-    border: none;
-    color: var(--white);
-    font-size: 1.2rem;
-  }
-
-  /* Hide toggle on desktop */
-  .sidebar-toggle, .sidebar-close {
-    display: block;
-  }
-}
-@media (min-width: 901px) {
-  .sidebar-toggle, .sidebar-close {
-    display: none;
   }
 }
 
