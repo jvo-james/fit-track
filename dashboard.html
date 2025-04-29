@@ -172,12 +172,16 @@
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
     <div class="menu-item"><a href="workouts.html"><i class="fas fa-dumbbell"></i><span>Workouts</span></a></div>
     <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
-    <div class="menu-item">
+    <div class="menu-item profile">
   <a href="profile.html">
-    <i class="fas fa-user-circle"></i>
+    <img id="sidebarAvatar"
+         src="https://i.pravatar.cc/150?u=default"
+         alt="Profile"
+         style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
     <span>Profile</span>
   </a>
 </div>
+
 
     <a href="home.html" class="sign-in-btn"><i class="fas fa-sign-out-alt"></i></a>
   </aside>
@@ -272,7 +276,7 @@
     FT.applyTheme();
 FT.updateStats();
 FT.renderGreeting(document.getElementById('greeting'));
-
+FT.updateSidebarAvatar();
     const s = FT.cur.stats;
 document.getElementById('workoutsCount').textContent  = s.workouts;
 document.getElementById('distanceCount').textContent  = s.distanceKm.toFixed(2) + ' km';
