@@ -113,15 +113,15 @@
       border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
       overflow:hidden; display:flex; flex-direction:column;
     }
-    .card img {
-      width:100%; height:120px; object-fit:cover;
-    }
+    .card img { width:100%; height:120px; object-fit:cover; }
     .card-body {
       padding:1rem; flex:1; display:flex; flex-direction:column;
     }
     .card-body h3 { margin-bottom:.5rem; font-size:1.1rem; }
     .card-body p.info { font-size:.9rem; opacity:.8; margin-bottom:.5rem; }
-    .card-body p.desc { flex:1; font-size:.85rem; line-height:1.3; margin-bottom:.5rem; }
+    .card-body p.desc {
+      flex:1; font-size:.85rem; line-height:1.3; margin-bottom:.5rem;
+    }
     .card-body button {
       background:var(--gold); color:var(--bg); border:none;
       padding:.4rem; border-radius:6px; cursor:pointer;
@@ -165,8 +165,8 @@
     #myPlans h2 { color:var(--gold); margin-bottom:.75rem; }
     #myPlans ul { list-style:none; }
     #myPlans li {
-      display:flex; justify-content:space-between; padding:.5rem 0;
-      border-bottom:1px solid rgba(255,255,255,0.1);
+      display:flex; justify-content:space-between;
+      padding:.5rem 0; border-bottom:1px solid rgba(255,255,255,0.1);
     }
     #myPlans button {
       background:transparent; border:none; color:var(--gold);
@@ -189,14 +189,12 @@
       padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
     }
     #challengeModes h2 { color:var(--gold); margin-bottom:1rem; }
-    .challenge {
-      margin-bottom:1rem;
-    }
+    .challenge { margin-bottom:1rem; }
     .challenge h3 { font-size:1.1rem; margin-bottom:.5rem; }
     .challenge p { font-size:.9rem; margin-bottom:.5rem; line-height:1.3; }
     .challenge .prog-bar {
-      background:rgba(255,255,255,0.1); border-radius:6px; overflow:hidden;
-      height:12px; margin-bottom:.5rem;
+      background:rgba(255,255,255,0.1); border-radius:6px;
+      overflow:hidden; height:12px; margin-bottom:.5rem;
     }
     .challenge .prog-bar .fill {
       width:0; height:100%; background:var(--gold);
@@ -215,11 +213,11 @@
       padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
     }
     #liveSessions h2 { color:var(--gold); margin-bottom:1rem; }
-    .session {
-      margin-bottom:1rem;
-    }
+    .session { margin-bottom:1rem; }
     .session h3 { font-size:1.1rem; margin-bottom:.5rem; }
-    .session p.info { font-size:.8rem; opacity:.8; margin-bottom:.5rem; }
+    .session p.info {
+      font-size:.8rem; opacity:.8; margin-bottom:.5rem;
+    }
     .session p { font-size:.9rem; margin-bottom:.5rem; line-height:1.3; }
     .session button {
       background:var(--gold); color:var(--bg); border:none;
@@ -244,20 +242,26 @@
     }
     #chatbot .messages .msg {
       margin-bottom:.5rem; font-size:.85rem; line-height:1.2;
+      max-width:80%; border-radius:8px; padding:8px;
     }
-    #chatbot .messages .msg.user { text-align:right; }
+    #chatbot .messages .user {
+      align-self:flex-end; background:rgba(255,255,255,0.2);
+    }
+    #chatbot .messages .bot {
+      align-self:flex-start; background:rgba(255,152,0,0.2);
+    }
     #chatbot .input {
       display:flex; border-top:1px solid rgba(255,255,255,0.1);
     }
-    #chatbot .input input {
-      flex:1; background:transparent; border:none; padding:.5rem;
-      color:var(--white);
+    #chatbot select {
+      flex:1; background:transparent; border:none;
+      padding:.5rem; color:var(--white);
     }
-    #chatbot .input button {
+    #chatbot button {
       background:var(--gold); border:none; padding:0 .8rem;
       cursor:pointer; transition:transform .2s;
     }
-    #chatbot .input button:hover { transform:scale(1.05); }
+    #chatbot button:hover { transform:scale(1.05); }
 
     @media(max-width:900px){
       .content { display:flex; flex-direction:column; }
@@ -356,303 +360,296 @@
     </div>
   </div>
 
-  <!-- 8. AI Chatbot -->
+  <!-- ─── AI Chatbot ─────────────────────────────────────────────────────── -->
   <div id="chatbot">
     <header><i class="fas fa-robot"></i> Chat Coach</header>
     <div class="messages"></div>
     <div class="input">
-      <input type="text" placeholder="Ask me..." />
-      <button><i class="fas fa-paper-plane"></i></button>
+      <select id="questionSelect">
+        <option value="" disabled selected>Select a question…</option>
+      </select>
+      <button id="askBtn"><i class="fas fa-paper-plane"></i></button>
     </div>
   </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  // ─── Helpers ─────────────────────────────────────────────────────────────
-  const loadArr = key => JSON.parse(localStorage.getItem(key) || '[]');
-  const saveArr = (key, arr) => localStorage.setItem(key, JSON.stringify(arr));
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ─── Helpers ─────────────────────────────────────────────────────────────
+    const loadArr = key => JSON.parse(localStorage.getItem(key) || '[]');
+    const saveArr = (key, arr) => localStorage.setItem(key, JSON.stringify(arr));
 
-  // ─── Sample Workouts Data ────────────────────────────────────────────────
-  const workouts = [
-    { id:1, title:'Full-Body HIIT',     category:'Cardio',   duration:20, difficulty:'Intermediate', image: 'hiit.jpg',
-      description:'Fast-paced, full-body intervals.',
-      exercises:['Jumping Jacks','Burpees','Mountain Climbers'],
-      equipment:'None', calories:200 },
-    { id:2, title:'Upper Body Strength', category:'Strength', duration:45, difficulty:'Advanced', image: 'upper.jpg',
-      description:'Build upper-body power with weights.',
-      exercises:['Push-Ups','Pull-Ups','Dumbbell Rows'],
-      equipment:'Dumbbells', calories:300 },
-    { id:3, title:'Morning Yoga Flow',   category:'Yoga',     duration:30, difficulty:'Beginner', image: 'yoga.jpg',
-      description:'Gentle sequences to wake up your body.',
-      exercises:['Sun Salutations','Tree Pose','Child’s Pose'],
-      equipment:'Mat', calories:120 }
-  ];
+    // ─── Sample Workouts Data ────────────────────────────────────────────────
+    const workouts = [
+      { id:1, title:'Full-Body HIIT', category:'Cardio', duration:20, difficulty:'Intermediate', image:'hiit.jpg',
+        description:'Fast-paced, full-body intervals.',
+        exercises:['Jumping Jacks','Burpees','Mountain Climbers'],
+        equipment:'None', calories:200 },
+      { id:2, title:'Upper Body Strength', category:'Strength', duration:45, difficulty:'Advanced', image:'upper.jpg',
+        description:'Build upper-body power with weights.',
+        exercises:['Push-Ups','Pull-Ups','Dumbbell Rows'],
+        equipment:'Dumbbells', calories:300 },
+      { id:3, title:'Morning Yoga Flow', category:'Yoga', duration:30, difficulty:'Beginner', image:'yoga.jpg',
+        description:'Gentle sequences to wake up your body.',
+        exercises:['Sun Salutations','Tree Pose','Child’s Pose'],
+        equipment:'Mat', calories:120 }
+    ];
 
-  // ─── Workout of the Day ──────────────────────────────────────────────────
-  const wodTitle = document.getElementById('wodTitle');
-  const wodDesc  = document.getElementById('wodDesc');
-  const pickWOD = () => {
-    const w = workouts[Math.floor(Math.random() * workouts.length)];
-    wodTitle.textContent = w.title;
-    wodDesc.textContent  = w.description;
-  };
-  document.getElementById('randomizeWOD').addEventListener('click', pickWOD);
-  pickWOD();
+    // ─── Workout of the Day ──────────────────────────────────────────────────
+    const wodTitle = document.getElementById('wodTitle');
+    const wodDesc  = document.getElementById('wodDesc');
+    const pickWOD = () => {
+      const w = workouts[Math.floor(Math.random() * workouts.length)];
+      wodTitle.textContent = w.title;
+      wodDesc.textContent  = w.description;
+    };
+    document.getElementById('randomizeWOD').addEventListener('click', pickWOD);
+    pickWOD();
 
-  // ─── Filters & Library Rendering ────────────────────────────────────────
-  const filterCategory   = document.getElementById('filterCategory');
-  const filterDuration   = document.getElementById('filterDuration');
-  const filterDifficulty = document.getElementById('filterDifficulty');
-  const libraryEl        = document.getElementById('library');
+    // ─── Filters & Library Rendering ────────────────────────────────────────
+    const filterCategory   = document.getElementById('filterCategory');
+    const filterDuration   = document.getElementById('filterDuration');
+    const filterDifficulty = document.getElementById('filterDifficulty');
+    const libraryEl        = document.getElementById('library');
 
-  // populate category dropdown
-  new Set(workouts.map(w=>w.category)).forEach(cat => {
-    filterCategory.append(new Option(cat, cat));
-  });
-
-function renderLibrary() {
-  const cat  = filterCategory.value;
-  const maxD = +filterDuration.value || Infinity;
-  const diff = filterDifficulty.value;
-  libraryEl.innerHTML = '';
-
-  workouts
-    .filter(w => (!cat || w.category === cat)
-              && w.duration <= maxD
-              && (!diff || w.difficulty === diff))
-    .forEach(w => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img src="${w.image}" alt="${w.title}">
-        <div class="card-body">
-          <h3>${w.title}</h3>
-          <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
-          <p class="desc">${w.description}</p>
-          <button data-id="${w.id}">Details</button>
-        </div>`;
-      libraryEl.append(card);
+    // populate category dropdown
+    new Set(workouts.map(w=>w.category)).forEach(cat => {
+      filterCategory.append(new Option(cat, cat));
     });
-}
 
-  [filterCategory, filterDuration, filterDifficulty].forEach(el =>
-    el.addEventListener('change', renderLibrary)
-  );
-  renderLibrary();
+    function renderLibrary() {
+      const cat  = filterCategory.value;
+      const maxD = +filterDuration.value || Infinity;
+      const diff = filterDifficulty.value;
+      libraryEl.innerHTML = '';
 
-  // ─── Detail Modal Logic ────────────────────────────────────────────────
-  const modal       = document.getElementById('detailModal');
-  const detailTitle = document.getElementById('detailTitle');
-  const detailDesc  = document.getElementById('detailDesc');
-  const detailList  = document.getElementById('detailList');
-  const detailEquip = document.getElementById('detailEquip');
-  const detailCal   = document.getElementById('detailCal');
-  const btnLog      = document.getElementById('detailStart');
-  const btnSavePlan = document.getElementById('savePlan');
-
-  document.body.addEventListener('click', e => {
-    // open detail if button with data-id
-    if (e.target.tagName === 'BUTTON' && e.target.dataset.id) {
-      const w = workouts.find(x => x.id == e.target.dataset.id);
-      detailTitle.textContent = w.title;
-      detailDesc.textContent  = w.description;
-      detailList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
-      detailEquip.textContent = w.equipment;
-      detailCal.textContent   = w.calories;
-
-      btnLog.onclick = () => {
-        const acts = loadArr('ft_activities');
-        acts.unshift({
-          date:new Date().toISOString().slice(0,10),
-          type:w.title, duration:w.duration,
-          distance:'', calories:w.calories, notes:''
+      workouts
+        .filter(w => (!cat || w.category === cat)
+                  && w.duration <= maxD
+                  && (!diff || w.difficulty === diff))
+        .forEach(w => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <img src="${w.image}" alt="${w.title}">
+            <div class="card-body">
+              <h3>${w.title}</h3>
+              <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+              <p class="desc">${w.description}</p>
+              <button data-id="${w.id}">Details</button>
+            </div>`;
+          libraryEl.append(card);
         });
-        saveArr('ft_activities', acts);
+    }
+    [filterCategory, filterDuration, filterDifficulty].forEach(el =>
+      el.addEventListener('change', renderLibrary)
+    );
+    renderLibrary();
+
+    // ─── Detail Modal Logic ────────────────────────────────────────────────
+    const modal       = document.getElementById('detailModal');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailDesc  = document.getElementById('detailDesc');
+    const detailList  = document.getElementById('detailList');
+    const detailEquip = document.getElementById('detailEquip');
+    const detailCal   = document.getElementById('detailCal');
+    const btnLog      = document.getElementById('detailStart');
+    const btnSavePlan = document.getElementById('savePlan');
+
+    document.body.addEventListener('click', e => {
+      // open detail if button with data-id
+      if (e.target.tagName === 'BUTTON' && e.target.dataset.id) {
+        const w = workouts.find(x => x.id == e.target.dataset.id);
+        detailTitle.textContent = w.title;
+        detailDesc.textContent  = w.description;
+        detailList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
+        detailEquip.textContent = w.equipment;
+        detailCal.textContent   = w.calories;
+
+        btnLog.onclick = () => {
+          const acts = loadArr('ft_activities');
+          acts.unshift({
+            date:new Date().toISOString().slice(0,10),
+            type:w.title, duration:w.duration,
+            distance:'', calories:w.calories, notes:''
+          });
+          saveArr('ft_activities', acts);
+          modal.style.display = 'none';
+          alert('Workout logged!');
+        };
+
+        btnSavePlan.onclick = () => {
+          const plans = loadArr('ft_plans');
+          if (!plans.includes(w.id)) plans.push(w.id);
+          saveArr('ft_plans', plans);
+          renderPlans();
+          alert('Saved to My Plans');
+        };
+
+        modal.style.display = 'flex';
+      }
+      // close modal
+      if (e.target.classList.contains('close') || e.target === modal) {
         modal.style.display = 'none';
-        alert('Workout logged!');
-      };
-
-      btnSavePlan.onclick = () => {
-        const plans = loadArr('ft_plans');
-        if (!plans.includes(w.id)) plans.push(w.id);
-        saveArr('ft_plans', plans);
-        renderPlans();
-        alert('Saved to My Plans');
-      };
-
-      modal.style.display = 'flex';
-    }
-    // close modal if clicking backdrop or close icon
-    if (e.target.classList.contains('close') || e.target === modal) {
-      modal.style.display = 'none';
-    }
-  });
-
-  // ─── My Plans ──────────────────────────────────────────────────────────
-  const plansList = document.getElementById('plansList');
-  function renderPlans() {
-    const plans = loadArr('ft_plans');
-    plansList.innerHTML = '';
-    plans.forEach((id,i) => {
-      const w  = workouts.find(x=>x.id===id);
-      const li = document.createElement('li');
-      li.textContent = w.title;
-      const btn = document.createElement('button');
-      btn.textContent = 'Remove';
-      btn.onclick = () => {
-        plans.splice(i,1);
-        saveArr('ft_plans', plans);
-        renderPlans();
-      };
-      li.append(btn);
-      plansList.append(li);
-    });
-  }
-  renderPlans();
-
-  // ─── Progress Chart ────────────────────────────────────────────────────
-  const ctx = document.getElementById('progressChart').getContext('2d');
-  function renderProgress() {
-    const acts = loadArr('ft_activities');
-    const byCat = acts.reduce((o,a) => {
-      const w = workouts.find(wk=>wk.title===a.type);
-      const cat = w ? w.category : 'Other';
-      o[cat] = (o[cat]||0) + 1;
-      return o;
-    }, {});
-    const labels = Object.keys(byCat), data = Object.values(byCat);
-    new Chart(ctx, {
-      type: 'bar',
-      data: { labels, datasets:[{ label:'Sessions', data, backgroundColor:'rgba(255,152,0,0.8)' }]},
-      options: {
-        indexAxis:'y',
-        scales:{ x:{ beginAtZero:true }, y:{ } },
-        plugins:{ legend:{ display:false } }
       }
     });
-  }
-  renderProgress();
 
-  // ─── Challenge Modes ──────────────────────────────────────────────────
-  const challenges = [
-    { id:1, title:'7-Day Abs', desc:'Daily core routine for 7 days.', target:7 },
-    { id:2, title:'30-Day Push-Up', desc:'Increase push-ups each day for 30 days.', target:30 }
-  ];
-  const chList = document.getElementById('challengesList');
-  function renderChallenges() {
-    const joined = loadArr('ft_joined');
-    chList.innerHTML = '';
-
-    // show joined with progress
-    joined.forEach(id => {
-      const ch = challenges.find(c=>c.id===id);
-      const prog = Math.min(
-        ch.target,
-        loadArr('ft_activities').filter(a => a.type.includes(ch.title.split(' ')[1])).length
-      );
-      const pct = Math.round(prog/ch.target*100);
-      const div = document.createElement('div');
-      div.className = 'challenge';
-      div.innerHTML = `
-        <h3>${ch.title}</h3>
-        <p>${ch.desc}</p>
-        <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
-        <p style="opacity:.8;">${prog}/${ch.target}</p>`;
-      chList.append(div);
-    });
-
-    // show available to join
-    challenges.filter(c=>!joined.includes(c.id)).forEach(ch => {
-      const div = document.createElement('div');
-      div.className = 'challenge';
-      div.innerHTML = `<h3>${ch.title}</h3><p>${ch.desc}</p>`;
-      const btn = document.createElement('button');
-      btn.textContent = 'Join';
-      btn.onclick = () => {
-        joined.push(ch.id);
-        saveArr('ft_joined', joined);
-        renderChallenges();
-      };
-      div.append(btn);
-      chList.append(div);
-    });
-  }
-  renderChallenges();
-
-  // ─── Live Sessions ─────────────────────────────────────────────────────
-  const sessions = [
-    { id:1, title:'Live Yoga Flow', desc:'30-min guided stretch.', host:'Alice', time:'Today 6pm UTC' },
-    { id:2, title:'HIIT Blast',     desc:'High-intensity interval.',   host:'Bob',   time:'Tomorrow 7am UTC' }
-  ];
-  const sessList = document.getElementById('sessionsList');
-  function renderSessions() {
-    const joined = loadArr('ft_sessions');
-    sessList.innerHTML = '';
-    sessions.forEach(s => {
-      const div = document.createElement('div');
-      div.className = 'session';
-      div.innerHTML = `
-        <h3>${s.title}</h3>
-        <p class="info">${s.host} • ${s.time}</p>
-        <p>${s.desc}</p>`;
-      const btn = document.createElement('button');
-      btn.textContent = joined.includes(s.id) ? 'Joined' : 'Join';
-      btn.onclick = () => {
-        if (!joined.includes(s.id)) joined.push(s.id);
-        saveArr('ft_sessions', joined);
-        renderSessions();
-      };
-      div.append(btn);
-      sessList.append(div);
-    });
-  }
-  renderSessions();
-
-  // ─── AI Chatbot ────────────────────────────────────────────────────────
-  const chatBox   = document.querySelector('#chatbot .messages');
-  const chatInput = document.querySelector('#chatbot .input input');
-  const sendBtn   = document.querySelector('#chatbot .input button');
-
-  function appendMsg(text, who) {
-    const d = document.createElement('div');
-    d.className = `msg ${who}`;
-    d.textContent = text;
-    chatBox.append(d);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
-
-  async function sendMessageToAI(msg) {
-    const res = await fetch('/chat', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ message: msg })
-    });
-    const data = await res.json();
-    return data.reply;
-  }
-
-  sendBtn.addEventListener('click', async () => {
-    const text = chatInput.value.trim();
-    if (!text) return;
-    appendMsg(text, 'user');
-    chatInput.value = '';
-    appendMsg('…thinking…', 'bot');
-    try {
-      const reply = await sendMessageToAI(text);
-      // replace last bot placeholder
-      const bots = chatBox.querySelectorAll('.msg.bot');
-      bots[bots.length-1].textContent = reply;
-    } catch {
-      appendMsg('Error: unable to reach AI.', 'bot');
+    // ─── My Plans ──────────────────────────────────────────────────────────
+    const plansList = document.getElementById('plansList');
+    function renderPlans() {
+      const plans = loadArr('ft_plans');
+      plansList.innerHTML = '';
+      plans.forEach((id,i) => {
+        const w  = workouts.find(x=>x.id===id);
+        const li = document.createElement('li');
+        li.textContent = w.title;
+        const btn = document.createElement('button');
+        btn.textContent = 'Remove';
+        btn.onclick = () => {
+          plans.splice(i,1);
+          saveArr('ft_plans', plans);
+          renderPlans();
+        };
+        li.append(btn);
+        plansList.append(li);
+      });
     }
+    renderPlans();
+
+    // ─── Progress Chart ────────────────────────────────────────────────────
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    function renderProgress() {
+      const acts = loadArr('ft_activities');
+      const byCat = acts.reduce((o,a) => {
+        const w = workouts.find(wk=>wk.title===a.type);
+        const cat = w ? w.category : 'Other';
+        o[cat] = (o[cat]||0) + 1;
+        return o;
+      }, {});
+      const labels = Object.keys(byCat), data = Object.values(byCat);
+      new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets:[{ data, label:'Sessions' }]},
+        options: { indexAxis:'y', scales:{ x:{ beginAtZero:true } }, plugins:{ legend:{ display:false } } }
+      });
+    }
+    renderProgress();
+
+    // ─── Challenge Modes ──────────────────────────────────────────────────
+    const challenges = [
+      { id:1, title:'7-Day Abs', desc:'Daily core routine for 7 days.', target:7 },
+      { id:2, title:'30-Day Push-Up', desc:'Increase push-ups each day for 30 days.', target:30 }
+    ];
+    const chList = document.getElementById('challengesList');
+    function renderChallenges() {
+      const joined = loadArr('ft_joined');
+      chList.innerHTML = '';
+
+      joined.forEach(id => {
+        const ch = challenges.find(c=>c.id===id);
+        const prog = Math.min(
+          ch.target,
+          loadArr('ft_activities').filter(a => a.type.includes(ch.title.split(' ')[1])).length
+        );
+        const pct = Math.round(prog/ch.target*100);
+        const div = document.createElement('div');
+        div.className = 'challenge';
+        div.innerHTML = `
+          <h3>${ch.title}</h3>
+          <p>${ch.desc}</p>
+          <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
+          <p style="opacity:.8;">${prog}/${ch.target}</p>`;
+        chList.append(div);
+      });
+
+      challenges.filter(c=>!joined.includes(c.id)).forEach(ch => {
+        const div = document.createElement('div');
+        div.className = 'challenge';
+        div.innerHTML = `<h3>${ch.title}</h3><p>${ch.desc}</p>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Join';
+        btn.onclick = () => { joined.push(ch.id); saveArr('ft_joined', joined); renderChallenges(); };
+        div.append(btn);
+        chList.append(div);
+      });
+    }
+    renderChallenges();
+
+    // ─── Live Sessions ─────────────────────────────────────────────────────
+    const sessions = [
+      { id:1, title:'Live Yoga Flow', desc:'30-min guided stretch.', host:'Alice', time:'Today 6pm UTC' },
+      { id:2, title:'HIIT Blast', desc:'High-intensity interval.', host:'Bob', time:'Tomorrow 7am UTC' }
+    ];
+    const sessList = document.getElementById('sessionsList');
+    function renderSessions() {
+      const joined = loadArr('ft_sessions');
+      sessList.innerHTML = '';
+      sessions.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'session';
+        div.innerHTML = `
+          <h3>${s.title}</h3>
+          <p class="info">${s.host} • ${s.time}</p>
+          <p>${s.desc}</p>`;
+        const btn = document.createElement('button');
+        btn.textContent = joined.includes(s.id) ? 'Joined' : 'Join';
+        btn.onclick = () => {
+          if (!joined.includes(s.id)) joined.push(s.id);
+          saveArr('ft_sessions', joined);
+          renderSessions();
+        };
+        div.append(btn);
+        sessList.append(div);
+      });
+    }
+    renderSessions();
+
+    // ─── AI Chatbot (choose-from-20) ───────────────────────────────────────
+    const qaList = [
+      {q:'What is the Workout of the Day?',            a:'The Workout of the Day is a randomly selected routine designed to challenge you—hit “Randomize” to see it.'},
+      {q:'How do I log a workout?',                    a:'Click “Details” on any workout, then “Log This Workout.” It will appear in your activity log.'},
+      {q:'How can I filter workouts?',                 a:'Use the dropdowns above the library to filter by category, duration, or difficulty.'},
+      {q:'How do I save a plan?',                      a:'In the workout details modal, click “Save to My Plans.” Your plan shows up under My Plans.'},
+      {q:'How do I remove a saved plan?',              a:'Under My Plans, click “Remove” next to any plan you no longer want.'},
+      {q:'What equipment do I need?',                  a:'Each workout lists its required equipment—check the details pane for specifics.'},
+      {q:'How are calories estimated?',                a:'Calories are rough estimates based on average burn rates for each routine.'},
+      {q:'What are Challenge Modes?',                  a:'Challenges are time-based goals (e.g. 7-Day Abs). Join one to track your progress.'},
+      {q:'How do I join a challenge?',                 a:'Under Challenge Modes, click “Join” on any challenge you want to start.'},
+      {q:'How do I track my progress?',                a:'Your Progress chart shows sessions per category. It updates automatically with logged workouts.'},
+      {q:'What are live sessions?',                    a:'Live Sessions are scheduled group workouts you can join—click “Join” to sign up.'},
+      {q:'When are the live sessions?',                a:'Each session card shows its host and UTC time (e.g. “Today 6pm UTC”).'},
+      {q:'Can I change my profile settings?',          a:'Go to your Profile page to edit personal info, goals, and preferences.'},
+      {q:'How do I log out?',                          a:'Click the round gold “Sign Out” button in the sidebar.'},
+      {q:'What difficulty should I choose?',           a:'Beginner is for newcomers, Intermediate for regulars, and Advanced for seasoned athletes.'},
+      {q:'Can I customize workouts?',                  a:'Not yet—but we plan to add custom routine creation soon!'},
+      {q:'How often should I work out?',               a:'Aim for at least 3–5 sessions per week, mixing strength, cardio, and recovery.'},
+      {q:'How do I reset my progress?',                a:'At the moment there’s no “reset” button—clearing localStorage in your browser will wipe everything.'},
+      {q:'Who can I contact for support?',             a:'Email support@fittrack.app and we’ll get back to you within 24 hours.'},
+      {q:'Where can I give feedback?',                 a:'Use the Chat Coach to send us suggestions—or drop us a line at feedback@fittrack.app.'}
+    ];
+
+    // Populate dropdown
+    const sel = document.getElementById('questionSelect');
+    qaList.forEach((item, idx) => sel.add(new Option(item.q, idx)));
+
+    // Append messages
+    function appendMsg(text, who) {
+      const m = document.createElement('div');
+      m.className = `msg ${who}`;
+      m.textContent = text;
+      document.querySelector('#chatbot .messages').appendChild(m);
+      document.querySelector('#chatbot .messages').scrollTop =
+        document.querySelector('#chatbot .messages').scrollHeight;
+    }
+
+    // Handle Ask button
+    document.getElementById('askBtn').addEventListener('click', () => {
+      const idx = sel.value; if (idx === '') return;
+      const { q, a } = qaList[idx];
+      appendMsg(q, 'user');
+      appendMsg(a, 'bot');
+      sel.selectedIndex = 0;
+    });
   });
-
-  chatInput.addEventListener('keypress', e => {
-    if (e.key === 'Enter') sendBtn.click();
-  });
-});
-</script>
-
-
+  </script>
 </body>
 </html>
