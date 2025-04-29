@@ -1,174 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Leaderboard</title>
 
-  <!-- Google Fonts & FontAwesome -->
+  <!-- fonts & icons -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
     :root {
-      --bg: #000;
-      --gold: #ff9800;
-      --white: #fff;
-      --font: 'Raleway', sans-serif;
+      --bg: #000; --gold: #ff9800; --white: #fff; --font: 'Raleway',sans-serif;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
+    *{margin:0;padding:0;box-sizing:border-box;}
     body {
-      display: flex;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--white);
-      font-family: var(--font);
-      overflow-y: auto;
+      display:flex; min-height:100vh; background:var(--bg);
+      color:var(--white); font-family:var(--font); overflow-y:auto;
     }
-    a { color: inherit; text-decoration: none; }
-
-    /* ─── SIDEBAR ───────────────────────────────── */
-    .sidebar {
-      position: sticky; top: 0; height: 100vh; width: 80px;
-      background: rgba(0,0,0,0.9); border-right: 2px solid var(--gold);
-      display: flex; flex-direction: column; align-items: center;
-      padding: 1rem 0; z-index: 1000;
+    a { color:inherit; text-decoration:none; }
+    .sidebar{
+      position:sticky; top:0; width:80px; background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold); display:flex; flex-direction:column;
+      align-items:center; padding:1rem 0; z-index:1000;
     }
-    .logo      { font-size: 1.5rem; color: var(--gold); margin-bottom: 2rem; }
-    .menu-item { width: 100%; text-align: center; padding: 1rem 0; transition: background .2s; }
-    .menu-item:hover,
-    .menu-item.active { background: rgba(255,152,0,0.2); }
-    .menu-item a { display: flex; flex-direction: column; align-items: center; }
-    .menu-item i { font-size: 1.4rem; }
-    .menu-item span { font-size: .6rem; margin-top: .2rem; }
-
-    .sign-in-btn {
-      margin-top: auto; margin-bottom: 1rem;
-      width: 50px; height: 50px; background: var(--gold);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; box-shadow: 0 0 10px var(--gold); transition: transform .2s;
-    }
-    .sign-in-btn:hover { transform: scale(1.1); }
-
-    /* ─── MAIN ─────────────────────────────────── */
-    .main { flex: 1; display: flex; flex-direction: column; }
-    header {
-      position: sticky; top: 0; background: rgba(0,0,0,0.9);
-      border-bottom: 2px solid var(--gold);
-      padding: 1.5rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;
-      z-index: 500;
-    }
-    header h1 { font-size: 1.8rem; flex: 1 1 100%; }
-    header p  { font-size: .9rem; opacity: .7; flex: 1 1 100%; }
-    #filters {
-      display: flex; gap: 1rem; flex-wrap: wrap; flex: 1 1 100%;
-    }
-    #filters select {
-      padding: .5rem .75rem; background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.3); border-radius: 6px;
-      color: var(--white); cursor: pointer;
-    }
-
-    /* ─── LEADERBOARD TABLE ─────────────────────── */
-    .leaderboard {
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px; padding: 1rem; margin: 1.5rem;
-      overflow-x: auto;
-    }
-    table {
-      width: 100%; border-collapse: collapse; font-family: var(--font);
-    }
-    th, td {
-      padding: .75rem 1rem; text-align: left;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    th { color: var(--gold); }
-
-    /* ─── YOUR RANK CARD ───────────────────────── */
-    #yourRank {
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px; padding: 1rem;
-      display: flex; align-items: center; gap: 1rem;
-      margin: 0 1.5rem 1.5rem;
-    }
-    #yourRank img { width: 60px; height: 60px; border-radius: 50%; }
-    #yourRank div strong { font-size: 1.1rem; }
-
-    /* ─── HIGHLIGHTS ───────────────────────────── */
-    #highlights {
-      display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
-      gap: 1rem; margin: 0 1.5rem 1.5rem;
-    }
-    .highlight-card {
-      background: rgba(255,255,255,0.05);
-      border-radius:12px; padding:1rem;
-      text-align: center; display: flex; flex-direction: column; align-items: center;
-    }
-    .highlight-card img {
-      width: 48px; height: 48px; border-radius:50%; margin-bottom:.5rem;
-    }
-
-    /* ─── ACHIEVEMENTS ─────────────────────────── */
-    .achievements {
-      margin: 0 1.5rem 1.5rem;
-    }
-    .achievements h2 {
-      color: var(--gold); margin-bottom:.75rem;
-    }
-    .badge-list {
-      display: flex; flex-wrap: wrap; gap:1rem;
-    }
-    .badge {
-      background: rgba(255,255,255,0.05);
-      width: 80px; height: 80px; border-radius:12px;
-      display: flex; flex-direction: column; align-items:center; justify-content:center;
-    }
-    .badge i { font-size:1.5rem; color:var(--gold); }
-    .badge span { font-size:.75rem; text-align:center; }
-
-    /* ─── COMMUNITY CHALLENGES ─────────────────── */
-    .community {
-      margin: 0 1.5rem 2rem;
-    }
-    .community h2 {
-      color: var(--gold); margin-bottom:.75rem;
-    }
-    .challenge-list {
-      display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
-      gap:1rem;
-    }
-    .challenge-card {
-      background: rgba(255,255,255,0.05);
-      border-radius:12px; padding:1rem;
-      display:flex; flex-direction:column; justify-content:space-between;
-    }
-    .challenge-card h3 { margin-bottom:.5rem; }
-    .challenge-card button {
-      align-self:flex-end; padding:.5rem .75rem;
-      background: var(--gold); color: var(--bg);
-      border:none; border-radius:6px; cursor:pointer;
+    .logo{font-size:1.5rem;color:var(--gold);margin-bottom:2rem;}
+    .menu-item{width:100%;text-align:center;padding:1rem 0;transition:background .2s;}
+    .menu-item:hover,.menu-item.active{background:rgba(255,152,0,0.2);}
+    .menu-item a{display:flex;flex-direction:column;align-items:center;}
+    .menu-item i{font-size:1.4rem;} .menu-item span{font-size:.6rem;margin-top:.2rem;}
+    .sign-in-btn{
+      margin-top:auto;margin-bottom:1rem;width:50px;height:50px;
+      background:var(--gold);border-radius:50%;display:flex;align-items:center;
+      justify-content:center;cursor:pointer;box-shadow:0 0 10px var(--gold);
       transition:transform .2s;
     }
-    .challenge-card button:hover { transform:scale(1.05); }
+    .sign-in-btn:hover{transform:scale(1.1);}
 
-    /* ─── MOBILE ───────────────────────────────── */
+    .main{flex:1;display:flex;flex-direction:column;}
+    header{
+      position:sticky;top:0;background:rgba(0,0,0,0.9);
+      border-bottom:2px solid var(--gold);
+      padding:1.5rem;display:flex;flex-wrap:wrap;align-items:center;gap:1rem;
+      z-index:500;
+    }
+    header h1{font-size:1.8rem;flex:1 1 100%;}
+    header p{font-size:.9rem;opacity:.7;flex:1 1 100%;}
+    #filters{display:flex;gap:1rem;flex-wrap:wrap;flex:1 1 100%;}
+    #filters select{
+      padding:.5rem .75rem;background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.3);border-radius:6px;color:var(--white);
+      cursor:pointer;
+    }
+
+    .leaderboard{
+      background:rgba(255,255,255,0.05);border-radius:12px;
+      padding:1rem;margin:1.5rem;overflow-x:auto;
+    }
+    table{width:100%;border-collapse:collapse;font-family:var(--font);}
+    th,td{padding:.75rem 1rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1);}
+    th{color:var(--gold);}
+
+    #yourRank{
+      background:rgba(255,255,255,0.05);border-radius:12px;padding:1rem;
+      display:flex;align-items:center;gap:1rem;margin:0 1.5rem 1.5rem;
+    }
+    #yourRank img{width:60px;height:60px;border-radius:50%;}
+    #yourRank div strong{font-size:1.1rem;}
+
+    #highlights{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:1rem;margin:0 1.5rem 1.5rem;
+    }
+    .highlight-card{
+      background:rgba(255,255,255,0.05);border-radius:12px;
+      padding:1rem;text-align:center;display:flex;
+      flex-direction:column;align-items:center;
+    }
+    .highlight-card img{
+      width:48px;height:48px;border-radius:50%;margin-bottom:.5rem;
+    }
+
+    .achievements{margin:0 1.5rem 1.5rem;}
+    .achievements h2{color:var(--gold);margin-bottom:.75rem;}
+    .badge-list{display:flex;flex-wrap:wrap;gap:1rem;}
+    .badge{
+      background:rgba(255,255,255,0.05);width:80px;height:80px;
+      border-radius:12px;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+    }
+    .badge i{font-size:1.5rem;color:var(--gold);}
+    .badge span{font-size:.75rem;text-align:center;}
+
+    .community{margin:0 1.5rem 2rem;}
+    .community h2{color:var(--gold);margin-bottom:.75rem;}
+    .challenge-list{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:1rem;
+    }
+    .challenge-card{
+      background:rgba(255,255,255,0.05);border-radius:12px;
+      padding:1rem;display:flex;flex-direction:column;
+      justify-content:space-between;
+    }
+    .challenge-card h3{margin-bottom:.5rem;}
+    .challenge-card button{
+      align-self:flex-end;padding:.5rem .75rem;
+      background:var(--gold);color:var(--bg);border:none;
+      border-radius:6px;cursor:pointer;transition:transform .2s;
+    }
+    .challenge-card button:hover{transform:scale(1.05);}
+
     @media(max-width:900px){
-      .sidebar { position: fixed; }
-      .main { margin-left: 80px; }
+      .sidebar{position:fixed;}
+      .main {margin-left:80px;}
     }
     @media(max-width:600px){
-      header { flex-direction: column; align-items: flex-start; }
+      header{flex-direction:column;align-items:flex-start;}
     }
   </style>
 
-  <!-- 1) Shared logic -->
+  <!-- 1) shared storage+state -->
   <script src="storage.js"></script>
 </head>
 <body>
-  <!-- SIDEBAR -->
-  <aside class="sidebar" role="navigation" aria-label="Main sidebar">
+  <aside class="sidebar" role="navigation">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
@@ -180,9 +139,8 @@
 
   <div class="main">
     <header>
-      <!-- 2) Give this h1 an id so renderGreeting can work -->
       <h1 id="headerGreeting">Leaderboard</h1>
-      <p>See who’s leading the pack this week and all-time.</p>
+      <p>See who’s crushing it this week and all-time.</p>
       <div id="filters">
         <select id="timeframe" aria-label="Filter by timeframe">
           <option value="daily">Daily</option>
@@ -199,8 +157,8 @@
       </div>
     </header>
 
-    <!-- Leaderboard Table -->
-    <section class="leaderboard" aria-label="Leaderboard table">
+    <!-- Leaderboard -->
+    <section class="leaderboard">
       <table>
         <thead>
           <tr><th>Rank</th><th>User</th><th>Type</th><th>Score</th></tr>
@@ -210,19 +168,19 @@
     </section>
 
     <!-- Your Rank -->
-    <section id="yourRank" aria-label="Your rank card"></section>
+    <section id="yourRank"></section>
 
     <!-- Highlights -->
-    <section id="highlights" aria-label="Most improved highlights"></section>
+    <section id="highlights"></section>
 
     <!-- Achievements -->
-    <section class="achievements" aria-label="Your achievements">
+    <section class="achievements">
       <h2><i class="fas fa-award"></i> Achievements</h2>
       <div class="badge-list" id="badges"></div>
     </section>
 
     <!-- Community Challenges -->
-    <section class="community" aria-label="Community challenges">
+    <section class="community">
       <h2><i class="fas fa-globe"></i> Community Challenges</h2>
       <div class="challenge-list" id="challenges"></div>
     </section>
@@ -230,95 +188,101 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1) Theme & stats
+      // 2) apply theme + greet
       FT.applyTheme();
-      FT.updateStats();
-
-      // 2) Greeting
       FT.renderGreeting(document.getElementById('headerGreeting'));
 
-      // 3) Dummy user list (could be FT.load('ft_users'))
-      const users = [
-        { id:'u1', name:'Alex M.', type:'Running', score:320, delta:25 },
-        { id:'u2', name:'Sarah K.', type:'Cycling', score:285, delta:18 },
-        { id:FT.cur.email, name:FT.cur.name, type:'Strength', score: FT.cur.stats.workouts * 10, delta:5 }
-      ];
+      // 3) load all users who signed up
+      const allUsers = FT.load('ft_users', []);
+      if (!allUsers.length) {
+        return document.getElementById('leaderboardBody')
+          .innerHTML = '<tr><td colspan="4">No users yet!</td></tr>';
+      }
 
-      // 4) Dummy achievements & challenges
+      // 4) compute each user’s score
+      const users = allUsers.map(u => {
+        const s = u.stats || { workouts:0, distanceKm:0, calories:0 };
+        // you can change this formula as you like
+        const score = s.workouts*10 + Math.round(s.distanceKm);
+        return { ...u, score, avatar: u.avatarDataUrl };
+      });
+
+      // 5) dummy achievements & community challenges
       const achievements = [
         { icon:'fa-fire', name:'Streak Master' },
         { icon:'fa-medal', name:'100 Workouts' },
         { icon:'fa-heart', name:'Community Favorite' }
       ];
       const communityChallenges = [
-        { title:'Weekend 5K', desc:'Run 5K every Saturday.' },
-        { title:'Push-Up Power', desc:'Do 100 push-ups daily.' }
+        { title:'Weekend 5K', desc:'Run 5 km every Saturday.' },
+        { title:'Push-Up Power', desc:'100 push-ups daily.' }
       ];
 
-      // DOM refs
-      const lbBody       = document.getElementById('leaderboardBody');
-      const tfSelect     = document.getElementById('timeframe');
-      const catSelect    = document.getElementById('category');
-      const yourRankEl   = document.getElementById('yourRank');
-      const highlightsEl = document.getElementById('highlights');
-      const badgesEl     = document.getElementById('badges');
-      const challEl      = document.getElementById('challenges');
+      // 6) DOM refs
+      const lbBody    = document.getElementById('leaderboardBody');
+      const tfSelect  = document.getElementById('timeframe');
+      const catSelect = document.getElementById('category');
+      const yourRank  = document.getElementById('yourRank');
+      const hlighEl   = document.getElementById('highlights');
+      const badgeEl   = document.getElementById('badges');
+      const challEl   = document.getElementById('challenges');
 
       function render() {
-        // Filter & sort
+        // a) filter & sort
         let list = users
-          .filter(u=> !catSelect.value || u.type === catSelect.value)
+          .filter(u => !catSelect.value || u.lastType === catSelect.value)
           .sort((a,b)=> b.score - a.score);
 
-        // Table
+        // b) table
         lbBody.innerHTML = list.map((u,i)=>`
           <tr>
             <td>${i+1}</td>
             <td>
-              <img src="https://i.pravatar.cc/32?u=${u.id}" width="24" height="24"
+              <img src="${u.avatar}"
+                   width="24" height="24"
                    style="border-radius:50%;vertical-align:middle;margin-right:.5rem">
               ${u.name}
             </td>
-            <td>${u.type}</td>
+            <td>${u.lastType||'—'}</td>
             <td>${u.score}</td>
           </tr>
         `).join('');
 
-        // Your rank
-        const idx = list.findIndex(u=>u.name === FT.cur.name);
-        if (idx >= 0) {
-          const u = list[idx];
-          yourRankEl.innerHTML = `
-            <img src="${FT.cur.avatarDataUrl || `https://i.pravatar.cc/60?u=${FT.cur.email}`}"
-                 alt="${u.name}" />
-            <div>
-              <strong>${u.name}</strong>, you’re #${idx+1}<br>
-              Score: ${u.score}
+        // c) your rank
+        const meIdx = list.findIndex(u=> u.email === FT.cur.email);
+        if (meIdx>=0) {
+          const me = list[meIdx];
+          yourRank.innerHTML = `
+            <div id="yourRank">
+              <img src="${me.avatar}" alt="${me.name}"/>
+              <div>
+                <strong>${me.name}</strong>, you’re #${meIdx+1}<br>
+                Score: ${me.score}
+              </div>
             </div>
           `;
         } else {
-          yourRankEl.innerHTML = `<div>You’re not ranked yet.</div>`;
+          yourRank.textContent = `You’re not on the leaderboard yet.`;
         }
 
-        // Highlights
-        const topImp = [...list].sort((a,b)=> b.delta - a.delta).slice(0,3);
-        highlightsEl.innerHTML = topImp.map(u=>`
+        // d) highlights (top 3 improvements if you tracked delta)
+        hlighEl.innerHTML = list.slice(0,3).map(u=>`
           <div class="highlight-card">
-            <img src="https://i.pravatar.cc/48?u=${u.id}" alt="${u.name}" />
+            <img src="${u.avatar}" alt="${u.name}"/>
             <div><strong>${u.name}</strong></div>
-            <div>+${u.delta}</div>
+            <div>Score: ${u.score}</div>
           </div>
         `).join('');
 
-        // Achievements
-        badgesEl.innerHTML = achievements.map(b=>`
+        // e) achievements
+        badgeEl.innerHTML = achievements.map(b=>`
           <div class="badge">
             <i class="fas ${b.icon}"></i>
             <span>${b.name}</span>
           </div>
         `).join('');
 
-        // Community Challenges
+        // f) community challenges
         challEl.innerHTML = communityChallenges.map(c=>`
           <div class="challenge-card">
             <h3>${c.title}</h3>
@@ -328,11 +292,11 @@
         `).join('');
       }
 
-      // Listeners
+      // listeners
       tfSelect.addEventListener('change', render);
       catSelect.addEventListener('change', render);
 
-      // Initial render
+      // initial
       render();
     });
   </script>
