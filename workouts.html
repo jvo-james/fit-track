@@ -410,29 +410,31 @@ document.addEventListener('DOMContentLoaded', () => {
     filterCategory.append(new Option(cat, cat));
   });
 
-  function renderLibrary() {
-    const cat  = filterCategory.value;
-    const maxD = +filterDuration.value || Infinity;
-    const diff = filterDifficulty.value;
-    libraryEl.innerHTML = '';
-    workouts
-      .filter(w => (!cat || w.category===cat)
-                && w.duration <= maxD
-                && (!diff || w.difficulty===diff))
-      .forEach(w => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <img src="https://via.placeholder.com/300x120?text=${encodeURIComponent(w.title)}" alt="${w.title}">
-          <div class="card-body">
-            <h3>${w.title}</h3>
-            <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
-            <p class="desc">${w.description}</p>
-            <button data-id="${w.id}">Details</button>
-          </div>`;
-        libraryEl.append(card);
-      });
-  }
+function renderLibrary() {
+  const cat  = filterCategory.value;
+  const maxD = +filterDuration.value || Infinity;
+  const diff = filterDifficulty.value;
+  libraryEl.innerHTML = '';
+
+  workouts
+    .filter(w => (!cat || w.category === cat)
+              && w.duration <= maxD
+              && (!diff || w.difficulty === diff))
+    .forEach(w => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${w.image}" alt="${w.title}">
+        <div class="card-body">
+          <h3>${w.title}</h3>
+          <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+          <p class="desc">${w.description}</p>
+          <button data-id="${w.id}">Details</button>
+        </div>`;
+      libraryEl.append(card);
+    });
+}
+
   [filterCategory, filterDuration, filterDifficulty].forEach(el =>
     el.addEventListener('change', renderLibrary)
   );
