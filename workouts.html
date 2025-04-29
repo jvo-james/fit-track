@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FitTrack | Workouts</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg: #000; --gold: #ff9800; --white: #fff; --font: 'Raleway', sans-serif;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { display:flex; min-height:100vh; background:var(--bg); color:var(--white); font-family:var(--font); }
+    a { color:inherit; text-decoration:none; }
+
+    /* ─── SIDEBAR ───────────────────────────── */
+    .sidebar {
+      position:sticky; top:0; height:100vh; width:80px;
+      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center; padding:1rem 0;
+      z-index:1000;
+    }
+    .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
+    .menu-item { width:100%; text-align:center; padding:1rem 0; transition:background .2s; }
+    .menu-item:hover, .menu-item.active { background:rgba(255,152,0,0.2); }
+    .menu-item a { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .menu-item i { font-size:1.4rem; }
+    .menu-item span { font-size:0.6rem; margin-top:0.2rem; }
+    .sign-in-btn {
+      margin-top:auto; margin-bottom:1rem;
+      width:50px; height:50px; background:var(--gold); border-radius:50%;
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+      box-shadow:0 0 10px var(--gold); transition:transform .2s;
+    }
+    .sign-in-btn:hover { transform:scale(1.1); }
+
+    /* ─── MAIN ───────────────────────────────── */
+    .main { flex:1; overflow-y:auto; }
+    header {
+      position:sticky; top:0; z-index:200;
+      background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold);
+      padding:1.5rem; display:flex; align-items:center; justify-content:space-between;
+    }
+    header h1 { font-size:1.6rem; }
+    header p { font-size:0.9rem; opacity:0.7; }
+    header button { background:var(--gold); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:30px; cursor:pointer; transition:transform .2s; }
+    header button:hover { transform:scale(1.05); }
+
+    .content { padding:1.5rem; display:grid; gap:2rem; }
+
+    /* ─── Workout of the Day ─────────────────── */
+    #workoutOfDay {
+      background:rgba(255,255,255,0.05); border-radius:12px; padding:1.5rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5); display:flex; flex-direction:column;
+    }
+    #workoutOfDay h2 { display:flex; align-items:center; gap:.5rem; color:var(--gold); margin-bottom:1rem; }
+    #workoutOfDay p { margin-bottom:1rem; }
+    #workoutOfDay button { align-self:flex-start; background:var(--gold); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:30px; cursor:pointer; transition:transform .2s; }
+    #workoutOfDay button:hover { transform:scale(1.05); }
+
+    /* ─── Filters + Library ─────────────────── */
+    #filters {
+      display:flex; flex-wrap:wrap; gap:1rem; align-items:center;
+    }
+    #filters select {
+      background:rgba(255,255,255,0.05); color:var(--white); border:1px solid rgba(255,255,255,0.3);
+      padding:.5rem; border-radius:6px;
+    }
+    #library {
+      display:grid; gap:1.5rem;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    }
+    .card {
+      background:rgba(255,255,255,0.05); border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      overflow:hidden; display:flex; flex-direction:column;
+    }
+    .card img {
+      width:100%; height:120px; object-fit:cover;
+    }
+    .card-body { padding:1rem; flex:1; display:flex; flex-direction:column; }
+    .card-body h3 { margin-bottom:.5rem; font-size:1.1rem; }
+    .card-body p { flex:1; font-size:.9rem; opacity:.8; margin-bottom:.5rem; }
+    .card-body .info { font-size:.8rem; margin-bottom:.5rem; }
+    .card-body button {
+      background:var(--gold); color:var(--bg); border:none; padding:.4rem; border-radius:6px;
+      cursor:pointer; transition:transform .2s;
+    }
+    .card-body button:hover { transform:scale(1.05); }
+
+    /* ─── Modal ─────────────────────────────── */
+    #detailModal {
+      display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.8); align-items:center; justify-content:center; padding:1rem;
+    }
+    #detailModal .modal-content {
+      background:rgba(0,0,0,0.9); border-radius:12px; width:100%; max-width:600px;
+      max-height:90%; overflow-y:auto; padding:1.5rem; position:relative;
+    }
+    #detailModal .close {
+      position:absolute; top:1rem; right:1rem; font-size:1.5rem; cursor:pointer; color:var(--gold);
+    }
+    #detailModal h2 { margin-bottom:.5rem; color:var(--gold); }
+    #detailModal p { margin-bottom:.5rem; line-height:1.4; }
+    #detailModal ul { list-style:disc; margin-left:1.5rem; margin-bottom:1rem; }
+    #detailModal .start-btn {
+      background:var(--gold); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:30px;
+      cursor:pointer; transition:transform .2s;
+    }
+    #detailModal .start-btn:hover { transform:scale(1.05); }
+
+    /* ─── My Plans ─────────────────────────── */
+    #myPlans {
+      background:rgba(255,255,255,0.05); border-radius:12px; padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    #myPlans h2 { color:var(--gold); margin-bottom:.75rem; }
+    #myPlans ul { list-style:none; }
+    #myPlans li {
+      display:flex; justify-content:space-between; padding:.5rem 0;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    #myPlans button { background:transparent; border:none; color:var(--gold); cursor:pointer; }
+
+    /* ─── Progress Summary ─────────────────── */
+    #progressSummary {
+      background:rgba(255,255,255,0.05); border-radius:12px; padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    #progressSummary h2 { color:var(--gold); margin-bottom:.75rem; }
+    #progressSummary canvas { width:100% !important; height:200px !important; }
+
+    /* ─── Challenges & Sessions ───────────── */
+    .challenge, .session {
+      background:rgba(255,255,255,0.05); border-radius:12px; padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5); margin-bottom:1rem;
+    }
+    .challenge h3, .session h3 { color:var(--gold); margin-bottom:.5rem; }
+    .challenge p, .session p { margin-bottom:.5rem; font-size:.9rem; }
+    .challenge button, .session button {
+      background:var(--gold); color:var(--bg); border:none; padding:.4rem .8rem;
+      border-radius:6px; cursor:pointer; transition:transform .2s;
+    }
+    .challenge button:hover, .session button:hover { transform:scale(1.05); }
+
+    /* ─── AI Suggestions ───────────────────── */
+    #aiSuggestions {
+      background:rgba(255,255,255,0.05); border-radius:12px; padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    #aiSuggestions h2 { color:var(--gold); margin-bottom:.75rem; }
+    #aiSuggestions .suggestion {
+      display:flex; justify-content:space-between; padding:.5rem 0;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    #aiSuggestions button { background:var(--gold); color:var(--bg); border:none; padding:.3rem .6rem; border-radius:6px; }
+
+    @media(max-width:900px){
+      .content { display:flex; flex-direction:column; }
+      #filters { flex-direction:column; align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar" role="navigation" aria-label="Main sidebar">
+    <div class="logo"><i class="fas fa-heartbeat"></i></div>
+    <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
+    <div class="menu-item active"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
+    <div class="menu-item"><a href="workouts.html"><i class="fas fa-dumbbell"></i><span>Workouts</span></a></div>
+    <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
+    <div class="menu-item"><a href="profile.html"><i class="fas fa-user-circle"></i><span>Profile</span></a></div>
+    <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
+  </aside>
+
+  <div class="main">
+    <header>
+      <h1>Workouts</h1>
+      <p>Find your perfect routine, join challenges, and stay motivated.</p>
+      <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log Activity</button>
+    </header>
+
+    <div class="content">
+      <!-- Workout of the Day -->
+      <section id="workoutOfDay">
+        <h2><i class="fas fa-star"></i> Workout of the Day</h2>
+        <p id="wodTitle">Loading...</p>
+        <p id="wodDesc"></p>
+        <button id="randomizeWOD">Randomize</button>
+      </section>
+
+      <!-- Filters -->
+      <div id="filters">
+        <select id="filterCategory"><option value="">All Categories</option></select>
+        <select id="filterDuration"><option value="">Any Duration</option>
+          <option value="20">Under 20m</option>
+          <option value="45">Under 45m</option>
+          <option value="999">45m+</option>
+        </select>
+        <select id="filterDifficulty"><option value="">Any Difficulty</option>
+          <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+        </select>
+      </div>
+
+      <!-- Workout Library -->
+      <section id="library"></section>
+
+      <!-- Detail Modal -->
+      <div id="detailModal" class="flex-center">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2 id="detailTitle"></h2>
+          <p id="detailDesc"></p>
+          <ul id="detailList"></ul>
+          <p><strong>Equipment:</strong> <span id="detailEquip"></span></p>
+          <p><strong>Est. Calories:</strong> <span id="detailCal">0</span></p>
+          <button class="start-btn" id="detailStart">Log This Workout</button>
+        </div>
+      </div>
+
+      <!-- My Plans -->
+      <section id="myPlans">
+        <h2><i class="fas fa-bookmark"></i> My Plans</h2>
+        <ul id="plansList"></ul>
+      </section>
+
+      <!-- Progress Summary -->
+      <section id="progressSummary">
+        <h2><i class="fas fa-chart-bar"></i> Your Progress</h2>
+        <canvas id="progressChart"></canvas>
+      </section>
+
+      <!-- Challenges -->
+      <section id="challengeModes">
+        <h2><i class="fas fa-flag"></i> Challenge Modes</h2>
+        <!-- Example challenges -->
+        <div id="challengesList"></div>
+      </section>
+
+      <!-- Live Sessions -->
+      <section id="liveSessions">
+        <h2><i class="fas fa-video"></i> Live Sessions</h2>
+        <div id="sessionsList"></div>
+      </section>
+
+      <!-- AI Suggestions -->
+      <section id="aiSuggestions">
+        <h2><i class="fas fa-robot"></i> AI-Suggested Workouts</h2>
+        <div id="suggestionsList"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sample workout data
+      const workouts = [
+        { id:1, title:'Full-Body HIIT', category:'Cardio', duration:20, difficulty:'Intermediate',
+          description:'High-intensity circuit...', exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None', calories:200 },
+        { id:2, title:'Upper Body Strength', category:'Strength', duration:45, difficulty:'Advanced',
+          description:'Build upper-body strength...', exercises:['Push-Ups','Pull-Ups','Dumbbell Rows'], equipment:'Dumbbells', calories:300 },
+        { id:3, title:'Morning Yoga Flow', category:'Yoga', duration:30, difficulty:'Beginner',
+          description:'Gentle flows to start your day...', exercises:['Sun Salutations','Tree Pose','Child’s Pose'], equipment:'Mat', calories:120 },
+        /* add more as needed */
+      ];
+
+      const categories = [...new Set(workouts.map(w=>w.category))];
+      const filterCategory = document.getElementById('filterCategory');
+      categories.forEach(cat=>{
+        const o = document.createElement('option'); o.value=cat; o.textContent=cat;
+        filterCategory.appendChild(o);
+      });
+
+      // Workout of the Day
+      const wodTitle = document.getElementById('wodTitle'),
+            wodDesc  = document.getElementById('wodDesc'),
+            randomize= document.getElementById('randomizeWOD');
+      function pickWOD(){
+        const w = workouts[Math.floor(Math.random()*workouts.length)];
+        wodTitle.textContent = w.title;
+        wodDesc.textContent = w.description;
+      }
+      randomize.onclick = pickWOD;
+      pickWOD();
+
+      // Render Library
+      const library = document.getElementById('library');
+      function renderLibrary(){
+        const cat  = filterCategory.value;
+        const dur  = parseInt(document.getElementById('filterDuration').value)||Infinity;
+        const diff = document.getElementById('filterDifficulty').value;
+        library.innerHTML = '';
+        workouts.filter(w=>{
+          return (!cat||w.category===cat)
+              && (w.duration<=dur)
+              && (!diff||w.difficulty===diff);
+        }).forEach(w=>{
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <img src="https://via.placeholder.com/300x120?text=${encodeURIComponent(w.title)}" alt="">
+            <div class="card-body">
+              <h3>${w.title}</h3>
+              <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+              <p>${w.description}</p>
+              <button data-id="${w.id}">View Details</button>
+            </div>
+          `;
+          library.appendChild(card);
+        });
+      }
+      document.getElementById('filterDuration').onchange = renderLibrary;
+      document.getElementById('filterDifficulty').onchange = renderLibrary;
+      filterCategory.onchange = renderLibrary;
+      renderLibrary();
+
+      // Detail Modal
+      const modal = document.getElementById('detailModal'),
+            detailTitle= document.getElementById('detailTitle'),
+            detailDesc = document.getElementById('detailDesc'),
+            detailList = document.getElementById('detailList'),
+            detailEquip= document.getElementById('detailEquip'),
+            detailCal  = document.getElementById('detailCal'),
+            detailStart= document.getElementById('detailStart');
+      document.body.addEventListener('click', e=>{
+        if (e.target.tagName==='BUTTON' && e.target.dataset.id){
+          const w=workouts.find(x=>x.id==e.target.dataset.id);
+          detailTitle.textContent = w.title;
+          detailDesc.textContent = w.description;
+          detailList.innerHTML = w.exercises.map(ex=>`<li>${ex}</li>`).join('');
+          detailEquip.textContent = w.equipment;
+          detailCal.textContent = w.calories;
+          detailStart.onclick = () => {
+            // log workout into ft_activities
+            const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+            acts.unshift({
+              date: new Date().toISOString().slice(0,10),
+              type: w.title, duration:w.duration,
+              distance:'', calories:w.calories, notes:''
+            });
+            localStorage.setItem('ft_activities', JSON.stringify(acts));
+            // refresh dashboard stats
+            window.alert('Workout logged!');
+            modal.style.display='none';
+          };
+          modal.style.display='flex';
+        }
+        if (e.target.classList.contains('close') || e.target===modal){
+          modal.style.display='none';
+        }
+      });
+
+      // My Plans
+      const plansList = document.getElementById('plansList');
+      const loadArr = k=>JSON.parse(localStorage.getItem(k)||'[]');
+      const saveArr = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
+      function renderPlans(){
+        const plans = loadArr('ft_plans');
+        plansList.innerHTML = '';
+        plans.forEach((id,i)=>{
+          const w = workouts.find(x=>x.id===id);
+          const li = document.createElement('li');
+          li.textContent = w.title;
+          const btn = document.createElement('button');
+          btn.textContent='Remove';
+          btn.onclick = ()=>{
+            plans.splice(i,1); saveArr('ft_plans',plans); renderPlans();
+          };
+          li.appendChild(btn);
+          plansList.appendChild(li);
+        });
+      }
+      // Add "Save Plan" to detail modal
+      const savePlanBtn = document.createElement('button');
+      savePlanBtn.textContent='Save to My Plans';
+      savePlanBtn.style.marginLeft='1rem';
+      detailStart.parentNode.appendChild(savePlanBtn);
+      savePlanBtn.onclick = ()=>{
+        const id = workouts.find(w=>w.title===detailTitle.textContent).id;
+        const plans = loadArr('ft_plans');
+        if (!plans.includes(id)) plans.push(id);
+        saveArr('ft_plans',plans);
+        renderPlans();
+        alert('Saved to My Plans!');
+      };
+      renderPlans();
+
+      // Progress Summary Chart
+      const ctx = document.getElementById('progressChart').getContext('2d');
+      function renderProgress(){
+        const acts = loadArr('ft_activities');
+        const byCat = acts.reduce((o,a)=>{
+          const w = workouts.find(wk=>wk.title===a.type);
+          const cat = w? w.category:'Other';
+          o[cat] = (o[cat]||0) + 1; return o;
+        },{});
+        const labels = Object.keys(byCat), data = Object.values(byCat);
+        new Chart(ctx, {
+          type:'bar',
+          data:{ labels, datasets:[{ label:'Sessions', data, backgroundColor:'rgba(255,152,0,0.8)' }]},
+          options:{ scales:{ y:{ beginAtZero:true, title:{ display:true, text:'Count' } },
+                              x:{ title:{ display:true, text:'Category' } } },
+                    plugins:{ legend:{ display:false } } }
+        });
+      }
+      renderProgress();
+
+      // Challenge Modes
+      const challenges = [
+        { id:1, title:'7-Day Abs', desc:'Daily core routine for 7 days.' },
+        { id:2, title:'30-Day Push-Up', desc:'Increase push-ups each day.' }
+      ];
+      const chList = document.getElementById('challengesList');
+      function renderChallenges(){
+        chList.innerHTML='';
+        const joined = loadArr('ft_joined');
+        challenges.forEach(ch=>{
+          const div = document.createElement('div'); div.className='challenge';
+          div.innerHTML = `<h3>${ch.title}</h3><p>${ch.desc}</p>`;
+          const btn = document.createElement('button');
+          btn.textContent = joined.includes(ch.id)?'Joined':'Join';
+          btn.onclick = ()=>{
+            if (!joined.includes(ch.id)) joined.push(ch.id);
+            saveArr('ft_joined',joined); renderChallenges();
+          };
+          div.appendChild(btn);
+          chList.appendChild(div);
+        });
+      }
+      renderChallenges();
+
+      // Live Sessions
+      const sessions = [
+        { id:1, title:'Live Yoga Flow', desc:'Today at 6pm UTC.' },
+        { id:2, title:'HIIT Blast', desc:'Tomorrow at 7am UTC.' }
+      ];
+      const sessList = document.getElementById('sessionsList');
+      function renderSessions(){
+        sessList.innerHTML='';
+        const joined = loadArr('ft_sessions');
+        sessions.forEach(s=>{
+          const div = document.createElement('div'); div.className='session';
+          div.innerHTML = `<h3>${s.title}</h3><p>${s.desc}</p>`;
+          const btn = document.createElement('button');
+          btn.textContent = joined.includes(s.id)?'Joined':'Join';
+          btn.onclick = ()=>{
+            if (!joined.includes(s.id)) joined.push(s.id);
+            saveArr('ft_sessions',joined); renderSessions();
+          };
+          div.appendChild(btn);
+          sessList.appendChild(div);
+        });
+      }
+      renderSessions();
+
+      // AI Suggestions
+      const suggestList = document.getElementById('suggestionsList');
+      function renderSuggestions(){
+        const acts = loadArr('ft_activities');
+        const freq = acts.reduce((o,a)=>{ o[a.type]=(o[a.type]||0)+1; return o; },{});
+        const favourite = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+        let recs = workouts.filter(w=>w.category === (workouts.find(x=>x.title===favourite?.[0])||{}).category);
+        if (favourite) recs = recs.filter(w=>w.title !== favourite[0]).slice(0,3);
+        suggestList.innerHTML='';
+        recs.forEach(w=>{
+          const div = document.createElement('div'); div.className='suggestion';
+          div.innerHTML = `<span>${w.title}</span>`;
+          const btn = document.createElement('button'); btn.textContent='Try';
+          btn.onclick = ()=> {
+            document.querySelector(`[data-id="${w.id}"]`)?.click();
+          };
+          div.appendChild(btn);
+          suggestList.appendChild(div);
+        });
+        if (!recs.length) suggestList.innerHTML='<p>No suggestions yet.</p>';
+      }
+      renderSuggestions();
+
+    });
+  </script>
+</body>
+</html>
