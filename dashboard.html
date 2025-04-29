@@ -1,33 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FitTrack | Home</title>
-  <!-- Google Fonts & FontAwesome -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
- <!-- Google Fonts: Raleway & Open Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Open+Sans&display=swap" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Animate.css for animations -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
-
+  <title>FitTrack | Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    :root { --bg: #000; --gold: #ff9800; --white: #fff; --font: 'Raleway', sans-serif; }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { display:flex; height:100vh; background:var(--bg); color:var(--white); font-family:var(--font); overflow:hidden; }
-
-    /* ─── SIDEBAR ─── */
-    .sidebar {
-      width:80px; background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center; padding:1rem 0;
+    :root {
+      --bg: #000;
+      --gold: #ff9800;
+      --white: #fff;
+      --font: 'Raleway', sans-serif;
     }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      display:flex;
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--white);
+      font-family:var(--font);
+      overflow:hidden;
+    }
+
+    /* ─── SIDEBAR ─────────── */
+    .sidebar {
+      width:80px;
+      background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:1rem 0;
+      transition:transform .3s;
+    }
+    .sidebar.hide { transform: translateX(-100%); }
     .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
     .menu-item {
       width:100%; text-align:center; padding:1rem 0; cursor:pointer;
@@ -37,7 +43,6 @@
     .menu-item:hover { background:rgba(255,152,0,0.2); }
     .menu-item i { font-size:1.4rem; }
     .menu-item span { display:block; font-size:0.6rem; margin-top:0.2rem; }
-
     .sign-in-btn {
       margin-top:auto; margin-bottom:1rem;
       background:var(--gold); width:50px; height:50px; border-radius:50%;
@@ -46,44 +51,65 @@
     }
     .sign-in-btn:hover { transform:scale(1.1); }
 
-    /* ─── MAIN AREA ─── */
-    .main { flex:1; display:flex; flex-direction:column; overflow-y:auto; }
+    /* ─── MAIN AREA ───────── */
+    .main {
+      flex:1; display:flex; flex-direction:column; overflow-y:auto;
+      transition:margin-left .3s;
+    }
     header {
       display:flex; justify-content:space-between; align-items:center;
-      padding:1.5rem; background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold);
+      padding:1.5rem; background:rgba(0,0,0,0.9);
+      border-bottom:2px solid var(--gold);
     }
     header h1 { font-size:1.6rem; }
+    header p.tagline {
+      font-size:0.9rem; opacity:0.7;
+      margin-top:.25rem; grid-column:1/-1;
+    }
     header button {
       background:var(--gold); color:var(--bg); border:none;
-      padding:.5rem 1rem; border-radius:30px; cursor:pointer; font-weight:600;
-      transition:transform .2s;
+      padding:.5rem 1rem; border-radius:30px; cursor:pointer;
+      font-weight:600; transition:transform .2s;
     }
     header button:hover { transform:scale(1.05); }
 
     .content { padding:1.5rem; }
 
-    /* ─── STATS CARDS ─── */
-    .stats {
-      display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.5rem;
+    /* ─── GRID AREAS ───────── */
+    .stats, .charts {
+      display:grid; gap:1.5rem;
     }
+    .stats {
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    }
+    .charts {
+      margin-top:1.5rem;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    }
+
+    /* ─── STAT CARD ───────── */
     .stat-card {
-      background:rgba(255,255,255,0.05); padding:1.5rem; border-radius:12px;
-      text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      background:rgba(255,255,255,0.05); padding:1.5rem;
+      border-radius:12px; text-align:center;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
       transition:transform .2s,box-shadow .2s;
     }
-    .stat-card:hover { transform:translateY(-5px); box-shadow:0 8px 20px rgba(0,0,0,0.7); }
+    .stat-card:hover {
+      transform:translateY(-5px);
+      box-shadow:0 8px 20px rgba(0,0,0,0.7);
+    }
     .stat-card i { font-size:2rem; color:var(--gold); margin-bottom:.5rem; }
     .stat-card h3 { font-size:1.4rem; margin-bottom:.3rem; }
     .stat-card p { color:rgba(255,255,255,0.8); }
 
-    /* ─── WEEKLY PROGRESS ─── */
+    /* ─── PROGRESS ────────── */
     .progress {
       background:rgba(255,255,255,0.05); margin-top:1.5rem;
       padding:1.5rem; border-radius:12px;
     }
     .progress h3 {
-      font-size:1.2rem; margin-bottom:.8rem; display:flex;
-      align-items:center; gap:.5rem; color:var(--gold);
+      display:flex; align-items:center; gap:.5rem;
+      color:var(--gold); font-size:1.2rem; margin-bottom:.8rem;
     }
     .bar-container {
       background:rgba(255,255,255,0.1); border-radius:6px;
@@ -94,47 +120,83 @@
       transition:width 1s ease;
     }
 
-    /* ─── CHARTS ─── */
-    .charts {
-      display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:1.5rem;
-    }
+    /* ─── CHART CARDS ──────── */
     .chart-card {
       background:rgba(255,255,255,0.05); border-radius:12px;
       padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
       transition:transform .2s,box-shadow .2s;
     }
-    .chart-card:hover { transform:translateY(-5px); box-shadow:0 8px 20px rgba(0,0,0,0.7); }
+    .chart-card:hover {
+      transform:translateY(-5px);
+      box-shadow:0 8px 20px rgba(0,0,0,0.7);
+    }
     .chart-card h3 {
-      font-size:1.2rem; margin-bottom:.8rem; display:flex;
-      align-items:center; gap:.5rem; color:var(--gold);
+      display:flex; align-items:center; gap:.5rem;
+      color:var(--gold); font-size:1.2rem; margin-bottom:.8rem;
     }
     .chart-card canvas { width:100% !important; height:300px !important; }
 
-    /* ─── CHALLENGES & LEADERBOARD ─── */
-    .challenges, .leaderboard { margin-top:1.5rem; }
+    /* ─── CHALLENGES & BOARD ─ */
+    .challenges, .leaderboard {
+      margin-top:1.5rem;
+    }
     .challenges h2, .leaderboard h2 {
-      font-size:1.3rem; margin-bottom:.8rem; display:flex;
-      align-items:center; gap:.5rem; color:var(--gold);
+      display:flex; align-items:center; gap:.5rem;
+      color:var(--gold); font-size:1.3rem; margin-bottom:.8rem;
     }
     .challenge-list li, .leader-list li {
       display:flex; align-items:center; padding:.6rem 0;
-      border-bottom:1px solid rgba(255,255,255,0.1); transition:color .2s;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+      transition:color .2s;
     }
-    .challenge-list li:hover, .leader-list li:hover { color:var(--gold); }
+    .challenge-list li:hover, .leader-list li:hover {
+      color:var(--gold);
+    }
     .challenge-list i, .leader-list i { margin-right:.8rem; }
-    .challenge-list span:last-child, .leader-list span:last-child { margin-left:auto; font-weight:600; }
+    .challenge-list span:last-child, .leader-list span:last-child {
+      margin-left:auto; font-weight:600;
+    }
 
-    /* ─── FOOTER ─── */
+    /* ─── COMMUNITY FEED ───── */
+    .community {
+      margin-top:1.5rem;
+    }
+    .community h2 {
+      display:flex; align-items:center; gap:.5rem;
+      color:var(--gold); font-size:1.3rem; margin-bottom:.8rem;
+    }
+    .feed-list {
+      display:flex; overflow-x:auto; gap:1rem; padding-bottom: .5rem;
+    }
+    .feed-item {
+      flex:0 0 220px;
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    .feed-item h4 { font-size:1rem; margin-bottom:.5rem; }
+    .feed-item p { font-size:0.85rem; color:rgba(255,255,255,0.8); }
+    .feed-item time {
+      display:block; margin-top:.75rem; font-size:0.75rem; opacity:0.6;
+    }
+
+    /* ─── FOOTER ───────────── */
     footer {
       text-align:center; padding:1rem; background:rgba(0,0,0,0.9);
       border-top:2px solid var(--gold);
+      font-size:0.8rem; opacity:0.6;
     }
-    footer p { opacity:.6; font-size:.8rem; }
 
-    /* ─── MOBILE ─── */
+    /* ─── MOBILE BREAKPOINTS ─ */
     @media(max-width:900px){
+      .sidebar { position:fixed; z-index:1000; top:0; left:0; height:100%; }
+      .main { margin-left:0; }
       .charts { grid-template-columns:1fr; }
-      .stats { grid-template-columns:1fr 1fr; }
+      .stats   { grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:600px){
+      header { flex-direction:column; align-items:flex-start; }
+      header p.tagline { margin-bottom:1rem; }
+      .stats   { grid-template-columns:1fr; }
     }
   </style>
 </head>
@@ -170,9 +232,11 @@
       <button class="new-workout" aria-label="Create new workout">
         <i class="fas fa-plus" aria-hidden="true"></i> New Workout
       </button>
+      <p class="tagline">Join friends every weekend, share your progress, and stay motivated all week long.</p>
     </header>
 
     <div class="content">
+
       <!-- STATS -->
       <section class="stats">
         <div class="stat-card" role="region" aria-label="Workouts This Month">
@@ -232,6 +296,14 @@
         <h2><i class="fas fa-trophy" aria-hidden="true"></i> Leaderboard</h2>
         <ol class="leader-list" id="leaderboardList"></ol>
       </section>
+
+      <!-- COMMUNITY FEED -->
+      <section class="community" role="region" aria-label="Community feed">
+        <h2><i class="fas fa-users" aria-hidden="true"></i> Community Feed</h2>
+        <div class="feed-list" id="feedList">
+          <!-- dynamically injected feed items -->
+        </div>
+      </section>
     </div>
 
     <footer>
@@ -243,12 +315,13 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1) Read stored user info
+      // 1) Load user + stats from localStorage
       const stored = JSON.parse(localStorage.getItem('ft_current'));
       if (!stored) return window.location.href = 'home.html';
       const {
         name,
-        stats = { workouts:0, distance:'0 km', calories:0, days:0 },
+        isNew,
+        stats = {workouts:0, distance:'0 km', calories:0, days:0},
         progress = 0,
         chartData = {
           labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
@@ -257,13 +330,16 @@
         },
         challenges = [0,0,0],
         leaderboard = [],
-        isNew = false
+        feed = [
+          { user:'Alex', text:'Just smashed my 10k run!', time:'2h ago' },
+          { user:'Sarah', text:'Who’s up for push-up challenge?', time:'4h ago' },
+          { user:'Jake', text:'Weekend group yoga in the park!', time:'1d ago' }
+        ]
       } = stored;
 
-      // 2) Greeting
+      // 2) Greeting + clear isNew
       const greetEl = document.getElementById('greeting');
       greetEl.textContent = isNew ? `Hello ${name}` : `Welcome back, ${name}`;
-      // reset flag
       localStorage.setItem('ft_current', JSON.stringify({ ...stored, isNew:false }));
 
       // 3) Populate stats
@@ -272,68 +348,53 @@
       document.getElementById('caloriesCount').textContent = stats.calories;
       document.getElementById('activeDaysCount').textContent = stats.days;
 
-      // 4) Progress bar
+      // 4) Animate progress bar
       document.getElementById('progressBar').style.width = progress + '%';
 
       // 5) Challenges
-      challenges.forEach((pct, i) => {
+      challenges.forEach((pct,i) => {
         document.getElementById(`challenge${i+1}`).textContent = pct + '%';
       });
 
       // 6) Leaderboard
-      const lbList = document.getElementById('leaderboardList');
+      const lb = document.getElementById('leaderboardList');
       leaderboard.forEach(item => {
         const li = document.createElement('li');
         li.innerHTML = `<span>${item.name}</span><span>${item.value}</span>`;
-        lbList.appendChild(li);
+        lb.appendChild(li);
       });
 
-      // 7) Charts
-      const ctx1 = document.getElementById('activityChart').getContext('2d');
-      new Chart(ctx1, {
+      // 7) Feed
+      const feedEl = document.getElementById('feedList');
+      feed.forEach(post => {
+        const div = document.createElement('div');
+        div.className = 'feed-item';
+        div.innerHTML = `
+          <h4>${post.user}</h4>
+          <p>${post.text}</p>
+          <time>${post.time}</time>
+        `;
+        feedEl.appendChild(div);
+      });
+
+      // 8) Charts
+      new Chart(document.getElementById('activityChart').getContext('2d'), {
         type: 'line',
-        data: {
-          labels: chartData.labels,
-          datasets: [{
-            label: 'Activity',
-            data: chartData.activity,
-            fill: false,
-            tension: 0.1
-          }]
-        },
-        options: { responsive:true, maintainAspectRatio:false }
+        data: { labels: chartData.labels, datasets:[{ label:'Activity', data:chartData.activity, fill:false, tension:0.1 }] },
+        options:{ responsive:true, maintainAspectRatio:false }
       });
-
-      const ctx2 = document.getElementById('distributionChart').getContext('2d');
-      new Chart(ctx2, {
+      new Chart(document.getElementById('distributionChart').getContext('2d'), {
         type: 'pie',
-        data: {
-          labels: ['Cardio','Strength','Flexibility','Other'],
-          datasets: [{ data: chartData.distribution }]
-        },
-        options: { responsive:true, maintainAspectRatio:false }
+        data: { labels:['Cardio','Strength','Flexibility','Other'], datasets:[{ data: chartData.distribution }] },
+        options:{ responsive:true, maintainAspectRatio:false }
       });
 
-      // 8) Logout button
-      const logoutBtn = document.querySelector('.sign-in-btn');
-      logoutBtn.addEventListener('click', () => {
-        window.location.href = 'home.html';
-      });
-      logoutBtn.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          logoutBtn.click();
-        }
-      });
-
-      // 9) Keyboard nav for sidebar items
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            item.click();
-          }
-        });
+      // 9) Logout & keyboard nav
+      const logout = document.querySelector('.sign-in-btn');
+      logout.addEventListener('click', () => window.location.href='home.html');
+      logout.addEventListener('keydown', e => { if (['Enter',' '].includes(e.key)) logout.click(); });
+      document.querySelectorAll('.menu-item').forEach(it => {
+        it.addEventListener('keydown', e => { if (['Enter',' '].includes(e.key)) it.click(); });
       });
     });
   </script>
