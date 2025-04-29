@@ -13,116 +13,143 @@
 
   <style>
     :root {
-      --bg: #000;
+      --bg: #0d0d0d;
+      --card-bg: rgba(255,255,255,0.05);
       --gold: #ff9800;
       --white: #fff;
-      --font: 'Raleway', sans-serif;
+      --font: 'Poppins', sans-serif;
+      --font-alt: 'Raleway', sans-serif;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display: flex;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--white);
-      font-family: var(--font);
-      overflow-y: auto;
+      display:flex;
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--white);
+      font-family:var(--font);
+      overflow-y:auto;
     }
-    a { color: inherit; text-decoration: none; }
+    a { color:inherit; text-decoration:none; }
 
     /* ─── SIDEBAR ───────────────────────────────── */
     .sidebar {
-      position: sticky; top: 0; height: 100vh; width: 80px;
-      background: rgba(0,0,0,0.9); border-right: 2px solid var(--gold);
-      display: flex; flex-direction: column; align-items: center;
-      padding: 1rem 0; z-index: 1000;
+      position:sticky; top:0; height:100vh; width:80px;
+      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding:1rem 0; z-index:1000;
     }
-    .logo {
-      font-size: 1.5rem; color: var(--gold); margin-bottom: 2rem;
+    .sidebar .logo {
+      font-size:1.6rem; color:var(--gold); margin-bottom:2rem;
     }
-    .menu-item {
-      width: 100%; text-align: center; padding: 1rem 0;
-      transition: background .2s;
+    .sidebar .menu-item {
+      width:100%; text-align:center; padding:1rem 0;
+      transition:background .2s;
     }
-    .menu-item:hover,
-    .menu-item.active {
-      background: rgba(255,152,0,0.2);
+    .sidebar .menu-item:hover,
+    .sidebar .menu-item.active {
+      background:rgba(255,152,0,0.2);
     }
-    .menu-item a {
-      display: flex; flex-direction: column; align-items: center;
+    .sidebar .menu-item a {
+      display:flex; flex-direction:column; align-items:center;
     }
-    .menu-item i { font-size: 1.4rem; }
-    .menu-item span { font-size: .6rem; margin-top: .2rem; }
-
-    .sign-in-btn {
-      margin-top: auto; margin-bottom: 1rem;
-      width: 50px; height: 50px; background: var(--gold);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; box-shadow: 0 0 10px var(--gold); transition: transform .2s;
+    .sidebar .menu-item i { font-size:1.4rem; }
+    .sidebar .menu-item span { font-size:.6rem; margin-top:.2rem; }
+    .sidebar .sign-in-btn {
+      margin-top:auto; margin-bottom:1rem;
+      width:50px; height:50px; background:var(--gold);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; box-shadow:0 0 10px var(--gold); transition:transform .2s;
     }
-    .sign-in-btn:hover { transform: scale(1.1); }
+    .sidebar .sign-in-btn:hover { transform:scale(1.1); }
 
     /* ─── MAIN ─────────────────────────────────── */
     .main {
-      flex: 1; display: flex; flex-direction: column;
+      flex:1; display:flex; flex-direction:column;
     }
     header {
-      position: sticky; top: 0;
-      background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--gold);
-      padding: 1.5rem; display: flex; align-items: center; gap: 1rem;
-      z-index: 500;
+      position:sticky; top:0;
+      background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold);
+      padding:1.5rem; display:flex; align-items:center; justify-content:space-between;
+      z-index:500;
     }
-    header h1 { font-size: 1.8rem; flex: 1; }
+    header h1 {
+      font-size:1.8rem; font-family:var(--font-alt);
+    }
     header button {
-      background: var(--gold); color: var(--bg); border: none;
-      padding: .5rem 1rem; border-radius: 30px; cursor: pointer;
-      font-weight: 600; transition: transform .2s;
+      background:var(--gold); color:var(--bg); border:none;
+      padding:.5rem 1rem; border-radius:30px; cursor:pointer;
+      font-weight:600; transition:transform .2s;
     }
-    header button:hover { transform: scale(1.05); }
+    header button:hover { transform:scale(1.05); }
 
-    .content { padding: 1.5rem; flex: 1; }
+    .content {
+      padding:2rem; flex:1; overflow-y:auto;
+    }
 
-    /* ─── PROFILE CARD ───────────────────────── */
+    /* ─── PROFILE FORM ───────────────────────── */
     .profile-card {
-      max-width: 400px; margin: 0 auto;
-      background: rgba(255,255,255,0.05); border-radius: 12px;
-      padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+      max-width:800px; margin:0 auto;
+      background:var(--card-bg); border-radius:12px;
+      padding:2rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      display:grid; grid-template-columns:200px 1fr; gap:2rem;
+      font-family:var(--font-alt);
     }
-    .profile-card img {
-      width: 100px; height: 100px; border-radius: 50%;
-      object-fit: cover; border: 2px solid var(--gold);
+
+    /* picture + basic */
+    .avatar-section {
+      display:flex; flex-direction:column; align-items:center; gap:1rem;
     }
-    .profile-card h2 {
-      font-size: 1.5rem; margin-top: .5rem;
+    #avatarPreview {
+      width:150px; height:150px; border-radius:50%;
+      object-fit:cover; border:3px solid var(--gold);
+      background:rgba(255,255,255,0.1);
     }
-    .profile-card p {
-      font-size: 1rem; opacity: 0.8; text-align: center;
+    .avatar-section input[type="file"] {
+      color:var(--white);
     }
-    .profile-card .field {
-      width: 100%; display: flex; flex-direction: column; text-align: left;
+
+    /* form fields */
+    .fields {
+      display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;
     }
-    .profile-card .field label {
-      font-weight: 600; margin-bottom: .25rem;
+    .field {
+      display:flex; flex-direction:column; margin-bottom:1rem;
     }
-    .profile-card .field input {
-      padding: .5rem; border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.05); color: var(--white);
+    .field label {
+      font-weight:600; margin-bottom:.3rem;
     }
-    .profile-card button {
-      margin-top: 1rem; padding: .75rem 1.5rem;
-      background: var(--gold); color: var(--bg);
-      border: none; border-radius: 30px; cursor: pointer;
-      font-weight: 600; transition: transform .2s;
+    .field input,
+    .field select,
+    .field textarea {
+      padding:.6rem; border-radius:6px;
+      border:1px solid rgba(255,255,255,0.3);
+      background:rgba(255,255,255,0.05); color:var(--white);
+      font-family:var(--font);
+      font-size:1rem;
     }
-    .profile-card button:hover { transform: scale(1.05); }
+    .field textarea {
+      resize: vertical;
+      grid-column: span 2;
+      min-height:80px;
+    }
+
+    .actions {
+      grid-column: span 2; display:flex; justify-content:flex-end; gap:1rem;
+    }
+    .actions button {
+      padding:.75rem 1.5rem; border:none;
+      background:var(--gold); color:var(--bg);
+      border-radius:30px; cursor:pointer;
+      font-weight:600; transition:transform .2s;
+    }
+    .actions button:hover { transform:scale(1.05); }
 
     @media(max-width:900px){
-      .sidebar { position: fixed; }
-      .main { margin-left: 80px; }
-    }
-    @media(max-width:600px){
-      header { flex-direction: column; align-items: flex-start; }
+      .sidebar { position:fixed; }
+      .main { margin-left:80px; }
+      .profile-card { grid-template-columns:1fr; }
+      .fields { grid-template-columns:1fr; }
+      .field textarea { grid-column: span 1; }
     }
   </style>
 </head>
@@ -145,22 +172,77 @@
     </header>
 
     <div class="content">
-      <div class="profile-card" aria-label="User profile card">
-        <img id="avatar" src="" alt="User avatar" />
-        <h2 id="profileName">Loading…</h2>
-        <p id="profileEmail">email@example.com</p>
-        <p id="memberSince">Member since: …</p>
+      <form id="profileForm" class="profile-card" aria-label="Edit profile">
+        <!-- Avatar -->
+        <div class="avatar-section">
+          <img id="avatarPreview" src="" alt="Profile Picture">
+          <input type="file" id="avatarInput" accept="image/*" aria-label="Upload profile picture">
+        </div>
 
-        <div class="field">
-          <label for="editName">Name</label>
-          <input id="editName" type="text" />
+        <!-- Fields -->
+        <div class="fields">
+          <div class="field">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" type="text" required>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" disabled>
+          </div>
+          <div class="field">
+            <label for="bio">Bio</label>
+            <textarea id="bio" placeholder="A short bio about you"></textarea>
+          </div>
+          <div class="field">
+            <label for="location">Location</label>
+            <input id="location" type="text" placeholder="City, Country">
+          </div>
+          <div class="field">
+            <label for="age">Age</label>
+            <input id="age" type="number" min="0">
+          </div>
+          <div class="field">
+            <label for="gender">Gender</label>
+            <select id="gender">
+              <option value="">Prefer not to say</option>
+              <option>Female</option>
+              <option>Male</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="height">Height (cm)</label>
+            <input id="height" type="number" min="0">
+          </div>
+          <div class="field">
+            <label for="weight">Weight (kg)</label>
+            <input id="weight" type="number" min="0">
+          </div>
+          <div class="field">
+            <label for="goals">Fitness Goals</label>
+            <textarea id="goals" placeholder="e.g. Run a marathon, gain muscle"></textarea>
+          </div>
+          <div class="field">
+            <label for="theme">Theme Preference</label>
+            <select id="theme">
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Notifications</label>
+            <div>
+              <label><input type="checkbox" id="notifEmail"> Email</label><br>
+              <label><input type="checkbox" id="notifPush"> Push</label>
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label for="editEmail">Email</label>
-          <input id="editEmail" type="email" disabled />
+
+        <!-- Actions -->
+        <div class="actions">
+          <button type="button" id="saveBtn">Save Changes</button>
         </div>
-        <button id="saveBtn">Save Changes</button>
-      </div>
+      </form>
     </div>
   </div>
 
@@ -168,46 +250,98 @@
     document.addEventListener('DOMContentLoaded', () => {
       const cur = JSON.parse(localStorage.getItem('ft_current') || '{}');
       const users = JSON.parse(localStorage.getItem('ft_users') || '[]');
-      if (!cur.name) return window.location.href = 'home.html';
 
-      // find this user in ft_users
-      const user = users.find(u => u.email === cur.email) || {};
+      // DOM refs
+      const avatarInput  = document.getElementById('avatarInput');
+      const avatarPreview= document.getElementById('avatarPreview');
+      const fld = {
+        fullName: document.getElementById('fullName'),
+        email:    document.getElementById('email'),
+        bio:      document.getElementById('bio'),
+        location: document.getElementById('location'),
+        age:      document.getElementById('age'),
+        gender:   document.getElementById('gender'),
+        height:   document.getElementById('height'),
+        weight:   document.getElementById('weight'),
+        goals:    document.getElementById('goals'),
+        theme:    document.getElementById('theme'),
+        notifEmail: document.getElementById('notifEmail'),
+        notifPush:  document.getElementById('notifPush')
+      };
 
-      // populate
-      document.getElementById('avatar').src = `https://i.pravatar.cc/150?u=${cur.email}`;
-      document.getElementById('profileName').textContent = cur.name;
-      document.getElementById('profileEmail').textContent = cur.email;
-      document.getElementById('memberSince').textContent = user.since
-        ? `Member since: ${new Date(user.since).toLocaleDateString()}`
-        : '';
-
-      // edit fields
-      const editName = document.getElementById('editName');
-      const editEmail= document.getElementById('editEmail');
-      editName.value  = cur.name;
-      editEmail.value = cur.email;
-
-      // save changes
-      document.getElementById('saveBtn').addEventListener('click', () => {
-        const newName = editName.value.trim();
-        if (newName) {
-          // update localStorage: ft_current and ft_users
-          cur.name = newName;
-          localStorage.setItem('ft_current', JSON.stringify(cur));
-          const idx = users.findIndex(u => u.email === cur.email);
-          if (idx >= 0) {
-            users[idx].name = newName;
-            localStorage.setItem('ft_users', JSON.stringify(users));
-          }
-          document.getElementById('profileName').textContent = newName;
-          alert('Profile updated!');
+      // initialize form with stored data or defaults
+      function initForm() {
+        // ft_current holds profile info
+        fld.fullName.value = cur.name || '';
+        fld.email.value    = cur.email || '';
+        fld.bio.value      = cur.bio || '';
+        fld.location.value = cur.location || '';
+        fld.age.value      = cur.age || '';
+        fld.gender.value   = cur.gender || '';
+        fld.height.value   = cur.height || '';
+        fld.weight.value   = cur.weight || '';
+        fld.goals.value    = cur.goals || '';
+        fld.theme.value    = cur.theme || 'dark';
+        fld.notifEmail.checked = !!cur.notifEmail;
+        fld.notifPush.checked  = !!cur.notifPush;
+        // avatar
+        if (cur.avatarDataUrl) {
+          avatarPreview.src = cur.avatarDataUrl;
+        } else {
+          avatarPreview.src = `https://i.pravatar.cc/150?u=${cur.email || 'default'}`;
         }
+        applyTheme(cur.theme || 'dark');
+      }
+
+      // apply theme class to body
+      function applyTheme(theme) {
+        document.body.classList.toggle('light-theme', theme==='light');
+      }
+
+      // handle avatar upload
+      avatarInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          avatarPreview.src = reader.result;
+          cur.avatarDataUrl = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // save button
+      document.getElementById('saveBtn').addEventListener('click', () => {
+        // gather
+        cur.name       = fld.fullName.value.trim();
+        cur.bio        = fld.bio.value.trim();
+        cur.location   = fld.location.value.trim();
+        cur.age        = fld.age.value;
+        cur.gender     = fld.gender.value;
+        cur.height     = fld.height.value;
+        cur.weight     = fld.weight.value;
+        cur.goals      = fld.goals.value.trim();
+        cur.theme      = fld.theme.value;
+        cur.notifEmail = fld.notifEmail.checked;
+        cur.notifPush  = fld.notifPush.checked;
+        // update storage
+        localStorage.setItem('ft_current', JSON.stringify(cur));
+        // update ft_users entry
+        const idx = users.findIndex(u => u.email === cur.email);
+        if (idx >= 0) {
+          users[idx] = { ...users[idx], ...cur, since: users[idx].since || Date.now() };
+          localStorage.setItem('ft_users', JSON.stringify(users));
+        }
+        applyTheme(cur.theme);
+        alert('Profile saved! Changes will reflect across the app.');
       });
 
       // logout
       document.getElementById('logoutBtn').addEventListener('click', () => {
         window.location.href = 'home.html';
       });
+
+      initForm();
     });
   </script>
 </body>
