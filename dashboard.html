@@ -4,11 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FitTrack | Dashboard</title>
+  <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet" />
- <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
- <!-- Google Fonts: Raleway & Open Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Open+Sans&display=swap" rel="stylesheet" />
@@ -16,7 +15,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Animate.css for animations -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     :root {
       --bg: #000;
@@ -31,28 +32,17 @@
       background:var(--bg);
       color:var(--white);
       font-family:var(--font);
-      overflow-y:auto; 
+      overflow-y:auto;
     }
 
-    /* ─── SIDEBAR (now sticky) ─────────── */
+    /* ─── SIDEBAR (identical to log.html) ─────────── */
     .sidebar {
-      position:sticky;
-      top:0;
-      height:100vh;
-      width:80px;
-      background:rgba(0,0,0,0.9);
-      border-right:2px solid var(--gold);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      padding:1rem 0;
-      transition:transform .3s;
-            color: var(--white);              
+      position:sticky; top:0; height:100vh; width:80px;
+      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding:1rem 0; z-index:1000; color:var(--white);
     }
-    .sidebar.hide { transform: translateX(-100%); }
     .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
-
-    /* Make entire menu-item a link, but inherit your styles */
     .menu-item {
       width:100%; text-align:center; padding:1rem 0;
       transition:background .2s;
@@ -60,28 +50,13 @@
     .menu-item:hover,
     .menu-item.active { background:rgba(255,152,0,0.2); }
     .menu-item a {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      width:100%; height:100%;
-      color: white;
-      text-decoration:none;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      width:100%; height:100%; color:inherit; text-decoration:none;
     }
-    .sidebar a {
-  color: white !important;
-  text-decoration: none;
-}
-
-    .menu-item i { font-size:1.4rem; }
-    .menu-item span { display:block; font-size:0.6rem; margin-top:0.2rem; }
- .menu-item i,
-    .menu-item span {
-      color: inherit;                  /* white */
-    }
+    .menu-item i, .menu-item span { color:inherit; }
     .sign-in-btn {
       margin-top:auto; margin-bottom:1rem;
-      background:var(--gold); width:50px; height:50px; border-radius:50%;
+      width:50px; height:50px; background:var(--gold); border-radius:50%;
       display:flex; align-items:center; justify-content:center;
       cursor:pointer; box-shadow:0 0 10px var(--gold); transition:transform .2s;
     }
@@ -92,23 +67,17 @@
       flex:1; display:flex; flex-direction:column; overflow-y:auto;
       transition:margin-left .3s;
     }
-    /* ensure content doesn’t slip under fixed sidebar on small screens */
-    @media(max-width:900px){ .main { margin-left:0; } }
-    @media(min-width:901px){ .main { margin-left:0; } }
 
-    /* ─── HEADER (now sticky) ───────── */
+    /* ─── HEADER (sticky) ───────── */
     header {
-      position:sticky;
-      top:0;
-      z-index:200;
+      position:sticky; top:0; z-index:200;
       display:flex; justify-content:space-between; align-items:center;
       padding:1.5rem; background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
     }
     header h1 { font-size:1.6rem; }
     header p.tagline {
-      font-size:0.9rem; opacity:0.7;
-      margin-top:.25rem; grid-column:1/-1;
+      font-size:0.9rem; opacity:0.7; margin-top:.25rem;
     }
     header button.new-workout {
       background:var(--gold); color:var(--bg); border:none;
@@ -202,7 +171,7 @@
       color:var(--gold); font-size:1.3rem; margin-bottom:.8rem;
     }
     .feed-list {
-      display:flex; overflow-x:auto; gap:1rem; padding-bottom: .5rem;
+      display:flex; overflow-x:auto; gap:1rem; padding-bottom:.5rem;
     }
     .feed-item {
       flex:0 0 220px;
@@ -238,40 +207,45 @@
 </head>
 <body>
 
-<aside class="sidebar" role="navigation" aria-label="Main sidebar">
+  <aside class="sidebar" role="navigation" aria-label="Main sidebar">
     <div class="logo" aria-hidden="true"><i class="fas fa-heartbeat"></i></div>
 
-    <!-- all menu items are now anchors, inheriting your styles -->
-    <a href="dashboard.html" class="menu-item active" aria-label="Dashboard">
-      <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
-      <span>Dash</span>
-    </a>
-    <a href="log.html" class="menu-item" aria-label="Workouts">
-      <i class="fas fa-dumbbell" aria-hidden="true"></i>
-      <span>Workouts</span>
-    </a>
-    <a href="challenges.html" class="menu-item" aria-label="Challenges">
-      <i class="fas fa-flag-checkered" aria-hidden="true"></i>
-      <span>Challenges</span>
-    </a>
-    <a href="reports.html" class="menu-item" aria-label="Reports">
-      <i class="fas fa-chart-line" aria-hidden="true"></i>
-      <span>Reports</span>
-    </a>
-    <a href="profile.html" class="menu-item" aria-label="Profile">
-      <i class="fas fa-user-circle" aria-hidden="true"></i>
-      <span>Profile</span>
-    </a>
-
-    <div class="sign-in-btn" role="button" tabindex="0" aria-label="Logout">
-      <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+    <div class="menu-item active">
+      <a href="dashboard.html" aria-label="Dashboard">
+        <i class="fas fa-tachometer-alt"></i><span>Dash</span>
+      </a>
     </div>
+    <div class="menu-item">
+      <a href="log.html" aria-label="Log Activity">
+        <i class="fas fa-pen"></i><span>Log</span>
+      </a>
+    </div>
+    <div class="menu-item">
+      <a href="workouts.html" aria-label="Workouts">
+        <i class="fas fa-dumbbell"></i><span>Workouts</span>
+      </a>
+    </div>
+    <div class="menu-item">
+      <a href="leaderboard.html" aria-label="Board">
+        <i class="fas fa-trophy"></i><span>Board</span>
+      </a>
+    </div>
+    <div class="menu-item">
+      <a href="profile.html" aria-label="Profile">
+        <i class="fas fa-user-circle"></i><span>Profile</span>
+      </a>
+    </div>
+
+    <a href="home.html" class="sign-in-btn" aria-label="Logout">
+      <i class="fas fa-sign-out-alt"></i>
+    </a>
   </aside>
+
   <div class="main" role="main">
     <header>
       <h1 id="greeting">Loading…</h1>
       <button class="new-workout" aria-label="Create new workout">
-        <i class="fas fa-plus" aria-hidden="true"></i> New Workout
+        <i class="fas fa-plus"></i> New Workout
       </button>
       <p class="tagline">Join friends every weekend, share your progress, and stay motivated all week long.</p>
     </header>
@@ -280,23 +254,23 @@
 
       <!-- STATS -->
       <section class="stats">
-        <div class="stat-card" role="region" aria-label="Workouts This Month">
-          <i class="fas fa-dumbbell" aria-hidden="true"></i>
+        <div class="stat-card">
+          <i class="fas fa-dumbbell"></i>
           <h3 id="workoutsCount">0</h3>
           <p>Workouts This Month</p>
         </div>
-        <div class="stat-card" role="region" aria-label="Total Distance">
-          <i class="fas fa-road" aria-hidden="true"></i>
-          <h3 id="distanceCount">0 km</h3>
+        <div class="stat-card">
+          <i class="fas fa-road"></i>
+          <h3 id="distanceCount">0.00 km</h3>
           <p>Total Distance</p>
         </div>
-        <div class="stat-card" role="region" aria-label="Calories Burned">
-          <i class="fas fa-fire" aria-hidden="true"></i>
+        <div class="stat-card">
+          <i class="fas fa-fire"></i>
           <h3 id="caloriesCount">0</h3>
           <p>Calories Burned</p>
         </div>
-        <div class="stat-card" role="region" aria-label="Active Days">
-          <i class="fas fa-calendar-day" aria-hidden="true"></i>
+        <div class="stat-card">
+          <i class="fas fa-calendar-day"></i>
           <h3 id="activeDaysCount">0</h3>
           <p>Active Days</p>
         </div>
@@ -304,7 +278,7 @@
 
       <!-- WEEKLY PROGRESS -->
       <section class="progress" role="region" aria-label="This Week’s Goal Progress">
-        <h3><i class="fas fa-chart-line" aria-hidden="true"></i> This Week’s Goal</h3>
+        <h3><i class="fas fa-chart-line"></i> This Week’s Goal</h3>
         <div class="bar-container">
           <div class="bar-fill" id="progressBar"></div>
         </div>
@@ -313,38 +287,37 @@
       <!-- CHARTS -->
       <section class="charts" aria-label="Analytics charts">
         <div class="chart-card">
-          <h3><i class="fas fa-chart-line" aria-hidden="true"></i> Activity Over Time</h3>
-          <canvas id="activityChart" role="img" aria-label="Activity over time chart"></canvas>
+          <h3><i class="fas fa-chart-line"></i> Activity Over Time</h3>
+          <canvas id="activityChart" role="img"></canvas>
         </div>
         <div class="chart-card">
-          <h3><i class="fas fa-chart-pie" aria-hidden="true"></i> Workout Distribution</h3>
-          <canvas id="distributionChart" role="img" aria-label="Workout distribution chart"></canvas>
+          <h3><i class="fas fa-chart-pie"></i> Workout Distribution</h3>
+          <canvas id="distributionChart" role="img"></canvas>
         </div>
       </section>
 
       <!-- CURRENT CHALLENGES -->
       <section class="challenges" role="region" aria-label="Current challenges">
-        <h2><i class="fas fa-flag-checkered" aria-hidden="true"></i> Current Challenges</h2>
+        <h2><i class="fas fa-flag-checkered"></i> Current Challenges</h2>
         <ul class="challenge-list">
-          <li><i class="fas fa-running" aria-hidden="true"></i><span>Run 50km</span><span id="challenge1">0%</span></li>
-          <li><i class="fas fa-hand-rock" aria-hidden="true"></i><span>Push-ups x50</span><span id="challenge2">0%</span></li>
-          <li><i class="fas fa-bicycle" aria-hidden="true"></i><span>Cycle 100km</span><span id="challenge3">0%</span></li>
+          <li><i class="fas fa-running"></i><span>Run 50km</span><span id="challenge1">0%</span></li>
+          <li><i class="fas fa-hand-rock"></i><span>Push-ups x50</span><span id="challenge2">0%</span></li>
+          <li><i class="fas fa-bicycle"></i><span>Cycle 100km</span><span id="challenge3">0%</span></li>
         </ul>
       </section>
 
       <!-- LEADERBOARD -->
       <section class="leaderboard" role="region" aria-label="Leaderboard">
-        <h2><i class="fas fa-trophy" aria-hidden="true"></i> Leaderboard</h2>
+        <h2><i class="fas fa-trophy"></i> Leaderboard</h2>
         <ol class="leader-list" id="leaderboardList"></ol>
       </section>
 
       <!-- COMMUNITY FEED -->
       <section class="community" role="region" aria-label="Community feed">
-        <h2><i class="fas fa-users" aria-hidden="true"></i> Community Feed</h2>
-        <div class="feed-list" id="feedList">
-          <!-- dynamically injected feed items -->
-        </div>
+        <h2><i class="fas fa-users"></i> Community Feed</h2>
+        <div class="feed-list" id="feedList"></div>
       </section>
+
     </div>
 
     <footer>
@@ -352,18 +325,15 @@
     </footer>
   </div>
 
-  <!-- Chart.js -->
- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1) Load user + stats from localStorage
       const stored = JSON.parse(localStorage.getItem('ft_current'));
       if (!stored) return window.location.href = 'home.html';
 
       const {
         name,
         isNew,
-        stats = {workouts:0, distance:'0 km', calories:0, days:0},
+        stats = { workouts:0, distanceKm:0, calories:0, daysSet:[] },
         progress = 0,
         chartData = {
           labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
@@ -372,33 +342,29 @@
         },
         challenges = [0,0,0],
         leaderboard = [],
-        feed = [
-          { user:'Alex', text:'Just smashed my 10k run!', time:'2h ago' },
-          { user:'Sarah', text:'Who’s up for push-up challenge?', time:'4h ago' },
-          { user:'Jake', text:'Weekend group yoga in the park!', time:'1d ago' }
-        ]
+        feed = []
       } = stored;
 
-      // 2) Greeting + clear isNew
+      // Greeting
       const greetEl = document.getElementById('greeting');
       greetEl.textContent = isNew ? `Hello ${name}` : `Welcome back, ${name}`;
       localStorage.setItem('ft_current', JSON.stringify({ ...stored, isNew:false }));
 
-      // 3) Populate stats
+      // Stats
       document.getElementById('workoutsCount').textContent = stats.workouts;
-      document.getElementById('distanceCount').textContent = stats.distance;
+      document.getElementById('distanceCount').textContent = stats.distanceKm.toFixed(2) + ' km';
       document.getElementById('caloriesCount').textContent = stats.calories;
-      document.getElementById('activeDaysCount').textContent = stats.days;
+      document.getElementById('activeDaysCount').textContent = stats.daysSet.length;
 
-      // 4) Animate progress bar
+      // Progress bar
       document.getElementById('progressBar').style.width = progress + '%';
 
-      // 5) Challenges
-      challenges.forEach((pct, i) => {
+      // Challenges
+      challenges.forEach((pct,i) => {
         document.getElementById(`challenge${i+1}`).textContent = pct + '%';
       });
 
-      // 6) Leaderboard
+      // Leaderboard
       const lb = document.getElementById('leaderboardList');
       leaderboard.forEach(item => {
         const li = document.createElement('li');
@@ -406,7 +372,7 @@
         lb.appendChild(li);
       });
 
-      // 7) Feed
+      // Feed
       const feedEl = document.getElementById('feedList');
       feed.forEach(post => {
         const div = document.createElement('div');
@@ -419,18 +385,18 @@
         feedEl.appendChild(div);
       });
 
-      // 8) Charts
+      // Charts
       new Chart(
         document.getElementById('activityChart').getContext('2d'),
         {
           type: 'line',
           data: {
             labels: chartData.labels,
-            datasets: [{
-              label: 'Activity',
-              data: chartData.activity,
-              fill: false,
-              tension: 0.1
+            datasets:[{ 
+              label:'Activity', 
+              data: chartData.activity, 
+              fill:false, 
+              tension:0.1 
             }]
           },
           options: { responsive:true, maintainAspectRatio:false }
@@ -441,31 +407,31 @@
         {
           type: 'pie',
           data: {
-            labels: ['Cardio','Strength','Flexibility','Other'],
-            datasets: [{ data: chartData.distribution }]
+            labels:['Cardio','Strength','Flexibility','Other'],
+            datasets:[{ data: chartData.distribution }]
           },
           options: { responsive:true, maintainAspectRatio:false }
         }
       );
 
-      // 9) Logout button
+      // Logout
       const logout = document.querySelector('.sign-in-btn');
-      logout.addEventListener('click', () => window.location.href = 'home.html');
+      logout.addEventListener('click', () => window.location.href='home.html');
       logout.addEventListener('keydown', e => {
         if (['Enter',' '].includes(e.key)) logout.click();
       });
 
-      // 10) Sidebar keyboard nav
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('keydown', e => {
-          if (['Enter',' '].includes(e.key)) item.click();
+      // Sidebar keyboard nav
+      document.querySelectorAll('.menu-item').forEach(it => {
+        it.addEventListener('keydown', e => {
+          if (['Enter',' '].includes(e.key)) it.click();
         });
       });
 
-      // 11) New Workout navigation
+      // New Workout button → log page
       const newWorkout = document.querySelector('.new-workout');
       newWorkout.addEventListener('click', () => {
-        window.location.href = 'new-workout.html';
+        window.location.href = 'log.html';
       });
       newWorkout.addEventListener('keydown', e => {
         if (['Enter',' '].includes(e.key)) newWorkout.click();
