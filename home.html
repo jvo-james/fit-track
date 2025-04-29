@@ -518,48 +518,7 @@
 
   
 <script>
-  // ─── NAVBAR SCROLL ───
-  const nav = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 50);
-  });
-
-  // ─── MOBILE MENU ───
-  const navToggle = document.querySelector('.nav-toggle');
-  const navLinks  = document.querySelector('.nav-links');
-  navToggle.addEventListener('click', () => {
-    navLinks.classList.toggle('open');
-  });
-
-  // ─── TYPEWRITER ───
-  const texts = [
-    "Welcome to FitTrack",
-    "Log Every Workout",
-    "Join Fun Challenges",
-    "Climb the Leaderboards"
-  ];
-  let idx = 0, chr = 0;
-  function type() {
-    const el = document.getElementById("typewriter");
-    if (chr < texts[idx].length) {
-      el.textContent += texts[idx][chr++];
-      setTimeout(type, 100);
-    } else {
-      setTimeout(erase, 2000);
-    }
-  }
-  function erase() {
-    const el = document.getElementById("typewriter");
-    if (chr > 0) {
-      el.textContent = texts[idx].substring(0, --chr);
-      setTimeout(erase, 50);
-    } else {
-      idx = (idx + 1) % texts.length;
-      setTimeout(type, 500);
-    }
-  }
-
-  // ─── USER DB HELPERS ───
+  // ─── HELPERS ─────────────────────────────────
   function getUsers() {
     return JSON.parse(localStorage.getItem('ft_users') || '[]');
   }
@@ -567,11 +526,50 @@
     localStorage.setItem('ft_users', JSON.stringify(users));
   }
 
-  // ─── MAIN INIT ───
   document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(type, 500);  // start typewriter
+    // ─── NAVBAR SCROLL ───────────────────────────
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
 
-    // modal elements
+    // ─── MOBILE MENU ─────────────────────────────
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks  = document.querySelector('.nav-links');
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+
+    // ─── TYPEWRITER ──────────────────────────────
+    const texts = [
+      "Welcome to FitTrack",
+      "Log Every Workout",
+      "Join Fun Challenges",
+      "Climb the Leaderboards"
+    ];
+    let idx = 0, chr = 0;
+    function type() {
+      const el = document.getElementById("typewriter");
+      if (chr < texts[idx].length) {
+        el.textContent += texts[idx][chr++];
+        setTimeout(type, 100);
+      } else {
+        setTimeout(erase, 2000);
+      }
+    }
+    function erase() {
+      const el = document.getElementById("typewriter");
+      if (chr > 0) {
+        el.textContent = texts[idx].substring(0, --chr);
+        setTimeout(erase, 50);
+      } else {
+        idx = (idx + 1) % texts.length;
+        setTimeout(type, 500);
+      }
+    }
+    setTimeout(type, 500);
+
+    // ─── MODAL ELEMENTS ──────────────────────────
     const modal        = document.getElementById('modal');
     const title        = document.getElementById('modal-title');
     const actionBtn    = document.getElementById('modal-action');
@@ -582,7 +580,7 @@
     const passInput    = document.getElementById('password');
     const confirmInput = document.getElementById('confirm-password');
 
-    // open modal
+    // ─── OPEN SIGN-IN / SIGN-UP ──────────────────
     document.querySelectorAll('[data-modal]').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
@@ -592,67 +590,72 @@
         switchText.textContent= mode === 'signup'
           ? 'Already have an account?'
           : 'Don’t have an account?';
-        switchLink.textContent= mode === 'signup' ? 'Sign In' : 'Sign Up';
-        switchLink.dataset.mode = mode === 'signup' ? 'signin' : 'signup';
-        nameInput.style.display    = mode === 'signup' ? 'block' : 'none';
-        confirmInput.style.display = mode === 'signup' ? 'block' : 'none';
+        switchLink.textContent    = mode === 'signup' ? 'Sign In' : 'Sign Up';
+        switchLink.dataset.mode   = mode === 'signup' ? 'signin' : 'signup';
+        nameInput.style.display       = mode === 'signup' ? 'block' : 'none';
+        confirmInput.style.display    = mode === 'signup' ? 'block' : 'none';
         modal.classList.add('active');
       });
     });
 
-    // sign-in / sign-up handler
+    // ─── SIGN-IN / SIGN-UP HANDLER ──────────────
     actionBtn.addEventListener('click', e => {
       e.preventDefault();
-      const mode = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
+      const mode  = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
       const name  = nameInput.value.trim();
       const email = emailInput.value.trim();
-      const pass  = passInput.value;
+      const pwd   = passInput.value;
       const conf  = confirmInput.value;
 
-      // basic validation
-      if (!email || !pass || (mode === 'signup' && (!name || !conf))) {
+      // Basic validation
+      if (!email || !pwd || (mode === 'signup' && (!name || !conf))) {
         return alert('All fields are required.');
       }
-      if (mode === 'signup' && pass !== conf) {
+      if (mode === 'signup' && pwd !== conf) {
         return alert('Passwords do not match.');
       }
+
       const users = getUsers();
 
       if (mode === 'signup') {
+        // Already registered?
         if (users.find(u => u.email === email)) {
           return alert('That email is already registered.');
         }
-        // register new user
-        users.push({ name, email, password: pass });
+        // Register new user
+        users.push({ name, email, password: pwd });
         saveUsers(users);
-        localStorage.setItem('ft_current', JSON.stringify({ name, isNew: true }));
+        // Log in immediately
+        localStorage.setItem('ft_current', JSON.stringify({ name, email, isNew: true }));
         window.location.href = 'dashboard.html';
+
       } else {
-        // sign in
+        // Sign in
         const user = users.find(u => u.email === email);
         if (!user) {
           return alert('No account found with that email.');
         }
-        if (user.password !== pass) {
+        if (user.password !== pwd) {
           return alert('Incorrect password.');
         }
-        localStorage.setItem('ft_current', JSON.stringify({ name: user.name, isNew: false }));
+        localStorage.setItem('ft_current',
+          JSON.stringify({ name: user.name, email, isNew: false })
+        );
         window.location.href = 'dashboard.html';
       }
     });
 
-    // toggle between Sign In / Sign Up links
+    // ─── TOGGLE SIGN-IN / SIGN-UP LINK ───────────
     switchLink.addEventListener('click', e => {
       e.preventDefault();
       document.querySelector(`[data-modal="${switchLink.dataset.mode}"]`).click();
     });
 
-    // close modal
-    document.querySelectorAll('[data-close], .close').forEach(el =>
-      el.addEventListener('click', () => modal.classList.remove('active'))
-    );
+    // ─── CLOSE MODAL ─────────────────────────────
+    document.querySelectorAll('[data-close], .close')
+      .forEach(el => el.addEventListener('click', () => modal.classList.remove('active')));
 
-    // scroll-reveal
+    // ─── SCROLL-REVEAL ───────────────────────────
     document.querySelectorAll('[data-reveal]').forEach(el => {
       const obs = new IntersectionObserver(entries => {
         entries.forEach(entry => {
@@ -667,8 +670,10 @@
       el.style.opacity = 0;
       el.style.transform = 'translateY(30px)';
     });
-  });
+
+  }); // End DOMContentLoaded
 </script>
+
 
 
 </body>
