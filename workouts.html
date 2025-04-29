@@ -366,278 +366,297 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // LocalStorage helpers
-      const loadArr = k => JSON.parse(localStorage.getItem(k) || '[]');
-      const saveArr = (k,a) => localStorage.setItem(k, JSON.stringify(a));
+ <script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ─── LocalStorage Helpers ──────────────────────────────────────────────
+  const loadArr = key => JSON.parse(localStorage.getItem(key) || '[]');
+  const saveArr = (key, arr) => localStorage.setItem(key, JSON.stringify(arr));
 
-      // Sample workouts
-      const workouts = [
-        { id:1, title:'Full-Body HIIT', category:'Cardio', duration:20, difficulty:'Intermediate',
-          description:'A fast-paced, full-body interval circuit.', exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None', calories:200 },
-        { id:2, title:'Upper Body Strength', category:'Strength', duration:45, difficulty:'Advanced',
-          description:'Build upper-body power with weights.', exercises:['Push-Ups','Pull-Ups','Dumbbell Rows'], equipment:'Dumbbells', calories:300 },
-        { id:3, title:'Morning Yoga Flow', category:'Yoga', duration:30, difficulty:'Beginner',
-          description:'Gentle sequences to wake up your body.', exercises:['Sun Salutations','Tree Pose','Child’s Pose'], equipment:'Mat', calories:120 },
-      ];
+  // ─── Sample Workouts Data ──────────────────────────────────────────────
+  const workouts = [
+    { id:1, title:'Full-Body HIIT', category:'Cardio', duration:20, difficulty:'Intermediate',
+      description:'A fast-paced, full-body interval circuit.',
+      exercises:['Jumping Jacks','Burpees','Mountain Climbers'],
+      equipment:'None', calories:200
+    },
+    { id:2, title:'Upper Body Strength', category:'Strength', duration:45, difficulty:'Advanced',
+      description:'Build upper-body power with weights.',
+      exercises:['Push-Ups','Pull-Ups','Dumbbell Rows'],
+      equipment:'Dumbbells', calories:300
+    },
+    { id:3, title:'Morning Yoga Flow', category:'Yoga', duration:30, difficulty:'Beginner',
+      description:'Gentle sequences to wake up your body.',
+      exercises:['Sun Salutations','Tree Pose','Child’s Pose'],
+      equipment:'Mat', calories:120
+    }
+  ];
 
-      // Populate category filter
-      const fc = document.getElementById('filterCategory');
-      [...new Set(workouts.map(w=>w.category))]
-        .forEach(c=> fc.append(new Option(c,c)));
+  // ─── Workout of the Day ─────────────────────────────────────────────────
+  const wodTitle = document.getElementById('wodTitle');
+  const wodDesc  = document.getElementById('wodDesc');
+  document.getElementById('randomizeWOD').onclick = pickWOD;
+  function pickWOD(){
+    const w = workouts[Math.floor(Math.random()*workouts.length)];
+    wodTitle.textContent = w.title;
+    wodDesc.textContent  = w.description;
+  }
+  pickWOD();
 
-      // Workout of the Day
-      const wTitle = document.getElementById('wodTitle'), wDesc = document.getElementById('wodDesc');
-      document.getElementById('randomizeWOD').onclick = pickWOD;
-      function pickWOD(){
-        const w = workouts[Math.floor(Math.random()*workouts.length)];
-        wTitle.textContent = w.title; wDesc.textContent = w.description;
-      }
-      pickWOD();
+  // ─── Filters & Library Rendering ────────────────────────────────────────
+  const filterCategory   = document.getElementById('filterCategory');
+  const filterDuration   = document.getElementById('filterDuration');
+  const filterDifficulty = document.getElementById('filterDifficulty');
+  const libraryEl        = document.getElementById('library');
 
-      // Library rendering
-      const lib = document.getElementById('library');
-      function renderLibrary(){
-        const c=fc.value, d=+document.getElementById('filterDuration').value||Infinity,
-              diff=document.getElementById('filterDifficulty').value;
-        lib.innerHTML = '';
-        workouts.filter(w=>(!c||w.category===c)&&w.duration<=d&&(!diff||w.difficulty===diff))
-          .forEach(w=>{
-            const card=document.createElement('div'); card.className='card';
-            card.innerHTML=`
-              <img src="https://via.placeholder.com/300x120?text=${encodeURIComponent(w.title)}">
-              <div class="card-body">
-                <h3>${w.title}</h3>
-                <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
-                <p class="desc">${w.description}</p>
-                <button data-id="${w.id}">Details</button>
-              </div>`;
-            lib.append(card);
-          });
-      }
-      fc.onchange=renderLibrary;
-      document.getElementById('filterDuration').onchange=renderLibrary;
-      document.getElementById('filterDifficulty').onchange=renderLibrary;
-      renderLibrary();
+  // populate category choices
+  [...new Set(workouts.map(w=>w.category))]
+    .forEach(cat => filterCategory.append(new Option(cat, cat)));
 
-      // Modal logic
-      const modal=document.getElementById('detailModal'),
-            detailTitle=document.getElementById('detailTitle'),
-            detailDesc=document.getElementById('detailDesc'),
-            detailList=document.getElementById('detailList'),
-            detailEquip=document.getElementById('detailEquip'),
-            detailCal=document.getElementById('detailCal'),
-            btnLog=document.getElementById('detailStart'),
-            btnSavePlan=document.getElementById('savePlan');
-      document.body.addEventListener('click',e=>{
-        if(e.target.tagName==='BUTTON'&&e.target.dataset.id){
-          const w=workouts.find(x=>x.id==e.target.dataset.id);
-          detailTitle.textContent=w.title;
-          detailDesc.textContent=w.description;
-          detailList.innerHTML=w.exercises.map(x=>`<li>${x}</li>`).join('');
-          detailEquip.textContent=w.equipment;
-          detailCal.textContent=w.calories;
-          btnLog.onclick=()=>{
-            const acts=loadArr('ft_activities');
-            acts.unshift({ date:new Date().toISOString().slice(0,10), type:w.title, duration:w.duration, distance:'', calories:w.calories, notes:'' });
-            localStorage.setItem('ft_activities',JSON.stringify(acts));
-            modal.style.display='none'; alert('Logged!');
-          };
-          btnSavePlan.onclick=()=>{
-            const plans=loadArr('ft_plans');
-            if(!plans.includes(w.id)) plans.push(w.id);
-            saveArr('ft_plans',plans);
-            renderPlans();
-            alert('Saved!');
-          };
-          modal.style.display='flex';
-        }
-        if(e.target.classList.contains('close')||e.target===modal){
-          modal.style.display='none';
-        }
+  function renderLibrary() {
+    const cat  = filterCategory.value;
+    const maxD = +filterDuration.value || Infinity;
+    const diff = filterDifficulty.value;
+    libraryEl.innerHTML = '';
+    workouts
+      .filter(w => (!cat || w.category===cat)
+                && w.duration<=maxD
+                && (!diff || w.difficulty===diff))
+      .forEach(w => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="https://via.placeholder.com/300x120?text=${encodeURIComponent(w.title)}" alt="">
+          <div class="card-body">
+            <h3>${w.title}</h3>
+            <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+            <p class="desc">${w.description}</p>
+            <button data-id="${w.id}">Details</button>
+          </div>`;
+        libraryEl.append(card);
       });
+  }
+  filterCategory.onchange   = renderLibrary;
+  filterDuration.onchange   = renderLibrary;
+  filterDifficulty.onchange = renderLibrary;
+  renderLibrary();
 
-      // My Plans
-      const plansList=document.getElementById('plansList');
-      function renderPlans(){
-        const plans=loadArr('ft_plans');
-        plansList.innerHTML='';
-        plans.forEach((id,i)=>{
-          const w=workouts.find(x=>x.id===id);
-          const li=document.createElement('li');
-          li.textContent=w.title;
-          const btn=document.createElement('button');
-          btn.textContent='Remove';
-          btn.onclick=()=>{
-            plans.splice(i,1); saveArr('ft_plans',plans); renderPlans();
-          };
-          li.append(btn); plansList.append(li);
-        });
-      }
-      renderPlans();
+  // ─── Detail Modal Logic ────────────────────────────────────────────────
+  const modal       = document.getElementById('detailModal');
+  const detailTitle = document.getElementById('detailTitle');
+  const detailDesc  = document.getElementById('detailDesc');
+  const detailList  = document.getElementById('detailList');
+  const detailEquip = document.getElementById('detailEquip');
+  const detailCal   = document.getElementById('detailCal');
+  const btnLog      = document.getElementById('detailStart');
+  const btnSavePlan = document.getElementById('savePlan');
 
-      // Progress chart
-      const ctx=document.getElementById('progressChart').getContext('2d');
-      function renderProgress(){
-        const acts=loadArr('ft_activities');
-        const byCat=acts.reduce((o,a)=>{
-          const w=workouts.find(wk=>wk.title===a.type);
-          const cat=w? w.category:'Other';
-          o[cat]=(o[cat]||0)+1; return o;
-        },{});
-        const labels=Object.keys(byCat), data=Object.values(byCat);
-        new Chart(ctx,{
-          type:'bar',
-          data:{ labels, datasets:[{ label:'Sessions', data, backgroundColor:'rgba(255,152,0,0.8)' }]},
-          options:{
-            indexAxis:'y',
-            scales:{
-              x:{ beginAtZero:true, title:{ display:true, text:'Count'} },
-              y:{ title:{ display:true, text:'Category'} }
-            },
-            plugins:{ legend:{ display:false }}
-          }
-        });
-      }
-      renderProgress();
+  document.body.addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON' && e.target.dataset.id) {
+      const w = workouts.find(x => x.id == e.target.dataset.id);
+      detailTitle.textContent = w.title;
+      detailDesc.textContent  = w.description;
+      detailList.innerHTML    = w.exercises.map(x => `<li>${x}</li>`).join('');
+      detailEquip.textContent = w.equipment;
+      detailCal.textContent   = w.calories;
 
-      // Challenges
-      const challenges=[
-        { id:1, title:'7-Day Abs', desc:'Daily core routine for 7 days.', target:7 },
-        { id:2, title:'30-Day Push-Up', desc:'Increase push-ups each day.', target:30 }
-      ];
-      const chList=document.getElementById('challengesList');
-      function renderChallenges(){
-        const joined=loadArr('ft_joined');
-        chList.innerHTML='';
-        // Joined first
-        joined.forEach(id=>{
-          const ch=challenges.find(c=>c.id===id);
-          const acts=loadArr('ft_activities').filter(a=>a.type.includes(ch.title.split(' ')[1]));
-          const prog=Math.min(ch.target,acts.length);
-          const pct=Math.round(prog/ch.target*100);
-          const div=document.createElement('div'); div.className='challenge';
-          div.innerHTML=`
-            <h3>${ch.title}</h3>
-            <p>${ch.desc}</p>
-            <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
-            <p style="font-size:.85rem;opacity:.8;">${prog}/${ch.target} days</p>
-          `;
-          chList.append(div);
+      btnLog.onclick = () => {
+        const acts = loadArr('ft_activities');
+        acts.unshift({
+          date:new Date().toISOString().slice(0,10),
+          type:w.title, duration:w.duration,
+          distance:'', calories:w.calories, notes:''
         });
-        // Available
-        challenges.filter(c=>!joined.includes(c.id)).forEach(ch=>{
-          const div=document.createElement('div'); div.className='challenge';
-          div.innerHTML=`<h3>${ch.title}</h3><p>${ch.desc}</p>`;
-          const btn=document.createElement('button');
-          btn.textContent='Join';
-          btn.onclick=()=>{
-            joined.push(ch.id); saveArr('ft_joined',joined); renderChallenges();
-          };
-          div.append(btn); chList.append(div);
-        });
-      }
-      renderChallenges();
+        saveArr('ft_activities', acts);
+        modal.style.display='none';
+        alert('Workout logged!');
+      };
 
-      // Live sessions
-      const sessions=[
-        { id:1, title:'Live Yoga Flow', desc:'30-min guided stretch.', host:'Alice', time:'Today 6pm UTC', link:'#' },
-        { id:2, title:'HIIT Blast', desc:'High-intensity interval.', host:'Bob', time:'Tomorrow 7am UTC', link:'#' }
-      ];
-      const sessList=document.getElementById('sessionsList');
-      function renderSessions(){
-        const joined=loadArr('ft_sessions');
-        sessList.innerHTML='';
-        sessions.forEach(s=>{
-          const div=document.createElement('div'); div.className='session';
-          div.innerHTML=`
-            <h3>${s.title}</h3>
-            <p class="info">${s.host} • ${s.time}</p>
-            <p>${s.desc}</p>
-          `;
-          const btn=document.createElement('button');
-          btn.textContent= joined.includes(s.id)?'Joined':'Join';
-          btn.onclick=()=>{
-            if(!joined.includes(s.id)) joined.push(s.id);
-            saveArr('ft_sessions',joined);
-            renderSessions();
-          };
-          div.append(btn); sessList.append(div);
-        });
-      }
-      renderSessions();
+      btnSavePlan.onclick = () => {
+        const plans = loadArr('ft_plans');
+        if (!plans.includes(w.id)) plans.push(w.id);
+        saveArr('ft_plans', plans);
+        renderPlans();
+        alert('Saved to My Plans');
+      };
 
-     
-      });
+      modal.style.display = 'flex';
+    }
+    if (e.target.classList.contains('close') || e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+  // ─── My Plans ──────────────────────────────────────────────────────────
+  const plansList = document.getElementById('plansList');
+  function renderPlans() {
+    const plans = loadArr('ft_plans');
+    plansList.innerHTML = '';
+    plans.forEach((id, i) => {
+      const w  = workouts.find(x => x.id === id);
+      const li = document.createElement('li');
+      li.textContent = w.title;
+      const btn = document.createElement('button');
+      btn.textContent = 'Remove';
+      btn.onclick = () => {
+        plans.splice(i,1);
+        saveArr('ft_plans', plans);
+        renderPlans();
+      };
+      li.append(btn);
+      plansList.append(li);
     });
-  </script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const apiKey = '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';  // ← Replace this!
-      const endpoint = 'https://api.openai.com/v1/chat/completions';
+  }
+  renderPlans();
 
-      // Chat history for context
-      const chatHistory = [
-        { role: 'system', content: 'You are FitTrack’s intelligent workout coach. Answer user questions about fitness, workouts, routines, and motivation.' }
-      ];
+  // ─── Progress Chart ────────────────────────────────────────────────────
+  const ctx = document.getElementById('progressChart').getContext('2d');
+  function renderProgress() {
+    const acts  = loadArr('ft_activities');
+    const byCat = acts.reduce((o,a) => {
+      const w = workouts.find(wk=>wk.title===a.type);
+      const cat = w ? w.category : 'Other';
+      o[cat] = (o[cat]||0)+1;
+      return o;
+    }, {});
+    const labels = Object.keys(byCat),
+          data   = Object.values(byCat);
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets:[{
+        label:'Sessions', data,
+        backgroundColor:'rgba(255,152,0,0.8)'
+      }]},
+      options: {
+        indexAxis:'y',
+        scales: {
+          x:{ beginAtZero:true, title:{ display:true, text:'# of Sessions' } },
+          y:{ title:{ display:true, text:'Category' } }
+        },
+        plugins:{ legend:{ display:false } }
+      }
+    });
+  }
+  renderProgress();
 
-      const container = document.querySelector('#chatbot .messages');
-      const input     = document.querySelector('#chatbot .input input');
-      const sendBtn   = document.querySelector('#chatbot .input button');
+  // ─── Challenges ────────────────────────────────────────────────────────
+  const challenges = [
+    { id:1, title:'7-Day Abs', desc:'Daily core routine for 7 days.', target:7 },
+    { id:2, title:'30-Day Push-Up', desc:'Increase push-ups each day for 30 days.', target:30 }
+  ];
+  const chList = document.getElementById('challengesList');
+  function renderChallenges() {
+    const joined = loadArr('ft_joined');
+    chList.innerHTML = '';
 
-      function appendMessage(text, sender) {
+    // Joined challenges with progress
+    joined.forEach(id => {
+      const ch   = challenges.find(c=>c.id===id);
+      const acts = loadArr('ft_activities').filter(a=>a.type.includes(ch.title.split(' ')[1]));
+      const prog = Math.min(ch.target, acts.length);
+      const pct  = Math.round(prog/ch.target*100);
+      const div  = document.createElement('div');
+      div.className = 'challenge';
+      div.innerHTML = `
+        <h3>${ch.title}</h3>
+        <p>${ch.desc}</p>
+        <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
+        <p style="font-size:.85rem;opacity:.8;">${prog}/${ch.target} days</p>
+      `;
+      chList.append(div);
+    });
+
+    // Available to join
+    challenges.filter(c=>!joined.includes(c.id))
+      .forEach(ch => {
         const div = document.createElement('div');
-        div.className = 'msg ' + sender;
-        div.textContent = text;
-        container.append(div);
-        container.scrollTop = container.scrollHeight;
-      }
-
-      async function queryAI(userText) {
-        chatHistory.push({ role: 'user', content: userText });
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: 'gpt-4',
-            messages: chatHistory
-          })
-        });
-        if (!res.ok) {
-          const err = await res.text();
-          throw new Error(err);
-        }
-        const { choices } = await res.json();
-        const aiText = choices[0].message.content.trim();
-        chatHistory.push({ role: 'assistant', content: aiText });
-        return aiText;
-      }
-
-      sendBtn.addEventListener('click', async () => {
-        const text = input.value.trim();
-        if (!text) return;
-        appendMessage(text, 'user');
-        input.value = '';
-        try {
-          appendMessage('…thinking…', 'bot');
-          const reply = await queryAI(text);
-          // Replace the “thinking” placeholder with the real reply
-          container.lastChild.textContent = reply;
-          container.lastChild.className = 'msg bot';
-        } catch (e) {
-          console.error(e);
-          container.lastChild.textContent = 'Error: could not reach AI.';
-        }
+        div.className = 'challenge';
+        div.innerHTML = `<h3>${ch.title}</h3><p>${ch.desc}</p>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Join';
+        btn.onclick = () => {
+          joined.push(ch.id);
+          saveArr('ft_joined', joined);
+          renderChallenges();
+        };
+        div.append(btn);
+        chList.append(div);
       });
+  }
+  renderChallenges();
 
-      input.addEventListener('keypress', e => {
-        if (e.key === 'Enter') sendBtn.click();
+  // ─── Live Sessions ─────────────────────────────────────────────────────
+  const sessions = [
+    { id:1, title:'Live Yoga Flow', desc:'30-min guided stretch.', host:'Alice', time:'Today 6pm UTC' },
+    { id:2, title:'HIIT Blast',     desc:'High-intensity interval.',   host:'Bob',   time:'Tomorrow 7am UTC' }
+  ];
+  const sessList = document.getElementById('sessionsList');
+  function renderSessions() {
+    const joined = loadArr('ft_sessions');
+    sessList.innerHTML = '';
+    sessions.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'session';
+      div.innerHTML = `
+        <h3>${s.title}</h3>
+        <p class="info">${s.host} • ${s.time}</p>
+        <p>${s.desc}</p>
+      `;
+      const btn = document.createElement('button');
+      btn.textContent = joined.includes(s.id) ? 'Joined' : 'Join';
+      btn.onclick = () => {
+        if (!joined.includes(s.id)) joined.push(s.id);
+        saveArr('ft_sessions', joined);
+        renderSessions();
+      };
+      div.append(btn);
+      sessList.append(div);
+    });
+  }
+  renderSessions();
+
+  // ─── AI Chatbot ────────────────────────────────────────────────────────
+  const chatContainer = document.querySelector('#chatbot .messages');
+  const chatInput     = document.querySelector('#chatbot .input input');
+  const chatSend      = document.querySelector('#chatbot .input button');
+
+  // Note: for production, proxy your /api/chat to hide the API key
+  chatSend.addEventListener('click', async () => {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    appendMsg(chatContainer, text, 'user');
+    chatInput.value = '';
+    appendMsg(chatContainer, '…thinking…', 'bot');
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ message: text })
       });
-    
-  </script>
+      const { reply } = await res.json();
+      // replace the placeholder
+      const bots = chatContainer.querySelectorAll('.msg.bot');
+      bots[bots.length-1].textContent = reply;
+    } catch (err) {
+      console.error(err);
+      const bots = chatContainer.querySelectorAll('.msg.bot');
+      bots[bots.length-1].textContent = 'Error: could not reach AI.';
+    }
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  });
+
+  chatInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') chatSend.click();
+  });
+
+  function appendMsg(container, content, who) {
+    const d = document.createElement('div');
+    d.className = `msg ${who}`;
+    d.textContent = content;
+    container.append(d);
+  }
+});
+</script>
+
 </body>
 </html>
