@@ -8,44 +8,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Open+Sans&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root {
-      --bg: #000;
-      --gold: #ff9800;
-      --white: #fff;
-      --font: 'Raleway', sans-serif;
+      --bg: #000; --gold: #ff9800; --white: #fff; --font: 'Raleway', sans-serif;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display:flex;
-      min-height:100vh;
-      background:var(--bg);
-      color:var(--white);
+      display:flex; min-height:100vh;
+      background:var(--bg); color:var(--white);
       font-family:var(--font);
     }
 
-    /* ─── SIDEBAR (identical to dashboard) ───────────────── */
+    /* ─── SIDEBAR (identical to dashboard.html) ───────────────── */
     .sidebar {
-      position:sticky;
-      top:0;
-      height:100vh;
-      width:80px;
-      background:rgba(0,0,0,0.9);
-      border-right:2px solid var(--gold);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      padding:1rem 0;
-      z-index:1000;
-      color:var(--white);
+      position:sticky; top:0; height:100vh; width:80px;
+      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding:1rem 0; z-index:1000; color:var(--white);
     }
     .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
     .menu-item {
@@ -67,23 +51,13 @@
     .sign-in-btn:hover { transform:scale(1.1); }
 
     /* ─── MAIN AREA ─────────────────────────────── */
-    .main {
-      flex:1; display:flex; flex-direction:column; overflow-y:auto;
-    }
-    /* sticky header just in case you want to reuse it */
-    header {
-      position:sticky; top:0; z-index:200;
-      background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold);
-      padding:1rem 1.5rem; display:flex; align-items:center; gap:1rem;
-    }
-    header h1 { font-size:1.5rem; }
-    header .tagline { color:rgba(255,255,255,0.7); font-size:0.9rem; }
+    .main { flex:1; display:flex; flex-direction:column; overflow-y:auto; }
 
     /* ─── STATS ➔ PROGRESS ➔ CHARTS ───────────────── */
     .stats, .charts {
-      display:grid; gap:1.5rem; padding:1.5rem;
+      display:grid; gap:1.5rem;
     }
-    .stats { grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); }
+    .stats { grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); padding:1.5rem; }
     .stat-card {
       background:rgba(255,255,255,0.05); padding:1.2rem;
       border-radius:12px; text-align:center;
@@ -131,33 +105,30 @@
       border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
     }
     .log-section h2 { color:var(--gold); margin-bottom:1rem; }
-    form {
+
+    #logForm {
       display:grid; gap:1rem;
       grid-template-columns:1fr 1fr;
     }
-    form label { font-weight:600; grid-column:span 2; }
-    form input, form select, form textarea {
+    #logForm label { font-weight:600; grid-column:span 2; }
+    #logForm input, #logForm select, #logForm textarea {
       padding:.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.3);
       background:rgba(255,255,255,0.05); color:var(--white); font-size:1rem;
       grid-column:span 2;
     }
-    form textarea { resize:vertical; grid-column:span 2; }
-    /* pair duration & distance/calories side by side */
-    input#duration, input#distance, input#calories {
-      grid-column:auto;
-    }
-    form button {
+    #logForm textarea { resize:vertical; }
+    /* make these side by side */
+    #duration, #distance, #calories { grid-column:auto; }
+    #logForm button {
       padding:.8rem; border:none; border-radius:30px;
       background:var(--gold); color:var(--bg);
       font-weight:600; cursor:pointer; transition:transform .2s;
       grid-column:span 2;
     }
-    form button:hover { transform:scale(1.03); }
+    #logForm button:hover { transform:scale(1.03); }
 
     /* ─── ACTIVITY LIST ───────────────────────── */
-    .activities {
-      margin:0 1.5rem 1.5rem;
-    }
+    .activities { margin:0 1.5rem 1.5rem; }
     .activities h2 {
       color:var(--gold); margin-bottom:.75rem; font-size:1.3rem;
     }
@@ -178,37 +149,36 @@
     @media(max-width:900px){
       .sidebar { position:fixed; }
       .main { margin-left:80px; }
-      form { grid-template-columns:1fr; }
-      input#duration,input#distance,input#calories { grid-column:span 1; }
+      #logForm { grid-template-columns:1fr; }
+      #duration,#distance,#calories { grid-column:span 1; }
     }
   </style>
 </head>
-<body>
 
+<body>
   <aside class="sidebar" role="navigation" aria-label="Main sidebar">
     <div class="logo" aria-hidden="true"><i class="fas fa-heartbeat"></i></div>
-    <a href="dashboard.html" class="menu-item" aria-label="Dashboard">
+    <div class="menu-item"><a href="dashboard.html" aria-label="Dashboard">
       <i class="fas fa-tachometer-alt"></i><span>Dash</span>
-    </a>
-    <a href="log.html" class="menu-item active" aria-label="Log Activity">
+    </a></div>
+    <div class="menu-item active"><a href="log.html" aria-label="Log Activity">
       <i class="fas fa-pen"></i><span>Log</span>
-    </a>
-    <a href="workouts.html" class="menu-item" aria-label="Workouts & Challenges">
+    </a></div>
+    <div class="menu-item"><a href="workouts.html" aria-label="Workouts">
       <i class="fas fa-tasks"></i><span>Workouts</span>
-    </a>
-    <a href="leaderboard.html" class="menu-item" aria-label="Leaderboard">
+    </a></div>
+    <div class="menu-item"><a href="leaderboard.html" aria-label="Leaderboard">
       <i class="fas fa-trophy"></i><span>Board</span>
-    </a>
-    <a href="profile.html" class="menu-item" aria-label="Profile">
+    </a></div>
+    <div class="menu-item"><a href="profile.html" aria-label="Profile">
       <i class="fas fa-user-circle"></i><span>Profile</span>
-    </a>
-    <a href="home.html" class="sign-in-btn" aria-label="Logout">
-      <i class="fas fa-sign-out-alt"></i>
-    </a>
+    </a></div>
+    <div class="sign-in-btn" role="button" tabindex="0" aria-label="Logout">
+      <a href="home.html"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
   </aside>
 
   <div class="main" role="main">
-
     <!-- STATS -->
     <section class="stats">
       <div class="stat-card">
@@ -289,19 +259,14 @@
       <h2><i class="fas fa-list"></i> My Activities</h2>
       <ul id="activityList" class="activity-list"></ul>
     </section>
-
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // utility to load/save JSON arrays
-      const load = (key) => {
-        try { return JSON.parse(localStorage.getItem(key)) || []; }
-        catch { return []; }
-      };
-      const save = (key, val) => localStorage.setItem(key, JSON.stringify(val));
+      const load = key => JSON.parse(localStorage.getItem(key) || '[]');
+      const save = (key,val) => localStorage.setItem(key, JSON.stringify(val));
 
-      // get ft_current or initialize
+      // Initialize or load ft_current
       let ftCur = {};
       try { ftCur = JSON.parse(localStorage.getItem('ft_current')) || {}; }
       catch { ftCur = {}; }
@@ -309,99 +274,80 @@
         ftCur.stats = { workouts:0, distanceKm:0, calories:0, daysSet:[] };
       }
 
-      // DOM refs
-      const f = document.getElementById('logForm');
-      const listEl = document.getElementById('activityList');
       const S = {
         w: document.getElementById('statWorkouts'),
         d: document.getElementById('statDistance'),
         c: document.getElementById('statCalories'),
         a: document.getElementById('statDays'),
         p: document.getElementById('statProgress'),
+        form: document.getElementById('logForm'),
+        list: document.getElementById('activityList')
       };
-
-      // chart placeholders
       let chartTime, chartType;
 
-      function updateStatsAndCharts() {
+      function updateEverything() {
         const acts = load('ft_activities');
-        // stats
-        const workouts = acts.length;
-        const totalDist = acts.reduce((sum, a) => sum + (parseFloat(a.distance)||0), 0);
-        const totalCal = acts.reduce((sum, a) => sum + (parseFloat(a.calories)||0), 0);
-        const daySet = new Set(acts.map(a => a.date));
-        const days = daySet.size;
 
-        // update ft_current.stats
-        ftCur.stats = {
-          workouts,
-          distanceKm: totalDist,
-          calories: totalCal,
-          daysSet: Array.from(daySet)
-        };
-        localStorage.setItem('ft_current', JSON.stringify(ftCur));
+        // Stats
+        const workouts  = acts.length;
+        const totalDist = acts.reduce((s,a)=>s+(parseFloat(a.distance)||0),0);
+        const totalCal  = acts.reduce((s,a)=>s+(parseFloat(a.calories)||0),0);
+        const daySet    = new Set(acts.map(a=>a.date));
+        const daysCount = daySet.size;
 
-        // DOM
-        S.w.textContent = workouts;
-        S.d.textContent = totalDist.toFixed(2) + ' km';
-        S.c.textContent = totalCal;
-        S.a.textContent = days;
-
-        // weekly progress: e.g. goal = 5 workouts/week
-        const thisWeek = acts.filter(a => {
-          const ad = new Date(a.date);
-          const now = new Date();
-          const diff = (now - ad) / (1000*60*60*24);
-          return diff <= 7;
+        // Weekly progress (% of 5 workouts/week)
+        const weekCount = acts.filter(a=>{
+          const d = new Date(a.date), now = new Date();
+          return (now - d)/(1000*60*60*24) <= 7;
         }).length;
-        const pct = Math.min(100, Math.round((thisWeek/5)*100));
-        S.p.style.width = pct + '%';
+        const pct       = Math.min(100, Math.round(weekCount/5*100));
 
-        // prepare data for “time” chart (last 7 days)
-        const labels = [];
-        const dataTime = [];
-        for(let i=6;i>=0;i--){
-          const d = new Date();
-          d.setDate(d.getDate()-i);
+        // Chart data
+        const labels = [], dataTime = [], typeCounts = {};
+        for(let i=6;i>=0;i--) {
+          const d = new Date(); d.setDate(d.getDate()-i);
           const key = d.toISOString().slice(0,10);
-          labels.push(key.slice(5)); // MM-DD
-          const sumDur = acts
-            .filter(a=>a.date===key)
-            .reduce((s,a)=>s + (parseFloat(a.duration)||0), 0);
+          labels.push(key.slice(5));
+          const sumDur = acts.filter(a=>a.date===key)
+                             .reduce((s,a)=>s+(parseFloat(a.duration)||0),0);
           dataTime.push(sumDur);
         }
-        if (chartTime) chartTime.destroy();
-        chartTime = new Chart(
-          document.getElementById('chartTime').getContext('2d'),
-          {
-            type:'line',
-            data:{ labels, datasets:[{ label:'Min', data:dataTime, fill:false, tension:0.3 }] },
-            options:{ responsive:true, maintainAspectRatio:false }
-          }
-        );
+        acts.forEach(a=>{
+          typeCounts[a.type] = (typeCounts[a.type]||0)+1;
+        });
+        const distArr = Object.values(typeCounts);
 
-        // type distribution
-        const counts = acts.reduce((o,a)=>{
-          o[a.type] = (o[a.type]||0)+1; return o;
-        }, {});
+        // Write back to ft_current
+        ftCur.stats     = { workouts, distanceKm: totalDist, calories: totalCal, daysSet:[...daySet] };
+        ftCur.progress  = pct;
+        ftCur.chartData = { labels, activity: dataTime, distribution: distArr };
+        localStorage.setItem('ft_current', JSON.stringify(ftCur));
+
+        // Update DOM
+        S.w.textContent = workouts;
+        S.d.textContent = totalDist.toFixed(2)+' km';
+        S.c.textContent = totalCal;
+        S.a.textContent = daysCount;
+        S.p.style.width = pct+'%';
+
+        // Redraw charts
+        if (chartTime) chartTime.destroy();
+        chartTime = new Chart(document.getElementById('chartTime').getContext('2d'), {
+          type:'line',
+          data:{ labels, datasets:[{ label:'Min', data:dataTime, fill:false, tension:0.3 }] },
+          options:{ responsive:true, maintainAspectRatio:false }
+        });
         if (chartType) chartType.destroy();
-        chartType = new Chart(
-          document.getElementById('chartType').getContext('2d'),
-          {
-            type:'pie',
-            data:{
-              labels:Object.keys(counts),
-              datasets:[{ data:Object.values(counts) }]
-            },
-            options:{ responsive:true, maintainAspectRatio:false }
-          }
-        );
+        chartType = new Chart(document.getElementById('chartType').getContext('2d'), {
+          type:'pie',
+          data:{ labels:Object.keys(typeCounts), datasets:[{ data:distArr }] },
+          options:{ responsive:true, maintainAspectRatio:false }
+        });
       }
 
       function renderList() {
-        listEl.innerHTML = '';
-        const acts = load('ft_activities');
-        acts.forEach((a,i) => {
+        S.list.innerHTML = '';
+        load('ft_activities').forEach((a,i)=>{
           const li = document.createElement('li');
           li.className = 'activity-item';
           li.innerHTML = `
@@ -412,23 +358,23 @@
               ${a.notes?`<p>${a.notes}</p>`:''}
               <time datetime="${a.date}">${a.date}</time>
             </div>
-            <button class="delete-btn" aria-label="Delete">
-              <i class="fas fa-trash"></i>
-            </button>
+            <button class="delete-btn" aria-label="Delete"><i class="fas fa-trash"></i></button>
           `;
-          li.querySelector('.delete-btn').addEventListener('click', () => {
-            acts.splice(i,1);
-            save('ft_activities', acts);
-            updateStatsAndCharts();
+          li.querySelector('.delete-btn').onclick = () => {
+            const arr = load('ft_activities');
+            arr.splice(i,1);
+            save('ft_activities', arr);
+            updateEverything();
             renderList();
-          });
-          listEl.appendChild(li);
+          };
+          S.list.appendChild(li);
         });
       }
 
-      // form submit
-      f.addEventListener('submit', e => {
+      // Form submit
+      S.form.onsubmit = e => {
         e.preventDefault();
+        const f = S.form;
         const newAct = {
           date: f.date.value,
           type: f.type.value,
@@ -441,12 +387,12 @@
         arr.unshift(newAct);
         save('ft_activities', arr);
         f.reset();
-        updateStatsAndCharts();
+        updateEverything();
         renderList();
-      });
+      };
 
-      // init
-      updateStatsAndCharts();
+      // Initialize
+      updateEverything();
       renderList();
     });
   </script>
