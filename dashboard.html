@@ -161,6 +161,8 @@
       .goals   { grid-template-columns:1fr; }
     }
   </style>
+    <script src="storage.js"></script>
+
 </head>
 <body>
 
@@ -261,6 +263,16 @@
   </div>
 
   <script>
+    FT.applyTheme();
+FT.updateStats();
+FT.renderGreeting(document.getElementById('greeting'));
+
+    const s = FT.cur.stats;
+document.getElementById('workoutsCount').textContent  = s.workouts;
+document.getElementById('distanceCount').textContent  = s.distanceKm.toFixed(2) + ' km';
+document.getElementById('caloriesCount').textContent  = s.calories;
+document.getElementById('activeDaysCount').textContent = s.daysSet.length;
+
     document.addEventListener('DOMContentLoaded', () => {
       // Load ft_current + activities
       const cur = JSON.parse(localStorage.getItem('ft_current')) || {};
