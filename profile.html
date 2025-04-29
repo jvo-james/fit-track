@@ -264,128 +264,141 @@
     </div>
   </div>
 
-   <!-- at the end of profile.html, just before </body> -->
   <script>
-    // assumes storage.js has defined FT.updateSidebarAvatar()
-    document.addEventListener('DOMContentLoaded', () => {
-      const cur   = JSON.parse(localStorage.getItem('ft_current') || '{}');
-      const users = JSON.parse(localStorage.getItem('ft_users')   || '[]');
+  // Assumes storage.js defines FT.updateSidebarAvatar() but we’ll also
+  // directly update #sidebarAvatar here to be 100% certain.
+  document.addEventListener('DOMContentLoaded', () => {
+    const cur   = JSON.parse(localStorage.getItem('ft_current') || '{}');
+    const users = JSON.parse(localStorage.getItem('ft_users')   || '[]');
 
-      // form fields
-      const fld = {
-        avatarPreview: document.getElementById('avatarPreview'),
-        avatarInput:   document.getElementById('avatarInput'),
-        changeBtn:     document.getElementById('changeAvatarBtn'),
-        removeBtn:     document.getElementById('removeAvatarBtn'),
-        fullName:      document.getElementById('fullName'),
-        email:         document.getElementById('email'),
-        bio:           document.getElementById('bio'),
-        location:      document.getElementById('location'),
-        age:           document.getElementById('age'),
-        gender:        document.getElementById('gender'),
-        height:        document.getElementById('height'),
-        weight:        document.getElementById('weight'),
-        favorite:      document.getElementById('favorite'),
-        goals:         document.getElementById('goals'),
-        theme:         document.getElementById('theme'),
-        notifEmail:    document.getElementById('notifEmail'),
-        notifPush:     document.getElementById('notifPush'),
-        saveBtn:       document.getElementById('saveBtn'),
-        logoutBtn:     document.getElementById('logoutBtn')
-      };
+    // grab all our form controls
+    const fld = {
+      avatarPreview: document.getElementById('avatarPreview'),
+      avatarInput:   document.getElementById('avatarInput'),
+      changeBtn:     document.getElementById('changeAvatarBtn'),
+      removeBtn:     document.getElementById('removeAvatarBtn'),
+      sidebarAvatar: document.getElementById('sidebarAvatar'),
+      fullName:      document.getElementById('fullName'),
+      email:         document.getElementById('email'),
+      bio:           document.getElementById('bio'),
+      location:      document.getElementById('location'),
+      age:           document.getElementById('age'),
+      gender:        document.getElementById('gender'),
+      height:        document.getElementById('height'),
+      weight:        document.getElementById('weight'),
+      favorite:      document.getElementById('favorite'),
+      goals:         document.getElementById('goals'),
+      theme:         document.getElementById('theme'),
+      notifEmail:    document.getElementById('notifEmail'),
+      notifPush:     document.getElementById('notifPush'),
+      saveBtn:       document.getElementById('saveBtn'),
+      logoutBtn:     document.getElementById('logoutBtn')
+    };
 
-      // initialize the form with current values
-      function initForm() {
-        fld.fullName.value     = cur.name      || '';
-        fld.email.value        = cur.email     || '';
-        fld.bio.value          = cur.bio       || '';
-        fld.location.value     = cur.location  || '';
-        fld.age.value          = cur.age       || '';
-        fld.gender.value       = cur.gender    || '';
-        fld.height.value       = cur.height    || '';
-        fld.weight.value       = cur.weight    || '';
-        fld.favorite.value     = cur.favorite  || 'Running';
-        fld.goals.value        = cur.goals     || '';
-        fld.theme.value        = cur.theme     || 'dark';
-        fld.notifEmail.checked = !!cur.notifEmail;
-        fld.notifPush.checked  = !!cur.notifPush;
+    // Fill form fields & avatars from cur
+    function initForm() {
+      // text fields
+      fld.fullName.value     = cur.name      || '';
+      fld.email.value        = cur.email     || '';
+      fld.bio.value          = cur.bio       || '';
+      fld.location.value     = cur.location  || '';
+      fld.age.value          = cur.age       || '';
+      fld.gender.value       = cur.gender    || '';
+      fld.height.value       = cur.height    || '';
+      fld.weight.value       = cur.weight    || '';
+      fld.favorite.value     = cur.favorite  || 'Running';
+      fld.goals.value        = cur.goals     || '';
+      fld.theme.value        = cur.theme     || 'dark';
+      fld.notifEmail.checked = !!cur.notifEmail;
+      fld.notifPush.checked  = !!cur.notifPush;
 
-        // avatar preview
-        if (cur.avatarDataUrl) {
-          fld.avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
-          fld.avatarPreview.innerHTML = '';
-        } else {
-          fld.avatarPreview.style.backgroundImage = '';
-          fld.avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
-        }
-
-        // theme
-        document.body.classList.toggle('light-theme', fld.theme.value === 'light');
+      // preview panel
+      if (cur.avatarDataUrl) {
+        fld.avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
+        fld.avatarPreview.innerHTML = '';
+      } else {
+        fld.avatarPreview.style.backgroundImage = '';
+        fld.avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
       }
 
-      // when "Change" clicked, forward to file picker
-      fld.changeBtn.addEventListener('click', () => fld.avatarInput.click());
+      // sidebar icon
+      if (cur.avatarDataUrl) {
+        fld.sidebarAvatar.src = cur.avatarDataUrl;
+      } else {
+        // fallback to a generic gravatar
+        fld.sidebarAvatar.src = `https://i.pravatar.cc/150?u=${cur.email||'default'}`;
+      }
 
-      // handle file selection
-      fld.avatarInput.addEventListener('change', e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          cur.avatarDataUrl = reader.result;
-          initForm();
-          FT.updateSidebarAvatar();
-        };
-        reader.readAsDataURL(file);
-      });
+      // theme class
+      document.body.classList.toggle('light-theme', fld.theme.value === 'light');
+    }
 
-      // remove avatar
-      fld.removeBtn.addEventListener('click', () => {
-        delete cur.avatarDataUrl;
+    // click “Change” → open file picker
+    fld.changeBtn.addEventListener('click', () => fld.avatarInput.click());
+
+    // when user picks file
+    fld.avatarInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        cur.avatarDataUrl = reader.result;
         initForm();
-        FT.updateSidebarAvatar();
-      });
+      };
+      reader.readAsDataURL(file);
+    });
 
-      // save
-      fld.saveBtn.addEventListener('click', () => {
-        if (!fld.fullName.value.trim()) {
-          return alert('Full Name is required.');
-        }
-        // gather all fields
-        cur.name       = fld.fullName.value.trim();
-        cur.bio        = fld.bio.value.trim();
-        cur.location   = fld.location.value.trim();
-        cur.age        = fld.age.value;
-        cur.gender     = fld.gender.value;
-        cur.height     = fld.height.value;
-        cur.weight     = fld.weight.value;
-        cur.favorite   = fld.favorite.value;
-        cur.goals      = fld.goals.value.trim();
-        cur.theme      = fld.theme.value;
-        cur.notifEmail = fld.notifEmail.checked;
-        cur.notifPush  = fld.notifPush.checked;
-        // persist
-        localStorage.setItem('ft_current', JSON.stringify(cur));
-        // update users array
-        const idx = users.findIndex(u => u.email === cur.email);
-        if (idx >= 0) {
-          users[idx] = { ...users[idx], ...cur };
-          localStorage.setItem('ft_users', JSON.stringify(users));
-        }
-        // theme + sidebar
-        document.body.classList.toggle('light-theme', cur.theme === 'light');
-        FT.updateSidebarAvatar();
-        alert('Saved successfully');
-      });
-
-      // logout
-      fld.logoutBtn.addEventListener('click', () => {
-        window.location.href = 'home.html';
-      });
-
+    // remove avatar
+    fld.removeBtn.addEventListener('click', () => {
+      delete cur.avatarDataUrl;
       initForm();
     });
-  </script>
+
+    // Save button
+    fld.saveBtn.addEventListener('click', () => {
+      if (!fld.fullName.value.trim()) {
+        return alert('Full Name is required.');
+      }
+      // collect all fields
+      cur.name       = fld.fullName.value.trim();
+      cur.bio        = fld.bio.value.trim();
+      cur.location   = fld.location.value.trim();
+      cur.age        = fld.age.value;
+      cur.gender     = fld.gender.value;
+      cur.height     = fld.height.value;
+      cur.weight     = fld.weight.value;
+      cur.favorite   = fld.favorite.value;
+      cur.goals      = fld.goals.value.trim();
+      cur.theme      = fld.theme.value;
+      cur.notifEmail = fld.notifEmail.checked;
+      cur.notifPush  = fld.notifPush.checked;
+      // persist cur
+      localStorage.setItem('ft_current', JSON.stringify(cur));
+
+      // update it in the users array
+      const idx = users.findIndex(u => u.email === cur.email);
+      if (idx >= 0) {
+        users[idx] = { ...users[idx], ...cur };
+        localStorage.setItem('ft_users', JSON.stringify(users));
+      }
+
+      // re-render
+      initForm();
+
+      // final single popup
+      alert('Saved successfully');
+    });
+
+    // logout
+    fld.logoutBtn.addEventListener('click', () => {
+      window.location.href = 'home.html';
+    });
+
+    // initial render
+    initForm();
+  });
+</script>
+
 
 </body>
 </html>
