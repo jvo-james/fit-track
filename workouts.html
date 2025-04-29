@@ -190,6 +190,7 @@
   font-size: 1.4rem;
   animation: pulse 2s infinite;
   z-index: 1001;
+  display: flex; 
 }
 @keyframes pulse {
   0%   { box-shadow: 0 0 8px rgba(0,0,0,0.2), 0 0 12px rgba(255,255,255,0.6); }
@@ -583,14 +584,27 @@
       appendMsg(a, 'bot');
       sel.selectedIndex = 0;
     });
-// hide chat by default
-const chat = document.getElementById('chatbot');
-chat.style.display = 'none';
+const chat      = document.getElementById('chatbot');
+const chatToggle= document.getElementById('chatToggle');
 
-// toggle chat on icon click
-document.getElementById('chatToggle').addEventListener('click', () => {
-  chat.style.display = chat.style.display === 'none' ? 'flex' : 'none';
+// start with chat hidden, icon visible
+chat.style.display       = 'none';
+chatToggle.style.display = 'flex';
+
+// when you click the bubble: show chat, hide bubble
+chatToggle.addEventListener('click', () => {
+  chat.style.display       = 'flex';
+  chatToggle.style.display = 'none';
 });
+
+// when you click the “×” inside chat: hide chat, show bubble
+document.getElementById('clearChat').addEventListener('click', () => {
+  // clear messages if you want:
+  messagesEl.innerHTML = '<div class="msg bot">Welcome! Select a question below.</div>';
+  chat.style.display       = 'none';
+  chatToggle.style.display = 'flex';
+});
+
 
   });
   </script>
