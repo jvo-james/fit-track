@@ -156,6 +156,8 @@
       #duration,#distance,#calories { grid-column:span 1; }
     }
   </style>
+    <script src="storage.js"></script>
+
 </head>
 <body>
   <aside class="sidebar" role="navigation" aria-label="Main sidebar">
@@ -239,6 +241,9 @@
   </div>
 
   <script>
+    FT.applyTheme();
+FT.updateStats();
+
     document.addEventListener('DOMContentLoaded', () => {
       const load = k => JSON.parse(localStorage.getItem(k) || '[]');
       const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
@@ -405,6 +410,8 @@
       // Initialize
       updateStats();
       renderList();
+      FT.updateStats();
+
     });
   </script>
 </body>
