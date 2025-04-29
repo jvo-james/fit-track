@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
     :root {
@@ -21,48 +20,29 @@
       --font: 'Poppins', sans-serif;
       --font-alt: 'Raleway', sans-serif;
     }
-    /* Light theme overrides */
     body.light-theme {
-      --bg: #fafafa;
-      --fg: #111;
-      --card-bg: rgba(0,0,0,0.05);
-      --input-bg: #fff;
+      --bg: #fafafa; --fg: #111; --card-bg: rgba(0,0,0,0.05); --input-bg: #fff;
     }
-
-    *, *::before, *::after {
-      margin:0; padding:0; box-sizing:border-box;
-    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display:flex; min-height:100vh;
-      background:var(--bg); color:var(--fg);
+      display:flex; min-height:100vh; background:var(--bg); color:var(--fg);
       font-family:var(--font); overflow-y:auto;
     }
     a { color:inherit; text-decoration:none; }
 
-    /* ─── SIDEBAR ───────────────────────────────── */
+    /* ─── SIDEBAR ───────────────── */
     .sidebar {
       position:sticky; top:0; height:100vh; width:80px;
       background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0; z-index:1000;
+      display:flex; flex-direction:column; align-items:center; padding:1rem 0;
     }
-    .sidebar .logo {
-      font-size:1.6rem; color:var(--gold); margin-bottom:2rem;
-    }
-    .sidebar .menu-item {
-      width:100%; text-align:center; padding:1rem 0;
-      transition:background .2s;
-    }
+    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar .menu-item { width:100%; text-align:center; padding:1rem 0; transition:background .2s; }
     .sidebar .menu-item:hover,
-    .sidebar .menu-item.active {
-      background:rgba(255,152,0,0.2);
-    }
-    .sidebar .menu-item a {
-      display:flex; flex-direction:column; align-items:center;
-    }
+    .sidebar .menu-item.active { background:rgba(255,152,0,0.2); }
+    .sidebar .menu-item a { display:flex; flex-direction:column; align-items:center; }
     .sidebar .menu-item i { font-size:1.4rem; }
     .sidebar .menu-item span { font-size:.6rem; margin-top:.2rem; }
-
     .sidebar .sign-in-btn {
       margin-top:auto; margin-bottom:1rem;
       width:50px; height:50px; background:var(--gold);
@@ -71,19 +51,14 @@
     }
     .sidebar .sign-in-btn:hover { transform:scale(1.1); }
 
-    /* ─── MAIN AREA ─────────────────────────────────── */
-    .main {
-      flex:1; display:flex; flex-direction:column;
-    }
+    /* ─── MAIN AREA ───────────────── */
+    .main { flex:1; display:flex; flex-direction:column; }
     header {
-      position:sticky; top:0;
-      background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold);
-      padding:1.5rem; display:flex; align-items:center; justify-content:space-between;
-      z-index:500;
+      position:sticky; top:0; background:rgba(0,0,0,0.9);
+      border-bottom:2px solid var(--gold); padding:1.5rem;
+      display:flex; align-items:center; justify-content:space-between; z-index:500;
     }
-    header h1 {
-      font-size:1.8rem; font-family:var(--font-alt);
-    }
+    header h1 { font-size:1.8rem; font-family:var(--font-alt); }
     header button {
       background:var(--gold); color:var(--bg); border:none;
       padding:.5rem 1rem; border-radius:30px; cursor:pointer;
@@ -91,66 +66,61 @@
     }
     header button:hover { transform:scale(1.05); }
 
-    .content {
-      padding:2rem; flex:1; overflow-y:auto;
-    }
+    .content { padding:2rem; flex:1; overflow-y:auto; }
 
-    /* ─── INSTRUCTIONS ─────────────────────────────── */
-    .instructions {
-      max-width:800px; margin:0 auto 2rem;
-      background:var(--card-bg); padding:1rem 1.5rem; border-radius:8px;
-      font-size:.95rem; line-height:1.4;
-    }
-    .instructions i { color:var(--gold); margin-right:.5rem; }
-
-    /* ─── PROFILE FORM ─────────────────────────────── */
-    .profile-card {
+    /* ─── PROFILE FORM ─────────────── */
+    #profileForm {
       max-width:900px; margin:0 auto;
       background:var(--card-bg); border-radius:12px;
-      padding:2rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      display:grid; grid-template-columns:200px 1fr; gap:2rem;
-      font-family:var(--font-alt);
+      padding:2rem; display:grid;
+      grid-template-columns: 1fr 2fr; gap:2rem;
+      align-items:start;
     }
+
     /* Avatar */
     .avatar-section {
       display:flex; flex-direction:column; align-items:center; gap:1rem;
     }
     #avatarPreview {
-      width:150px; height:150px; border-radius:50%;
-      object-fit:cover; border:3px solid var(--gold);
+      width:180px; height:180px; border-radius:50%;
       background:var(--input-bg);
+      display:flex; align-items:center; justify-content:center;
+      font-size:4rem; color:rgba(255,255,255,0.5);
+      overflow:hidden;
     }
-    .avatar-section input[type="file"] {
-      color:var(--fg);
+    .avatar-buttons {
+      display:flex; gap:0.5rem;
     }
+    .avatar-buttons button {
+      padding:.4rem .8rem; border:none; border-radius:6px;
+      background:var(--gold); color:var(--bg); cursor:pointer;
+      font-size:.9rem; transition:transform .2s;
+    }
+    .avatar-buttons button:hover { transform:scale(1.05); }
 
-    /* Fields grid */
+    /* Fields */
     .fields {
       display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;
     }
-    .field {
-      display:flex; flex-direction:column;
-    }
+    .field { display:flex; flex-direction:column; }
     .field label {
       font-weight:600; margin-bottom:.3rem;
+      display:flex; align-items:center; gap:.5rem;
+      font-family:var(--font-alt);
     }
-    .field label i { margin-right:.5rem; color:var(--gold); }
     .field input,
     .field select,
     .field textarea {
       padding:.6rem; border-radius:6px;
       border:1px solid rgba(255,255,255,0.3);
       background:var(--input-bg); color:var(--fg);
-      font-family:var(--font);
-      font-size:1rem;
+      font-family:var(--font); font-size:1rem;
     }
-    .field textarea {
-      resize: vertical; grid-column: span 2; min-height:80px;
-    }
+    .field textarea { resize:vertical; grid-column:span 2; min-height:80px; }
 
     /* Actions */
     .actions {
-      grid-column: span 2; display:flex; justify-content:flex-end; gap:1rem;
+      grid-column: span 2; display:flex; justify-content:flex-end;
     }
     .actions button {
       padding:.75rem 1.5rem; border:none;
@@ -160,21 +130,22 @@
     }
     .actions button:hover { transform:scale(1.05); }
 
-    /* ─── RESPONSIVE ───────────────────────────────── */
+    /* ─── RESPONSIVE ─────────────────── */
     @media(max-width:900px) {
       .sidebar { position:fixed; }
       .main { margin-left:80px; }
-      .profile-card { grid-template-columns:1fr; }
+      #profileForm { grid-template-columns:1fr; }
       .fields { grid-template-columns:1fr; }
-      .field textarea { grid-column: span 1; }
+      .field textarea { grid-column:span 1; }
     }
   </style>
-    <script src="storage.js"></script>
 
+  <!-- shared storage & helpers -->
+  <script src="storage.js"></script>
 </head>
 <body>
   <!-- SIDEBAR -->
-  <aside class="sidebar" role="navigation" aria-label="Main sidebar">
+  <aside class="sidebar" role="navigation">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
@@ -191,23 +162,17 @@
     </header>
 
     <div class="content">
-      <div class="instructions">
-        <p><i class="fas fa-info-circle"></i> <strong>How to update your profile:</strong></p>
-        <ul>
-          <li>Click the <strong>Choose File</strong> button to upload a new profile picture.</li>
-          <li>Fill in or edit any of the fields below: <em>Full Name, Bio, Location, Age, Gender, Height, Weight, Favorite Workout, Fitness Goals</em>.</li>
-          <li>Select your preferred <em>Light</em> or <em>Dark</em> theme.</li>
-          <li>Toggle email or push notifications on/off.</li>
-          <li>When you’re done, click <strong>Save Changes</strong>.</li>
-          <li>All changes—including your avatar and theme—will immediately apply across the entire app.</li>
-        </ul>
-      </div>
-
-      <form id="profileForm" class="profile-card" aria-label="Edit profile">
+      <form id="profileForm" aria-label="Edit profile">
         <!-- Avatar -->
         <div class="avatar-section">
-          <img id="avatarPreview" src="" alt="Profile Picture">
-          <input type="file" id="avatarInput" accept="image/*" aria-label="Upload profile picture">
+          <div id="avatarPreview">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="avatar-buttons">
+            <button type="button" id="changeAvatarBtn">Change</button>
+            <button type="button" id="removeAvatarBtn">Remove</button>
+          </div>
+          <input type="file" id="avatarInput" accept="image/*" style="display:none;">
         </div>
 
         <!-- Fields -->
@@ -264,7 +229,7 @@
             <textarea id="goals" placeholder="E.g. Run a marathon, build muscle"></textarea>
           </div>
           <div class="field">
-            <label for="theme"><i class="fas fa-adjust"></i> Theme Preference</label>
+            <label for="theme"><i class="fas fa-adjust"></i> Theme</label>
             <select id="theme">
               <option value="dark">Dark Mode</option>
               <option value="light">Light Mode</option>
@@ -279,7 +244,7 @@
           </div>
         </div>
 
-        <!-- Actions -->
+        <!-- Save -->
         <div class="actions">
           <button type="button" id="saveBtn"><i class="fas fa-save"></i> Save Changes</button>
         </div>
@@ -288,100 +253,82 @@
   </div>
 
   <script>
-    FT.applyTheme();
-FT.initProfileForm({
-  avatarPreview: document.getElementById('avatarPreview'),
-  avatarInput:   document.getElementById('avatarInput'),
-  fields: {
-    fullName:   document.getElementById('fullName'),
-    email:      document.getElementById('email'),
-    bio:        document.getElementById('bio'),
-    location:   document.getElementById('location'),
-    age:        document.getElementById('age'),
-    gender:     document.getElementById('gender'),
-    height:     document.getElementById('height'),
-    weight:     document.getElementById('weight'),
-    favorite:   document.getElementById('favorite'),
-    goals:      document.getElementById('goals'),
-    theme:      document.getElementById('theme'),
-    notifEmail: document.getElementById('notifEmail'),
-    notifPush:  document.getElementById('notifPush')
-  },
-  saveBtn:   document.getElementById('saveBtn'),
-  logoutBtn: document.getElementById('logoutBtn')
-});
-
+    // Shared helpers from storage.js assumed loaded
     document.addEventListener('DOMContentLoaded', () => {
-      // Load stored
       const cur   = JSON.parse(localStorage.getItem('ft_current') || '{}');
-      const users = JSON.parse(localStorage.getItem('ft_users') || '[]');
+      const users = JSON.parse(localStorage.getItem('ft_users')   || '[]');
 
-      // DOM refs
       const avatarInput   = document.getElementById('avatarInput');
       const avatarPreview = document.getElementById('avatarPreview');
+      const changeBtn     = document.getElementById('changeAvatarBtn');
+      const removeBtn     = document.getElementById('removeAvatarBtn');
       const fld = {
-        fullName:    document.getElementById('fullName'),
-        email:       document.getElementById('email'),
-        bio:         document.getElementById('bio'),
-        location:    document.getElementById('location'),
-        age:         document.getElementById('age'),
-        gender:      document.getElementById('gender'),
-        height:      document.getElementById('height'),
-        weight:      document.getElementById('weight'),
-        favorite:    document.getElementById('favorite'),
-        goals:       document.getElementById('goals'),
-        theme:       document.getElementById('theme'),
-        notifEmail:  document.getElementById('notifEmail'),
-        notifPush:   document.getElementById('notifPush')
+        fullName:   document.getElementById('fullName'),
+        email:      document.getElementById('email'),
+        bio:        document.getElementById('bio'),
+        location:   document.getElementById('location'),
+        age:        document.getElementById('age'),
+        gender:     document.getElementById('gender'),
+        height:     document.getElementById('height'),
+        weight:     document.getElementById('weight'),
+        favorite:   document.getElementById('favorite'),
+        goals:      document.getElementById('goals'),
+        theme:      document.getElementById('theme'),
+        notifEmail: document.getElementById('notifEmail'),
+        notifPush:  document.getElementById('notifPush')
       };
 
-      // Initialize form from localStorage
+      // Init form
       function initForm() {
-        fld.fullName.value   = cur.name || '';
-        fld.email.value      = cur.email || '';
-        fld.bio.value        = cur.bio || '';
-        fld.location.value   = cur.location || '';
-        fld.age.value        = cur.age || '';
-        fld.gender.value     = cur.gender || '';
-        fld.height.value     = cur.height || '';
-        fld.weight.value     = cur.weight || '';
-        fld.favorite.value   = cur.favorite || 'Running';
-        fld.goals.value      = cur.goals || '';
-        fld.theme.value      = cur.theme || 'dark';
+        fld.fullName.value    = cur.name || '';
+        fld.email.value       = cur.email || '';
+        fld.bio.value         = cur.bio || '';
+        fld.location.value    = cur.location || '';
+        fld.age.value         = cur.age || '';
+        fld.gender.value      = cur.gender || '';
+        fld.height.value      = cur.height || '';
+        fld.weight.value      = cur.weight || '';
+        fld.favorite.value    = cur.favorite || 'Running';
+        fld.goals.value       = cur.goals || '';
+        fld.theme.value       = cur.theme || 'dark';
         fld.notifEmail.checked = !!cur.notifEmail;
         fld.notifPush.checked  = !!cur.notifPush;
         // Avatar
         if (cur.avatarDataUrl) {
-          avatarPreview.src = cur.avatarDataUrl;
+          avatarPreview.innerHTML = '';
+          avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
+          avatarPreview.style.backgroundSize = 'cover';
         } else {
-          avatarPreview.src = `https://i.pravatar.cc/150?u=${cur.email||'default'}`;
+          avatarPreview.innerHTML = `<i class="fas fa-user"></i>`;
+          avatarPreview.style.backgroundImage = '';
         }
-        applyTheme(cur.theme || 'dark');
+        document.body.classList.toggle('light-theme', fld.theme.value==='light');
       }
 
-      // Apply theme class
-      function applyTheme(t) {
-        document.body.classList.toggle('light-theme', t==='light');
-      }
-
-      // Avatar upload handler
+      // Change avatar
+      changeBtn.addEventListener('click', () => avatarInput.click());
       avatarInput.addEventListener('change', e => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = () => {
-          avatarPreview.src = reader.result;
           cur.avatarDataUrl = reader.result;
+          initForm();
         };
         reader.readAsDataURL(file);
       });
 
-      // Save changes handler
+      // Remove avatar
+      removeBtn.addEventListener('click', () => {
+        delete cur.avatarDataUrl;
+        initForm();
+      });
+
+      // Save
       document.getElementById('saveBtn').addEventListener('click', () => {
-        // Required name
         const name = fld.fullName.value.trim();
         if (!name) return alert('Full Name is required.');
-        // Gather all
+        // Gather
         cur.name       = name;
         cur.bio        = fld.bio.value.trim();
         cur.location   = fld.location.value.trim();
@@ -394,16 +341,15 @@ FT.initProfileForm({
         cur.theme      = fld.theme.value;
         cur.notifEmail = fld.notifEmail.checked;
         cur.notifPush  = fld.notifPush.checked;
-        // Persist to ft_current
+        // Persist current + update users array
         localStorage.setItem('ft_current', JSON.stringify(cur));
-        // Update in ft_users
-        const idx = users.findIndex(u => u.email === cur.email);
-        if (idx >= 0) {
-          users[idx] = { ...users[idx], ...cur, since: users[idx].since || Date.now() };
+        const idx = users.findIndex(u => u.email===cur.email);
+        if(idx>=0){
+          users[idx] = {...users[idx], ...cur};
           localStorage.setItem('ft_users', JSON.stringify(users));
         }
-        applyTheme(cur.theme);
-        alert('✅ Profile saved! Changes will reflect across the app.');
+        document.body.classList.toggle('light-theme', cur.theme==='light');
+        alert('Saved successfully');
       });
 
       // Logout
