@@ -264,98 +264,95 @@
     </div>
   </div>
 
+   <!-- at the end of profile.html, just before </body> -->
   <script>
-    // Shared helpers from storage.js assumed loaded
+    // assumes storage.js has defined FT.updateSidebarAvatar()
     document.addEventListener('DOMContentLoaded', () => {
       const cur   = JSON.parse(localStorage.getItem('ft_current') || '{}');
       const users = JSON.parse(localStorage.getItem('ft_users')   || '[]');
 
-      const avatarInput   = document.getElementById('avatarInput');
-      const avatarPreview = document.getElementById('avatarPreview');
-      const changeBtn     = document.getElementById('changeAvatarBtn');
-      const removeBtn     = document.getElementById('removeAvatarBtn');
+      // form fields
       const fld = {
-        fullName:   document.getElementById('fullName'),
-        email:      document.getElementById('email'),
-        bio:        document.getElementById('bio'),
-        location:   document.getElementById('location'),
-        age:        document.getElementById('age'),
-        gender:     document.getElementById('gender'),
-        height:     document.getElementById('height'),
-        weight:     document.getElementById('weight'),
-        favorite:   document.getElementById('favorite'),
-        goals:      document.getElementById('goals'),
-        theme:      document.getElementById('theme'),
-        notifEmail: document.getElementById('notifEmail'),
-        notifPush:  document.getElementById('notifPush')
+        avatarPreview: document.getElementById('avatarPreview'),
+        avatarInput:   document.getElementById('avatarInput'),
+        changeBtn:     document.getElementById('changeAvatarBtn'),
+        removeBtn:     document.getElementById('removeAvatarBtn'),
+        fullName:      document.getElementById('fullName'),
+        email:         document.getElementById('email'),
+        bio:           document.getElementById('bio'),
+        location:      document.getElementById('location'),
+        age:           document.getElementById('age'),
+        gender:        document.getElementById('gender'),
+        height:        document.getElementById('height'),
+        weight:        document.getElementById('weight'),
+        favorite:      document.getElementById('favorite'),
+        goals:         document.getElementById('goals'),
+        theme:         document.getElementById('theme'),
+        notifEmail:    document.getElementById('notifEmail'),
+        notifPush:     document.getElementById('notifPush'),
+        saveBtn:       document.getElementById('saveBtn'),
+        logoutBtn:     document.getElementById('logoutBtn')
       };
 
-      // Init form
+      // initialize the form with current values
       function initForm() {
-        fld.fullName.value    = cur.name || '';
-        fld.email.value       = cur.email || '';
-        fld.bio.value         = cur.bio || '';
-        fld.location.value    = cur.location || '';
-        fld.age.value         = cur.age || '';
-        fld.gender.value      = cur.gender || '';
-        fld.height.value      = cur.height || '';
-        fld.weight.value      = cur.weight || '';
-        fld.favorite.value    = cur.favorite || 'Running';
-        fld.goals.value       = cur.goals || '';
-        fld.theme.value       = cur.theme || 'dark';
+        fld.fullName.value     = cur.name      || '';
+        fld.email.value        = cur.email     || '';
+        fld.bio.value          = cur.bio       || '';
+        fld.location.value     = cur.location  || '';
+        fld.age.value          = cur.age       || '';
+        fld.gender.value       = cur.gender    || '';
+        fld.height.value       = cur.height    || '';
+        fld.weight.value       = cur.weight    || '';
+        fld.favorite.value     = cur.favorite  || 'Running';
+        fld.goals.value        = cur.goals     || '';
+        fld.theme.value        = cur.theme     || 'dark';
         fld.notifEmail.checked = !!cur.notifEmail;
         fld.notifPush.checked  = !!cur.notifPush;
-        // after reader.onload in avatarInput change handler:
-cur.avatarDataUrl = reader.result;
-initForm();
-FT.updateSidebarAvatar();
 
-// in removeAvatarBtn click handler:
-delete cur.avatarDataUrl;
-initForm();
-FT.updateSidebarAvatar();
-
-// and after saving (in saveBtn click handler), just to be sure:
-localStorage.setItem('ft_current', JSON.stringify(cur));
-FT.updateSidebarAvatar();
-
-        // Avatar
+        // avatar preview
         if (cur.avatarDataUrl) {
-          avatarPreview.innerHTML = '';
-          avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
-          avatarPreview.style.backgroundSize = 'cover';
+          fld.avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
+          fld.avatarPreview.innerHTML = '';
         } else {
-          avatarPreview.innerHTML = `<i class="fas fa-user"></i>`;
-          avatarPreview.style.backgroundImage = '';
+          fld.avatarPreview.style.backgroundImage = '';
+          fld.avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
         }
-        document.body.classList.toggle('light-theme', fld.theme.value==='light');
+
+        // theme
+        document.body.classList.toggle('light-theme', fld.theme.value === 'light');
       }
 
-      // Change avatar
-      changeBtn.addEventListener('click', () => avatarInput.click());
-      avatarInput.addEventListener('change', e => {
+      // when "Change" clicked, forward to file picker
+      fld.changeBtn.addEventListener('click', () => fld.avatarInput.click());
+
+      // handle file selection
+      fld.avatarInput.addEventListener('change', e => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = () => {
           cur.avatarDataUrl = reader.result;
           initForm();
+          FT.updateSidebarAvatar();
         };
         reader.readAsDataURL(file);
       });
 
-      // Remove avatar
-      removeBtn.addEventListener('click', () => {
+      // remove avatar
+      fld.removeBtn.addEventListener('click', () => {
         delete cur.avatarDataUrl;
         initForm();
+        FT.updateSidebarAvatar();
       });
 
-      // Save
-      document.getElementById('saveBtn').addEventListener('click', () => {
-        const name = fld.fullName.value.trim();
-        if (!name) return alert('Full Name is required.');
-        // Gather
-        cur.name       = name;
+      // save
+      fld.saveBtn.addEventListener('click', () => {
+        if (!fld.fullName.value.trim()) {
+          return alert('Full Name is required.');
+        }
+        // gather all fields
+        cur.name       = fld.fullName.value.trim();
         cur.bio        = fld.bio.value.trim();
         cur.location   = fld.location.value.trim();
         cur.age        = fld.age.value;
@@ -367,24 +364,28 @@ FT.updateSidebarAvatar();
         cur.theme      = fld.theme.value;
         cur.notifEmail = fld.notifEmail.checked;
         cur.notifPush  = fld.notifPush.checked;
-        // Persist current + update users array
+        // persist
         localStorage.setItem('ft_current', JSON.stringify(cur));
-        const idx = users.findIndex(u => u.email===cur.email);
-        if(idx>=0){
-          users[idx] = {...users[idx], ...cur};
+        // update users array
+        const idx = users.findIndex(u => u.email === cur.email);
+        if (idx >= 0) {
+          users[idx] = { ...users[idx], ...cur };
           localStorage.setItem('ft_users', JSON.stringify(users));
         }
-        document.body.classList.toggle('light-theme', cur.theme==='light');
+        // theme + sidebar
+        document.body.classList.toggle('light-theme', cur.theme === 'light');
+        FT.updateSidebarAvatar();
         alert('Saved successfully');
       });
 
-      // Logout
-      document.getElementById('logoutBtn').addEventListener('click', () => {
+      // logout
+      fld.logoutBtn.addEventListener('click', () => {
         window.location.href = 'home.html';
       });
 
       initForm();
     });
   </script>
+
 </body>
 </html>
