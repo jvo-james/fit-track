@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FitTrack | Leaderboard</title>
 
-   <!-- Google Fonts & FontAwesome -->
+  <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/><style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
     :root {
       --bg: #000;
       --gold: #ff9800;
@@ -34,20 +36,11 @@
       display: flex; flex-direction: column; align-items: center;
       padding: 1rem 0; z-index: 1000;
     }
-    .logo {
-      font-size: 1.5rem; color: var(--gold); margin-bottom: 2rem;
-    }
-    .menu-item {
-      width: 100%; text-align: center; padding: 1rem 0;
-      transition: background .2s;
-    }
+    .logo      { font-size: 1.5rem; color: var(--gold); margin-bottom: 2rem; }
+    .menu-item { width: 100%; text-align: center; padding: 1rem 0; transition: background .2s; }
     .menu-item:hover,
-    .menu-item.active {
-      background: rgba(255,152,0,0.2);
-    }
-    .menu-item a {
-      display: flex; flex-direction: column; align-items: center;
-    }
+    .menu-item.active { background: rgba(255,152,0,0.2); }
+    .menu-item a { display: flex; flex-direction: column; align-items: center; }
     .menu-item i { font-size: 1.4rem; }
     .menu-item span { font-size: .6rem; margin-top: .2rem; }
 
@@ -60,17 +53,15 @@
     .sign-in-btn:hover { transform: scale(1.1); }
 
     /* ─── MAIN ─────────────────────────────────── */
-    .main {
-      flex: 1; display: flex; flex-direction: column;
-    }
+    .main { flex: 1; display: flex; flex-direction: column; }
     header {
-      position: sticky; top: 0;
-      background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--gold);
+      position: sticky; top: 0; background: rgba(0,0,0,0.9);
+      border-bottom: 2px solid var(--gold);
       padding: 1.5rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;
       z-index: 500;
     }
     header h1 { font-size: 1.8rem; flex: 1 1 100%; }
-    header p { font-size: .9rem; opacity: .7; flex: 1 1 100%; }
+    header p  { font-size: .9rem; opacity: .7; flex: 1 1 100%; }
     #filters {
       display: flex; gap: 1rem; flex-wrap: wrap; flex: 1 1 100%;
     }
@@ -83,13 +74,11 @@
     /* ─── LEADERBOARD TABLE ─────────────────────── */
     .leaderboard {
       background: rgba(255,255,255,0.05);
-      border-radius: 12px; padding: 1rem;
-      margin: 1.5rem;
+      border-radius: 12px; padding: 1rem; margin: 1.5rem;
       overflow-x: auto;
     }
     table {
-      width: 100%; border-collapse: collapse;
-      font-family: var(--font);
+      width: 100%; border-collapse: collapse; font-family: var(--font);
     }
     th, td {
       padding: .75rem 1rem; text-align: left;
@@ -104,9 +93,7 @@
       display: flex; align-items: center; gap: 1rem;
       margin: 0 1.5rem 1.5rem;
     }
-    #yourRank img {
-      width: 60px; height: 60px; border-radius: 50%;
-    }
+    #yourRank img { width: 60px; height: 60px; border-radius: 50%; }
     #yourRank div strong { font-size: 1.1rem; }
 
     /* ─── HIGHLIGHTS ───────────────────────────── */
@@ -175,11 +162,11 @@
       header { flex-direction: column; align-items: flex-start; }
     }
   </style>
-    <script src="storage.js"></script>
 
+  <!-- 1) Shared logic -->
+  <script src="storage.js"></script>
 </head>
 <body>
-
   <!-- SIDEBAR -->
   <aside class="sidebar" role="navigation" aria-label="Main sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
@@ -193,7 +180,8 @@
 
   <div class="main">
     <header>
-      <h1>Leaderboard</h1>
+      <!-- 2) Give this h1 an id so renderGreeting can work -->
+      <h1 id="headerGreeting">Leaderboard</h1>
       <p>See who’s leading the pack this week and all-time.</p>
       <div id="filters">
         <select id="timeframe" aria-label="Filter by timeframe">
@@ -211,7 +199,7 @@
       </div>
     </header>
 
-    <!-- 1) Leaderboard Table -->
+    <!-- Leaderboard Table -->
     <section class="leaderboard" aria-label="Leaderboard table">
       <table>
         <thead>
@@ -221,19 +209,19 @@
       </table>
     </section>
 
-    <!-- 2) Your Rank -->
+    <!-- Your Rank -->
     <section id="yourRank" aria-label="Your rank card"></section>
 
-    <!-- 3) Highlights -->
+    <!-- Highlights -->
     <section id="highlights" aria-label="Most improved highlights"></section>
 
-    <!-- 4) Achievements -->
+    <!-- Achievements -->
     <section class="achievements" aria-label="Your achievements">
       <h2><i class="fas fa-award"></i> Achievements</h2>
       <div class="badge-list" id="badges"></div>
     </section>
 
-    <!-- 5) Community Challenges -->
+    <!-- Community Challenges -->
     <section class="community" aria-label="Community challenges">
       <h2><i class="fas fa-globe"></i> Community Challenges</h2>
       <div class="challenge-list" id="challenges"></div>
@@ -241,96 +229,97 @@
   </div>
 
   <script>
-    FT.applyTheme();
-FT.updateStats();
-
     document.addEventListener('DOMContentLoaded', () => {
-      // Load users & current from localStorage
-      const allUsers = JSON.parse(localStorage.getItem('ft_users') || '[]');
-      const current  = JSON.parse(localStorage.getItem('ft_current') || '{}');
-      // Fallback empty array
-      const users = allUsers.map((u,i) => ({
-        id: u.email,
-        name: u.name,
-        avatar: `https://i.pravatar.cc/150?u=${u.email}`,
-        type: u.lastType || 'Running',
-        score: u.lastScore || 0,
-        delta: u.lastDelta || 0
-      }));
-const avatarUrl = FT.cur.avatarDataUrl
-  || `https://i.pravatar.cc/150?u=${FT.cur.email}`;
-document.querySelector('#yourRank img').src = avatarUrl;
-FT.renderGreeting(document.getElementById('headerGreeting'));
+      // 1) Theme & stats
+      FT.applyTheme();
+      FT.updateStats();
 
-      // Simple dummy achievements & challenges
+      // 2) Greeting
+      FT.renderGreeting(document.getElementById('headerGreeting'));
+
+      // 3) Dummy user list (could be FT.load('ft_users'))
+      const users = [
+        { id:'u1', name:'Alex M.', type:'Running', score:320, delta:25 },
+        { id:'u2', name:'Sarah K.', type:'Cycling', score:285, delta:18 },
+        { id:FT.cur.email, name:FT.cur.name, type:'Strength', score: FT.cur.stats.workouts * 10, delta:5 }
+      ];
+
+      // 4) Dummy achievements & challenges
       const achievements = [
         { icon:'fa-fire', name:'Streak Master' },
         { icon:'fa-medal', name:'100 Workouts' },
         { icon:'fa-heart', name:'Community Favorite' }
       ];
       const communityChallenges = [
-        { title:'Weekend 5K', desc:'Run 5K every Saturday' },
-        { title:'Push-Up Power', desc:'100 push-ups daily' }
+        { title:'Weekend 5K', desc:'Run 5K every Saturday.' },
+        { title:'Push-Up Power', desc:'Do 100 push-ups daily.' }
       ];
 
       // DOM refs
-      const lbBody = document.getElementById('leaderboardBody');
-      const tf = document.getElementById('timeframe');
-      const cat= document.getElementById('category');
-      const yourRankEl = document.getElementById('yourRank');
+      const lbBody       = document.getElementById('leaderboardBody');
+      const tfSelect     = document.getElementById('timeframe');
+      const catSelect    = document.getElementById('category');
+      const yourRankEl   = document.getElementById('yourRank');
       const highlightsEl = document.getElementById('highlights');
-      const badgesEl = document.getElementById('badges');
-      const challengesEl = document.getElementById('challenges');
+      const badgesEl     = document.getElementById('badges');
+      const challEl      = document.getElementById('challenges');
 
       function render() {
-        // filter & sort
+        // Filter & sort
         let list = users
-          .filter(u => !cat.value || u.type === cat.value)
-          .sort((a,b) => b.score - a.score);
+          .filter(u=> !catSelect.value || u.type === catSelect.value)
+          .sort((a,b)=> b.score - a.score);
 
-        // populate table
-        lbBody.innerHTML = list.map((u,i) => `
+        // Table
+        lbBody.innerHTML = list.map((u,i)=>`
           <tr>
             <td>${i+1}</td>
-            <td><img src="${u.avatar}" width="24" height="24" style="border-radius:50%;vertical-align:middle;margin-right:.5rem">${u.name}</td>
+            <td>
+              <img src="https://i.pravatar.cc/32?u=${u.id}" width="24" height="24"
+                   style="border-radius:50%;vertical-align:middle;margin-right:.5rem">
+              ${u.name}
+            </td>
             <td>${u.type}</td>
             <td>${u.score}</td>
           </tr>
         `).join('');
 
-        // your rank
-        const idx = list.findIndex(u => u.name === current.name);
+        // Your rank
+        const idx = list.findIndex(u=>u.name === FT.cur.name);
         if (idx >= 0) {
           const u = list[idx];
           yourRankEl.innerHTML = `
-            <img src="https://i.pravatar.cc/150?u=${u.id}" alt="${u.name}" />
-            <div><strong>${u.name}</strong>, you’re #${idx+1}</div>
-            <div>Score: ${u.score}</div>
+            <img src="${FT.cur.avatarDataUrl || `https://i.pravatar.cc/60?u=${FT.cur.email}`}"
+                 alt="${u.name}" />
+            <div>
+              <strong>${u.name}</strong>, you’re #${idx+1}<br>
+              Score: ${u.score}
+            </div>
           `;
         } else {
           yourRankEl.innerHTML = `<div>You’re not ranked yet.</div>`;
         }
 
-        // highlights (top 3 delta)
-        const topImp = [...list].sort((a,b) => b.delta - a.delta).slice(0,3);
-        highlightsEl.innerHTML = topImp.map(u => `
+        // Highlights
+        const topImp = [...list].sort((a,b)=> b.delta - a.delta).slice(0,3);
+        highlightsEl.innerHTML = topImp.map(u=>`
           <div class="highlight-card">
-            <img src="${u.avatar}" alt="${u.name}" />
+            <img src="https://i.pravatar.cc/48?u=${u.id}" alt="${u.name}" />
             <div><strong>${u.name}</strong></div>
             <div>+${u.delta}</div>
           </div>
         `).join('');
 
-        // achievements
-        badgesEl.innerHTML = achievements.map(b => `
+        // Achievements
+        badgesEl.innerHTML = achievements.map(b=>`
           <div class="badge">
             <i class="fas ${b.icon}"></i>
             <span>${b.name}</span>
           </div>
         `).join('');
 
-        // community challenges
-        challengesEl.innerHTML = communityChallenges.map(c => `
+        // Community Challenges
+        challEl.innerHTML = communityChallenges.map(c=>`
           <div class="challenge-card">
             <h3>${c.title}</h3>
             <p>${c.desc}</p>
@@ -339,9 +328,11 @@ FT.renderGreeting(document.getElementById('headerGreeting'));
         `).join('');
       }
 
-      // init + listeners
-      tf.addEventListener('change', render);
-      cat.addEventListener('change', render);
+      // Listeners
+      tfSelect.addEventListener('change', render);
+      catSelect.addEventListener('change', render);
+
+      // Initial render
       render();
     });
   </script>
