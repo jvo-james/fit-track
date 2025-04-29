@@ -169,6 +169,8 @@
       .field textarea { grid-column: span 1; }
     }
   </style>
+    <script src="storage.js"></script>
+
 </head>
 <body>
   <!-- SIDEBAR -->
@@ -286,6 +288,29 @@
   </div>
 
   <script>
+    FT.applyTheme();
+FT.initProfileForm({
+  avatarPreview: document.getElementById('avatarPreview'),
+  avatarInput:   document.getElementById('avatarInput'),
+  fields: {
+    fullName:   document.getElementById('fullName'),
+    email:      document.getElementById('email'),
+    bio:        document.getElementById('bio'),
+    location:   document.getElementById('location'),
+    age:        document.getElementById('age'),
+    gender:     document.getElementById('gender'),
+    height:     document.getElementById('height'),
+    weight:     document.getElementById('weight'),
+    favorite:   document.getElementById('favorite'),
+    goals:      document.getElementById('goals'),
+    theme:      document.getElementById('theme'),
+    notifEmail: document.getElementById('notifEmail'),
+    notifPush:  document.getElementById('notifPush')
+  },
+  saveBtn:   document.getElementById('saveBtn'),
+  logoutBtn: document.getElementById('logoutBtn')
+});
+
     document.addEventListener('DOMContentLoaded', () => {
       // Load stored
       const cur   = JSON.parse(localStorage.getItem('ft_current') || '{}');
