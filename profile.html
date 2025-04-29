@@ -152,7 +152,18 @@
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
     <div class="menu-item"><a href="workouts.html"><i class="fas fa-tasks"></i><span>Workouts</span></a></div>
     <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
-    <div class="menu-item active"><a href="profile.html"><i class="fas fa-user-circle"></i><span>Profile</span></a></div>
+   <div class="menu-item">
+  <a href="profile.html">
+    <img
+      id="sidebarAvatar"
+      src="https://i.pravatar.cc/150?u=default"
+      alt="Profile"
+      style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
+    />
+    <span>Profile</span>
+  </a>
+</div>
+
     <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
   </aside>
 
@@ -294,6 +305,20 @@
         fld.theme.value       = cur.theme || 'dark';
         fld.notifEmail.checked = !!cur.notifEmail;
         fld.notifPush.checked  = !!cur.notifPush;
+        // after reader.onload in avatarInput change handler:
+cur.avatarDataUrl = reader.result;
+initForm();
+FT.updateSidebarAvatar();
+
+// in removeAvatarBtn click handler:
+delete cur.avatarDataUrl;
+initForm();
+FT.updateSidebarAvatar();
+
+// and after saving (in saveBtn click handler), just to be sure:
+localStorage.setItem('ft_current', JSON.stringify(cur));
+FT.updateSidebarAvatar();
+
         // Avatar
         if (cur.avatarDataUrl) {
           avatarPreview.innerHTML = '';
