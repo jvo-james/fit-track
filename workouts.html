@@ -615,47 +615,44 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSessions();
 
   // ─── AI Chatbot ────────────────────────────────────────────────────────
-  const chatContainer = document.querySelector('#chatbot .messages');
-  const chatInput     = document.querySelector('#chatbot .input input');
-  const chatSend      = document.querySelector('#chatbot .input button');
+   const chatbot = document.querySelector('#chatbot');
+  const input = chatbot.querySelector('input');
+  const button = chatbot.querySelector('button');
+  const messages = chatbot.querySelector('.messages');
 
-  // Note: for production, proxy your /api/chat to hide the API key
-  chatSend.addEventListener('click', async () => {
-    const text = chatInput.value.trim();
+  function addMessage(text, from = 'user') {
+    const msg = document.createElement('div');
+    msg.className = 'msg ' + from;
+    msg.textContent = text;
+    messages.append(msg);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  async function sendMessageToAI(message) {
+    const res = await fetch('http://localhost:3000/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await res.json();
+    return data.reply;
+  }
+
+  button.onclick = async () => {
+    const text = input.value.trim();
     if (!text) return;
-    appendMsg(chatContainer, text, 'user');
-    chatInput.value = '';
-    appendMsg(chatContainer, '…thinking…', 'bot');
+
+    addMessage(text, 'user');
+    input.value = '';
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ message: text })
-      });
-      const { reply } = await res.json();
-      // replace the placeholder
-      const bots = chatContainer.querySelectorAll('.msg.bot');
-      bots[bots.length-1].textContent = reply;
-    } catch (err) {
-      console.error(err);
-      const bots = chatContainer.querySelectorAll('.msg.bot');
-      bots[bots.length-1].textContent = 'Error: could not reach AI.';
+      const aiReply = await sendMessageToAI(text);
+      addMessage(aiReply, 'bot');
+    } catch (error) {
+      addMessage("Sorry, there was an error.", 'bot');
     }
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  });
-
-  chatInput.addEventListener('keypress', e => {
-    if (e.key === 'Enter') chatSend.click();
-  });
-
-  function appendMsg(container, content, who) {
-    const d = document.createElement('div');
-    d.className = `msg ${who}`;
-    d.textContent = content;
-    container.append(d);
-  }
-});
+  };
 </script>
 
 </body>
