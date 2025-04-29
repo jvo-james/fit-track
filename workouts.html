@@ -170,6 +170,38 @@
       cursor:pointer; transition:background .2s;
     }
     #chatbot .input button:hover { background:#000; }
+/* ─── Chat Toggle Button ─────────────────────────────────────────────── */
+#chatToggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  background: #fff;
+  color: #222;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2),
+              0 0 12px rgba(255,255,255,0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  animation: pulse 2s infinite;
+  z-index: 1001;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 8px rgba(0,0,0,0.2), 0 0 12px rgba(255,255,255,0.6); }
+  50%  { box-shadow: 0 0 12px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.8); }
+  100% { box-shadow: 0 0 8px rgba(0,0,0,0.2), 0 0 12px rgba(255,255,255,0.6); }
+}
+
+/* ─── Adjusted Close-Button Position ───────────────────────────────── */
+#chatbot header .close-btn {
+  top: 1.2rem;    /* pushed down from 0.5rem */
+  right: 0.75rem; /* a bit more room on the side */
+}
 
     @media(max-width:900px){
       .content { display:flex; flex-direction:column; }
@@ -285,6 +317,11 @@
       <button id="askBtn"><i class="fas fa-paper-plane"></i></button>
     </div>
   </div>
+  <!-- ─── Chat Toggle Button ───────────────────────────────────────────── -->
+  <button id="chatToggle">
+    <i class="fas fa-comments"></i>
+  </button>
+</body>
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -546,6 +583,14 @@
       appendMsg(a, 'bot');
       sel.selectedIndex = 0;
     });
+// hide chat by default
+const chat = document.getElementById('chatbot');
+chat.style.display = 'none';
+
+// toggle chat on icon click
+document.getElementById('chatToggle').addEventListener('click', () => {
+  chat.style.display = chat.style.display === 'none' ? 'flex' : 'none';
+});
 
   });
   </script>
