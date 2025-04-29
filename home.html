@@ -517,158 +517,167 @@
   </footer>
 
   
-   <script>
-    // NAVBAR SCROLL
-    const nav = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      nav.classList.toggle('scrolled', window.scrollY > 50);
-    });
+<script>
+  // ─── NAVBAR SCROLL ───
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  });
 
-    // MOBILE MENU
-    const navToggle = document.querySelector('.nav-toggle');
-    const navLinks  = document.querySelector('.nav-links');
-    navToggle.addEventListener('click', () => {
-      navLinks.classList.toggle('open');
-    });
+  // ─── MOBILE MENU ───
+  const navToggle = document.querySelector('.nav-toggle');
+  const navLinks  = document.querySelector('.nav-links');
+  navToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+  });
 
-    // TYPEWRITER
-    const texts = [
-      "Welcome to FitTrack",
-      "Log Every Workout",
-      "Join Fun Challenges",
-      "Climb the Leaderboards"
-    ];
-    let idx = 0, chr = 0;
-    function type() {
-      const el = document.getElementById("typewriter");
-      if (chr < texts[idx].length) {
-        el.textContent += texts[idx][chr++];
-        setTimeout(type, 100);
-      } else {
-        setTimeout(erase, 2000);
-      }
+  // ─── TYPEWRITER ───
+  const texts = [
+    "Welcome to FitTrack",
+    "Log Every Workout",
+    "Join Fun Challenges",
+    "Climb the Leaderboards"
+  ];
+  let idx = 0, chr = 0;
+  function type() {
+    const el = document.getElementById("typewriter");
+    if (chr < texts[idx].length) {
+      el.textContent += texts[idx][chr++];
+      setTimeout(type, 100);
+    } else {
+      setTimeout(erase, 2000);
     }
-    function erase() {
-      const el = document.getElementById("typewriter");
-      if (chr > 0) {
-        el.textContent = texts[idx].substring(0, --chr);
-        setTimeout(erase, 50);
-      } else {
-        idx = (idx + 1) % texts.length;
-        setTimeout(type, 500);
-      }
-    }
-
-    // MAIN INIT
-    document.addEventListener('DOMContentLoaded', () => {
-      // kick off typewriter
+  }
+  function erase() {
+    const el = document.getElementById("typewriter");
+    if (chr > 0) {
+      el.textContent = texts[idx].substring(0, --chr);
+      setTimeout(erase, 50);
+    } else {
+      idx = (idx + 1) % texts.length;
       setTimeout(type, 500);
+    }
+  }
 
-      // modal elements
-      const modal      = document.getElementById('modal');
-      const title      = document.getElementById('modal-title');
-      const actionBtn  = document.getElementById('modal-action');
-      const switchLink = document.getElementById('switch-link');
-      const switchText = document.getElementById('switch-text');
-      const nameInput    = document.getElementById('name');
-      const emailInput   = document.getElementById('email');
-      const passInput    = document.getElementById('password');
-      const confirmInput = document.getElementById('confirm-password');
+  // ─── MAIN INITIALIZER ───
+  document.addEventListener('DOMContentLoaded', () => {
+    // Start the typewriter effect
+    setTimeout(type, 500);
 
-      // open modal
-      document.querySelectorAll('[data-modal]').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.preventDefault();
-          const mode = btn.dataset.modal; // "signin" or "signup"
-          title.textContent     = mode === 'signup' ? 'Sign Up'   : 'Sign In';
-          actionBtn.textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
-          switchText.textContent= mode === 'signup'
-                                  ? 'Already have an account?'
-                                  : 'Don’t have an account?';
-          switchLink.textContent= mode === 'signup' ? 'Sign In' : 'Sign Up';
-          switchLink.dataset.mode = mode === 'signup' ? 'signin' : 'signup';
-          nameInput.style.display    = mode === 'signup' ? 'block' : 'none';
-          confirmInput.style.display = mode === 'signup' ? 'block' : 'none';
-          modal.classList.add('active');
-        });
-      });
+    // Modal elements
+    const modal        = document.getElementById('modal');
+    const title        = document.getElementById('modal-title');
+    const actionBtn    = document.getElementById('modal-action');
+    const switchLink   = document.getElementById('switch-link');
+    const switchText   = document.getElementById('switch-text');
+    const nameInput    = document.getElementById('name');
+    const emailInput   = document.getElementById('email');
+    const passInput    = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm-password');
 
-      // handle submit
-      actionBtn.addEventListener('click', async e => {
+    // Open Sign-In / Sign-Up modal
+    document.querySelectorAll('[data-modal]').forEach(btn => {
+      btn.addEventListener('click', e => {
         e.preventDefault();
-        const mode = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
-        const name     = nameInput.value.trim();
-        const email    = emailInput.value.trim();
-        const password = passInput.value;
-        const confirm  = confirmInput.value;
-
-        // basic validation
-        if (!email || !password || (mode === 'signup' && (!name || !confirm))) {
-          return alert('All fields are required.');
-        }
-        if (mode === 'signup' && password !== confirm) {
-          return alert('Passwords do not match.');
-        }
-        const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/;
-        if (!passRegex.test(password)) {
-          return alert('Password must be 8+ chars, include uppercase, number & special char.');
-        }
-
-        try {
-          const url = mode === 'signup' ? '/api/signup' : '/api/signin';
-          const body = mode === 'signup'
-            ? { name, email, password }
-            : { email, password };
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
-          const json = await res.json();
-
-          if (!res.ok) {
-            // show server-side error (invalid creds, email exists, etc.)
-            throw new Error(json.error || 'Something went wrong.');
-          }
-
-          // success!
-          // store user + flag, then redirect
-          const userData = { name: json.name || name, isNew: mode === 'signup' };
-          localStorage.setItem('ft_current', JSON.stringify(userData));
-          window.location.href = 'dashboard.html';
-        } catch(err) {
-          alert(err.message);
-        }
-      });
-
-      // switch link
-      switchLink.addEventListener('click', e => {
-        e.preventDefault();
-        document.querySelector(`[data-modal="${switchLink.dataset.mode}"]`).click();
-      });
-
-      // close modal
-      document.querySelectorAll('[data-close], .close').forEach(el => {
-        el.onclick = () => modal.classList.remove('active');
-      });
-
-      // scroll reveal
-      document.querySelectorAll('[data-reveal]').forEach(el => {
-        const obs = new IntersectionObserver(entries => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.style.opacity = 1;
-              entry.target.style.transform = 'translateY(0)';
-              obs.disconnect();
-            }
-          });
-        }, { threshold: 0.2 });
-        obs.observe(el);
-        el.style.opacity = 0;
-        el.style.transform = 'translateY(30px)';
+        const mode = btn.dataset.modal; // "signin" or "signup"
+        title.textContent     = mode === 'signup' ? 'Sign Up'         : 'Sign In';
+        actionBtn.textContent = mode === 'signup' ? 'Create Account'  : 'Sign In';
+        switchText.textContent= mode === 'signup'
+          ? 'Already have an account?'
+          : 'Don’t have an account?';
+        switchLink.textContent= mode === 'signup' ? 'Sign In' : 'Sign Up';
+        switchLink.dataset.mode = mode === 'signup' ? 'signin' : 'signup';
+        nameInput.style.display    = mode === 'signup' ? 'block' : 'none';
+        confirmInput.style.display = mode === 'signup' ? 'block' : 'none';
+        modal.classList.add('active');
       });
     });
-  </script>
+
+    // Handle Sign-In / Sign-Up submit
+    actionBtn.addEventListener('click', async e => {
+      e.preventDefault();
+
+      const mode = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
+      const url  = mode === 'signup' ? '/api/signup' : '/api/signin';
+      const payload = mode === 'signup'
+        ? {
+            name: nameInput.value.trim(),
+            email: emailInput.value.trim(),
+            password: passInput.value
+          }
+        : {
+            email: emailInput.value.trim(),
+            password: passInput.value
+          };
+
+      // Basic front-end validation
+      if (!payload.email || !payload.password ||
+         (mode === 'signup' && (!payload.name || confirmInput.value.trim() !== payload.password))) {
+        return alert('Please fill in all fields correctly.');
+      }
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        // Guard against non-JSON responses
+        let data, text;
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          data = await res.json();
+        } else {
+          text = await res.text();
+        }
+
+        if (!res.ok) {
+          const errMsg = (data && data.error) || text || `Server returned ${res.status}`;
+          throw new Error(errMsg);
+        }
+
+        // On success, store { name, isNew } and redirect
+        const userName = (data && data.name) ? data.name : payload.name;
+        localStorage.setItem('ft_current',
+          JSON.stringify({ name: userName, isNew: mode === 'signup' })
+        );
+        window.location.href = 'dashboard.html';
+
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // Toggle between Sign-Up / Sign-In
+    switchLink.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(`[data-modal="${switchLink.dataset.mode}"]`).click();
+    });
+
+    // Close modal
+    document.querySelectorAll('[data-close], .close').forEach(el =>
+      el.addEventListener('click', () => modal.classList.remove('active'))
+    );
+
+    // Scroll-Reveal for feature/testimonial/etc. cards
+    document.querySelectorAll('[data-reveal]').forEach(el => {
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = 1;
+            entry.target.style.transform = 'translateY(0)';
+            obs.disconnect();
+          }
+        });
+      }, { threshold: 0.2 });
+      obs.observe(el);
+      el.style.opacity = 0;
+      el.style.transform = 'translateY(30px)';
+    });
+  });
+</script>
+
 
 </body>
 </html> 
