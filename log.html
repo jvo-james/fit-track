@@ -166,7 +166,16 @@
     <div class="menu-item active"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
     <div class="menu-item"><a href="workouts.html"><i class="fas fa-tasks"></i><span>Workouts</span></a></div>
     <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
-    <div class="menu-item"><a href="profile.html"><i class="fas fa-user-circle"></i><span>Profile</span></a></div>
+    <div class="menu-item profile">
+  <a href="profile.html">
+    <img id="sidebarAvatar"
+         src="https://i.pravatar.cc/150?u=default"
+         alt="Profile"
+         style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+    <span>Profile</span>
+  </a>
+</div>
+
     <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
   </aside>
 
@@ -243,7 +252,7 @@
   <script>
     FT.applyTheme();
 FT.updateStats();
-
+FT.updateSidebarAvatar();
     document.addEventListener('DOMContentLoaded', () => {
       const load = k => JSON.parse(localStorage.getItem(k) || '[]');
       const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
