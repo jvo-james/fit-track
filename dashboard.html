@@ -5,37 +5,26 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FitTrack | Dashboard</title>
   <!-- Google Fonts & FontAwesome -->
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Open+Sans&display=swap" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Animate.css for animations -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root {
-      --bg: #000;
-      --gold: #ff9800;
-      --white: #fff;
-      --font: 'Raleway', sans-serif;
+      --bg: #000; --gold: #ff9800; --white: #fff; --font: 'Raleway', sans-serif;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display:flex;
-      min-height:100vh;
-      background:var(--bg);
-      color:var(--white);
-      font-family:var(--font);
-      overflow-y:auto;
+      display:flex; min-height:100vh;
+      background:var(--bg); color:var(--white);
+      font-family:var(--font); overflow-y:auto;
     }
 
-    /* ─── SIDEBAR (identical to log.html) ─────────── */
+    /* ─── SIDEBAR ───────────────────────────── */
     .sidebar {
       position:sticky; top:0; height:100vh; width:80px;
       background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
@@ -62,13 +51,9 @@
     }
     .sign-in-btn:hover { transform:scale(1.1); }
 
-    /* ─── MAIN AREA ───────── */
-    .main {
-      flex:1; display:flex; flex-direction:column; overflow-y:auto;
-      transition:margin-left .3s;
-    }
+    /* ─── MAIN AREA ─────────────────────────── */
+    .main { flex:1; display:flex; flex-direction:column; }
 
-    /* ─── HEADER (sticky) ───────── */
     header {
       position:sticky; top:0; z-index:200;
       display:flex; justify-content:space-between; align-items:center;
@@ -76,32 +61,26 @@
       border-bottom:2px solid var(--gold);
     }
     header h1 { font-size:1.6rem; }
-    header p.tagline {
-      font-size:0.9rem; opacity:0.7; margin-top:.25rem;
-    }
-    header button.new-workout {
+    header p.tagline { font-size:0.9rem; opacity:0.7; }
+    header button { 
       background:var(--gold); color:var(--bg); border:none;
       padding:.5rem 1rem; border-radius:30px; cursor:pointer;
       font-weight:600; transition:transform .2s;
     }
-    header button.new-workout:hover { transform:scale(1.05); }
+    header button:hover { transform:scale(1.05); }
 
-    .content { padding:1.5rem; }
+    .content { padding:1.5rem; overflow-y:auto; }
 
-    /* ─── GRID AREAS ───────── */
-    .stats, .charts { display:grid; gap:1.5rem; }
-    .stats { grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); }
-    .charts {
-      margin-top:1.5rem;
-      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    /* ─── STATS GRID ───────────────────────── */
+    .stats { 
+      display:grid; gap:1.5rem; 
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
     }
-
-    /* ─── STAT CARD ───────── */
     .stat-card {
       background:rgba(255,255,255,0.05); padding:1.5rem;
       border-radius:12px; text-align:center;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      transition:transform .2s,box-shadow .2s;
+      transition:transform .2s;
     }
     .stat-card:hover {
       transform:translateY(-5px);
@@ -111,7 +90,7 @@
     .stat-card h3 { font-size:1.4rem; margin-bottom:.3rem; }
     .stat-card p { color:rgba(255,255,255,0.8); }
 
-    /* ─── PROGRESS ────────── */
+    /* ─── PROGRESS ─────────────────────────── */
     .progress {
       background:rgba(255,255,255,0.05); margin-top:1.5rem;
       padding:1.5rem; border-radius:12px;
@@ -129,11 +108,34 @@
       transition:width 1s ease;
     }
 
-    /* ─── CHART CARDS ──────── */
+    /* ─── GOALS ────────────────────────────── */
+    .goals {
+      display:grid; gap:1rem; margin-top:1.5rem;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    }
+    .goal-card {
+      background:rgba(255,255,255,0.05); padding:1rem;
+      border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    .goal-card p { margin-bottom:.5rem; color:var(--white); }
+    .goal-container {
+      background:rgba(255,255,255,0.1); height:12px; border-radius:6px;
+      overflow:hidden;
+    }
+    .goal-fill {
+      width:0; height:100%; background:var(--gold);
+      transition:width 1s ease;
+    }
+
+    /* ─── CHARTS ───────────────────────────── */
+    .charts {
+      display:grid; gap:1.5rem; margin-top:1.5rem;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    }
     .chart-card {
       background:rgba(255,255,255,0.05); border-radius:12px;
       padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      transition:transform .2s,box-shadow .2s;
+      transition:transform .2s;
     }
     .chart-card:hover {
       transform:translateY(-5px);
@@ -145,158 +147,88 @@
     }
     .chart-card canvas { width:100% !important; height:300px !important; }
 
-    /* ─── CHALLENGES & BOARD ─ */
-    .challenges, .leaderboard { margin-top:1.5rem; }
-    .challenges h2, .leaderboard h2 {
-      display:flex; align-items:center; gap:.5rem;
-      color:var(--gold); font-size:1.3rem; margin-bottom:.8rem;
+    /* ─── OTHER SECTIONS ───────────────────── */
+    .challenges, .leaderboard, .community {
+      margin-top:1.5rem;
     }
-    .challenge-list li, .leader-list li {
-      display:flex; align-items:center; padding:.6rem 0;
-      border-bottom:1px solid rgba(255,255,255,0.1);
-      transition:color .2s;
-    }
-    .challenge-list li:hover, .leader-list li:hover {
-      color:var(--gold);
-    }
-    .challenge-list i, .leader-list i { margin-right:.8rem; }
-    .challenge-list span:last-child, .leader-list span:last-child {
-      margin-left:auto; font-weight:600;
-    }
+    /* ... keep your existing styles for these ... */
 
-    /* ─── COMMUNITY FEED ───── */
-    .community { margin-top:1.5rem; }
-    .community h2 {
-      display:flex; align-items:center; gap:.5rem;
-      color:var(--gold); font-size:1.3rem; margin-bottom:.8rem;
-    }
-    .feed-list {
-      display:flex; overflow-x:auto; gap:1rem; padding-bottom:.5rem;
-    }
-    .feed-item {
-      flex:0 0 220px;
-      background:rgba(255,255,255,0.05); border-radius:12px;
-      padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    }
-    .feed-item h4 { font-size:1rem; margin-bottom:.5rem; }
-    .feed-item p { font-size:0.85rem; color:rgba(255,255,255,0.8); }
-    .feed-item time {
-      display:block; margin-top:.75rem; font-size:0.75rem; opacity:0.6;
-    }
-
-    /* ─── FOOTER ───────────── */
-    footer {
-      text-align:center; padding:1rem; background:rgba(0,0,0,0.9);
-      border-top:2px solid var(--gold);
-      font-size:0.8rem; opacity:0.6;
-    }
-
-    /* ─── MOBILE BREAKPOINTS ─ */
     @media(max-width:900px){
-      .sidebar { position:fixed; z-index:1000; top:0; left:0; height:100%; }
-      .main { margin-left:80px; }
+      .sidebar { position:fixed; }
+      .content { margin-left:80px; }
       .charts { grid-template-columns:1fr; }
       .stats   { grid-template-columns:1fr 1fr; }
-    }
-    @media(max-width:600px){
-      header { flex-direction:column; align-items:flex-start; }
-      header p.tagline { margin-bottom:1rem; }
-      .stats   { grid-template-columns:1fr; }
+      .goals   { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
 
   <aside class="sidebar" role="navigation" aria-label="Main sidebar">
-    <div class="logo" aria-hidden="true"><i class="fas fa-heartbeat"></i></div>
-
-    <div class="menu-item active">
-      <a href="dashboard.html" aria-label="Dashboard">
-        <i class="fas fa-tachometer-alt"></i><span>Dash</span>
-      </a>
-    </div>
-    <div class="menu-item">
-      <a href="log.html" aria-label="Log Activity">
-        <i class="fas fa-pen"></i><span>Log</span>
-      </a>
-    </div>
-    <div class="menu-item">
-      <a href="workouts.html" aria-label="Workouts">
-        <i class="fas fa-dumbbell"></i><span>Workouts</span>
-      </a>
-    </div>
-    <div class="menu-item">
-      <a href="leaderboard.html" aria-label="Board">
-        <i class="fas fa-trophy"></i><span>Board</span>
-      </a>
-    </div>
-    <div class="menu-item">
-      <a href="profile.html" aria-label="Profile">
-        <i class="fas fa-user-circle"></i><span>Profile</span>
-      </a>
-    </div>
-
-    <a href="home.html" class="sign-in-btn" aria-label="Logout">
-      <i class="fas fa-sign-out-alt"></i>
-    </a>
+    <div class="logo"><i class="fas fa-heartbeat"></i></div>
+    <div class="menu-item active"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
+    <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
+    <div class="menu-item"><a href="workouts.html"><i class="fas fa-dumbbell"></i><span>Workouts</span></a></div>
+    <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
+    <div class="menu-item"><a href="profile.html"><i class="fas fa-user-circle"></i><span>Profile</span></a></div>
+    <a href="home.html" class="sign-in-btn"><i class="fas fa-sign-out-alt"></i></a>
   </aside>
 
-  <div class="main" role="main">
+  <div class="main">
     <header>
       <h1 id="greeting">Loading…</h1>
-      <button class="new-workout" aria-label="Create new workout">
-        <i class="fas fa-plus"></i> New Workout
-      </button>
-      <p class="tagline">Join friends every weekend, share your progress, and stay motivated all week long.</p>
+      <button class="new-workout"><i class="fas fa-plus"></i> New Workout</button>
+      <p class="tagline">Your latest stats at a glance.</p>
     </header>
 
     <div class="content">
 
       <!-- STATS -->
       <section class="stats">
-        <div class="stat-card">
-          <i class="fas fa-dumbbell"></i>
-          <h3 id="workoutsCount">0</h3>
-          <p>Workouts This Month</p>
-        </div>
-        <div class="stat-card">
-          <i class="fas fa-road"></i>
-          <h3 id="distanceCount">0.00 km</h3>
-          <p>Total Distance</p>
-        </div>
-        <div class="stat-card">
-          <i class="fas fa-fire"></i>
-          <h3 id="caloriesCount">0</h3>
-          <p>Calories Burned</p>
-        </div>
-        <div class="stat-card">
-          <i class="fas fa-calendar-day"></i>
-          <h3 id="activeDaysCount">0</h3>
-          <p>Active Days</p>
-        </div>
+        <div class="stat-card"><i class="fas fa-dumbbell"></i><h3 id="workoutsCount">0</h3><p>This Month</p></div>
+        <div class="stat-card"><i class="fas fa-road"></i><h3 id="distanceCount">0.00 km</h3><p>Total Distance</p></div>
+        <div class="stat-card"><i class="fas fa-fire"></i><h3 id="caloriesCount">0</h3><p>Calories Burned</p></div>
+        <div class="stat-card"><i class="fas fa-calendar-day"></i><h3 id="activeDaysCount">0</h3><p>Active Days</p></div>
+        <div class="stat-card"><i class="fas fa-stopwatch"></i><h3 id="todayTime">0 min</h3><p>Today’s Time</p></div>
+        <div class="stat-card"><i class="fas fa-percentage"></i><h3 id="avgCalories">0</h3><p>Avg Calories</p></div>
       </section>
 
       <!-- WEEKLY PROGRESS -->
-      <section class="progress" role="region" aria-label="This Week’s Goal Progress">
-        <h3><i class="fas fa-chart-line"></i> This Week’s Goal</h3>
-        <div class="bar-container">
-          <div class="bar-fill" id="progressBar"></div>
+      <section class="progress">
+        <h3><i class="fas fa-chart-line"></i> Weekly Goal</h3>
+        <div class="bar-container"><div class="bar-fill" id="progressBar"></div></div>
+      </section>
+
+      <!-- GOALS -->
+      <section class="goals">
+        <div class="goal-card">
+          <p>Daily: 30 min</p>
+          <div class="goal-container"><div class="goal-fill" id="goalDaily"></div></div>
+        </div>
+        <div class="goal-card">
+          <p>Weekly: 5 workouts</p>
+          <div class="goal-container"><div class="goal-fill" id="goalWeekly"></div></div>
+        </div>
+        <div class="goal-card">
+          <p>Monthly: 20 workouts</p>
+          <div class="goal-container"><div class="goal-fill" id="goalMonthly"></div></div>
         </div>
       </section>
 
       <!-- CHARTS -->
-      <section class="charts" aria-label="Analytics charts">
+      <section class="charts">
         <div class="chart-card">
           <h3><i class="fas fa-chart-line"></i> Activity Over Time</h3>
-          <canvas id="activityChart" role="img"></canvas>
+          <canvas id="activityChart"></canvas>
         </div>
         <div class="chart-card">
           <h3><i class="fas fa-chart-pie"></i> Workout Distribution</h3>
-          <canvas id="distributionChart" role="img"></canvas>
+          <canvas id="distributionChart"></canvas>
         </div>
       </section>
 
-      <!-- CURRENT CHALLENGES -->
+     
+<!-- CURRENT CHALLENGES -->
       <section class="challenges" role="region" aria-label="Current challenges">
         <h2><i class="fas fa-flag-checkered"></i> Current Challenges</h2>
         <ul class="challenge-list">
@@ -325,117 +257,95 @@
     </footer>
   </div>
 
+    </div>
+  </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const stored = JSON.parse(localStorage.getItem('ft_current'));
-      if (!stored) return window.location.href = 'home.html';
-
-      const {
-        name,
-        isNew,
-        stats = { workouts:0, distanceKm:0, calories:0, daysSet:[] },
-        progress = 0,
-        chartData = {
-          labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-          activity:[0,0,0,0,0,0,0],
-          distribution:[25,25,25,25]
-        },
-        challenges = [0,0,0],
-        leaderboard = [],
-        feed = []
-      } = stored;
+      // Load ft_current + activities
+      const cur = JSON.parse(localStorage.getItem('ft_current')) || {};
+      const acts = JSON.parse(localStorage.getItem('ft_activities') || '[]');
+      if (!cur.stats) return window.location.href = 'home.html';
 
       // Greeting
-      const greetEl = document.getElementById('greeting');
-      greetEl.textContent = isNew ? `Hello ${name}` : `Welcome back, ${name}`;
-      localStorage.setItem('ft_current', JSON.stringify({ ...stored, isNew:false }));
+      const greet = document.getElementById('greeting');
+      greet.textContent = cur.isNew ? `Hello ${cur.name}` : `Welcome back, ${cur.name}`;
+      cur.isNew = false;
+      localStorage.setItem('ft_current', JSON.stringify(cur));
 
       // Stats
-      document.getElementById('workoutsCount').textContent = stats.workouts;
-      document.getElementById('distanceCount').textContent = stats.distanceKm.toFixed(2) + ' km';
-      document.getElementById('caloriesCount').textContent = stats.calories;
-      document.getElementById('activeDaysCount').textContent = stats.daysSet.length;
+      const { workouts, distanceKm, calories, daysSet } = cur.stats;
+      document.getElementById('workoutsCount').textContent = workouts;
+      document.getElementById('distanceCount').textContent = distanceKm.toFixed(2) + ' km';
+      document.getElementById('caloriesCount').textContent = calories;
+      document.getElementById('activeDaysCount').textContent = daysSet.length;
 
-      // Progress bar
-      document.getElementById('progressBar').style.width = progress + '%';
+      // Today’s time
+      const today = new Date().toISOString().slice(0,10);
+      const todayTotal = acts
+        .filter(a=>a.date===today)
+        .reduce((sum,a)=> sum + (parseFloat(a.duration)||0), 0);
+      document.getElementById('todayTime').textContent = todayTotal + ' min';
 
-      // Challenges
-      challenges.forEach((pct,i) => {
-        document.getElementById(`challenge${i+1}`).textContent = pct + '%';
-      });
+      // Avg calories
+      const avgCal = workouts ? Math.round(calories / workouts) : 0;
+      document.getElementById('avgCalories').textContent = avgCal;
 
-      // Leaderboard
-      const lb = document.getElementById('leaderboardList');
-      leaderboard.forEach(item => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span>${item.name}</span><span>${item.value}</span>`;
-        lb.appendChild(li);
-      });
+      // Weekly progress (of 5 workouts)
+      const weekCount = acts.filter(a => {
+        const d = new Date(a.date), now = new Date();
+        return (now - d)/(1000*60*60*24) <= 7;
+      }).length;
+      const progPct = Math.min(100, Math.round(weekCount/5*100));
+      document.getElementById('progressBar').style.width = progPct + '%';
 
-      // Feed
-      const feedEl = document.getElementById('feedList');
-      feed.forEach(post => {
-        const div = document.createElement('div');
-        div.className = 'feed-item';
-        div.innerHTML = `
-          <h4>${post.user}</h4>
-          <p>${post.text}</p>
-          <time>${post.time}</time>
-        `;
-        feedEl.appendChild(div);
-      });
+      // Goals fills
+      document.getElementById('goalDaily').style.width   = Math.min(100,Math.round(todayTotal/30*100)) + '%';
+      document.getElementById('goalWeekly').style.width  = progPct + '%';
+      document.getElementById('goalMonthly').style.width = Math.min(100,Math.round(workouts/20*100)) + '%';
 
       // Charts
-      new Chart(
-        document.getElementById('activityChart').getContext('2d'),
-        {
-          type: 'line',
-          data: {
-            labels: chartData.labels,
-            datasets:[{ 
-              label:'Activity', 
-              data: chartData.activity, 
-              fill:false, 
-              tension:0.1 
-            }]
-          },
-          options: { responsive:true, maintainAspectRatio:false }
+      const { labels, activity, distribution } = cur.chartData || { labels:[], activity:[], distribution:[] };
+      new Chart(document.getElementById('activityChart'), {
+        type:'line',
+        data:{ labels, datasets:[{
+          label:'Minutes',
+          data:activity,
+          borderColor:'#ff9800',
+          backgroundColor:'rgba(255,152,0,0.2)',
+          fill:true,
+          tension:0.3
+        }]},
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{ legend:{ display:true, position:'bottom' } },
+          scales:{
+            x:{ title:{ display:true, text:'Day'} },
+            y:{ title:{ display:true, text:'Duration (min)'}, beginAtZero:true }
+          }
         }
-      );
-      new Chart(
-        document.getElementById('distributionChart').getContext('2d'),
-        {
-          type: 'pie',
-          data: {
-            labels:['Cardio','Strength','Flexibility','Other'],
-            datasets:[{ data: chartData.distribution }]
-          },
-          options: { responsive:true, maintainAspectRatio:false }
+      });
+      new Chart(document.getElementById('distributionChart'), {
+        type:'pie',
+        data:{ labels:['Cardio','Strength','Flexibility','Other'], datasets:[{
+          data:distribution,
+          backgroundColor:[
+            'rgba(255,152,0,0.8)',
+            'rgba(255,87,34,0.8)',
+            'rgba(76,175,80,0.8)',
+            'rgba(3,169,244,0.8)'
+          ]
+        }]},
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{ legend:{ display:true, position:'bottom' } }
         }
-      );
-
-      // Logout
-      const logout = document.querySelector('.sign-in-btn');
-      logout.addEventListener('click', () => window.location.href='home.html');
-      logout.addEventListener('keydown', e => {
-        if (['Enter',' '].includes(e.key)) logout.click();
       });
 
-      // Sidebar keyboard nav
-      document.querySelectorAll('.menu-item').forEach(it => {
-        it.addEventListener('keydown', e => {
-          if (['Enter',' '].includes(e.key)) it.click();
-        });
-      });
-
-      // New Workout button → log page
-      const newWorkout = document.querySelector('.new-workout');
-      newWorkout.addEventListener('click', () => {
-        window.location.href = 'log.html';
-      });
-      newWorkout.addEventListener('keydown', e => {
-        if (['Enter',' '].includes(e.key)) newWorkout.click();
-      });
+      // New Workout → log.html
+      document.querySelector('.new-workout').onclick = ()=> location.href='log.html';
     });
   </script>
 </body>
