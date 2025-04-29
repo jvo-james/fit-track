@@ -427,6 +427,14 @@
       logout.addEventListener('keydown', e => { if (['Enter',' '].includes(e.key)) logout.click(); });
       document.querySelectorAll('.menu-item').forEach(it => {
         it.addEventListener('keydown', e => { if (['Enter',' '].includes(e.key)) it.click(); });
+         // 10) Make “New Workout” button navigate:
+      const newWorkout = document.querySelector('.new-workout');
+      newWorkout.addEventListener('click', () => {
+        window.location.href = 'new-workout.html';
+      });
+      newWorkout.addEventListener('keydown', e => {
+        if (['Enter', ' '].includes(e.key)) newWorkout.click();
+    
       });
     });
   </script>
