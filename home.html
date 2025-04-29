@@ -517,163 +517,158 @@
   </footer>
 
   <script>
-    // NAVBAR SCROLL
-    const nav = document.getElementById('navbar');
-    window.addEventListener('scroll', ()=> {
-      nav.classList.toggle('scrolled', window.scrollY > 50);
-    });
+  // ─── NAVBAR SCROLL ───
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  });
 
-    // MOBILE MENU
-    document.querySelector('.nav-toggle').addEventListener('click', ()=> {
-      document.querySelector('.nav-links').classList.toggle('open');
-    });
+  // ─── MOBILE MENU ───
+  const navToggle = document.querySelector('.nav-toggle');
+  const navLinks  = document.querySelector('.nav-links');
+  navToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+  });
 
-    // TYPEWRITER
-    // (we reused CSS animation on .typewriter)
- /* TYPEWRITER */
-    const texts = [
-      "Welcome to FitTrack",
-      "Log Every Workout",
-      "Join Fun Challenges",
-      "Climb the Leaderboards"
-    ];
-    let idx = 0, chr = 0;
-    function type() {
-      const el = document.getElementById("typewriter");
-      if (chr < texts[idx].length) {
-        el.textContent += texts[idx][chr++];
-        setTimeout(type, 100);
-      } else {
-        setTimeout(erase, 2000);
-      }
+  // ─── TYPEWRITER SETUP ───
+  const texts = [
+    "Welcome to FitTrack",
+    "Log Every Workout",
+    "Join Fun Challenges",
+    "Climb the Leaderboards"
+  ];
+  let idx = 0, chr = 0;
+
+  function type() {
+    const el = document.getElementById("typewriter");
+    if (chr < texts[idx].length) {
+      el.textContent += texts[idx][chr++];
+      setTimeout(type, 100);
+    } else {
+      setTimeout(erase, 2000);
     }
-    function erase() {
-      const el = document.getElementById("typewriter");
-      if (chr > 0) {
-        el.textContent = texts[idx].substring(0, --chr);
-        setTimeout(erase, 50);
-      } else {
-        idx = (idx + 1) % texts.length;
-        setTimeout(type, 500);
-      }
-    }
-    document.addEventListener("DOMContentLoaded", () => {
+  }
+
+  function erase() {
+    const el = document.getElementById("typewriter");
+    if (chr > 0) {
+      el.textContent = texts[idx].substring(0, --chr);
+      setTimeout(erase, 50);
+    } else {
+      idx = (idx + 1) % texts.length;
       setTimeout(type, 500);
+    }
+  }
 
-    // MODAL LOGIC
-  
-document.addEventListener('DOMContentLoaded', ()=>{
-  // Grab elements
-  const modal      = document.getElementById('modal');
-  const title      = document.getElementById('modal-title');
-  const actionBtn  = document.getElementById('modal-action');
-  const switchLink = document.getElementById('switch-link');
-  const switchText = document.getElementById('switch-text');
+  // ─── MAIN INITIALIZER ───
+  document.addEventListener('DOMContentLoaded', () => {
+    // start the typewriter
+    setTimeout(type, 500);
 
-  const nameInput    = document.getElementById('name');
-  const emailInput   = document.getElementById('email');
-  const passInput    = document.getElementById('password');
-  const confirmInput = document.getElementById('confirm-password');
+    // ─── MODAL LOGIC ───
+    const modal      = document.getElementById('modal');
+    const title      = document.getElementById('modal-title');
+    const actionBtn  = document.getElementById('modal-action');
+    const switchLink = document.getElementById('switch-link');
+    const switchText = document.getElementById('switch-text');
+    const nameInput    = document.getElementById('name');
+    const emailInput   = document.getElementById('email');
+    const passInput    = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm-password');
 
-  // Open modal: toggle fields
-  document.querySelectorAll('[data-modal]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      e.preventDefault();
-      const mode = btn.dataset.modal; // "signin"|"signup"
-      title.textContent     = mode==='signup' ? 'Sign Up' : 'Sign In';
-      actionBtn.textContent = mode==='signup' ? 'Create Account' : 'Sign In';
-      switchText.textContent= mode==='signup'
-          ? 'Already have an account?'
-          : 'Don’t have an account?';
-      switchLink.textContent= mode==='signup' ? 'Sign In' : 'Sign Up';
-      switchLink.dataset.mode = mode==='signup' ? 'signin' : 'signup';
-      nameInput.style.display        = mode==='signup' ? 'block' : 'none';
-      confirmInput.style.display     = mode==='signup' ? 'block' : 'none';
-      modal.classList.add('active');
+    // open Sign-In / Sign-Up
+    document.querySelectorAll('[data-modal]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        const mode = btn.dataset.modal; // "signin" or "signup"
+        title.textContent     = mode === 'signup' ? 'Sign Up'   : 'Sign In';
+        actionBtn.textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
+        switchText.textContent= mode === 'signup'
+                                ? 'Already have an account?'
+                                : 'Don’t have an account?';
+        switchLink.textContent= mode === 'signup' ? 'Sign In' : 'Sign Up';
+        switchLink.dataset.mode = mode === 'signup' ? 'signin' : 'signup';
+        nameInput.style.display    = mode === 'signup' ? 'block' : 'none';
+        confirmInput.style.display = mode === 'signup' ? 'block' : 'none';
+        modal.classList.add('active');
+      });
     });
-  });
 
-  // Handle Signup/Signin
-  actionBtn.addEventListener('click', async e=>{
-    e.preventDefault();
-    const mode = actionBtn.textContent.includes('Create') ? 'signup':'signin';
-    const name     = nameInput.value.trim();
-    const email    = emailInput.value.trim();
-    const password = passInput.value;
-    const confirm  = confirmInput.value;
+    // handle Sign-In / Sign-Up submit
+    actionBtn.addEventListener('click', async e => {
+      e.preventDefault();
+      const mode = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
+      const name     = nameInput.value.trim();
+      const email    = emailInput.value.trim();
+      const password = passInput.value;
+      const confirm  = confirmInput.value;
 
-    // Basic validation
-    if (!email || !password || (mode==='signup' && (!name||!confirm))) {
-      return alert('All fields are required.');
-    }
-    if (mode==='signup' && password!==confirm) {
-      return alert('Passwords do not match.');
-    }
-
-    // Password strength
-    const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/;
-    if (!passRegex.test(password)) {
-      return alert('Password must be 8+ chars, include uppercase, number & special char.');
-    }
-
-    try {
-      if (mode==='signup') {
-        const res = await fetch('/api/signup',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ name,email,password })
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error);
-        alert(json.message);
-        // stay on page, user must click email link before Sign In
-      } else {
-        const res = await fetch('/api/signin',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ email,password })
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error);
-        alert(`Welcome back, ${json.name}!`);
-        localStorage.setItem('ft_current', JSON.stringify(json));
-        window.location.href = 'dashboard.html';
+      // validation
+      if (!email || !password || (mode === 'signup' && (!name || !confirm))) {
+        return alert('All fields are required.');
       }
-    } catch(err) {
-      alert(err.message);
-    }
-  });
+      if (mode === 'signup' && password !== confirm) {
+        return alert('Passwords do not match.');
+      }
+      const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/;
+      if (!passRegex.test(password)) {
+        return alert('Password must be 8+ chars, include uppercase, number & special char.');
+      }
 
-  // Toggle link
-  switchLink.addEventListener('click', e=>{
-    e.preventDefault();
-    document.querySelector(`[data-modal="${switchLink.dataset.mode}"]`).click();
-  });
+      // send to API
+      try {
+        const url = mode === 'signup' ? '/api/signup' : '/api/signin';
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(
+            mode === 'signup'
+              ? { name, email, password }
+              : { email, password }
+          )
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error);
+        alert(json.message || `Welcome back, ${json.name}!`);
+        if (mode === 'signin') {
+          localStorage.setItem('ft_current', JSON.stringify(json));
+          window.location.href = 'dashboard.html';
+        }
+      } catch(err) {
+        alert(err.message);
+      }
+    });
 
-  // Close modal
-  document.querySelectorAll('[data-close], .close')
-    .forEach(el=> el.onclick = ()=> modal.classList.remove('active'));
-});
+    // toggle between Sign Up / Sign In links
+    switchLink.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(`[data-modal="${switchLink.dataset.mode}"]`).click();
+    });
 
+    // close modal
+    document.querySelectorAll('[data-close], .close')
+      .forEach(el => el.addEventListener('click', () => {
+        modal.classList.remove('active');
+      }));
 
-
-    // SCROLL REVEAL
-    document.querySelectorAll('[data-reveal]').forEach(el=>{
-      new IntersectionObserver(entries=>{
-        entries.forEach(ent=>{
-          if(ent.isIntersecting) {
-            ent.target.style.opacity = 1;
-            ent.target.style.transform = 'translateY(0)';
-            ent.target._obs.disconnect();
+    // ─── SCROLL REVEAL ───
+    document.querySelectorAll('[data-reveal]').forEach(el => {
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = 1;
+            entry.target.style.transform = 'translateY(0)';
+            obs.disconnect();
           }
         });
-      },{threshold:0.2})
-      .observe((el._obs = el));
-      // initial hidden
+      }, { threshold: 0.2 });
+      obs.observe(el);
+      // initial hidden state
       el.style.opacity = 0;
       el.style.transform = 'translateY(30px)';
     });
-});
-  </script>
+  });
+</script>
+
 </body>
 </html> 
