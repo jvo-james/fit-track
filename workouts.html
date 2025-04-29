@@ -221,7 +221,16 @@
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
     <div class="menu-item active"><a href="#"><i class="fas fa-dumbbell"></i><span>Workouts</span></a></div>
     <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
-    <div class="menu-item"><a href="profile.html"><i class="fas fa-user-circle"></i><span>Profile</span></a></div>
+<div class="menu-item profile">
+  <a href="profile.html">
+    <img id="sidebarAvatar"
+         src="https://i.pravatar.cc/150?u=default"
+         alt="Profile"
+         style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+    <span>Profile</span>
+  </a>
+</div>
+
     <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
   </aside>
 
@@ -329,7 +338,7 @@
   <script>
     FT.applyTheme();
 FT.updateStats();
-
+FT.updateSidebarAvatar();
   document.addEventListener('DOMContentLoaded', () => {
     // ─── Helpers ────────────────────────────────────────────────────
     const loadArr = key => JSON.parse(localStorage.getItem(key) || '[]');
@@ -440,7 +449,7 @@ FT.updateStats();
       }
     });
 FT.updateStats();
-alert('Workout logged!');
+
 
     // ─── My Plans ────────────────────────────────────────────────────
     const plansList = document.getElementById('plansList');
@@ -477,7 +486,30 @@ alert('Workout logged!');
       new Chart(ctx, {
         type: 'bar',
         data: { labels:Object.keys(byCat), datasets:[{ data:Object.values(byCat), label:'Sessions' }]},
-        options: { indexAxis:'y', scales:{ x:{ beginAtZero:true } }, plugins:{ legend:{ display:false } } }
+        options: {
+  responsive: true,
+  scales: {
+    x: {
+      title: { display: true, text: 'Workout Type', color: '#fff' },
+      ticks: { color: '#fff' }
+    },
+    y: {
+      title: { display: true, text: 'Sessions', color: '#fff' },
+      beginAtZero: true,
+      ticks: { color: '#fff' }
+    }
+  },
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        title: ctx => ctx[0].label,
+        label: ctx => ` ${ctx.formattedValue} sessions`
+      }
+    }
+  }
+}
+
       });
     }
     renderProgress();
