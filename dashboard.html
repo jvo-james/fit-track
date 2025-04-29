@@ -34,8 +34,11 @@
       overflow-y:auto; 
     }
 
-    /* ─── SIDEBAR ─────────── */
+    /* ─── SIDEBAR (now sticky) ─────────── */
     .sidebar {
+      position:sticky;
+      top:0;
+      height:100vh;
       width:80px;
       background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
@@ -47,14 +50,26 @@
     }
     .sidebar.hide { transform: translateX(-100%); }
     .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
+
+    /* Make entire menu-item a link, but inherit your styles */
     .menu-item {
-      width:100%; text-align:center; padding:1rem 0; cursor:pointer;
+      width:100%; text-align:center; padding:1rem 0;
       transition:background .2s;
     }
-    .menu-item.active,
-    .menu-item:hover { background:rgba(255,152,0,0.2); }
+    .menu-item:hover,
+    .menu-item.active { background:rgba(255,152,0,0.2); }
+    .menu-item a {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      width:100%; height:100%;
+      color:inherit;
+      text-decoration:none;
+    }
     .menu-item i { font-size:1.4rem; }
     .menu-item span { display:block; font-size:0.6rem; margin-top:0.2rem; }
+
     .sign-in-btn {
       margin-top:auto; margin-bottom:1rem;
       background:var(--gold); width:50px; height:50px; border-radius:50%;
@@ -68,7 +83,15 @@
       flex:1; display:flex; flex-direction:column; overflow-y:auto;
       transition:margin-left .3s;
     }
+    /* ensure content doesn’t slip under fixed sidebar on small screens */
+    @media(max-width:900px){ .main { margin-left:0; } }
+    @media(min-width:901px){ .main { margin-left:0; } }
+
+    /* ─── HEADER (now sticky) ───────── */
     header {
+      position:sticky;
+      top:0;
+      z-index:200;
       display:flex; justify-content:space-between; align-items:center;
       padding:1.5rem; background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
@@ -78,22 +101,18 @@
       font-size:0.9rem; opacity:0.7;
       margin-top:.25rem; grid-column:1/-1;
     }
-    header button {
+    header button.new-workout {
       background:var(--gold); color:var(--bg); border:none;
       padding:.5rem 1rem; border-radius:30px; cursor:pointer;
       font-weight:600; transition:transform .2s;
     }
-    header button:hover { transform:scale(1.05); }
+    header button.new-workout:hover { transform:scale(1.05); }
 
     .content { padding:1.5rem; }
 
     /* ─── GRID AREAS ───────── */
-    .stats, .charts {
-      display:grid; gap:1.5rem;
-    }
-    .stats {
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    }
+    .stats, .charts { display:grid; gap:1.5rem; }
+    .stats { grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); }
     .charts {
       margin-top:1.5rem;
       grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
@@ -149,9 +168,7 @@
     .chart-card canvas { width:100% !important; height:300px !important; }
 
     /* ─── CHALLENGES & BOARD ─ */
-    .challenges, .leaderboard {
-      margin-top:1.5rem;
-    }
+    .challenges, .leaderboard { margin-top:1.5rem; }
     .challenges h2, .leaderboard h2 {
       display:flex; align-items:center; gap:.5rem;
       color:var(--gold); font-size:1.3rem; margin-bottom:.8rem;
@@ -170,9 +187,7 @@
     }
 
     /* ─── COMMUNITY FEED ───── */
-    .community {
-      margin-top:1.5rem;
-    }
+    .community { margin-top:1.5rem; }
     .community h2 {
       display:flex; align-items:center; gap:.5rem;
       color:var(--gold); font-size:1.3rem; margin-bottom:.8rem;
@@ -201,7 +216,7 @@
     /* ─── MOBILE BREAKPOINTS ─ */
     @media(max-width:900px){
       .sidebar { position:fixed; z-index:1000; top:0; left:0; height:100%; }
-      .main { margin-left:0; }
+      .main { margin-left:80px; }
       .charts { grid-template-columns:1fr; }
       .stats   { grid-template-columns:1fr 1fr; }
     }
