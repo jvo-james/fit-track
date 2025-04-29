@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FitTrack | Leaderboard</title>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --bg: #000;
+      --gold: #ff9800;
+      --white: #fff;
+      --font: 'Raleway', sans-serif;
+      --font-alt: 'Poppins', sans-serif;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      display:flex; min-height:100vh;
+      background:var(--bg); color:var(--white);
+      font-family:var(--font);
+    }
+    a { color:inherit; text-decoration:none; }
+
+    /* ─── SIDEBAR ─────────────────────────────────── */
+    .sidebar { position:sticky; top:0; height:100vh; width:80px;
+      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding:1rem 0; z-index:1000;
+    }
+    .sidebar .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar .menu-item { width:100%; text-align:center; padding:1rem 0; transition:background .2s; }
+    .sidebar .menu-item.active,
+    .sidebar .menu-item:hover { background:rgba(255,152,0,0.2); }
+    .sidebar .menu-item a { display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; }
+    .sidebar .menu-item i { font-size:1.4rem; }
+    .sidebar .menu-item span { font-size:0.6rem; margin-top:.2rem; }
+    .sidebar .sign-in-btn { margin-top:auto; margin-bottom:1rem; width:50px; height:50px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 0 10px var(--gold); transition:transform .2s; }
+    .sidebar .sign-in-btn:hover { transform:scale(1.1); }
+
+    /* ─── MAIN ───────────────────────────────────── */
+    .main { flex:1; overflow-y:auto; padding:1.5rem; }
+    .main header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+    .main header h1 { font-size:1.8rem; font-family:var(--font-alt); }
+    .main header p { font-size:0.9rem; opacity:0.7; }
+    
+    /* ─── Filters ───────────────────────────────── */
+    #filters { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+    #filters select, #filters button {
+      font-family:var(--font-alt);
+      padding:.5rem .75rem;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.3);
+      border-radius:6px;
+      color:var(--white);
+      cursor:pointer;
+    }
+
+    /* ─── Leaderboard Table ───────────────────────── */
+    .leaderboard {
+      background:rgba(255,255,255,0.05);
+      border-radius:12px;
+      padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      margin-bottom:2rem;
+      overflow-x:auto;
+    }
+    .leaderboard table {
+      width:100%; border-collapse:collapse;
+      font-family:var(--font-alt);
+    }
+    .leaderboard th, .leaderboard td {
+      padding:.75rem 1rem; text-align:left;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    .leaderboard th { color:var(--gold); }
+
+    /* ─── Your Rank Card ─────────────────────────── */
+    .your-rank {
+      background:rgba(255,255,255,0.05);
+      border-radius:12px;
+      padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      display:flex; align-items:center; gap:1rem;
+      margin-bottom:2rem;
+    }
+    .your-rank img { width:60px; height:60px; border-radius:50%; }
+    .your-rank div { font-family:var(--font-alt); }
+
+    /* ─── Highlights ─────────────────────────────── */
+    .highlights { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-bottom:2rem; }
+    .highlight-card {
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      text-align:center; font-family:var(--font-alt);
+    }
+
+    /* ─── Achievements ───────────────────────────── */
+    .achievements {
+      margin-bottom:2rem; font-family:var(--font-alt);
+    }
+    .achievements h2 { color:var(--gold); margin-bottom:.75rem; }
+    .badge-list { display:flex; flex-wrap:wrap; gap:1rem; }
+    .badge {
+      background:rgba(255,255,255,0.05); width:80px; height:80px;
+      border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    .badge i { font-size:1.5rem; color:var(--gold); margin-bottom:.25rem; }
+    .badge span { font-size:0.75rem; text-align:center; }
+
+    /* ─── Community ─────────────────────────────── */
+    .community {
+      margin-bottom:2rem; font-family:var(--font-alt);
+    }
+    .community h2 { color:var(--gold); margin-bottom:.75rem; }
+    .challenge-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+    .challenge-card {
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      display:flex; flex-direction:column; justify-content:space-between;
+    }
+    .challenge-card h3 { margin-bottom:.5rem; font-family:var(--font-alt); }
+    .challenge-card p { font-size:0.85rem; margin-bottom:.75rem; }
+    .challenge-card button {
+      align-self:flex-end; padding:.5rem .75rem; border:none;
+      background:var(--gold); color:var(--bg); border-radius:6px;
+      cursor:pointer; transition:transform .2s;
+    }
+    .challenge-card button:hover { transform:scale(1.05); }
+
+    /* ─── Chat Toggle (optional) ────────────────── */
+    #chatToggle { /* reuse from workouts.html if desired */ }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo"><i class="fas fa-heartbeat"></i></div>
+    <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
+    <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
+    <div class="menu-item"><a href="workouts.html"><i class="fas fa-dumbbell"></i><span>Workouts</span></a></div>
+    <div class="menu-item active"><a href="#"><i class="fas fa-trophy"></i><span>Board</span></a></div>
+    <div class="menu-item"><a href="profile.html"><i class="fas fa-user-circle"></i><span>Profile</span></a></div>
+    <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
+  </aside>
+
+  <div class="main">
+    <header>
+      <div>
+        <h1>Leaderboard</h1>
+        <p>See who’s crushing it today, this week, and all-time.</p>
+      </div>
+      <div id="filters">
+        <select id="timeframe">
+          <option value="daily">Daily</option>
+          <option value="weekly" selected>Weekly</option>
+          <option value="all">All-Time</option>
+        </select>
+        <select id="category">
+          <option value="">All Types</option>
+          <option value="Cardio">Cardio</option>
+          <option value="Strength">Strength</option>
+          <option value="Yoga">Yoga</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- 1. Real-Time Leaderboard -->
+    <section class="leaderboard">
+      <table>
+        <thead>
+          <tr><th>Rank</th><th>User</th><th>Type</th><th>Score</th></tr>
+        </thead>
+        <tbody id="leaderboardBody">
+          <!-- populated via JS -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 2. Your Rank -->
+    <section class="your-rank" id="yourRank">
+      <!-- populated via JS -->
+    </section>
+
+    <!-- 3. Highlights (Most Improved) -->
+    <section class="highlights" id="highlights">
+      <!-- populated via JS -->
+    </section>
+
+    <!-- 4. Achievements -->
+    <section class="achievements">
+      <h2><i class="fas fa-award"></i> Achievements</h2>
+      <div class="badge-list" id="badges">
+        <!-- populated via JS -->
+      </div>
+    </section>
+
+    <!-- 5. Global Community Challenges -->
+    <section class="community">
+      <h2><i class="fas fa-globe"></i> Community Challenges</h2>
+      <div class="challenge-list" id="challenges">
+        <!-- populated via JS -->
+      </div>
+    </section>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ─── Mock Data ─────────────────────────────────────────────────────────
+    const users = Array.from({length:12}, (_,i) => ({
+      id: i+1,
+      name:`User${i+1}`,
+      avatar:`https://i.pravatar.cc/150?img=${i+1}`,
+      type:['Cardio','Strength','Yoga'][i%3],
+      score: Math.floor(Math.random()*500 + 100),
+      delta: Math.floor(Math.random()*50) // improvement
+    }));
+    const currentUser = { id:3 };
+
+    const achievements = [
+      { icon:'fa-fire', name:'Streak Master' },
+      { icon:'fa-medal', name:'100 Workouts' },
+      { icon:'fa-heart', name:'Community Favorite' },
+      { icon:'fa-bolt', name:'Lightning Fast' }
+    ];
+
+    const challenges = [
+      { title:'30-Day Run Challenge', desc:'Run 5km daily for 30 days.' },
+      { title:'100 Push-Up Club', desc:'Do 100 push-ups in one session.' },
+      { title:'Yoga Marathon', desc:'60-min daily flow for 7 days.' }
+    ];
+
+    // ─── DOM Refs ─────────────────────────────────────────────────────────
+    const lbBody = document.getElementById('leaderboardBody');
+    const tfSelect = document.getElementById('timeframe');
+    const catSelect= document.getElementById('category');
+    const yourRankEl= document.getElementById('yourRank');
+    const highlightsEl = document.getElementById('highlights');
+    const badgesEl = document.getElementById('badges');
+    const challengesEl = document.getElementById('challenges');
+
+    // ─── Render Functions ─────────────────────────────────────────────────
+    function renderLeaderboard() {
+      const tf = tfSelect.value, cat = catSelect.value;
+      // simulate filtering/timeframe by just sorting & filtering
+      let list = users
+        .filter(u => !cat || u.type===cat)
+        .sort((a,b)=>b.score - a.score);
+      // take top 10
+      lbBody.innerHTML = list.slice(0,10).map((u, i)=>{
+        return `<tr>
+          <td>${i+1}</td>
+          <td><img src="${u.avatar}" width="32" height="32" style="border-radius:50%;vertical-align:middle;margin-right:0.5rem;">${u.name}</td>
+          <td>${u.type}</td>
+          <td>${u.score}</td>
+        </tr>`;
+      }).join('');
+      renderYourRank(list);
+      renderHighlights(list);
+    }
+
+    function renderYourRank(list) {
+      const idx = list.findIndex(u=>u.id===currentUser.id);
+      if (idx<0) {
+        yourRankEl.innerHTML = `<img src="https://i.pravatar.cc/150?img=${currentUser.id}" alt=""><div>You’re not ranked yet.</div>`;
+      } else {
+        const u = list[idx];
+        yourRankEl.innerHTML = `
+          <img src="${u.avatar}" alt="">
+          <div>
+            <div><strong>${u.name}</strong>, you’re #${idx+1}</div>
+            <div>Score: ${u.score}</div>
+          </div>`;
+      }
+    }
+
+    function renderHighlights(list) {
+      // top 3 most improved (delta)
+      const topDelta = [...list].sort((a,b)=>b.delta - a.delta).slice(0,3);
+      highlightsEl.innerHTML = topDelta.map(u=>`
+        <div class="highlight-card">
+          <img src="${u.avatar}" width="48" height="48" style="border-radius:50%;margin-bottom:0.5rem;">
+          <div><strong>${u.name}</strong></div>
+          <div>Impr. +${u.delta}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderAchievements() {
+      badgesEl.innerHTML = achievements.map(b=>`
+        <div class="badge">
+          <i class="fas ${b.icon}"></i>
+          <span>${b.name}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderChallenges() {
+      challengesEl.innerHTML = challenges.map(c=>`
+        <div class="challenge-card">
+          <h3>${c.title}</h3>
+          <p>${c.desc}</p>
+          <button>Join</button>
+        </div>
+      `).join('');
+    }
+
+    // ─── Event Listeners & Real-Time ──────────────────────────────────────
+    tfSelect.addEventListener('change', renderLeaderboard);
+    catSelect.addEventListener('change', renderLeaderboard);
+    // update every 5s
+    setInterval(()=> {
+      // randomize scores slightly
+      users.forEach(u=> u.score = Math.max(0, u.score + (Math.random()*20-10)|0));
+      renderLeaderboard();
+    }, 5000);
+
+    // initial render
+    renderLeaderboard();
+    renderAchievements();
+    renderChallenges();
+  });
+  </script>
+</body>
+</html>
