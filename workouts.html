@@ -226,42 +226,97 @@
     }
     .session button:hover { transform:scale(1.05); }
 
-    /* ─── AI Chatbot ─────────────────────────── */
-    #chatbot {
-      position:fixed; bottom:20px; right:20px;
-      width:300px; max-height:400px; background:rgba(0,0,0,0.9);
-      border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      display:flex; flex-direction:column; overflow:hidden;
-    }
-    #chatbot header {
-      background:var(--gold); padding:.5rem; text-align:center;
-      font-weight:600; color:var(--bg);
-    }
-    #chatbot .messages {
-      flex:1; padding:.5rem; overflow-y:auto;
-    }
-    #chatbot .messages .msg {
-      margin-bottom:.5rem; font-size:.85rem; line-height:1.2;
-      max-width:80%; border-radius:8px; padding:8px;
-    }
-    #chatbot .messages .user {
-      align-self:flex-end; background:rgba(255,255,255,0.2);
-    }
-    #chatbot .messages .bot {
-      align-self:flex-start; background:rgba(255,152,0,0.2);
-    }
-    #chatbot .input {
-      display:flex; border-top:1px solid rgba(255,255,255,0.1);
-    }
-    #chatbot select {
-      flex:1; background:transparent; border:none;
-      padding:.5rem; color:var(--white);
-    }
-    #chatbot button {
-      background:var(--gold); border:none; padding:0 .8rem;
-      cursor:pointer; transition:transform .2s;
-    }
-    #chatbot button:hover { transform:scale(1.05); }
+   /* ─── AI Chatbot (black & white theme) ───────────────────────────────── */
+
+#chatbot {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  max-height: 400px;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif; /* new font */
+}
+
+#chatbot header {
+  position: relative;
+  background: #fff;
+  color: #000;
+  padding: .5rem;
+  text-align: center;
+  border-bottom: 1px solid #000;
+  font-weight: 600;
+}
+
+#chatbot header .close-btn {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+#chatbot .messages {
+  flex: 1;
+  padding: .5rem;
+  overflow-y: auto;
+  background: #f9f9f9;
+}
+
+#chatbot .messages .msg {
+  margin-bottom: .5rem;
+  padding: .5rem;
+  border-radius: 6px;
+  max-width: 80%;
+  line-height: 1.2;
+}
+
+#chatbot .messages .user {
+  align-self: flex-end;
+  background: #e0e0e0;
+}
+
+#chatbot .messages .bot {
+  align-self: flex-start;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+#chatbot .input {
+  display: flex;
+  border-top: 1px solid #000;
+}
+
+#chatbot .input select {
+  flex: 1;
+  padding: .5rem;
+  border: none;
+  background: #fff;
+  color: #000;
+  font-family: inherit;
+}
+
+#chatbot .input button {
+  padding: 0 .8rem;
+  border: none;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  transition: transform .2s;
+}
+
+#chatbot .input button:hover {
+  transform: scale(1.05);
+}
+
 
     @media(max-width:900px){
       .content { display:flex; flex-direction:column; }
@@ -360,17 +415,21 @@
     </div>
   </div>
 
-  <!-- ─── AI Chatbot ─────────────────────────────────────────────────────── -->
-  <div id="chatbot">
-    <header><i class="fas fa-robot"></i> Chat Coach</header>
-    <div class="messages"></div>
-    <div class="input">
-      <select id="questionSelect">
-        <option value="" disabled selected>Select a question…</option>
-      </select>
-      <button id="askBtn"><i class="fas fa-paper-plane"></i></button>
-    </div>
+<!-- ─── AI Chatbot ─────────────────────────────────────────────────── -->
+<div id="chatbot">
+  <header>
+    Chat Coach
+    <button class="close-btn" id="closeChat">&times;</button>
+  </header>
+  <div class="messages"></div>
+  <div class="input">
+    <select id="questionSelect">
+      <option value="" disabled selected>Select a question…</option>
+    </select>
+    <button id="askBtn"><i class="fas fa-paper-plane"></i></button>
   </div>
+</div>
+
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -640,7 +699,11 @@
       document.querySelector('#chatbot .messages').scrollTop =
         document.querySelector('#chatbot .messages').scrollHeight;
     }
-
+// close chat
+document.getElementById('closeChat')
+  .addEventListener('click', () => {
+    document.getElementById('chatbot').style.display = 'none';
+  });
     // Handle Ask button
     document.getElementById('askBtn').addEventListener('click', () => {
       const idx = sel.value; if (idx === '') return;
@@ -649,6 +712,10 @@
       appendMsg(a, 'bot');
       sel.selectedIndex = 0;
     });
+    document.getElementById('openChat').addEventListener('click', () => {
+  document.getElementById('chatbot').style.display = 'flex';
+});
+
   });
   </script>
 </body>
