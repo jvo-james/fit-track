@@ -7,20 +7,22 @@
   <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
-  <!-- Google Fonts: Raleway & Open Sans -->
+ <!-- Google Fonts: Raleway & Open Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Open+Sans&display=swap" rel="stylesheet" />
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Animate.css -->
+  <!-- Animate.css for animations -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   
   <style>
+    /* ─── VARIABLES & RESET ─── */
     :root {
       --bg: #000;
       --gold: #ff9800;
       --white: #fff;
+      --font: 'Poppins', sans-serif;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -33,7 +35,7 @@
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; display: block; }
 
-    /* NAVBAR */
+    /* ─── NAVBAR ─── */
     nav {
       position: fixed; top:0; left:0; width:100%;
       display:flex; align-items:center; justify-content:space-between;
@@ -44,31 +46,57 @@
     nav.scrolled {
       background:rgba(0,0,0,0.95); padding:.5rem 2rem;
     }
-    .logo { font-size:1.8rem; font-weight:700; color:var(--gold); }
+    .logo {
+      font-size:1.8rem; font-weight:700;
+      color: var(--gold);
+    }
     .nav-links {
       display:flex; gap:1.5rem;
     }
     .nav-links a {
-      position:relative; padding:.2rem 0; font-weight:500; text-transform:uppercase;
+      display:flex; align-items:center; gap:.3rem;
+      font-weight:500; text-transform:uppercase;
+      position:relative; padding:.2rem 0;
+      transition: color .3s;
     }
     .nav-links a::after {
-      content:''; position:absolute; left:0; bottom:-3px; width:0; height:2px; background:var(--gold);
-      transition:width .3s;
+      content:''; position:absolute; left:0; bottom:-3px;
+      width:0; height:2px; background:var(--gold);
+      transition: width .3s;
     }
-    .nav-links a:hover::after { width:100%; }
-    .cta-btns button {
-      margin-left:1rem; padding:.5rem 1.2rem; border:2px solid var(--gold);
-      border-radius:30px; font-weight:600; cursor:pointer; transition:transform .3s;
-      background:transparent; color:var(--gold);
+    .nav-links a:hover {
+      color: var(--gold);
     }
-    .cta-btns button.primary { background:var(--gold); color:var(--bg); }
-    .cta-btns button:hover { transform:scale(1.05); }
-    .nav-toggle { display:none; font-size:1.5rem; cursor:pointer; }
+    .nav-links a:hover::after {
+      width:100%;
+    }
+   .cta-btns button {
+      margin-left: 1rem;
+      padding: .5rem 1.2rem;
+      border: 2px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .3s;
+    }
+    .cta-btns button.primary {
+      background: var(--gold);
+      color: var(--bg);
+    }
+    .cta-btns button:hover {
+      transform: scale(1.05);
+    }
+    .nav-toggle {
+      display:none; font-size:1.5rem; cursor:pointer;
+    }
 
     @media(max-width:900px){
-      .nav-links {
-        position:fixed; top:0; right:-100%; height:100vh; width:240px;
-        background:rgba(0,0,0,0.95); flex-direction:column; padding-top:5rem; gap:1.5rem;
+      .nav-links { 
+        position: fixed; top:0; right:-100%; height:100vh;
+        width:240px; background:rgba(0,0,0,0.95);
+        flex-direction:column; padding-top:5rem; gap:1.5rem;
         transition:right .3s;
       }
       .nav-links.open { right:0; }
@@ -76,135 +104,186 @@
       .nav-toggle { display:block; }
     }
 
-    /* HERO */
+    /* ─── HERO ─── */
     #hero {
-      height:66.667vh; /* 2/3 of viewport */
-      display:flex; align-items:center; justify-content:center;
-      text-align:center; position:relative; padding:0 1rem; overflow:hidden;
-    }
-    #hero h1 { font-size:3rem; color:var(--gold); line-height:1.2; }
-    #hero p {
-      margin-top:.8rem; color:rgba(255,255,255,0.8);
-      max-width:600px;
-    }
-     .hero-buttons { margin-top:2rem; display:flex; gap:1rem; justify-content:center; z-index:2; }
-    .hero-screenshot {
-      position:absolute; bottom:5%; right:5%; width:300px; border-radius:20px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.7); animation:float 6s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);}
-    }
-   .typewriter {
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: .15em solid var(--gold);
-  animation: blink-caret 0.7s step-end infinite;
-}
-
-@keyframes blink-caret {
-  from, to { border-color: transparent; }
-  50%      { border-color: var(--gold); }
-}
-
-
-
-    /* ABOUT */
-    #about {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:4rem 2rem; background:var(--bg);
-    }
-    #about .about-text {
-      flex:1; padding-right:1rem;
-    }
-    #about .about-text h2 {
-      font-size:2rem; color:var(--gold); margin-bottom:1rem;
-    }
-    #about .about-text p {
-      margin-bottom:1rem; line-height:1.6; color:rgba(255,255,255,0.8);
-    }
-    #about .about-img { flex:1; padding-left:1rem; }
-    @media(max-width:768px){
-      #about { flex-direction:column; text-align:center; }
-      #about .about-text, #about .about-img { padding:0; }
-      #about .about-img { margin-top:1.5rem; }
-    }
-
-    /* SECTIONS REUSED */
-    section { padding:4rem 1rem; }
-    #features, #pricing { background:var(--bg); }
-    #testimonials { background:rgba(0,0,0,0.9); }
-    #contact { background:rgba(0,0,0,0.9); }
-
-    .features-grid,
-    .pricing-grid,
-    .testimonials-grid {
-      display:grid; gap:2rem; margin:0 auto;
-    }
-    .features-grid { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); max-width:1100px; }
-    .pricing-grid  { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); max-width:1000px; }
-    .testimonials-grid { grid-template-columns:1fr 1fr 1fr; max-width:1000px; }
-
-    .feature-card, .plan, .testimonial {
-      background:rgba(255,255,255,0.05); border-radius:12px;
-      box-shadow:0 8px 24px rgba(0,0,0,0.6);
-      transition:transform .3s, box-shadow .3s;
+      height:100vh; display:flex; align-items:center; justify-content:center;
+      text-align:center; position:relative; padding:0 1rem;
       overflow:hidden;
     }
-    .feature-card:hover,
-    .plan:hover,
-    .testimonial:hover { transform:translateY(-8px); }
-
-    .feature-content, .plan ul, .contact-form, .testimonial {
-      padding:1rem 1.2rem;
+    #hero h1 {
+      font-size:3rem; color:var(--gold);
+      line-height:1.2; z-index:2;
     }
-    .feature-content i,
-    .plan i { color:var(--gold); margin-bottom:.5rem; display:block; font-size:2rem; }
+    #hero p {
+      margin-top:.8rem; color:rgba(255,255,255,0.8);
+      max-width:600px; z-index:2;
+    }
+    .hero-buttons { margin-top:2rem; display:flex; gap:1rem; justify-content:center; z-index:2; }
+    .hero-screenshot {
+      position:absolute; bottom:5%; right:5%;
+      width:300px; border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.7);
+      animation: float 6s ease-in-out infinite;
+      z-index:1;
+    }
+    @keyframes float {
+      0%,100%{transform: translateY(0);}
+      50%{transform: translateY(-20px);}
+    }
+    .typewriter { display:inline-block; overflow:hidden; white-space:nowrap; border-right:.15em solid var(--gold); animation: typing 3s steps(30,end), blink .7s infinite; }
+    @keyframes typing { from{width:0;} to{width:100%;} }
+    @keyframes blink { 50%{border-color:transparent;} }
 
-    /* CONTACT */
+    /* ─── FEATURES ─── */
+    #features {
+      padding:6rem 1rem; background: var(--bg);
+    }
+    .features-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:2rem;
+      max-width:1100px; margin:0 auto;
+    }
+    .feature-card {
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);
+      transition:transform .3s, box-shadow .3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow:0 12px 30px rgba(0,0,0,0.8);
+    }
+    .feature-card img {
+      width:100%; height:140px; object-fit:cover;
+    }
+    .feature-content {
+      padding:1rem 1.2rem;
+      text-align:center;
+    }
+    .feature-content i {
+      font-size:2rem; color:var(--gold); margin-bottom:.5rem;
+    }
+    .feature-content h3 {
+      font-size:1.2rem; margin-bottom:.3rem;
+    }
+    .feature-content p {
+      font-size:.9rem; color:rgba(255,255,255,0.8);
+    }
+
+    /* ─── TESTIMONIALS ─── */
+    #testimonials {
+      padding:4rem 1rem; background:rgba(0,0,0,0.9);
+    }
+    .testimonials-grid {
+      display:grid; grid-template-columns:1fr 1fr 1fr; gap:2rem;
+      max-width:1000px; margin:0 auto;
+    }
+    .testimonial {
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:1.5rem; position:relative; font-style:italic;
+      transition:transform .3s;
+    }
+    .testimonial:hover { transform: scale(1.03); }
+    .testimonial::before {
+      content:'“'; position:absolute; top:-10px; left:10px;
+      font-size:3rem; color:var(--gold); opacity:.4;
+    }
+    .testimonial p { margin-bottom:1rem; color:rgba(255,255,255,0.85); }
+    .testimonial h5 { text-align:right; color:var(--gold); font-weight:600; }
+
+    /* ─── PRICING ─── */
+    #pricing {
+      padding:4rem 1rem; background: var(--bg);
+    }
+    .pricing-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:2rem;
+      max-width:1000px; margin:0 auto;
+    }
+    .plan {
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:2rem; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.6);
+      transition:transform .3s, box-shadow .3s;
+      position:relative;
+    }
+    .plan:hover {
+      transform: translateY(-8px);
+      box-shadow:0 12px 30px rgba(0,0,0,0.8);
+    }
+    .plan i {
+      font-size:2.2rem; color:var(--gold); margin-bottom:.5rem;
+    }
+    .plan h3 { font-size:1.3rem; margin-bottom:.5rem; }
+    .plan .price {
+      font-size:2rem; font-weight:600; margin:1rem 0;
+    }
+    .plan ul {
+      list-style:none; margin-bottom:1.5rem;
+    }
+    .plan ul li {
+      display:flex; align-items:center; gap:.5rem; color:rgba(255,255,255,0.8);
+    }
+    .plan ul li i { color:var(--gold); }
+    .plan button {
+      padding:.6rem 1.2rem; border:none; border-radius:30px;
+      background:var(--gold); color:var(--bg); font-weight:600;
+      cursor:pointer; transition:transform .3s;
+    }
+    .plan button:hover { transform: scale(1.05); }
+
+    /* ─── CONTACT ─── */
+    #contact {
+      padding:4rem 1rem; background:rgba(0,0,0,0.9);
+    }
     .contact-form {
-      max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:1rem;
+      max-width:500px; margin:0 auto;
+      display:flex; flex-direction:column; gap:1rem;
     }
     .contact-form input,
     .contact-form textarea {
       padding:.8rem; border-radius:6px;
       border:1px solid rgba(255,255,255,0.3);
       background:rgba(255,255,255,0.05); color:var(--white);
+      resize:none;
     }
     .contact-form button {
       padding:.6rem 1.2rem; border:none; border-radius:30px;
       background:var(--gold); color:var(--bg); font-weight:600;
       cursor:pointer; transition:transform .3s;
     }
-    .contact-form button:hover { transform:scale(1.05); }
+    .contact-form button:hover { transform: scale(1.05); }
 
-    /* FOOTER */
+    /* ─── FOOTER ─── */
     footer {
-      padding:2rem 1rem; text-align:center; border-top:2px solid var(--gold);
+      padding:2rem 1rem; text-align:center;
+      border-top:2px solid var(--gold);
     }
-    .socials a {
+    footer .socials a {
       margin:0 .5rem; font-size:1.3rem; color:var(--gold);
       transition:transform .3s;
     }
-    .socials a:hover { transform:scale(1.2); }
+    footer .socials a:hover { transform: scale(1.2); }
     footer p { margin-top:1rem; opacity:.6; }
 
-    /* MODAL */
+    /* ─── MODAL ─── */
     .modal-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,0.8);
       display:flex; align-items:center; justify-content:center;
       opacity:0; visibility:hidden; transition:all .3s; z-index:2000;
     }
-    .modal-overlay.active { opacity:1; visibility:visible; }
+    .modal-overlay.active {
+      opacity:1; visibility:visible;
+    }
     .modal {
       background:var(--bg); border:2px solid var(--gold);
       border-radius:12px; padding:2rem; width:90%; max-width:360px;
-      transform:scale(0.8); transition:transform .3s;
-      box-shadow:0 10px 30px rgba(0,0,0,0.7); position:relative;
+      transform: scale(0.8); transition:transform .3s;
+      box-shadow:0 10px 30px rgba(0,0,0,0.7);
+      position:relative;
     }
-    .modal-overlay.active .modal { transform:scale(1); }
-    .modal h2 { text-align:center; color:var(--gold); margin-bottom:1rem; }
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+    .modal h2 {
+      text-align:center; color:var(--gold); margin-bottom:1rem;
+    }
     .modal input {
       width:100%; padding:.8rem; margin-bottom:1rem;
       border:1px solid rgba(255,255,255,0.3); border-radius:6px;
@@ -215,14 +294,14 @@
       background:var(--gold); color:var(--bg); font-weight:600;
       cursor:pointer; transition:transform .3s;
     }
-    .modal .btn:hover { transform:scale(1.05); }
+    .modal .btn:hover { transform: scale(1.05); }
     .modal .close {
       position:absolute; top:1rem; right:1rem; font-size:1.2rem;
       cursor:pointer; color:rgba(255,255,255,0.7);
     }
 
     @media(max-width:768px){
-      .features-grid, .pricing-grid, .testimonials-grid {
+      .features-grid, .testimonials-grid, .pricing-grid {
         grid-template-columns:1fr !important;
       }
       #hero h1 { font-size:2.4rem; }
@@ -230,24 +309,30 @@
     }
   </style>
 </head>
-
 <body>
-  <!-- MODAL -->
+
+  <!-- SIGN-IN/SIGN-UP MODAL -->
   <div class="modal-overlay" id="modal">
-    <div class="modal">
-      <span class="close" data-close>&times;</span>
-      <h2 id="modal-title">Sign In</h2>
-      <input type="text" id="name" placeholder="Full Name" style="display:none" />
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password" required />
-      <input type="password" id="confirm-password" placeholder="Confirm Password" style="display:none" />
-      <button class="btn" id="modal-action">Sign In</button>
-      <p style="text-align:center; color:rgba(255,255,255,0.7);">
-        <span id="switch-text">Don’t have an account?</span>
-        <a href="#" id="switch-link" style="color:var(--gold);">Sign Up</a>
-      </p>
-    </div>
-  </div>
+ <div class="modal">
+  <span class="close" data-close>&times;</span>
+  <h2 id="modal-title">Sign In</h2>
+
+  <!-- NEW: Full Name (only used in Sign Up) -->
+  <input type="text" id="name" placeholder="Full Name" style="display:none" />
+
+  <input type="email" id="email" placeholder="Email" required />
+  <input type="password" id="password" placeholder="Password" required />
+  <!-- NEW: Confirm Password -->
+  <input type="password" id="confirm-password" placeholder="Confirm Password" style="display:none" />
+
+  <button class="btn" id="modal-action">Sign In</button>
+
+  <p style="text-align:center; color:rgba(255,255,255,0.7);">
+    <span id="switch-text">Don’t have an account?</span>
+    <a href="#" id="switch-link" style="color:var(--gold);">Sign Up</a>
+  </p>
+</div>
+</div> 
 
   <!-- NAVBAR -->
   <nav id="navbar">
@@ -269,33 +354,21 @@
   <!-- HERO -->
   <section id="hero">
     <div>
-     <h1>
+      <h1>
   <span id="typewriter" class="typewriter"></span>
+  <span class="cursor"></span>
 </h1>
-
-      <p>Log workouts • Join challenges • Climb leaderboards • Stay motivated</p>
-      <p>FitTrack combines instant logging, AI coaching, and community challenges to keep you on track—wherever you are.</p>
-      <div class="cta-btns" style="margin-top:2rem;">
+<p>Log workouts • Join challenges • Climb leaderboards • Stay motivated</p>
+      <br>
+      <div class="cta-btns">
         <button class="primary" data-modal="signin"><i class="fas fa-sign-in-alt"></i> Get Started</button>
-        <button data-modal="signup"><i class="fas fa-user-plus"></i> Join Free</button>
+        <button class="" data-modal="signup"><i class="fas fa-user-plus"></i> Join Free</button>
       </div>
     </div>
-   
+    <img src="hero-screenshot.jpg" alt="App Screenshot" class="hero-screenshot">
   </section>
 
-  <!-- ABOUT -->
-  <section id="about">
-    <div class="about-text">
-      <h2>About FitTrack</h2>
-      <p>FitTrack empowers every fitness enthusiast by making workout logging effortless and insightful. Whether you’re sprinting through HIIT or mastering yoga poses, our real-time analytics and AI-powered coaching adapt to your unique journey.</p>
-      <p>Join a vibrant community of users, set challenges with friends across the globe, and earn achievements that celebrate your milestones. With FitTrack, every rep counts—so you can focus on results, not record-keeping.</p>
-    </div>
-    <div class="about-img">
-      <img src="hero-screenshot.jpg" alt="FitTrack overview">
-    </div>
-  </section>
-
- <!-- FEATURES -->
+  <!-- FEATURES -->
   <section id="features">
     <div class="features-grid">
       <div class="feature-card" data-reveal>
@@ -364,7 +437,8 @@
       </div>
     </div>
   </section>
- <!-- TESTIMONIALS -->
+
+  <!-- TESTIMONIALS -->
   <section id="testimonials">
     <div class="testimonials-grid">
       <div class="testimonial" data-reveal>
@@ -421,7 +495,6 @@
     </div>
   </section>
 
-
   <!-- CONTACT -->
   <section id="contact">
     <form class="contact-form" data-reveal>
@@ -443,8 +516,9 @@
     <p>&copy; 2025 FitTrack. All rights reserved.</p>
   </footer>
 
-  <script>
-    // ─── HELPERS ─────────────────────────────────
+  
+<script>
+  // ─── HELPERS ─────────────────────────────────
   function getUsers() {
     return JSON.parse(localStorage.getItem('ft_users') || '[]');
   }
@@ -453,123 +527,154 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    // NAVBAR SCROLL & TOGGLE
+    // ─── NAVBAR SCROLL ───────────────────────────
     const nav = document.getElementById('navbar');
-    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
-    document.querySelector('.nav-toggle').addEventListener('click', () => {
-      document.querySelector('.nav-links').classList.toggle('open');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
     });
 
-// TYPEWRITER
-const texts = [
-  "Welcome to FitTrack",
-  "Log Every Workout",
-  "Join Fun Challenges",
-  "Climb the Leaderboards"
-];
-let idx = 0, chr = 0;
-const twEl = document.getElementById("typewriter");
+    // ─── MOBILE MENU ─────────────────────────────
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks  = document.querySelector('.nav-links');
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
 
-function type() {
-  if (chr < texts[idx].length) {
-    twEl.textContent += texts[idx].charAt(chr);
-    chr++;
-    setTimeout(type, 150);
-  } else {
-    setTimeout(erase, 2000);
-  }
-}
-
-function erase() {
-  if (chr > 0) {
-    twEl.textContent = texts[idx].substring(0, chr - 1);
-    chr--;
-    setTimeout(erase, 100);
-  } else {
-    idx = (idx + 1) % texts.length;
+    // ─── TYPEWRITER ──────────────────────────────
+    const texts = [
+      "Welcome to FitTrack",
+      "Log Every Workout",
+      "Join Fun Challenges",
+      "Climb the Leaderboards"
+    ];
+    let idx = 0, chr = 0;
+    function type() {
+      const el = document.getElementById("typewriter");
+      if (chr < texts[idx].length) {
+        el.textContent += texts[idx][chr++];
+        setTimeout(type, 100);
+      } else {
+        setTimeout(erase, 2000);
+      }
+    }
+    function erase() {
+      const el = document.getElementById("typewriter");
+      if (chr > 0) {
+        el.textContent = texts[idx].substring(0, --chr);
+        setTimeout(erase, 50);
+      } else {
+        idx = (idx + 1) % texts.length;
+        setTimeout(type, 500);
+      }
+    }
     setTimeout(type, 500);
-  }
-}
 
-// kick it off after a brief pause
-setTimeout(type, 500);
-
-
-    // MODAL SIGN-IN/SIGN-UP
-    const modal = document.getElementById('modal');
-    const title = document.getElementById('modal-title');
-    const actionBtn = document.getElementById('modal-action');
-    const switchLink = document.getElementById('switch-link');
-    const switchText = document.getElementById('switch-text');
-    const nameInput = document.getElementById('name');
-    const emailInput = document.getElementById('email');
-    const passInput = document.getElementById('password');
+    // ─── MODAL ELEMENTS ──────────────────────────
+    const modal        = document.getElementById('modal');
+    const title        = document.getElementById('modal-title');
+    const actionBtn    = document.getElementById('modal-action');
+    const switchLink   = document.getElementById('switch-link');
+    const switchText   = document.getElementById('switch-text');
+    const nameInput    = document.getElementById('name');
+    const emailInput   = document.getElementById('email');
+    const passInput    = document.getElementById('password');
     const confirmInput = document.getElementById('confirm-password');
 
+    // ─── OPEN SIGN-IN / SIGN-UP ──────────────────
     document.querySelectorAll('[data-modal]').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
-        const mode = btn.dataset.modal;
-        title.textContent      = mode === 'signup' ? 'Sign Up' : 'Sign In';
-        actionBtn.textContent  = mode === 'signup' ? 'Create Account' : 'Sign In';
-        switchText.textContent = mode === 'signup'
+        const mode = btn.dataset.modal; // "signin" or "signup"
+        title.textContent     = mode === 'signup' ? 'Sign Up'         : 'Sign In';
+        actionBtn.textContent = mode === 'signup' ? 'Create Account'  : 'Sign In';
+        switchText.textContent= mode === 'signup'
           ? 'Already have an account?'
           : 'Don’t have an account?';
-        switchLink.textContent = mode === 'signup' ? 'Sign In' : 'Sign Up';
-        switchLink.dataset.mode = mode === 'signup' ? 'signin' : 'signup';
-        nameInput.style.display    = mode==='signup'?'block':'none';
-        confirmInput.style.display = mode==='signup'?'block':'none';
+        switchLink.textContent    = mode === 'signup' ? 'Sign In' : 'Sign Up';
+        switchLink.dataset.mode   = mode === 'signup' ? 'signin' : 'signup';
+        nameInput.style.display       = mode === 'signup' ? 'block' : 'none';
+        confirmInput.style.display    = mode === 'signup' ? 'block' : 'none';
         modal.classList.add('active');
       });
     });
 
+    // ─── SIGN-IN / SIGN-UP HANDLER ──────────────
     actionBtn.addEventListener('click', e => {
       e.preventDefault();
-      const mode = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
+      const mode  = actionBtn.textContent.includes('Create') ? 'signup' : 'signin';
       const name  = nameInput.value.trim();
       const email = emailInput.value.trim();
       const pwd   = passInput.value;
       const conf  = confirmInput.value;
-      if (!email||!pwd||(mode==='signup'&&(!name||!conf))) return alert('All fields are required.');
-      if (mode==='signup'&&pwd!==conf) return alert('Passwords do not match.');
-      let users = JSON.parse(localStorage.getItem('ft_users')||'[]');
-      if (mode==='signup') {
-        if (users.find(u=>u.email===email)) return alert('That email is already registered.');
-        users.push({ name,email,password:pwd });
-        localStorage.setItem('ft_users',JSON.stringify(users));
-        localStorage.setItem('ft_current',JSON.stringify({ name,email,isNew:true }));
-      } else {
-        const user = users.find(u=>u.email===email);
-        if (!user) return alert('No account found with that email.');
-        if (user.password!==pwd) return alert('Incorrect password.');
-        localStorage.setItem('ft_current',JSON.stringify({ name:user.name,email,isNew:false }));
+
+      // Basic validation
+      if (!email || !pwd || (mode === 'signup' && (!name || !conf))) {
+        return alert('All fields are required.');
       }
-      window.location.href = 'dashboard.html';
+      if (mode === 'signup' && pwd !== conf) {
+        return alert('Passwords do not match.');
+      }
+
+      const users = getUsers();
+
+      if (mode === 'signup') {
+        // Already registered?
+        if (users.find(u => u.email === email)) {
+          return alert('That email is already registered.');
+        }
+        // Register new user
+        users.push({ name, email, password: pwd });
+        saveUsers(users);
+        // Log in immediately
+        localStorage.setItem('ft_current', JSON.stringify({ name, email, isNew: true }));
+        window.location.href = 'dashboard.html';
+
+      } else {
+        // Sign in
+        const user = users.find(u => u.email === email);
+        if (!user) {
+          return alert('No account found with that email.');
+        }
+        if (user.password !== pwd) {
+          return alert('Incorrect password.');
+        }
+        localStorage.setItem('ft_current',
+          JSON.stringify({ name: user.name, email, isNew: false })
+        );
+        window.location.href = 'dashboard.html';
+      }
     });
 
+    // ─── TOGGLE SIGN-IN / SIGN-UP LINK ───────────
     switchLink.addEventListener('click', e => {
       e.preventDefault();
       document.querySelector(`[data-modal="${switchLink.dataset.mode}"]`).click();
     });
-    document.querySelectorAll('[data-close], .close').forEach(el=>{
-      el.addEventListener('click',()=> modal.classList.remove('active'));
-    });
 
-    // SCROLL REVEAL
-    document.querySelectorAll('[data-reveal]').forEach(el=>{
-      const obs = new IntersectionObserver(entries=>{
-        entries.forEach(entry=>{
+    // ─── CLOSE MODAL ─────────────────────────────
+    document.querySelectorAll('[data-close], .close')
+      .forEach(el => el.addEventListener('click', () => modal.classList.remove('active')));
+
+    // ─── SCROLL-REVEAL ───────────────────────────
+    document.querySelectorAll('[data-reveal]').forEach(el => {
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.style.opacity = 1;
             entry.target.style.transform = 'translateY(0)';
             obs.disconnect();
           }
         });
-      },{ threshold:0.2 });
+      }, { threshold: 0.2 });
       obs.observe(el);
       el.style.opacity = 0;
       el.style.transform = 'translateY(30px)';
     });
-  </script>
+
+  }); // End DOMContentLoaded
+</script>
+
+
+
 </body>
-</html>
+</html>  
