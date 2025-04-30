@@ -175,13 +175,22 @@
       header {
         display:flex; align-items:center; justify-content:space-between;
         padding:1rem 3rem; /* room for icons */
+         z-index: 1000;
       }
       header h1 {
         position:static; font-size:1rem; flex:1; text-align:center; color:var(--white);
       }
-      .hamburger, .profile-btn {
-        display:block; position:fixed; top:1rem; font-size:1.5rem; z-index:var(--header-z); color: white;
-      }
+      .hamburger,
+  .profile-btn {
+    display: block;
+    position: fixed;
+    top: 1rem;
+    font-size: 1.5rem;
+    z-index: 9999;      /* way above header/content */
+    background: transparent;
+    border: none;
+    color: white;
+  }
       .hamburger { left:1rem; }
       .profile-btn { right:1rem; }
 
