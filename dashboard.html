@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
 <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FitTrack | Dashboard</title>
@@ -17,7 +18,9 @@
   <script src="storage.js"></script>
   <style>
     :root {
-      --bg: #000; --gold: #ff9800; --white: #fff;
+      --bg: #000;
+      --gold: #ff9800;
+      --white: #fff;
       --font-base: 'Raleway', sans-serif;
       --font-head: 'Poppins', sans-serif;
       --transition: .3s ease;
@@ -31,146 +34,214 @@
       font-family:var(--font-base);
       overflow-x:hidden;
     }
-    button,a { font-family:var(--font-head); background:transparent; border:none; color:inherit; cursor:pointer; transition:var(--transition); }
+    a { color:inherit; text-decoration:none; }
+    button { font-family:var(--font-head); transition:var(--transition); cursor:pointer; background:transparent; border:none; color:var(--white); }
 
-    /* ─── HEADER ─── */
-    header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
-      position:sticky; top:0; z-index:100;
-    }
-    header h1 {
-      font-size:1.4rem; flex:1; text-align:center;
-    }
-    .new-workout {
-      background:var(--gold); color:var(--bg);
-      border-radius:30px; padding:.5rem;
-      display:flex; align-items:center; gap:.4rem;
-    }
-    .new-workout .label { display:inline; }
-    .hamburger, .profile-btn {
-      display:none; font-size:1.5rem; color:var(--white);
-    }
-
-    /* ─── NOTIFICATION ─── */
+    /* Notification message */
     .notif-bar {
-      display:none;               /* hidden by default */
       background:#fff; color:#000;
       padding:.8rem; text-align:center;
       font-size:.95rem; border-bottom:1px solid #ddd;
-      position:sticky; top:3.5rem; z-index:90;
+      position:relative;
     }
+    .notif-bar.hidden { display:none; }
     .notif-bar button {
-      color:#999; font-size:1.2rem; margin-left:1rem;
+      background:transparent; border:none; color:#999;
+      font-size:1.2rem; margin-left:1rem; cursor:pointer;
     }
 
-    /* ─── SIDEBAR (desktop) ─── */
+    /* Desktop sidebar */
     .sidebar {
       width: var(--sidebar-w);
       background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
-      flex-shrink:0; display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
+      flex-shrink:0;
+      display:flex; flex-direction:column; align-items:center;
+      padding-top:1rem;
+      position:sticky; top:0; height:100vh;
+      transition:transform var(--transition);
     }
     .sidebar .logo {
       font-size:1.6rem; color:var(--gold); margin-bottom:2rem;
     }
     .sidebar .menu-item {
       width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      display:flex;flex-direction:column;align-items:center; gap:.3rem;
+      transition:background var(--transition);
     }
     .sidebar .menu-item:hover,
     .sidebar .menu-item.active {
       background:rgba(255,152,0,0.2);
     }
+    .sidebar .menu-item i { font-size:1.2rem; }
+    .sidebar .menu-item span { font-size:.75rem; }
+    .sidebar .sign-out { margin-top:auto; margin-bottom:1rem; }
 
-    /* ─── MAIN & CONTENT ─── */
+    /* Main & header */
     .main { flex:1; display:flex; flex-direction:column; }
-    .content { padding:1rem 1.5rem; overflow-y:auto; }
-    /* — your existing .stats, .progress, .goals, .charts, etc. stay here — */
+    header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
+      border-bottom:2px solid var(--gold);
+      position:sticky; top:0; z-index:100;
+    }
+    header h1 { font-size:1.4rem; text-align:center; flex:1; }
+    .new-workout {
+      display:flex; align-items:center; gap:.4rem;
+      background:var(--gold); color:var(--bg);
+      border-radius:30px; padding:.5rem 1rem;
+    }
+    .hamburger, .profile-btn { display:none; font-size:1.5rem; }
 
-    /* ─── MODAL ─── */
+    /* Content */
+    .content { padding:1rem 1.5rem; overflow-y:auto; }
+    .stats { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
+    .stat-card {
+      background:rgba(255,255,255,0.05); border-radius:8px;
+      padding:1rem; text-align:center; transition:var(--transition);
+    }
+    .stat-card:hover { background:rgba(255,255,255,0.1); }
+    .stat-card i { font-size:1.4rem; color:var(--gold); margin-bottom:.4rem; }
+    .stat-card h3 { font-size:1.2rem; }
+
+    .progress { margin-top:1rem; }
+    .bar-container {
+      background:rgba(255,255,255,0.2); border-radius:6px;
+      overflow:hidden; height:10px;
+    }
+    .bar-fill {
+      width:0; height:100%; background:var(--gold);
+      transition:width 1s ease;
+    }
+
+    .goals {
+      margin-top:1rem; display:grid; gap:1rem;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    }
+    .goal-card {
+      background:rgba(255,255,255,0.05); border-radius:8px; padding:.8rem;
+    }
+    .goal-container {
+      background:rgba(255,255,255,0.2); border-radius:6px;
+      overflow:hidden; height:10px;
+    }
+    .goal-fill {
+      width:0; height:100%; background:var(--gold);
+      transition:width 1s ease;
+    }
+
+    .charts {
+      margin-top:1rem; display:grid; gap:1rem;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    }
+    .chart-card {
+      background:rgba(255,255,255,0.05);
+      border-radius:8px; padding:1rem;
+    }
+    .chart-card canvas {
+      width:100% !important; height:300px !important;
+    }
+
+    .challenges, .leaderboard, .community { margin-top:1.5rem; }
+    .challenges ul { list-style:none; padding:0; }
+    .challenges li {
+      display:flex;justify-content:space-between;align-items:center;
+      background:rgba(255,255,255,0.05);
+      padding:.6rem; border-radius:6px; cursor:pointer;
+    }
+    .challenges li.completed { background:rgba(76,175,80,0.2); }
+
+    .leaderboard ol { padding-left:1.2rem; }
+    .leaderboard li { margin-bottom:.4rem; color:rgba(255,255,255,0.8); }
+
+    .community .feed-list { display:flex; flex-direction:column; gap:.6rem; }
+    .community .feed-item {
+      background:rgba(255,255,255,0.05);
+      padding:.6rem; border-radius:6px;
+    }
+
+    /* Modal */
     .modal-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,0.7);
-      display:none; align-items:center; justify-content:center;
-      z-index:2000;
+      display:none; align-items:center; justify-content:center; z-index:2000;
     }
     .modal-overlay.active { display:flex; }
     .modal {
-      position:relative; background:var(--bg);
-      border:2px solid var(--gold); border-radius:8px;
-      padding:1.5rem; width:90%; max-width:320px;
+      position:relative; background:var(--bg); border:2px solid var(--gold);
+      border-radius:8px; padding:1.5rem; width:90%;max-width:320px;
     }
     .modal .close {
-      position:absolute; top:.6rem; right:.6rem;
-      font-size:1.2rem; cursor:pointer;
+      position:absolute; top:.6rem; right:.6rem; font-size:1.2rem; cursor:pointer;
     }
-    .modal input { /* … */ }
-    .modal button.primary { /* … */ }
+    .modal input {
+      width:100%; padding:.6rem; margin-bottom:.8rem; border-radius:6px;
+      border:1px solid rgba(255,255,255,0.3);
+      background:rgba(255,255,255,0.05); color:var(--white);
+    }
+    .modal button.primary {
+      width:100%; background:var(--gold); color:var(--bg);
+      padding:.5rem 0; border-radius:30px;
+    }
 
-    /* ─── FOOTER ─── */
+    /* Footer */
     footer {
       text-align:center; padding:1rem 0;
       border-top:1px solid rgba(255,255,255,0.2);
       font-size:.9rem; opacity:.7;
     }
 
-    /* ─── MOBILE (≤600px) ─── */
+    /* Mobile */
     @media(max-width:var(--mobile-break)) {
-      /* header toggles */
-      .hamburger, .profile-btn {
-        display:block; position:absolute; top:1rem;
-      }
-      .hamburger { left:1rem; }
-      .profile-btn { right:1rem; }
-
-      /* hide text on workout button */
-      .new-workout .label { display:none; }
-
-      /* off-canvas sidebar */
       .sidebar {
-        position:fixed; left:0; top:0; bottom:0;
-        transform:translateX(-100%);
-        transition:transform var(--transition);
-        width:200px; /* wider on phone */
-        z-index:200;
+        position:fixed; top:0; bottom:0; left:0;
+        transform:translateX(-100%); transition:transform var(--transition);
       }
       .sidebar.open { transform:translateX(0); }
+      .hamburger, .profile-btn {
+        display:block; position:absolute; background:transparent; border:none; font-size:1.4rem; color:var(--white);
+      }
+      .hamburger { left:1rem; top:1rem; }
+      .profile-btn { right:1rem; top:1rem; }
+      .new-workout span.label { display:none; }
+      .chart-card canvas { height:200px !important; }
+      .sidebar-close { display:block; position:absolute; top:1rem; right:1rem; font-size:1.2rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
-    <h1 id="greeting">Loading…</h1>
-    <button class="new-workout"><i class="fas fa-plus"></i><span class="label">New</span></button>
-    <button class="profile-btn" id="profile-btn"><i class="fas fa-user-circle"></i></button>
-  </header>
-
-  <!-- NOTIFICATION (hidden until first sign-in/up) -->
-  <div class="notif-bar" id="notif-bar">
-    👋 Hey there! Don’t forget to <a href="profile.html" style="color:var(--gold)">complete your profile</a>.
+  <!-- NOTIFICATION (below header) -->
+  <!-- will be toggled via JS -->
+  <div id="notif-bar" class="notif-bar hidden">
+    👋 Welcome! Don’t forget to <a href="profile.html" style="color:var(--gold)">complete your profile</a>.
     <button id="notif-close">&times;</button>
   </div>
 
+  <!-- MOBILE HAMBURGER -->
+  <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" id="sidebar-close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <div class="menu-item active"><i class="fas fa-tachometer-alt"></i><span>Dash</span></div>
+    <div class="menu-item active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></div>
     <div class="menu-item"><i class="fas fa-pen"></i><span>Log</span></div>
     <div class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></div>
     <div class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></div>
     <div class="menu-item"><i class="fas fa-user-circle"></i><span>Profile</span></div>
-    <div class="menu-item"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></div>
+    <div class="sign-out menu-item"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></div>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <div class="main">
-    <div class="content">
+    <header>
+      <button class="hamburger" id="hamburger-clone"><i class="fas fa-bars"></i></button>
+      <h1 id="greeting">Loading…</h1>
+      <button class="new-workout"><i class="fas fa-plus"></i><span class="label"> New Workout</span></button>
+      <button id="profile-btn" class="profile-btn"><i class="fas fa-user-circle"></i></button>
+    </header>
 
-    <!-- STATS -->
+    <div class="content">
+      <!-- STATS -->
       <section class="stats">
         <div class="stat-card"><i class="fas fa-dumbbell"></i><h3 id="workoutsCount">0</h3><p>This Month</p></div>
         <div class="stat-card"><i class="fas fa-road"></i><h3 id="distanceCount">0 km</h3><p>Distance</p></div>
@@ -211,11 +282,13 @@
         <div id="feedList" class="feed-list"></div>
       </section>
     </div>
-    </div>
-    <footer>&copy; 2025 FitTrack. All rights reserved.</footer>
+
+    <footer>
+      <p>&copy; 2025 FitTrack. All rights reserved.</p>
+    </footer>
   </div>
 
- <!-- NEW WORKOUT MODAL -->
+  <!-- NEW WORKOUT MODAL -->
   <div class="modal-overlay" id="workout-modal">
     <div class="modal">
       <button class="close" id="workout-close">&times;</button>
@@ -227,38 +300,40 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', ()=> {
-      // Load user
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1) Greeting & Notification
       const cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
       if (!cur.name) return location.href='home.html';
-      document.getElementById('greeting').textContent =
-        cur.isNew ? `Hello ${cur.name}!` : `Welcome back, ${cur.name}!`;
-
-      // Show notif once if first sign-in and profile incomplete
-      const profile = JSON.parse(localStorage.getItem('ft_profile')||'{}');
-      if (cur.isNew && !profile.complete) {
-        const n = document.getElementById('notif-bar');
-        n.style.display = 'block';
-        document.getElementById('notif-close').onclick = ()=> n.style.display='none';
+      document.getElementById('greeting').textContent = cur.isNew
+        ? `Hello ${cur.name}!`
+        : `Welcome back, ${cur.name}!`;
+      // show once if profile incomplete
+      const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}'),
+            shown = sessionStorage.getItem('notifShown');
+      if (!shown && !prof.complete) {
+        const nb = document.getElementById('notif-bar');
+        nb.classList.remove('hidden');
+        document.getElementById('notif-close').onclick = ()=> nb.remove();
+        sessionStorage.setItem('notifShown','1');
       }
       cur.isNew = false;
       localStorage.setItem('ft_current', JSON.stringify(cur));
 
-      // Sidebar toggle on mobile
+      // 2) Mobile sidebar toggle
       const sb = document.getElementById('sidebar'),
-            hamb = document.getElementById('hamburger');
-      hamb.onclick = ()=> sb.classList.add('open');
+            openBtns = [document.getElementById('hamburger'), document.getElementById('hamburger-clone')],
+            closeBtn = document.getElementById('sidebar-close');
+      openBtns.forEach(b=>b.onclick = ()=> sb.classList.add('open'));
+      closeBtn.onclick = ()=> sb.classList.remove('open');
       document.addEventListener('click', e=>{
-        if (sb.classList.contains('open')
-            && !sb.contains(e.target)
-            && !hamb.contains(e.target)) {
-          sb.classList.remove('open');
-        }
+        if(sb.classList.contains('open')
+          && !sb.contains(e.target)
+          && !openBtns.some(b=>b.contains(e.target))
+        ) sb.classList.remove('open');
       });
 
-      // Profile quick link on mobile
-      document.getElementById('profile-btn')
-        .onclick = ()=> location.href='profile.html';
+      // 3) Mobile profile shortcut
+      document.getElementById('profile-btn').onclick = ()=> location.href='profile.html';
 
       // 4) New Workout modal
       const wm = document.getElementById('workout-modal');
