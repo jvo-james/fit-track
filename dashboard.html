@@ -203,35 +203,52 @@
       font-size:.9rem; opacity:.7;
     }
 
-    /* Mobile tweaks */
-    @media (max-width:600px) {
-      .overlay        { /* toggled via JS */ }
-      .sidebar {
-        position:fixed; top:0; bottom:0; left:0;
-        width:75vw; max-width:260px;
-        transform:translateX(-100%);
-      }
-      .sidebar.open   { transform:translateX(0); }
-      .sidebar-close  { display:block; position:absolute; top:1rem; right:1rem; font-size:1.5rem; }
+   @media (max-width:600px) {
+  /* sidebar drawer */
+  .sidebar {
+    position:fixed; top:0; bottom:0; left:0;
+    width:75vw; max-width:260px;
+    transform:translateX(-100%);
+  }
+  .sidebar.open { transform:translateX(0); }
+  .sidebar-close {
+    display:block; position:absolute; top:1rem; right:1rem;
+    font-size:1.5rem;
+  }
 
-      .hamburger, .profile-btn {
-        display:block; position:absolute; top:1rem; font-size:1.5rem;
-        background:transparent; border:none; z-index:var(--header-z);
-      }
-      .hamburger      { left:1rem; }
-      .profile-btn    { right:1rem; }
+  /* header & icons */
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem 3rem;                /* extra side-padding */
+    background:rgba(0,0,0,0.9);
+    border-bottom:2px solid var(--gold);
+    position:sticky; top:0; z-index:var(--header-z);
+  }
+  header h1 {
+    position:static;                  /* put it back in flow */
+    font-size:1rem;                   /* smaller font */
+    flex:1; margin:0; text-align:center;
+    color:var(--white);
+  }
 
-      header h1       { position:absolute; left:-9999px; }
-      header          { padding:1rem; }
+  /* show the mobile controls */
+  .hamburger, .profile-btn {
+    display:block; position:absolute; top:1rem;
+    font-size:1.5rem; z-index:var(--header-z+1);
+  }
+  .hamburger { left:1rem; }
+  .profile-btn { right:1rem; }
 
-      .content        { padding:.8rem 1rem; }
-      .notif-bar      { font-size:.9rem; padding:.6rem 1rem; }
-      .stats          { grid-template-columns:1fr 1fr; }
-      .stat-card      { padding:.6rem; }
-      .goals          { grid-template-columns:1fr; }
-      .charts         { grid-template-columns:1fr; }
-      .chart-card canvas { height:200px !important; }
-    }
+  /* content tweaks */
+  .content { padding:.8rem 1rem; }
+  .notif-bar { font-size:.9rem; padding:.6rem 1rem; }
+  .stats { grid-template-columns:1fr 1fr; }
+  .stat-card { padding:.6rem; }
+  .goals { grid-template-columns:1fr; }
+  .charts { grid-template-columns:1fr; }
+  .chart-card canvas { height:200px !important; }
+}
+
   </style>
 </head>
 
