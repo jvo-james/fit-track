@@ -214,35 +214,59 @@
       header { flex-direction:column; align-items:flex-start; }
     }
     /* ─── PHONE ONLY (≤414px) ───────────────────────────────────────── */
+
+/* ─── PHONE ONLY (≤414px) ───────────────────────────────────────── */
 @media only screen and (max-width: 414px) {
-  /* Sidebar on the right, labels hidden */
+  /* —— Sidebar off-canvas on the right —— */
   .sidebar {
     position: fixed;
-    top: 0; right: 0;
-    width: 60px;
+    top: 0;
+    right: -80px;            /* hide offscreen */
+    width: 0;
     height: 100vh;
     background: var(--bg);
-    border-right: none;
     border-left: 2px solid var(--gold);
-    padding: 0.5rem 0;
+    border-right: none;
     overflow: hidden;
+    transition: right .3s ease, width .3s ease;
     z-index: 1100;
   }
-  .sidebar .logo {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
-  }
-  .sidebar .menu-item span {
-    display: none;
+  .sidebar.open {
+    right: 0;               /* slide in */
+    width: 200px;
   }
 
-  /* Main content fills width minus 60px */
+  /* —— Toggle & close buttons —— */
+  #sidebarToggle {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1200;
+    background: var(--gold);
+    color: var(--bg);
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    display: block;
+  }
+  #sidebarClose {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    font-size: 1.2rem;
+    display: block;
+  }
+
+  /* —— Main content full width —— */
   .main {
-    margin: 0;
-    margin-right: 60px;
+    margin: 0 !important;
   }
 
-  /* Header stacks & shrinks */
+  /* —— Header stacks & shrinks —— */
   header {
     flex-direction: column;
     align-items: flex-start;
@@ -255,6 +279,8 @@
   header p {
     font-size: 0.8rem;
   }
+
+  /* —— Filters full-width —— */
   #filters {
     flex-direction: column;
     gap: 0.5rem;
@@ -264,23 +290,23 @@
     width: 100%;
   }
 
-  /* Leaderboard container & table tweaks */
+  /* —— Leaderboard table scrollable —— */
   .leaderboard {
     margin: 1rem;
+    padding: 0.75rem;
   }
-  table {
+  .leaderboard table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
     font-size: 0.85rem;
   }
   th, td {
     padding: 0.5rem;
-  }
-  /* allow horizontal scroll if needed */
-  .leaderboard table {
-    display: block;
-    overflow-x: auto;
+    min-width: 80px;
   }
 
-  /* Your rank card */
+  /* —— “Your Rank” card stacks —— */
   #yourRank {
     flex-direction: column;
     align-items: flex-start;
@@ -293,20 +319,22 @@
     height: 48px;
   }
 
-  /* Top-3 highlights */
+  /* —— Highlights to one column —— */
   #highlights {
     grid-template-columns: 1fr !important;
     margin: 1rem;
   }
-  .highlight-card img {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 0.5rem;
+  .highlight-card {
+    padding: 0.75rem;
+    font-size: 0.9rem;
   }
 
-  /* Achievements & badges */
+  /* —— Achievements & badges —— */
   .achievements, .community {
     margin: 1rem;
+  }
+  .badge-list {
+    gap: 0.75rem;
   }
   .badge {
     width: 60px;
@@ -319,16 +347,18 @@
     font-size: 0.65rem;
   }
 
-  /* Community challenges stack */
+  /* —— Community challenges stack —— */
   .challenge-list {
     grid-template-columns: 1fr !important;
     gap: 1rem;
+    margin: 1rem;
   }
   .challenge-card {
     padding: 0.75rem;
+    font-size: 0.9rem;
   }
 
-  /* Footer tweak */
+  /* —— Footer tweak —— */
   footer {
     font-size: 0.9rem;
     padding: 0.75rem;
@@ -338,8 +368,16 @@
   </style>
 </head>
 <body>
+  <button id="sidebarToggle" aria-label="Open menu">
+  <i class="fas fa-bars"></i>
+</button>
+
   <!-- SIDEBAR -->
   <aside class="sidebar" role="navigation">
+    <button id="sidebarClose" aria-label="Close menu">
+  &times;
+</button>
+
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
@@ -551,6 +589,17 @@
       // initial paint
       render();
     });
+    const sidebar      = document.querySelector('.sidebar');
+const toggleBtn    = document.getElementById('sidebarToggle');
+const closeBtn     = document.getElementById('sidebarClose');
+
+toggleBtn.addEventListener('click', () => {
+  sidebar.classList.add('open');
+});
+closeBtn.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+});
+
   </script>
 </body>
 </html>
