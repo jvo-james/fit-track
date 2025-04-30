@@ -403,129 +403,126 @@
     </div>
   </div>
 
-  <script>
-    FT.applyTheme();
-FT.updateStats();
-FT.renderGreeting(document.getElementById('greeting'));
-FT.updateSidebarAvatar();
-    const s = FT.cur.stats;
-document.getElementById('workoutsCount').textContent  = s.workouts;
-document.getElementById('distanceCount').textContent  = s.distanceKm.toFixed(2) + ' km';
-document.getElementById('caloriesCount').textContent  = s.calories;
-document.getElementById('activeDaysCount').textContent = s.daysSet.length;
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) Theme & Stats setup
+  FT.applyTheme();
+  FT.updateStats();
+  FT.updateSidebarAvatar();
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // Load ft_current + activities
-      const cur = JSON.parse(localStorage.getItem('ft_current')) || {};
-      const acts = JSON.parse(localStorage.getItem('ft_activities') || '[]');
-      if (!cur.stats) return window.location.href = 'home.html';
+  // 2) Current user & greeting
+  const cur = JSON.parse(localStorage.getItem('ft_current') || '{}');
+  if (!cur.name) return window.location.href = 'home.html';
+  const greetEl = document.getElementById('greeting');
+  greetEl.textContent = cur.isNew
+    ? `Hello ${cur.name}!`
+    : `Welcome back, ${cur.name}!`;
+  cur.isNew = false;
+  localStorage.setItem('ft_current', JSON.stringify(cur));
 
-      // Greeting
-      const greet = document.getElementById('greeting');
-      greet.textContent = cur.isNew ? `Hello ${cur.name}` : `Welcome back, ${cur.name}`;
-      cur.isNew = false;
-      localStorage.setItem('ft_current', JSON.stringify(cur));
+  // 3) Stats cards
+  const { workouts = 0, distanceKm = 0, calories = 0, daysSet = [] } = cur.stats || {};
+  document.getElementById('workoutsCount').textContent  = workouts;
+  document.getElementById('distanceCount').textContent  = distanceKm.toFixed(2) + ' km';
+  document.getElementById('caloriesCount').textContent  = calories;
+  document.getElementById('activeDaysCount').textContent = daysSet.length;
 
-      // Stats
-      const { workouts, distanceKm, calories, daysSet } = cur.stats;
-      document.getElementById('workoutsCount').textContent = workouts;
-      document.getElementById('distanceCount').textContent = distanceKm.toFixed(2) + ' km';
-      document.getElementById('caloriesCount').textContent = calories;
-      document.getElementById('activeDaysCount').textContent = daysSet.length;
+  // 4) Today's time & avg calories
+  const acts   = JSON.parse(localStorage.getItem('ft_activities') || '[]');
+  const today  = new Date().toISOString().slice(0,10);
+  const todayTotal = acts
+    .filter(a => a.date === today)
+    .reduce((sum,a) => sum + (parseFloat(a.duration)||0), 0);
+  document.getElementById('todayTime').textContent = todayTotal + ' min';
 
-      // Today’s time
-      const today = new Date().toISOString().slice(0,10);
-      const todayTotal = acts
-        .filter(a=>a.date===today)
-        .reduce((sum,a)=> sum + (parseFloat(a.duration)||0), 0);
-      document.getElementById('todayTime').textContent = todayTotal + ' min';
+  const avgCal = workouts ? Math.round(calories / workouts) : 0;
+  document.getElementById('avgCalories').textContent = avgCal;
 
-      // Avg calories
-      const avgCal = workouts ? Math.round(calories / workouts) : 0;
-      document.getElementById('avgCalories').textContent = avgCal;
+  // 5) Weekly progress bar (5 workouts goal)
+  const weekCount = acts.filter(a => {
+    const d = new Date(a.date), now = new Date();
+    return (now - d)/(1000*60*60*24) <= 7;
+  }).length;
+  const progPct = Math.min(100, Math.round(weekCount/5*100));
+  document.getElementById('progressBar').style.width = progPct + '%';
 
-      // Weekly progress (of 5 workouts)
-      const weekCount = acts.filter(a => {
-        const d = new Date(a.date), now = new Date();
-        return (now - d)/(1000*60*60*24) <= 7;
-      }).length;
-      const progPct = Math.min(100, Math.round(weekCount/5*100));
-      document.getElementById('progressBar').style.width = progPct + '%';
+  // 6) Goal fills
+  document.getElementById('goalDaily').style.width   = Math.min(100, Math.round(todayTotal/30*100)) + '%';
+  document.getElementById('goalWeekly').style.width  = progPct + '%';
+  document.getElementById('goalMonthly').style.width = Math.min(100, Math.round(workouts/20*100)) + '%';
 
-      // Goals fills
-      document.getElementById('goalDaily').style.width   = Math.min(100,Math.round(todayTotal/30*100)) + '%';
-      document.getElementById('goalWeekly').style.width  = progPct + '%';
-      document.getElementById('goalMonthly').style.width = Math.min(100,Math.round(workouts/20*100)) + '%';
+  // 7) Charts
+  const { labels = [], activity = [], distribution = [] } = cur.chartData || {};
+  new Chart(document.getElementById('activityChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Minutes',
+        data: activity,
+        borderColor: '#ff9800',
+        backgroundColor: 'rgba(255,152,0,0.2)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'bottom' } },
+      scales: {
+        x: { title: { display: true, text: 'Day' } },
+        y: { title: { display: true, text: 'Duration (min)' }, beginAtZero: true }
+      }
+    }
+  });
+  new Chart(document.getElementById('distributionChart'), {
+    type: 'pie',
+    data: {
+      labels: ['Cardio','Strength','Flexibility','Other'],
+      datasets: [{
+        data: distribution,
+        backgroundColor: [
+          'rgba(255,152,0,0.8)',
+          'rgba(255,87,34,0.8)',
+          'rgba(76,175,80,0.8)',
+          'rgba(3,169,244,0.8)'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'bottom' } }
+    }
+  });
 
-      // Charts
-      const { labels, activity, distribution } = cur.chartData || { labels:[], activity:[], distribution:[] };
-      new Chart(document.getElementById('activityChart'), {
-        type:'line',
-        data:{ labels, datasets:[{
-          label:'Minutes',
-          data:activity,
-          borderColor:'#ff9800',
-          backgroundColor:'rgba(255,152,0,0.2)',
-          fill:true,
-          tension:0.3
-        }]},
-        options:{
-          responsive:true,
-          maintainAspectRatio:false,
-          plugins:{ legend:{ display:true, position:'bottom' } },
-          scales:{
-            x:{ title:{ display:true, text:'Day'} },
-            y:{ title:{ display:true, text:'Duration (min)'}, beginAtZero:true }
-          }
-        }
-      });
-      new Chart(document.getElementById('distributionChart'), {
-        type:'pie',
-        data:{ labels:['Cardio','Strength','Flexibility','Other'], datasets:[{
-          data:distribution,
-          backgroundColor:[
-            'rgba(255,152,0,0.8)',
-            'rgba(255,87,34,0.8)',
-            'rgba(76,175,80,0.8)',
-            'rgba(3,169,244,0.8)'
-          ]
-        }]},
-        options:{
-          responsive:true,
-          maintainAspectRatio:false,
-          plugins:{ legend:{ display:true, position:'bottom' } }
-        }
-      });
+  // 8) “New Workout” button
+  document.querySelector('.new-workout')
+    .addEventListener('click', () => location.href = 'log.html');
 
-      // New Workout → log.html
-      document.querySelector('.new-workout').onclick = ()=> location.href='log.html';
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-  const sidebar      = document.querySelector('.sidebar');
-  const toggleBtn    = document.querySelector('.sidebar-toggle');
-  const closeBtn     = document.querySelector('.sidebar-close');
-  const pageWrapper  = document.body; // to disable scroll if you want
-
-  function openSidebar() {
+  // 9) Sidebar open/close
+  const sidebar   = document.querySelector('.sidebar');
+  const openBtn   = document.querySelector('.sidebar-toggle');
+  const closeBtn  = document.querySelector('.sidebar-close');
+  openBtn.addEventListener('click', () => {
     sidebar.classList.add('open');
-    pageWrapper.classList.add('no-scroll');
-  }
-  function closeSidebar() {
+    document.body.classList.add('no-scroll');
+  });
+  closeBtn.addEventListener('click', () => {
     sidebar.classList.remove('open');
-    pageWrapper.classList.remove('no-scroll');
-  }
-
-  toggleBtn.addEventListener('click', openSidebar);
-  closeBtn .addEventListener('click', closeSidebar);
-
-  // Also auto-close when a menu link is tapped
+    document.body.classList.remove('no-scroll');
+  });
   sidebar.querySelectorAll('.menu-item a').forEach(link => {
     link.addEventListener('click', () => {
-      if (window.innerWidth <= 900) closeSidebar();
+      if (window.innerWidth <= 900) {
+        sidebar.classList.remove('open');
+        document.body.classList.remove('no-scroll');
+      }
     });
   });
 });
+</script>
 
-  </script>
 </body>
 </html>
