@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FitTrack | Log Activity</title>
 
@@ -21,82 +21,102 @@
   <script src="storage.js"></script>
 
   <style>
+    /* ────────── VARIABLES ────────── */
     :root {
       --bg: #000; --gold: #ff9800; --white: #fff;
-      --font-base: 'Raleway',sans-serif;
-      --font-head: 'Poppins',sans-serif;
+      --font-base: 'Raleway', sans-serif;
+      --font-head: 'Poppins', sans-serif;
       --transition: .3s ease;
       --sidebar-w: 80px; --mobile-break: 600px;
-      --overlay-z: 90; --sidebar-z:100; --header-z:200;
+      --overlay-z: 90; --sidebar-z: 100; --header-z: 200;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       display:flex; min-height:100vh;
-      font-family:var(--font-base); background:var(--bg); color:var(--white);
+      background:var(--bg); color:var(--white);
+      font-family:var(--font-base);
       overflow-x:hidden;
     }
     a { color:inherit; text-decoration:none; }
-    button { font-family:var(--font-head); transition:var(--transition); cursor:pointer; background:transparent; border:none; color:var(--white); }
+    button {
+      font-family:var(--font-head);
+      transition:var(--transition);
+      cursor:pointer;
+      background:transparent; border:none; color:var(--white);
+    }
 
-    /* OVERLAY */
-    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:var(--overlay-z); }
+    /* ────────── OVERLAY ────────── */
+    .overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.5); z-index:var(--overlay-z);
+    }
     .overlay.active { display:block; }
 
-    /* SIDEBAR */
+    /* ────────── SIDEBAR ────────── */
     .sidebar {
       width:var(--sidebar-w); background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
-      transform:translateX(-100%); transition:transform var(--transition);
+      padding:1rem 0; position:sticky; top:0; height:100vh;
+      transition:transform var(--transition);
       z-index:var(--sidebar-z);
     }
     .sidebar.open { transform:translateX(0); }
-    .sidebar-close { display:none; }
+    .sidebar .sidebar-close { display:none; }
     .logo { font-size:1.6rem; color:var(--gold); margin-bottom:2rem; }
 
     .sidebar a.menu-item,
     .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      transition:background var(--transition);
+      display:flex; flex-direction:column; align-items:center;
+      gap:.3rem; transition:background var(--transition);
+      background:transparent; border:none; color:var(--white);
     }
-    .sidebar a.menu-item.active,
     .sidebar a.menu-item:hover,
+    .sidebar a.menu-item.active,
     .sidebar button.profile-menu:hover {
       background:rgba(255,152,0,0.2);
     }
     .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.2rem; }
+    .sidebar button.profile-menu i.avatar {
+      font-size:1.2rem;
+    }
     .sidebar a.menu-item span,
     .sidebar button.profile-menu span { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
 
-    /* AVATAR */
+    /* ─── AVATAR ICONS ─── */
     i.avatar {
-      width:32px;height:32px;line-height:32px;text-align:center;
-      border:2px solid var(--white);border-radius:50%;font-size:1.5rem;
+      width:32px; height:32px; line-height:32px;
+      text-align:center; border:2px solid var(--white);
+      border-radius:50%; font-size:1.5rem;
     }
     img.avatar {
-      width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--white);
+      width:32px; height:32px; border-radius:50%;
+      object-fit:cover; border:2px solid var(--white);
     }
 
-    /* HEADER */
+    /* ────────── HEADER & CONTROLS ────────── */
+    .hamburger, .profile-btn {
+      display:none; font-size:1.5rem;
+    }
     header {
       display:flex; align-items:center; justify-content:space-between;
       padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
       position:sticky; top:0; z-index:var(--header-z);
     }
-    header h1 { font-size:1.4rem; color:var(--white); flex:1; text-align:center; }
-    .hamburger, .profile-btn {
-      display:none; font-size:1.5rem;
+    header h1 { font-size:1.4rem; text-align:center; flex:1; color:var(--white); }
+    .new-workout {
+      display:flex; align-items:center; gap:.4rem;
+      background:var(--gold); color:var(--bg);
+      border-radius:30px; padding:.5rem 1rem;
     }
 
-    /* MAIN */
+    /* ────────── MAIN LAYOUT ────────── */
     .main { flex:1; display:flex; flex-direction:column; overflow-y:auto; }
 
-    /* LOG SECTION */
+    /* ────────── LOG SECTION ────────── */
     .log-section {
       margin:1.5rem; padding:1.5rem;
       background:rgba(255,255,255,0.05); border-radius:12px;
@@ -107,67 +127,119 @@
       color:var(--gold); margin-bottom:1rem; font-size:1.2rem;
     }
 
-    /* TIMER */
+    /* Stopwatch */
     .timer { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
-    #timerDisplay { font-size:1.2rem; min-width:60px; text-align:center; }
-    .timer button { padding:.3rem .8rem; border-radius:6px; background:var(--gold); color:var(--bg); }
+    #timerDisplay {
+      font-size:1.2rem; min-width:60px; text-align:center;
+    }
+    .timer button {
+      padding:.3rem .8rem; border-radius:6px;
+      background:var(--gold); color:var(--bg);
+      transition:transform .2s;
+    }
+    .timer button:hover { transform:scale(1.1); }
 
-    /* PRESETS */
+    /* Presets */
     .presets { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; }
-    .presets button { padding:.4rem .8rem; border-radius:6px; background:rgba(255,255,255,0.1); }
+    .presets button {
+      padding:.4rem .8rem; border-radius:6px;
+      background:rgba(255,255,255,0.1); color:var(--white);
+      transition:background .2s;
+    }
+    .presets button:hover { background:rgba(255,152,0,0.4); }
 
-    /* FORM */
+    /* Form */
     #logForm { display:grid; gap:1rem; grid-template-columns:1fr 1fr; }
     #logForm label { font-weight:600; grid-column:span 2; }
-    #logForm input,#logForm select,#logForm textarea {
+    #logForm input, #logForm select, #logForm textarea {
       padding:.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.3);
-      background:rgba(255,255,255,0.05); color:var(--white); grid-column:span 2;
+      background:rgba(255,255,255,0.05); color:var(--white);
+      font-size:1rem; grid-column:span 2;
     }
     #duration,#distance,#calories { grid-column:auto; }
     .voice-control { grid-column:span 2; text-align:right; }
-    #logForm button { padding:.8rem; border-radius:30px; background:var(--gold); color:var(--bg); grid-column:span 2; }
+    .voice-control button {
+      background:transparent; border:none; color:var(--gold);
+      font-size:1.4rem; transition:transform .2s;
+    }
+    .voice-control button:hover { transform:scale(1.2); }
+    #logForm button {
+      padding:.8rem; border-radius:30px;
+      background:var(--gold); color:var(--bg);
+      font-weight:600; transition:transform .2s;
+      grid-column:span 2;
+    }
+    #logForm button:hover { transform:scale(1.03); }
 
-    /* RECENT & LIST */
+    /* ────────── RECENT & LIST ────────── */
     .recent, .activities { margin:0 1.5rem 1.5rem; }
     .recent h2, .activities h2 {
       display:flex; align-items:center; gap:.5rem;
       color:var(--gold); margin-bottom:.75rem; font-size:1.2rem;
     }
     #recentSummary p { margin-bottom:.5rem; }
-    #recentEdit { padding:.4rem .8rem; border-radius:6px; background:rgba(255,152,0,0.8); color:var(--bg); }
+    #recentEdit {
+      padding:.4rem .8rem; border-radius:6px;
+      background:rgba(255,152,0,0.8); color:var(--bg);
+      transition:transform .2s;
+    }
+    #recentEdit:hover { transform:scale(1.05); }
     .activity-list { list-style:none; }
     .activity-item {
+      background:rgba(255,255,255,0.05); border-radius:8px;
+      padding:1rem; margin-bottom:.6rem;
       display:grid; grid-template-columns:1fr auto; gap:.5rem;
-      padding:1rem; margin-bottom:.6rem; background:rgba(255,255,255,0.05); border-radius:8px;
     }
-    time { font-size:.75rem; opacity:.6; }
-    .delete-btn { font-size:1.2rem; }
+    .activity-item time { font-size:.75rem; opacity:.6; }
+    .delete-btn {
+      background:transparent; border:none; color:var(--gold);
+      font-size:1.2rem; transition:transform .2s;
+    }
+    .delete-btn:hover { transform:scale(1.2); }
 
-    /* RESPONSIVE */
+    /* ────────── RESPONSIVE ────────── */
     @media (max-width:900px) {
-      .sidebar { position:fixed; }
+      .sidebar { position:fixed; transform:translateX(-100%); }
       .sidebar.open { transform:translateX(0); }
       .main { margin-left:var(--sidebar-w); }
       #logForm { grid-template-columns:1fr; }
+      #duration,#distance,#calories { grid-column:span 1; }
     }
+
+    /* ────────── MOBILE (≤600px) ────────── */
     @media (max-width:600px) {
       header { padding:1rem 3rem; }
       header h1 { font-size:1rem; }
       .hamburger, .profile-btn {
-        display:block; position:fixed; top:1rem; z-index:9999;
+        display:block; position:fixed; top:1rem;
+        font-size:1.5rem; z-index:9999;
       }
       .hamburger { left:1rem; }
       .profile-btn { right:1rem; }
       .log-section { margin:1rem; padding:1rem; }
+      .log-section h2 { font-size:1rem; margin-bottom:.75rem; }
+      .timer { gap:.5rem; }
+      #timerDisplay { font-size:1rem; min-width:50px; }
+      .timer button { padding:.25rem .5rem; font-size:.85rem; }
+      .presets { gap:.25rem; }
+      .presets button { padding:.3rem .6rem; font-size:.8rem; }
       #logForm { grid-template-columns:1fr!important; }
+      #logForm input, #logForm select, #logForm textarea,
+      #logForm button { font-size:.9rem; }
+      .voice-control { text-align:center; grid-column:span 1; }
+      .recent, .activities { margin:0 1rem 1rem; }
+      .recent h2, .activities h2 { font-size:1rem; }
+      #recentEdit { width:100%; padding:.4rem .6rem; }
+      .activity-item { padding:.75rem; gap:.5rem; }
     }
   </style>
 </head>
+
 <body>
   <!-- OVERLAY -->
   <div id="overlay" class="overlay"></div>
 
-  <!-- MOBILE BUTTONS -->
+  <!-- MOBILE CONTROLS -->
   <button id="hamburger" class="hamburger" aria-label="Open menu">
     <i class="fas fa-bars"></i>
   </button>
@@ -181,21 +253,27 @@
       <i class="fas fa-times"></i>
     </button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
+
     <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-    <a href="log.html" class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html" class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <a href="log.html"        class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"   class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html"class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+
     <button class="menu-item profile-menu">
       <i id="side-avatar" class="fas fa-user-circle avatar"></i>
       <span>Profile</span>
     </button>
+
     <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
-  <!-- MAIN -->
+  <!-- MAIN CONTENT -->
   <div class="main">
-    <header><h1>Log Activity</h1></header>
+    <header>
+      <h1>Log Activity</h1>
+    </header>
 
+    <!-- LOG SECTION -->
     <section class="log-section">
       <h2><i class="fas fa-pen"></i> Log New Activity</h2>
       <div class="timer">
@@ -212,19 +290,22 @@
       </div>
       <form id="logForm">
         <label for="date">Date</label>
-        <input type="date" id="date" required/>
+        <input type="date" id="date" required />
         <label for="type">Type</label>
         <select id="type" required>
           <option value="">Choose…</option>
-          <option>Running</option><option>Cycling</option>
-          <option>Swimming</option><option>Strength</option><option>Yoga</option>
+          <option>Running</option>
+          <option>Cycling</option>
+          <option>Swimming</option>
+          <option>Strength</option>
+          <option>Yoga</option>
         </select>
         <label for="duration">Duration (min)</label>
-        <input type="number" id="duration" min="1" required/>
+        <input type="number" id="duration" min="1" required />
         <label for="distance">Distance (km)</label>
-        <input type="number" id="distance" min="0" step="0.01"/>
+        <input type="number" id="distance" min="0" step="0.01" />
         <label for="calories">Calories Burned</label>
-        <input type="number" id="calories" min="0"/>
+        <input type="number" id="calories" min="0" />
         <label for="notes">Notes</label>
         <textarea id="notes" rows="2" placeholder="Optional"></textarea>
         <div class="voice-control">
@@ -234,181 +315,237 @@
       </form>
     </section>
 
+    <!-- RECENT ACTIVITY -->
     <section class="recent">
       <h2><i class="fas fa-history"></i> Recent Activity</h2>
       <div id="recentSummary"><p>No activity yet.</p></div>
       <button id="recentEdit">Edit Last</button>
     </section>
 
+    <!-- ACTIVITY LIST -->
     <section class="activities">
       <h2><i class="fas fa-list"></i> My Activities</h2>
       <ul id="activityList" class="activity-list"></ul>
     </section>
   </div>
 
-  <!-- JS -->
-  <script>
-    // 1) Sidebar toggle + avatar
-    document.addEventListener('DOMContentLoaded', ()=>{
-      const overlay = document.getElementById('overlay'),
-            sidebar = document.getElementById('sidebar'),
-            openBtn = document.getElementById('hamburger'),
-            closeBtn= document.getElementById('sidebar-close'),
-            prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+ <script>
+// ────────── GLOBAL INITIALIZATION ──────────
+document.addEventListener('DOMContentLoaded', () => {
+  const overlay   = document.getElementById('overlay'),
+        sidebar   = document.getElementById('sidebar'),
+        openBtn   = document.getElementById('hamburger'),
+        closeBtn  = document.getElementById('sidebar-close'),
+        prof      = JSON.parse(localStorage.getItem('ft_profile')||'{}');
 
-      openBtn.onclick = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); };
-      const close = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
-      closeBtn.onclick = close; overlay.onclick = close;
-      sidebar.querySelectorAll('.menu-item a').forEach(a=> a.onclick=close);
+  // Sidebar open/close
+  openBtn.onclick = () => {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  };
+  const closeSidebar = () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  };
+  closeBtn.onclick  = closeSidebar;
+  overlay.onclick   = closeSidebar;
+  // auto-close on menu click (mobile)
+  sidebar.querySelectorAll('.menu-item a').forEach(a => {
+    a.onclick = () => {
+      if (window.innerWidth <= 600) closeSidebar();
+    };
+  });
 
-      function swap(id){
-        const icon=document.getElementById(id);
-        if(prof.avatar){
-          const img=document.createElement('img');
-          img.src=prof.avatar; img.alt='Profile'; img.className='avatar';
-          icon.replaceWith(img);
-        }
-      }
-      swap('top-avatar'); swap('side-avatar');
+  // Swap default <i> avatar for uploaded photo if exists
+  function swapAvatar(id) {
+    const icon = document.getElementById(id);
+    if (prof.avatar) {
+      const img = document.createElement('img');
+      img.src = prof.avatar;
+      img.alt = 'Profile';
+      img.className = 'avatar';
+      icon.replaceWith(img);
+    }
+  }
+  swapAvatar('top-avatar');
+  swapAvatar('side-avatar');
+
+  // FT namespace methods for theming & stats (from dashboard)
+  if (typeof FT !== 'undefined') {
+    FT.applyTheme && FT.applyTheme();
+    FT.updateStats && FT.updateStats();
+    FT.updateSidebarAvatar && FT.updateSidebarAvatar();
+  }
+});
+
+// ────────── LOGIC: ACTIVITIES & UI ──────────
+document.addEventListener('DOMContentLoaded', () => {
+  // localStorage helpers
+  const load = key => JSON.parse(localStorage.getItem(key) || '[]');
+  const save = (key,val) => localStorage.setItem(key, JSON.stringify(val));
+
+  // Stopwatch
+  let seconds = 0, timerInterval = null;
+  const disp = n => String(n).padStart(2,'0');
+  const updateDisplay = () => {
+    const m = Math.floor(seconds/60), s = seconds % 60;
+    document.getElementById('timerDisplay').textContent = `${disp(m)}:${disp(s)}`;
+  };
+  document.getElementById('startTimer').onclick = () => {
+    if (!timerInterval) {
+      timerInterval = setInterval(() => { seconds++; updateDisplay(); }, 1000);
+    }
+  };
+  document.getElementById('stopTimer').onclick = () => {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    document.getElementById('duration').value = Math.round(seconds/60);
+  };
+  document.getElementById('resetTimer').onclick = () => {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    seconds = 0;
+    updateDisplay();
+  };
+
+  // Voice recognition
+  let recognition = null;
+  if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.onresult = e => {
+      const text = e.results[0][0].transcript;
+      const notes = document.getElementById('notes');
+      notes.value += (notes.value ? ' ' : '') + text;
+    };
+  }
+  document.getElementById('voiceBtn').onclick = () => {
+    if (recognition) recognition.start();
+  };
+
+  // Quick-add presets
+  document.querySelectorAll('.presets button').forEach(btn => {
+    btn.onclick = () => {
+      document.getElementById('type').value     = btn.dataset.type;
+      document.getElementById('duration').value = btn.dataset.duration;
+      document.getElementById('date').valueAsDate = new Date();
+    };
+  });
+
+  // Update ft_current.stats & chartData
+  function updateStats() {
+    const acts       = load('ft_activities');
+    const workouts   = acts.length;
+    const distanceKm = acts.reduce((sum,a) => sum + (parseFloat(a.distance)||0), 0);
+    const calories   = acts.reduce((sum,a) => sum + (parseFloat(a.calories)||0), 0);
+    const daysSet    = [...new Set(acts.map(a => a.date))];
+
+    // last 7 days labels & activity minutes
+    const today = new Date();
+    const last7 = Array.from({length:7}).map((_,i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate()- (6-i));
+      return d.toISOString().slice(0,10);
+    });
+    const labels       = last7.map(d => d.slice(5));
+    const activity     = last7.map(d =>
+      acts.filter(a=>a.date===d).reduce((s,a)=>s+(parseFloat(a.duration)||0),0)
+    );
+    const weekCount    = activity.filter(v=>v>0).length;
+    const progress     = Math.min(100, Math.round(weekCount/5*100));
+    const typesCount   = acts.reduce((o,a)=>{ o[a.type]=(o[a.type]||0)+1; return o; },{});
+    const distribution = Object.values(typesCount);
+
+    const cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
+    cur.stats     = { workouts, distanceKm, calories, daysSet };
+    cur.chartData = { labels, activity, distribution };
+    cur.progress  = progress;
+    localStorage.setItem('ft_current', JSON.stringify(cur));
+  }
+
+  // Render list & recent summary
+  const listEl       = document.getElementById('activityList');
+  const recentEl     = document.getElementById('recentSummary');
+  const recentEditEl = document.getElementById('recentEdit');
+
+  function renderActivities() {
+    const acts = load('ft_activities');
+    listEl.innerHTML = '';
+    acts.forEach((a,i) => {
+      const li = document.createElement('li');
+      li.className = 'activity-item';
+      li.innerHTML = `
+        <div>
+          <strong>${a.type}</strong> on ${a.date} — ${a.duration} min
+          ${a.distance?`, ${a.distance} km`:''}
+          ${a.calories?`, ${a.calories} cal`:''}
+          ${a.notes?`<p>${a.notes}</p>`:''}
+          <time datetime="${a.date}">${a.date}</time>
+        </div>
+        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+      `;
+      li.querySelector('.delete-btn').onclick = () => {
+        acts.splice(i,1);
+        save('ft_activities', acts);
+        updateStats(); renderActivities();
+      };
+      listEl.appendChild(li);
     });
 
-    // 2) Activities logic
-    document.addEventListener('DOMContentLoaded', ()=>{
-      const load=k=>JSON.parse(localStorage.getItem(k)||'[]');
-      const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+    if (acts.length) {
+      const last = acts[0];
+      recentEl.innerHTML = `
+        <p><strong>${last.type}</strong> on ${last.date} — ${last.duration} min
+        ${last.distance?`, ${last.distance} km`:''}
+        ${last.calories?`, ${last.calories} cal`:''}</p>
+        ${last.notes?`<p>“${last.notes}”</p>`:''}
+      `;
+    } else {
+      recentEl.innerHTML = '<p>No activity yet.</p>';
+    }
+  }
 
-      let sec=0, iv=null;
-      const disp=n=>String(n).padStart(2,'0');
-      const updDisplay=()=>{
-        const m=Math.floor(sec/60), s=sec%60;
-        document.getElementById('timerDisplay').textContent=`${disp(m)}:${disp(s)}`;
-      };
-      document.getElementById('startTimer').onclick=()=>{
-        if(!iv) iv=setInterval(()=>{ sec++; updDisplay(); },1000);
-      };
-      document.getElementById('stopTimer').onclick=()=>{
-        clearInterval(iv); iv=null;
-        document.getElementById('duration').value=Math.round(sec/60);
-      };
-      document.getElementById('resetTimer').onclick=()=>{
-        clearInterval(iv); iv=null; sec=0; updDisplay();
-      };
+  // Edit last activity
+  recentEditEl.onclick = () => {
+    const acts = load('ft_activities');
+    if (!acts.length) return;
+    const last = acts.shift();
+    save('ft_activities', acts);
+    updateStats(); renderActivities();
+    // prefill form
+    document.getElementById('date').value     = last.date;
+    document.getElementById('type').value     = last.type;
+    document.getElementById('duration').value = last.duration;
+    document.getElementById('distance').value = last.distance;
+    document.getElementById('calories').value = last.calories;
+    document.getElementById('notes').value    = last.notes;
+  };
 
-      let recog=null;
-      if('webkitSpeechRecognition' in window){
-        recog=new webkitSpeechRecognition();
-        recog.onresult=e=>{
-          const txt=e.results[0][0].transcript;
-          document.getElementById('notes').value+= (document.getElementById('notes').value?' ':'')+txt;
-        };
-      }
-      document.getElementById('voiceBtn').onclick=()=>recog&&recog.start();
+  // Form submit
+  document.getElementById('logForm').onsubmit = e => {
+    e.preventDefault();
+    const f = e.target;
+    const entry = {
+      date:     f.date.value,
+      type:     f.type.value,
+      duration: f.duration.value,
+      distance: f.distance.value,
+      calories: f.calories.value,
+      notes:    f.notes.value.trim()
+    };
+    const arr = load('ft_activities');
+    arr.unshift(entry);
+    save('ft_activities', arr);
+    f.reset();
+    seconds = 0; updateDisplay();
+    updateStats(); renderActivities();
+  };
 
-      document.querySelectorAll('.presets button').forEach(b=>{
-        b.onclick=()=>{
-          document.getElementById('type').value=b.dataset.type;
-          document.getElementById('duration').value=b.dataset.duration;
-          document.getElementById('date').valueAsDate=new Date();
-        };
-      });
+  // Initialize
+  updateStats();
+  renderActivities();
+});
+</script>
 
-      function updateStats(){
-        const acts=load('ft_activities');
-        const workouts=acts.length;
-        const distanceKm=acts.reduce((s,a)=>s+(parseFloat(a.distance)||0),0);
-        const calories=acts.reduce((s,a)=>s+(parseFloat(a.calories)||0),0);
-        const daysSet=[...new Set(acts.map(a=>a.date))];
-
-        const today=new Date();
-        const last7=Array.from({length:7}).map((_,i)=>{
-          const d=new Date(today); d.setDate(d.getDate()-(6-i));
-          return d.toISOString().slice(0,10);
-        });
-        const labels=last7.map(d=>d.slice(5));
-        const activity=last7.map(d=>acts.filter(a=>a.date===d).reduce((s,a)=>s+(parseFloat(a.duration)||0),0));
-        const weekCount=activity.filter(v=>v>0).length;
-        const progress=Math.min(100,Math.round(weekCount/5*100));
-        const types=acts.reduce((o,a)=>{ o[a.type]=(o[a.type]||0)+1; return o; },{});
-        const distribution=Object.values(types);
-
-        const cur=JSON.parse(localStorage.getItem('ft_current')||'{}');
-        cur.stats={workouts,distanceKm,calories,daysSet};
-        cur.chartData={labels,activity,distribution};
-        cur.progress=progress;
-        localStorage.setItem('ft_current',JSON.stringify(cur));
-      }
-
-      const listEl=document.getElementById('activityList');
-      const recentEl=document.getElementById('recentSummary');
-      const recentEdit=document.getElementById('recentEdit');
-
-      function render(){
-        const acts=load('ft_activities');
-        listEl.innerHTML='';
-        acts.forEach((a,i)=>{
-          const li=document.createElement('li');
-          li.className='activity-item';
-          li.innerHTML=`
-            <div>
-              <strong>${a.type}</strong> on ${a.date} — ${a.duration} min
-              ${a.distance?`, ${a.distance} km`:''}
-              ${a.calories?`, ${a.calories} cal`:''}
-              ${a.notes?`<p>${a.notes}</p>`:''}
-              <time datetime="${a.date}">${a.date}</time>
-            </div>
-            <button class="delete-btn"><i class="fas fa-trash"></i></button>
-          `;
-          li.querySelector('.delete-btn').onclick=()=>{
-            acts.splice(i,1); save('ft_activities',acts); updateStats(); render();
-          };
-          listEl.appendChild(li);
-        });
-        if(acts.length){
-          const last=acts[0];
-          recentEl.innerHTML=`
-            <p><strong>${last.type}</strong> on ${last.date} — ${last.duration} min
-            ${last.distance?`, ${last.distance} km`:''}
-            ${last.calories?`, ${last.calories} cal`:''}</p>
-            ${last.notes?`<p>“${last.notes}”</p>`:''}
-          `;
-        } else recentEl.innerHTML='<p>No activity yet.</p>';
-      }
-
-      recentEdit.onclick=()=>{
-        const acts=load('ft_activities');
-        if(!acts.length)return;
-        const last=acts.shift();
-        save('ft_activities',acts);
-        updateStats(); render();
-        document.getElementById('date').value=last.date;
-        document.getElementById('type').value=last.type;
-        document.getElementById('duration').value=last.duration;
-        document.getElementById('distance').value=last.distance;
-        document.getElementById('calories').value=last.calories;
-        document.getElementById('notes').value=last.notes;
-      };
-
-      document.getElementById('logForm').onsubmit=e=>{
-        e.preventDefault();
-        const f=e.target;
-        const entry={
-          date:f.date.value,
-          type:f.type.value,
-          duration:f.duration.value,
-          distance:f.distance.value,
-          calories:f.calories.value,
-          notes:f.notes.value.trim()
-        };
-        const arr=load('ft_activities');
-        arr.unshift(entry);
-        save('ft_activities',arr);
-        f.reset(); sec=0; updDisplay();
-        updateStats(); render();
-      };
-
-      updateStats();
-      render();
-    });
-  </script>
 </body>
 </html>
