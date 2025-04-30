@@ -103,11 +103,11 @@
   animation: blink-caret 0.7s step-end infinite;
 }
 
-/* only cursor blink */
 @keyframes blink-caret {
   from, to { border-color: transparent; }
   50%      { border-color: var(--gold); }
 }
+
 
 
     /* ABOUT */
@@ -269,9 +269,10 @@
   <!-- HERO -->
   <section id="hero">
     <div>
-      <h1>
-        <span id="typewriter" class="typewriter"></span>
-      </h1>
+     <h1>
+  <span id="typewriter" class="typewriter"></span>
+</h1>
+
       <p>Log workouts • Join challenges • Climb leaderboards • Stay motivated</p>
       <p>FitTrack combines instant logging, AI coaching, and community challenges to keep you on track—wherever you are.</p>
       <div class="cta-btns" style="margin-top:2rem;">
@@ -459,7 +460,7 @@
       document.querySelector('.nav-links').classList.toggle('open');
     });
 
-    // Typewriter setup
+// TYPEWRITER
 const texts = [
   "Welcome to FitTrack",
   "Log Every Workout",
@@ -490,7 +491,7 @@ function erase() {
   }
 }
 
-// kick it off
+// kick it off after a brief pause
 setTimeout(type, 500);
 
 
