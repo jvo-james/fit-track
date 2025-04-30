@@ -96,26 +96,31 @@
     header {
       position:sticky; top:0; z-index:200;
       display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
+      padding:1rem 1.5rem;
+      background: linear-gradient(135deg, #111111, #222222);
+      box-shadow:0 4px 12px rgba(0,0,0,0.7);
       border-bottom:2px solid var(--gold);
     }
     .sidebar-toggle {
       display:none; background:var(--gold); color:var(--bg);
-      border:none; border-radius:4px; padding:.5rem; font-size:1.2rem;
+      border:none; border-radius:30px; padding:.6rem; font-size:1.2rem;
+      box-shadow:0 2px 6px rgba(0,0,0,0.5);
     }
     @media(max-width: var(--break-mobile)) {
       .sidebar-toggle { display:block; }
     }
     .header-center { text-align:center; flex:1; }
-    .header-center h1 { font-size:1.6rem; }
-    .header-center p { opacity:.7; margin-top:.2rem; }
+    .header-center h1 { font-size:1.8rem; font-weight:700; }
+    .header-center p { opacity:.7; margin-top:.2rem; font-size:.95rem; }
     .header-right { display:flex; align-items:center; gap:1rem; }
     .header-right button {
       background:var(--gold); color:var(--bg);
-      padding:.5rem 1rem; border-radius:30px;
+      padding:.6rem 1.2rem; border-radius:30px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.5);
     }
+    .header-right button:hover { transform:scale(1.05); }
     .header-right img {
-      width:32px; height:32px; border-radius:50%;
+      width:36px; height:36px; border-radius:50%;
       object-fit:cover; border:2px solid var(--white);
     }
 
@@ -140,7 +145,7 @@
     #workoutOfDay p { margin:1rem 0; line-height:1.4; }
     #workoutOfDay button {
       background:var(--gold); color:var(--bg);
-      padding:.5rem 1rem; border-radius:30px;
+      padding:.6rem 1.2rem; border:none; border-radius:30px;
     }
 
     /* ─── Filters ───────────────────────── */
@@ -149,10 +154,8 @@
       display:flex; flex-wrap:wrap; gap:1rem; align-items:center;
     }
     #filters select {
-      padding:.5rem;
-      border:1px solid rgba(255,255,255,0.3);
-      background:rgba(255,255,255,0.05);
-      border-radius:6px;
+      padding:.6rem; background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.3); border-radius:6px;
     }
 
     /* ─── Library ───────────────────────── */
@@ -216,10 +219,10 @@
     #myPlans h2 { color:var(--gold); margin-bottom:.75rem; }
     #myPlans ul { list-style:none; }
     #myPlans li {
-      display:flex; justify-content:space-between; padding:.5rem 0;
-      border-bottom:1px solid rgba(255,255,255,0.1);
+      display:flex; justify-content:space-between;
+      padding:.5rem 0; border-bottom:1px solid rgba(255,255,255,0.1);
     }
-    #myPlans button { color:var(--gold); background:none; }
+    #myPlans button { background:none; color:var(--gold); }
 
     /* ─── Progress Chart ─────────────────── */
     #progressSummary {
@@ -236,6 +239,7 @@
       background:rgba(255,255,255,0.05);
       border-radius:12px; padding:1rem;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      grid-column:1/-1;
     }
     #challengeModes h2 { color:var(--gold); margin-bottom:1rem; }
     .challenge {
@@ -253,6 +257,7 @@
     }
     .prog-bar .fill {
       height:100%; background:var(--gold);
+      width:0;               /* start at zero */
       transition:width 1s ease;
     }
     .challenge button {
@@ -265,6 +270,7 @@
       background:rgba(255,255,255,0.05);
       border-radius:12px; padding:1rem;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      grid-column:1/-1;
     }
     #liveSessions h2 { color:var(--gold); margin-bottom:1rem; }
     .session {
@@ -286,9 +292,7 @@
       background:var(--gold); color:var(--bg);
       padding:.4rem .8rem; border:none; border-radius:6px;
     }
-
-  
-      /* ─── AI Chatbot (stylish B&W) ───────────────────────────────────────── */
+  /* ─── AI Chatbot (stylish B&W) ───────────────────────────────────────── */
     #chatbot {
       position:fixed; bottom:20px; right:20px;
       width:320px; max-height:420px;
@@ -397,6 +401,16 @@
       #progressSummary canvas { height:150px !important; }
     }
 
+    /* ─── Responsive tweaks ───────────────── */
+    @media(max-width:600px) {
+      header { flex-wrap:wrap; gap:.5rem; }
+      .header-center { order:3; width:100%; text-align:left; }
+      .header-left, .header-right { flex:1; justify-content:space-between; }
+      .content { gap:1.5rem; }
+      #filters { flex-direction:column; }
+      #library { grid-template-columns:1fr; }
+      #progressSummary canvas { height:150px !important; }
+    }
   </style>
 </head>
 <body>
@@ -408,37 +422,34 @@
     <button class="sidebar-close" aria-label="Close menu"><i class="fas fa-times"></i></button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
-    <a href="log.html" class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html" class="menu-item active"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <a href="profile.html" class="menu-item">
-      <img id="sidebarAvatar"
-           src="https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png"
-           alt="Profile" class="profile-icon">
+    <a href="log.html"           class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"      class="menu-item active"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html"   class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <a href="profile.html"       class="menu-item">
+      <div id="sidebarAvatar" class="profile-icon"
+           style="background:url('https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png') center/cover no-repeat;"></div>
       <span>Profile</span>
     </a>
     <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
   </aside>
 
+  <!-- MAIN CONTENT -->
   <div class="main">
     <!-- TOPBAR -->
     <header>
-      <div class="header-left">
-        <button class="sidebar-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
-      </div>
+      <button class="sidebar-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
       <div class="header-center">
         <h1>Workouts</h1>
         <p>Browse routines, join challenges, and chat for suggestions.</p>
       </div>
       <div class="header-right">
         <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log</button>
-        <img id="topbarAvatar"
-             src="https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png"
-             alt="Profile">
+        <div id="topbarAvatar" class="profile-icon"
+             style="background:url('https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png') center/cover no-repeat;"></div>
       </div>
     </header>
 
-    <!-- CONTENT GRID -->
+    <!-- GRID LAYOUT -->
     <div class="content">
       <!-- 1. Workout of the Day -->
       <section id="workoutOfDay">
@@ -479,7 +490,7 @@
           <p><strong>Calories:</strong> <span id="detailCal">0</span></p>
           <div style="margin-top:1rem;">
             <button class="start-btn" id="detailStart">Log This Workout</button>
-            <button class="save-plan" id="savePlan">Save to My Plans</button>
+            <button class="save-plan"  id="savePlan">Save to My Plans</button>
           </div>
         </div>
       </div>
@@ -534,79 +545,71 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // initialize theme & avatars
+      // theme & avatars
       FT.applyTheme();
-      FT.updateSidebarAvatar(); // swaps both sidebarAvatar & topbarAvatar
+      FT.updateSidebarAvatar();  // swaps both #sidebarAvatar & #topbarAvatar
       FT.updateStats();
 
-      // sidebar open/close
+      // SIDEBAR TOGGLE
       const sidebar  = document.getElementById('sidebar'),
             overlay  = document.getElementById('overlay'),
             btnOpen  = document.querySelector('.sidebar-toggle'),
             btnClose = document.querySelector('.sidebar-close'),
             links    = document.querySelectorAll('aside#sidebar a.menu-item');
 
-      function openMenu() {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
-      }
-      function closeMenu() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-      }
+      const openMenu  = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); },
+            closeMenu = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+
       btnOpen.addEventListener('click', openMenu);
       btnClose.addEventListener('click', closeMenu);
       overlay.addEventListener('click', closeMenu);
-      links.forEach(a => a.addEventListener('click', closeMenu));
+      links.forEach(a=>a.addEventListener('click', closeMenu));
 
-      // sample workouts data
+      // SAMPLE WORKOUTS DATA
       const workouts = [
         { id:1, title:'Full-Body HIIT',    category:'Cardio',   duration:20, difficulty:'Intermediate',
           image:'hiit.jpg', description:'Fast-paced full-body intervals.',
-          exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None', calories:200
-        },
-        { id:2, title:'Upper Body Strength',category:'Strength', duration:45, difficulty:'Advanced',
+          exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None', calories:200 },
+        { id:2, title:'Upper Body Strength',category:'Strength',duration:45, difficulty:'Advanced',
           image:'upper.jpg', description:'Build upper-body power with weights.',
-          exercises:['Push-Ups','Pull-Ups','Rows'], equipment:'Dumbbells', calories:300
-        },
+          exercises:['Push-Ups','Pull-Ups','Rows'], equipment:'Dumbbells', calories:300 },
         { id:3, title:'Morning Yoga Flow',  category:'Yoga',     duration:30, difficulty:'Beginner',
           image:'yoga.jpg', description:'Gentle sequences to wake up your body.',
-          exercises:['Sun Salutation','Tree Pose','Child’s Pose'], equipment:'Mat', calories:120
-        }
+          exercises:['Sun Salutation','Tree Pose','Child’s Pose'], equipment:'Mat', calories:120 }
       ];
 
-      // Workout of the Day
+      // WOD
       const wodTitle = document.getElementById('wodTitle'),
             wodDesc  = document.getElementById('wodDesc');
-      function pickWOD() {
-        const w = workouts[Math.floor(Math.random() * workouts.length)];
+      function pickWOD(){
+        const w = workouts[Math.floor(Math.random()*workouts.length)];
         wodTitle.textContent = w.title;
         wodDesc.textContent  = w.description;
       }
       document.getElementById('randomizeWOD').addEventListener('click', pickWOD);
       pickWOD();
 
-      // filters & library
+      // FILTERS & LIBRARY
       const catSel = document.getElementById('filterCategory'),
             durSel = document.getElementById('filterDuration'),
             difSel = document.getElementById('filterDifficulty'),
             lib    = document.getElementById('library');
 
-      new Set(workouts.map(w=>w.category)).forEach(c => catSel.append(new Option(c,c)));
+      new Set(workouts.map(w=>w.category)).forEach(c=>catSel.append(new Option(c,c)));
 
-      function renderLibrary() {
+      function renderLibrary(){
         const cat = catSel.value,
-              max = +durSel.value || Infinity,
+              max = +durSel.value||Infinity,
               dif = difSel.value;
         lib.innerHTML = '';
-        workouts.filter(w =>
-          (!cat || w.category===cat) &&
+        workouts.filter(w=>
+          (!cat||w.category===cat) &&
           w.duration<=max &&
-          (!dif || w.difficulty===dif)
-        ).forEach(w => {
+          (!dif||w.difficulty===dif)
+        ).forEach(w=>{
           const card = document.createElement('div');
           card.className = 'card';
-          card.innerHTML = `
+          card.innerHTML=`
             <img src="${w.image}" alt="${w.title}"/>
             <div class="card-body">
               <h3>${w.title}</h3>
@@ -617,22 +620,22 @@
           lib.append(card);
         });
       }
-      [catSel,durSel,difSel].forEach(el=>el.addEventListener('change',renderLibrary));
+      [catSel,durSel,difSel].forEach(s=>s.addEventListener('change',renderLibrary));
       renderLibrary();
 
-      // detail modal
-      const modal    = document.getElementById('detailModal'),
-            dtClose  = modal.querySelector('.close'),
-            dtTitle  = document.getElementById('detailTitle'),
-            dtDesc   = document.getElementById('detailDesc'),
-            dtList   = document.getElementById('detailList'),
-            dtEquip  = document.getElementById('detailEquip'),
-            dtCal    = document.getElementById('detailCal'),
-            btnLog   = document.getElementById('detailStart'),
-            btnSave  = document.getElementById('savePlan');
+      // DETAIL MODAL
+      const modal   = document.getElementById('detailModal'),
+            dtClose = modal.querySelector('.close'),
+            dtTitle = document.getElementById('detailTitle'),
+            dtDesc  = document.getElementById('detailDesc'),
+            dtList  = document.getElementById('detailList'),
+            dtEquip = document.getElementById('detailEquip'),
+            dtCal   = document.getElementById('detailCal'),
+            btnLog  = document.getElementById('detailStart'),
+            btnSave = document.getElementById('savePlan');
 
-      document.body.addEventListener('click', e => {
-        if (e.target.matches('.card-body button')) {
+      document.body.addEventListener('click', e=>{
+        if(e.target.matches('.card-body button')){
           const w = workouts.find(x=>x.id==e.target.dataset.id);
           dtTitle.textContent = w.title;
           dtDesc.textContent  = w.description;
@@ -655,29 +658,27 @@
           };
           btnSave.onclick = ()=>{
             const plans = JSON.parse(localStorage.getItem('ft_plans')||'[]');
-            if (!plans.includes(w.id)) plans.push(w.id);
+            if(!plans.includes(w.id)) plans.push(w.id);
             localStorage.setItem('ft_plans',JSON.stringify(plans));
             alert('Saved to My Plans');
           };
         }
-        if (e.target===dtClose || e.target===modal) {
-          modal.style.display='none';
-        }
+        if(e.target===dtClose||e.target===modal) modal.style.display='none';
       });
 
-      // My Plans
+      // MY PLANS
       function renderPlans(){
-        const out   = document.getElementById('plansList'),
+        const out = document.getElementById('plansList'),
               plans = JSON.parse(localStorage.getItem('ft_plans')||'[]');
-        out.innerHTML = '';
+        out.innerHTML='';
         plans.forEach((id,i)=>{
-          const w = workouts.find(x=>x.id===id);
-          const li = document.createElement('li');
+          const w = workouts.find(x=>x.id===id),
+                li = document.createElement('li');
           li.innerHTML = `${w.title} <button data-idx="${i}">Remove</button>`;
           out.append(li);
         });
       }
-      document.getElementById('plansList').addEventListener('click', e=>{
+      document.getElementById('plansList').addEventListener('click',e=>{
         if(e.target.matches('button')){
           const idx = +e.target.dataset.idx;
           const arr = JSON.parse(localStorage.getItem('ft_plans')||'[]');
@@ -688,29 +689,29 @@
       });
       renderPlans();
 
-      // Progress Chart
+      // PROGRESS CHART
       const ctx = document.getElementById('progressChart').getContext('2d');
       function renderProgress(){
-        const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-        const byCat = acts.reduce((o,a)=>{
-          const w=workouts.find(wk=>wk.title===a.type);
-          const c = w? w.category:'Other';
-          o[c] = (o[c]||0) + 1;
-          return o;
-        },{});
+        const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
+              byCat = acts.reduce((o,a)=>{
+                const w=workouts.find(wk=>wk.title===a.type),
+                      c=w? w.category:'Other';
+                o[c]=(o[c]||0)+1;
+                return o;
+              },{});
         new Chart(ctx,{
           type:'bar',
-          data:{ labels:Object.keys(byCat), datasets:[{ data:Object.values(byCat), label:'Sessions' }] },
+          data:{labels:Object.keys(byCat),datasets:[{data:Object.values(byCat),label:'Sessions'}]},
           options:{
             responsive:true,
-            scales:{ x:{ticks:{color:'#fff'}}, y:{beginAtZero:true,ticks:{color:'#fff'}} },
-            plugins:{ legend:{display:false} }
+            scales:{x:{ticks:{color:'#fff'}},y:{beginAtZero:true,ticks:{color:'#fff'}}},
+            plugins:{legend:{display:false}}
           }
         });
       }
       renderProgress();
 
-      // Challenge Modes
+      // CHALLENGE MODES
       const challenges = [
         { id:1, title:'7-Day Abs',           desc:'Daily core work to sculpt your mid-section.', target:7 },
         { id:2, title:'30-Day Push-Up',      desc:'Build strength by adding 2 push-ups/day.', target:30 },
@@ -730,10 +731,16 @@
           div.innerHTML = `
             <h3>${ch.title}</h3>
             <p>${ch.desc}</p>
-            <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
+            <div class="prog-bar"><div class="fill"></div></div>
             <p style="opacity:.8;">${sessions}/${ch.target}</p>
             <button>${done?'Joined ✓':'Join Challenge'}</button>
           `;
+          list.append(div);
+          // animate fill
+          const fill = div.querySelector('.fill');
+          requestAnimationFrame(()=>{
+            fill.style.width = pct + '%';
+          });
           div.querySelector('button').onclick = ()=>{
             if(!done){
               joined.push(ch.id);
@@ -741,20 +748,19 @@
               renderChallenges();
             }
           };
-          list.append(div);
         });
       }
       renderChallenges();
 
-      // Live Sessions
+      // LIVE SESSIONS
       const sessions = [
-        { id:1, img:'alice.jpg', title:'Sunrise Yoga',    host:'Alice', time:'Today 6 AM UTC', desc:'Gentle vinyasa to start your day.' },
-        { id:2, img:'bob.jpg',   title:'HIIT Blast',      host:'Bob',   time:'Today 7 PM UTC', desc:'High-intensity intervals to torch calories.' },
-        { id:3, img:'cara.jpg',  title:'Cardio Dance',    host:'Cara',  time:'Tomorrow 5 PM UTC', desc:'Fun dance to get your heart pumping.' },
-        { id:4, img:'dan.jpg',   title:'Core & Balance',  host:'Dan',   time:'Tomorrow 9 AM UTC', desc:'Stability drills for core strength.' }
+        { id:1, img:'alice.jpg', title:'Sunrise Yoga',    host:'Alice', time:'Today 6 AM UTC',      desc:'Gentle vinyasa to start your day.' },
+        { id:2, img:'bob.jpg',   title:'HIIT Blast',      host:'Bob',   time:'Today 7 PM UTC',      desc:'High-intensity intervals to torch calories.' },
+        { id:3, img:'cara.jpg',  title:'Cardio Dance',    host:'Cara',  time:'Tomorrow 5 PM UTC',   desc:'Fun dance to get your heart pumping.' },
+        { id:4, img:'dan.jpg',   title:'Core & Balance',  host:'Dan',   time:'Tomorrow 9 AM UTC',    desc:'Stability drills for core strength.' }
       ];
       function renderSessions(){
-        const list = document.getElementById('sessionsList'),
+        const list   = document.getElementById('sessionsList'),
               joined = JSON.parse(localStorage.getItem('ft_sessions')||'[]');
         list.innerHTML='';
         sessions.forEach(s=>{
@@ -781,7 +787,7 @@
       }
       renderSessions();
 
-    // ─── AI Chatbot (choose-from-20) ────────────────────────────────
+       // ─── AI Chatbot (choose-from-20) ────────────────────────────────
     const qaList = [
       {q:'What is the Workout of the Day?',            a:'The Workout of the Day is a randomly selected routine designed to challenge you—hit “Randomize” to see it.'},
       {q:'How do I log a workout?',                    a:'Click “Details” on any workout, then “Log This Workout.” It will appear in your activity log.'},
