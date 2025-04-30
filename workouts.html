@@ -145,7 +145,22 @@
     border:none; border-radius:30px; padding:.6rem; font-size:1.2rem;
   }
   @media(max-width: var(--break-mobile)) {
-    .sidebar-toggle { display:block; }
+    .sidebar-toggle { display:block; 
+                    }
+    /* MOBILE CONTROLS */
+.hamburger, .profile-btn {
+  display: block;
+  position: fixed;
+  top: 1rem;
+  font-size: 1.5rem;
+  z-index: 9999;            /* above everything */
+  background: transparent;
+  border: none;
+  color: var(--white);
+}
+.hamburger { left: 1rem; }
+.profile-btn { right: 1rem; }
+
   }
   .header-center {
     text-align:center; flex:1; min-width:0;
@@ -419,6 +434,13 @@
 <body>
   <!-- overlay for mobile sidebar -->
   <div id="overlay"></div>
+<!-- MOBILE CONTROLS -->
+<button id="hamburger" class="hamburger" aria-label="Open menu">
+  <i class="fas fa-bars"></i>
+</button>
+<button id="profile-btn" class="profile-btn" aria-label="View profile">
+  <div id="topbarAvatar" class="profile-icon"></div>
+</button>
 
   <!-- SIDEBAR -->
   <aside id="sidebar" class="sidebar" role="navigation">
@@ -446,10 +468,10 @@
         <p>Browse routines, join challenges, and chat for suggestions.</p>
       </div>
       <div class="header-right">
-        <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log</button>
-        <div id="topbarAvatar" class="profile-icon"
-             style="background:url('https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png') center/cover no-repeat;"></div>
-      </div>
+  <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log</button>
+  <div id="topbarAvatar" class="profile-icon"></div>
+</div>
+
     </header>
 
     <!-- GRID LAYOUT -->
@@ -550,8 +572,39 @@
     document.addEventListener('DOMContentLoaded', () => {
       // theme & avatars
       FT.applyTheme();
-      FT.updateSidebarAvatar();  // swaps both #sidebarAvatar & #topbarAvatar
-      FT.updateStats();
+FT.updateSidebarAvatar();    // this will populate both #sidebarAvatar & #topbarAvatar
+FT.updateStats();
+const sidebar  = document.getElementById('sidebar'),
+      overlay  = document.getElementById('overlay'),
+      btnOpen  = document.getElementById('hamburger'),
+      btnClose = document.querySelector('.sidebar-close'),
+      links    = document.querySelectorAll('aside#sidebar a.menu-item');
+
+// open / close logic
+btnOpen.addEventListener('click', ()=>{
+  sidebar.classList.add('open');
+  overlay.classList.add('active');
+});
+btnClose.addEventListener('click', ()=>{
+  sidebar.classList.remove('open');
+  overlay.classList.remove('active');
+});
+overlay.addEventListener('click', ()=>{
+  sidebar.classList.remove('open');
+  overlay.classList.remove('active');
+});
+// close on any menu click
+links.forEach(a=>a.addEventListener('click', ()=>{
+  if (window.innerWidth <= var(--break-mobile)) {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  }
+}));
+
+// profile button -> profile.html
+document.getElementById('profile-btn').addEventListener('click', ()=>{
+  location.href = 'profile.html';
+});
 
       // SIDEBAR TOGGLE
       const sidebar  = document.getElementById('sidebar'),
