@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Workouts</title>
 
- <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>FitTrack | Workouts</title>
-
   <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -29,10 +25,9 @@
     --font-head: 'Poppins', sans-serif;
     --transition: .3s ease;
     --sidebar-w: 80px;
-    --mobile-sidebar-w: 75vw;
-    --mobile-break: 414px;
+    --mobile-sidebar-w: 200px;
+    --break-mobile: 900px;
   }
-  /* reset & base */
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     display:flex; min-height:100vh;
@@ -40,46 +35,69 @@
     font-family:var(--font-base); overflow-x:hidden;
   }
   a { color:inherit; text-decoration:none; }
-  button, select {
+  /* ─── GLOBAL BUTTONS & FORMS ───────────────────────────────── */
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  select {
     font-family:var(--font-head);
-    cursor:pointer; transition:var(--transition);
+    color: var(--white);
+    background: var(--gold);
+    border: none;
+    border-radius: 30px;
+    padding: .6rem 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
   }
   select {
-    appearance: none;
     background: rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.3);
-    border-radius:6px;
-    padding:.6rem;
     color: var(--white);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 6px;
+    padding: .6rem;
+    -webkit-appearance: none;
+       -moz-appearance: none;
+            appearance: none;
   }
-  button {
-    border:none; background:none; color:inherit;
+  button:hover,
+  input[type="button"]:hover,
+  input[type="submit"]:hover,
+  input[type="reset"]:hover,
+  select:hover {
+    transform: scale(1.03);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
   }
-  button:hover, select:hover { transform:scale(1.03); }
 
-  /* overlay for mobile sidebar */
+  /* ─── OVERLAY ─────────────────────────── */
   #overlay {
-    display:none;
-    position:fixed; inset:0;
-    background:rgba(0,0,0,0.5);
-    z-index:90;
+    position:fixed; inset:0; background:rgba(0,0,0,0.5);
+    opacity:0; visibility:hidden; transition:opacity var(--transition);
+    z-index: 90;
   }
-  #overlay.active { display:block; }
+  #overlay.active { opacity:1; visibility:visible; }
 
-  /* SIDEBAR */
+  /* ─── SIDEBAR ─────────────────────────── */
   aside#sidebar {
-    width:var(--sidebar-w);
+    position:sticky; top:0; left:0;
+    width:var(--sidebar-w); height:100vh;
     background: linear-gradient(180deg,#111,#000);
-    border-right:2px solid var(--gold);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.7);
     display:flex; flex-direction:column; align-items:center;
-    padding:1rem 0;
-    position:sticky; top:0; height:100vh;
-    transition:transform var(--transition);
-    z-index:100;
+    padding:1rem 0; z-index:100; transition:transform var(--transition);
   }
-  aside#sidebar.open { transform:translateX(0); }
-  aside#sidebar .sidebar-close {
+  @media(max-width: var(--break-mobile)) {
+    aside#sidebar { position:fixed; transform: translateX(-100%); width:var(--mobile-sidebar-w); }
+    aside#sidebar.open { transform:translateX(0); }
+  }
+  .sidebar-close {
     display:none;
+    position:absolute; top:1rem; right:1rem;
+    background:none; border:none; color:var(--white);
+    font-size:1.2rem; cursor:pointer;
+  }
+  @media(max-width: var(--break-mobile)) {
+    .sidebar-close { display:block; }
   }
   .logo {
     font-size:1.8rem; color:var(--gold);
@@ -87,66 +105,68 @@
   }
   a.menu-item {
     width:100%; text-align:center; padding:1rem 0;
-    display:flex; flex-direction:column; align-items:center; gap:.3rem;
-    color:var(--white); transition:background .3s;
+    display:flex; flex-direction:column; align-items:center;
+    transition:background var(--transition), transform .2s;
   }
-  a.menu-item:hover,
+  a.menu-item:hover { transform:translateX(4px); }
   a.menu-item.active {
-    background:rgba(255,152,0,0.2);
+    background: rgba(255,152,0,0.2);
+    box-shadow: inset 4px 0 0 var(--gold);
   }
   a.menu-item i { font-size:1.5rem; }
-  a.menu-item span { font-size:.65rem; }
-
-  /* avatar button */
-  button.profile-menu {
-    width:100%; text-align:center; padding:1rem 0;
-    background:transparent; border:none;
-    display:flex; flex-direction:column; align-items:center; gap:.3rem;
-    color:var(--white); transition:background .3s;
-  }
-  button.profile-menu:hover {
-    background:rgba(255,152,0,0.2);
-  }
-  i.avatar, img.avatar {
-    width:32px; height:32px;
-    border-radius:50%; object-fit:cover;
+  a.menu-item span { font-size:.65rem; margin-top:.3rem; }
+  .profile-icon {
+    width:36px; height:36px; border-radius:50%;
+    background-size:cover; background-position:center;
     border:2px solid var(--white);
-    font-size:1.5rem; line-height:32px; text-align:center;
+    margin-top:auto; margin-bottom:1.5rem;
   }
+  .sign-out { margin-top:auto; }
 
-  /* sign-out pushes to bottom */
-  a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
-
-  /* MAIN & HEADER */
-  .main { flex:1; display:flex; flex-direction:column; }
+  /* ─── MAIN & TOPBAR ───────────────────── */
+  .main {
+    flex:1; overflow-y:auto;
+    margin-left:var(--sidebar-w);
+  }
+  @media(max-width: var(--break-mobile)) {
+    .main { margin-left:0; }
+  }
   header {
+    position:sticky; top:0; z-index:200;
     display:flex; align-items:center; justify-content:space-between;
     padding:1rem 1.5rem;
-    background: rgba(0,0,0,0.9);
-    border-bottom:2px solid var(--gold);
-    position:sticky; top:0; z-index:200;
+    background: linear-gradient(135deg,#111,#222);
+    box-shadow:0 4px 12px rgba(0,0,0,0.7);
   }
-  /* mobile hamburger & profile icons */
-  .hamburger, .profile-btn {
-    display:none; font-size:1.5rem;
-    background:none; border:none; color:var(--white);
-    z-index:210;
+  /* keep everything in one row on desktop & mobile */
+  header { flex-wrap: nowrap; }
+  .sidebar-toggle {
+    display:none; background:var(--gold); color:var(--bg);
+    border:none; border-radius:30px; padding:.6rem; font-size:1.2rem;
   }
-  header h1 {
-    font-size:1.4rem; font-weight:700;
-    flex:1; text-align:center;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  @media(max-width: var(--break-mobile)) {
+    .sidebar-toggle { display:block; }
+  }
+  .header-center {
+    text-align:center; flex:1; min-width:0;
+    white-space: nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .header-center h1 {
+    font-size:1.8rem; font-weight:700;
+  }
+  .header-center p {
+    opacity:.7; margin-top:.2rem; font-size:.9rem;
   }
   .header-right {
     display:flex; align-items:center; gap:1rem;
   }
-  .log-btn {
-    background:var(--gold); color:var(--bg);
-    padding:.5rem .75rem; border-radius:30px;
-    font-size:1rem;
+  .header-right img {
+    width:36px; height:36px; border-radius:50%;
+    background-size:cover; background-position:center;
+    border:2px solid var(--white);
   }
 
-  /* CONTENT GRID */
+  /* ─── CONTENT GRID ───────────────────── */
   .content {
     padding:1.5rem;
     display:grid; gap:2rem;
@@ -156,7 +176,7 @@
     .content { grid-template-columns:1fr; }
   }
 
- /* ─── Workout of the Day ────────────── */
+  /* ─── Workout of the Day ────────────── */
   #workoutOfDay {
     grid-column:1/-1;
     background:rgba(255,255,255,0.05);
@@ -392,97 +412,47 @@
   top: 1.2rem;    /* pushed down from 0.5rem */
   right: 0.75rem; /* a bit more room on the side */
 }
-    
-  /* ─── MOBILE (≤414px) ───────────────────────────────── */
-  @media(max-width:var(--mobile-break)) {
-    /* sidebar off-canvas */
-    aside#sidebar {
-      position:fixed; left:0; top:0; bottom:0;
-      width:var(--mobile-sidebar-w);
-      transform:translateX(-100%);
-    }
-    aside#sidebar.open { transform:translateX(0); }
-    aside#sidebar .sidebar-close {
-      display:block;
-      position:absolute; top:1rem; right:1rem;
-      background:none; border:none; color:var(--white);
-      font-size:1.2rem;
-    }
-    /* show hamburger & profile */
-    .hamburger, .profile-btn {
-      display:block;
-      position:fixed; top:1rem;
-      background:none; border:none; color:var(--white);
-    }
-    .hamburger { left:1rem; }
-    .profile-btn { right:1rem; }
-    /* header tweaks */
-    header {
-      padding:1rem 2.5rem;
-    }
-    header h1 {
-      font-size:1.2rem;
-    }
-    .header-right { display:none; }
-    /* adjust content padding */
-    .content { padding:1rem; }
-  }
-  </style>
+
+</style>
+
 </head>
 <body>
-
-  <!-- mobile overlay -->
+  <!-- overlay for mobile sidebar -->
   <div id="overlay"></div>
 
-  <!-- mobile header controls -->
-  <button class="hamburger" id="hamburger" aria-label="Open menu">
-    <i class="fas fa-bars"></i>
-  </button>
-  <button class="profile-btn" id="profile-btn" aria-label="View profile">
-    <i id="top-avatar" class="fas fa-user-circle avatar"></i>
-  </button>
-
   <!-- SIDEBAR -->
-  <aside id="sidebar">
-    <button class="sidebar-close" id="sidebar-close" aria-label="Close menu">&times;</button>
+  <aside id="sidebar" class="sidebar" role="navigation">
+    <button class="sidebar-close" aria-label="Close menu"><i class="fas fa-times"></i></button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-
-    <a href="dashboard.html" class="menu-item active">
-      <i class="fas fa-tachometer-alt"></i><span>Dash</span>
-    </a>
-    <a href="log.html" class="menu-item">
-      <i class="fas fa-pen"></i><span>Log</span>
-    </a>
-    <a href="workouts.html" class="menu-item">
-      <i class="fas fa-dumbbell"></i><span>Workouts</span>
-    </a>
-    <a href="leaderboard.html" class="menu-item">
-      <i class="fas fa-trophy"></i><span>Board</span>
-    </a>
-
-    <button class="profile-menu" aria-label="Profile">
-      <i id="side-avatar" class="fas fa-user-circle avatar"></i>
+    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
+    <a href="log.html"           class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"      class="menu-item active"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html"   class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <a href="profile.html"       class="menu-item">
+      <div id="sidebarAvatar" class="profile-icon"
+           style="background:url('https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png') center/cover no-repeat;"></div>
       <span>Profile</span>
-    </button>
-
-    <a href="home.html" class="menu-item sign-out">
-      <i class="fas fa-sign-out-alt"></i><span>Sign Out</span>
     </a>
+    <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
   </aside>
 
-  <!-- MAIN -->
+  <!-- MAIN CONTENT -->
   <div class="main">
     <!-- TOPBAR -->
     <header>
-      <h1>Workouts</h1>
+      <button class="sidebar-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+      <div class="header-center">
+        <h1>Workouts</h1>
+        <p>Browse routines, join challenges, and chat for suggestions.</p>
+      </div>
       <div class="header-right">
-        <button class="log-btn" onclick="location.href='log.html'">
-          <i class="fas fa-plus"></i>
-        </button>
+        <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log</button>
+        <div id="topbarAvatar" class="profile-icon"
+             style="background:url('https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png') center/cover no-repeat;"></div>
       </div>
     </header>
 
-   <!-- GRID LAYOUT -->
+    <!-- GRID LAYOUT -->
     <div class="content">
       <!-- 1. Workout of the Day -->
       <section id="workoutOfDay">
@@ -576,26 +546,29 @@
     <i class="fas fa-comments"></i>
   </button>
 
-  </div>
-
-  <!-- your workouts page JS follows exactly as before... -->
   <script>
-    // (JS from your previous version, unchanged, will hook up #hamburger, #sidebar-close, #overlay, #profile-btn)
-    document.addEventListener('DOMContentLoaded',()=>{
-      const sidebar = document.getElementById('sidebar'),
-            overlay = document.getElementById('overlay'),
-            openBtn = document.getElementById('hamburger'),
-            closeBtn= document.getElementById('sidebar-close'),
-            profileBtns = [ document.getElementById('profile-btn'),
-                            document.querySelector('.profile-menu') ];
+    document.addEventListener('DOMContentLoaded', () => {
+      // theme & avatars
+      FT.applyTheme();
+      FT.updateSidebarAvatar();  // swaps both #sidebarAvatar & #topbarAvatar
+      FT.updateStats();
 
-      openBtn.onclick = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); };
-      const closeMenu = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
-      closeBtn.onclick = closeMenu;
-      overlay.onclick  = closeMenu;
-      profileBtns.forEach(b=>b.onclick=()=>location.href='profile.html');
+      // SIDEBAR TOGGLE
+      const sidebar  = document.getElementById('sidebar'),
+            overlay  = document.getElementById('overlay'),
+            btnOpen  = document.querySelector('.sidebar-toggle'),
+            btnClose = document.querySelector('.sidebar-close'),
+            links    = document.querySelectorAll('aside#sidebar a.menu-item');
 
-        // SAMPLE WORKOUTS DATA
+      const openMenu  = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); },
+            closeMenu = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+
+      btnOpen.addEventListener('click', openMenu);
+      btnClose.addEventListener('click', closeMenu);
+      overlay.addEventListener('click', closeMenu);
+      links.forEach(a=>a.addEventListener('click', closeMenu));
+
+      // SAMPLE WORKOUTS DATA
       const workouts = [
         { id:1, title:'Full-Body HIIT',    category:'Cardio',   duration:20, difficulty:'Intermediate',
           image:'hiit.jpg', description:'Fast-paced full-body intervals.',
@@ -886,4 +859,4 @@ document.getElementById('clearChat').addEventListener('click', () => {
     });
   </script>
 </body>
-</html>
+</html> 
