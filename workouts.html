@@ -144,24 +144,26 @@
     display:none; background:var(--gold); color:var(--bg);
     border:none; border-radius:30px; padding:.6rem; font-size:1.2rem;
   }
-  @media(max-width: var(--break-mobile)) {
-    .sidebar-toggle { display:block; 
-                    }
-    /* MOBILE CONTROLS */
-.hamburger, .profile-btn {
-  display: block;
-  position: fixed;
-  top: 1rem;
-  font-size: 1.5rem;
-  z-index: 9999;            /* above everything */
-  background: transparent;
-  border: none;
-  color: var(--white);
-}
-.hamburger { left: 1rem; }
-.profile-btn { right: 1rem; }
-
+ @media (max-width: var(--break-mobile)) {
+  /* show hamburger & profile on small screens */
+  .hamburger, .profile-btn {
+    display: block;
+    position: fixed;
+    top: 1rem;
+    font-size: 1.5rem;
+    z-index: 9999;
+    background: transparent;
+    border: none;
+    color: var(--white);
   }
+  .hamburger { left: 1rem; }
+  .profile-btn { right: 1rem; }
+
+  /* slide-in sidebar */
+  aside#sidebar { transform: translateX(-100%); }
+  aside#sidebar.open { transform: translateX(0); }
+}
+
   .header-center {
     text-align:center; flex:1; min-width:0;
     white-space: nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -595,10 +597,10 @@ overlay.addEventListener('click', ()=>{
 });
 // close on any menu click
 links.forEach(a=>a.addEventListener('click', ()=>{
-  if (window.innerWidth <= var(--break-mobile)) {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
-  }
+ if (window.innerWidth <= 900) {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('active');
+}
 }));
 
 // profile button -> profile.html
@@ -606,20 +608,7 @@ document.getElementById('profile-btn').addEventListener('click', ()=>{
   location.href = 'profile.html';
 });
 
-      // SIDEBAR TOGGLE
-      const sidebar  = document.getElementById('sidebar'),
-            overlay  = document.getElementById('overlay'),
-            btnOpen  = document.querySelector('.sidebar-toggle'),
-            btnClose = document.querySelector('.sidebar-close'),
-            links    = document.querySelectorAll('aside#sidebar a.menu-item');
-
-      const openMenu  = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); },
-            closeMenu = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
-
-      btnOpen.addEventListener('click', openMenu);
-      btnClose.addEventListener('click', closeMenu);
-      overlay.addEventListener('click', closeMenu);
-      links.forEach(a=>a.addEventListener('click', closeMenu));
+      
 
       // SAMPLE WORKOUTS DATA
       const workouts = [
