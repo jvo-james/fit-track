@@ -17,333 +17,106 @@
   <script src="storage.js" defer></script>
 
   <style>
-  :root {
-    --bg: #000;
-    --gold: #ff9800;
-    --white: #fff;
-    --font-base: 'Raleway', sans-serif;
-    --font-head: 'Poppins', sans-serif;
-    --transition: .3s ease;
-    --sidebar-w: 80px;
-    --mobile-sidebar-w: 200px;
-    --break-mobile: 900px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    display:flex; min-height:100vh;
-    background:var(--bg); color:var(--white);
-    font-family:var(--font-base); overflow-x:hidden;
-  }
-  a { color:inherit; text-decoration:none; }
-  /* ─── GLOBAL BUTTONS & FORMS ───────────────────────────────── */
-  button,
-  input[type="button"],
-  input[type="submit"],
-  input[type="reset"],
-  select {
-    font-family:var(--font-head);
-    color: var(--white);
-    background: var(--gold);
-    border: none;
-    border-radius: 30px;
-    padding: .6rem 1.2rem;
-    cursor: pointer;
-    transition: var(--transition);
-  }
-  select {
-    background: rgba(255,255,255,0.05);
-    color: var(--white);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 6px;
-    padding: .6rem;
-    -webkit-appearance: none;
-       -moz-appearance: none;
-            appearance: none;
-  }
-  button:hover,
-  input[type="button"]:hover,
-  input[type="submit"]:hover,
-  input[type="reset"]:hover,
-  select:hover {
-    transform: scale(1.03);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-  }
+    :root {
+      --bg: #000;
+      --gold: #ff9800;
+      --white: #fff;
+      --font-base: 'Raleway', sans-serif;
+      --font-head: 'Poppins', sans-serif;
+      --transition: .3s ease;
+      --sidebar-w: 80px;
+      --mobile-w: 250px;
+      --bp: 900px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      display:flex; min-height:100vh;
+      background:var(--bg); color:var(--white);
+      font-family:var(--font-base); overflow-x:hidden;
+    }
+    a { color:inherit; text-decoration:none; }
+    button, select {
+      font-family:var(--font-head); background:var(--gold); color:var(--bg);
+      border:none; border-radius:30px; padding:.6rem 1.2rem;
+      cursor:pointer; transition:var(--transition);
+    }
+    select { background:rgba(255,255,255,0.05); color:var(--white); border:1px solid rgba(255,255,255,0.3); }
+    button:hover, select:hover { transform:scale(1.03); }
 
-  /* ─── OVERLAY ─────────────────────────── */
-  #overlay {
-    position:fixed; inset:0; background:rgba(0,0,0,0.5);
-    opacity:0; visibility:hidden; transition:opacity var(--transition);
-    z-index: 90;
-  }
-  #overlay.active { opacity:1; visibility:visible; }
+    /* overlay for mobile */
+    #overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      opacity:0; visibility:hidden; transition:var(--transition);
+      z-index:90;
+    }
+    #overlay.active { opacity:1; visibility:visible; }
 
-  /* ─── SIDEBAR ─────────────────────────── */
-  aside#sidebar {
-    position:sticky; top:0; left:0;
-    width:var(--sidebar-w); height:100vh;
-    background: linear-gradient(180deg,#111,#000);
-    box-shadow: 2px 0 12px rgba(0,0,0,0.7);
-    display:flex; flex-direction:column; align-items:center;
-    padding:1rem 0; z-index:100; transition:transform var(--transition);
-  }
-  @media(max-width: var(--break-mobile)) {
-    aside#sidebar { position:fixed; transform: translateX(-100%); width:var(--mobile-sidebar-w); }
-    aside#sidebar.open { transform:translateX(0); }
-  }
-  .sidebar-close {
-    display:none;
-    position:absolute; top:1rem; right:1rem;
-    background:none; border:none; color:var(--white);
-    font-size:1.2rem; cursor:pointer;
-  }
-  @media(max-width: var(--break-mobile)) {
-    .sidebar-close { display:block; }
-  }
-  .logo {
-    font-size:1.8rem; color:var(--gold);
-    margin-bottom:2rem; letter-spacing:.05em;
-  }
-  a.menu-item {
-    width:100%; text-align:center; padding:1rem 0;
-    display:flex; flex-direction:column; align-items:center;
-    transition:background var(--transition), transform .2s;
-  }
-  a.menu-item:hover { transform:translateX(4px); }
-  a.menu-item.active {
-    background: rgba(255,152,0,0.2);
-    box-shadow: inset 4px 0 0 var(--gold);
-  }
-  a.menu-item i { font-size:1.5rem; }
-  a.menu-item span { font-size:.65rem; margin-top:.3rem; }
-  .profile-icon {
-    width:36px; height:36px; border-radius:50%;
-    background-size:cover; background-position:center;
-    border:2px solid var(--white);
-    margin-top:auto; margin-bottom:1.5rem;
-  }
-  .sign-out { margin-top:auto; }
+    /* sidebar */
+    aside#sidebar {
+      position:sticky; top:0; left:0;
+      width:var(--sidebar-w); height:100vh;
+      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding:1rem 0; transition:var(--transition); z-index:100;
+    }
+    .sidebar-close { display:none; position:absolute; top:1rem; right:1rem; background:none; color:var(--white); font-size:1.2rem; }
+    .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
+    a.menu-item {
+      width:100%; text-align:center; padding:1rem 0;
+      display:flex; flex-direction:column; align-items:center;
+      transition:var(--transition);
+    }
+    a.menu-item.active,
+    a.menu-item:hover { background:rgba(255,152,0,0.2); }
+    a.menu-item i { font-size:1.5rem; }
+    a.menu-item span { font-size:.65rem; margin-top:.3rem; }
+    .profile-icon {
+      width:36px; height:36px; border-radius:50%;
+      background-size:cover; background-position:center;
+      border:2px solid var(--white);
+      margin-top:auto; margin-bottom:1.5rem;
+    }
 
-  /* ─── MAIN & TOPBAR ───────────────────── */
-  .main {
-    flex:1; overflow-y:auto;
-    margin-left:var(--sidebar-w);
-  }
-  @media(max-width: var(--break-mobile)) {
-    .main { margin-left:0; }
-  }
-  header {
-    position:sticky; top:0; z-index:200;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:1rem 1.5rem;
-    background: linear-gradient(135deg,#111,#222);
-    box-shadow:0 4px 12px rgba(0,0,0,0.7);
-  }
-  /* keep everything in one row on desktop & mobile */
-  header { flex-wrap: nowrap; }
-  .sidebar-toggle {
-    display:none; background:var(--gold); color:var(--bg);
-    border:none; border-radius:30px; padding:.6rem; font-size:1.2rem;
-  }
- @media (max-width: var(--break-mobile)) {
-  /* show hamburger & profile on small screens */
-  .hamburger, .profile-btn {
-    display: block;
-    position: fixed;
-    top: 1rem;
-    font-size: 1.5rem;
-    z-index: 9999;
-    background: transparent;
-    border: none;
-    color: var(--white);
-  }
-  .hamburger { left: 1rem; }
-  .profile-btn { right: 1rem; }
+    /* main & topbar */
+    .main { flex:1; overflow-y:auto; margin-left:var(--sidebar-w); }
+    header {
+      position:sticky; top:0; z-index:200;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
+      border-bottom:2px solid var(--gold);
+    }
+    .sidebar-toggle { display:none; background:var(--gold); color:var(--bg); border-radius:30px; }
+    .header-center { text-align:center; flex:1; }
+    .header-center h1 { font-size:1.6rem; }
+    .header-center p { opacity:.7; font-size:.9rem; }
+    .header-right { display:flex; align-items:center; gap:1rem; }
+    .header-right .profile-icon { border-color:var(--gold); }
 
-  /* slide-in sidebar */
-  aside#sidebar { transform: translateX(-100%); }
-  aside#sidebar.open { transform: translateX(0); }
-}
+    /* grid */
+    .content {
+      padding:1.5rem;
+      display:grid; gap:2rem;
+      grid-template-columns:1fr 1fr;
+    }
+    section#workoutOfDay { grid-column:1/-1; background:rgba(255,255,255,0.05); padding:1.5rem; border-radius:12px;}
+    #filters { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:1rem; }
+    #library { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.5rem; }
+    .card { background:rgba(255,255,255,0.05); border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.5); display:flex; flex-direction:column;}
+    .card img { width:100%; height:140px; object-fit:cover; }
+    .card-body { padding:1rem; flex:1; display:flex; flex-direction:column; }
+    .card-body button { align-self:flex-start; }
 
-  .header-center {
-    text-align:center; flex:1; min-width:0;
-    white-space: nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  .header-center h1 {
-    font-size:1.8rem; font-weight:700;
-  }
-  .header-center p {
-    opacity:.7; margin-top:.2rem; font-size:.9rem;
-  }
-  .header-right {
-    display:flex; align-items:center; gap:1rem;
-  }
-  .header-right img {
-    width:36px; height:36px; border-radius:50%;
-    background-size:cover; background-position:center;
-    border:2px solid var(--white);
-  }
+    /* modal */
+    #detailModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; }
+    #detailModal .modal-content { background:rgba(0,0,0,0.9); padding:1.5rem; border-radius:12px; max-width:600px; width:90%; position:relative; }
+    #detailModal .close { position:absolute; top:1rem; right:1rem; color:var(--gold); font-size:1.5rem; cursor:pointer; }
 
-  /* ─── CONTENT GRID ───────────────────── */
-  .content {
-    padding:1.5rem;
-    display:grid; gap:2rem;
-    grid-template-columns:1fr 1fr;
-  }
-  @media(max-width:900px) {
-    .content { grid-template-columns:1fr; }
-  }
-
-  /* ─── Workout of the Day ────────────── */
-  #workoutOfDay {
-    grid-column:1/-1;
-    background:rgba(255,255,255,0.05);
-    border-radius:12px; padding:1.5rem;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-  }
-  #workoutOfDay h2 {
-    display:flex; align-items:center; gap:.5rem;
-    color:var(--gold); font-size:1.4rem;
-  }
-  #workoutOfDay p { margin:1rem 0; line-height:1.4; }
-  #workoutOfDay button {
-    background:var(--gold); color:var(--bg);
-    padding:.6rem 1.2rem; border-radius:30px;
-  }
-
-  /* ─── Filters ───────────────────────── */
-  #filters {
-    grid-column:1/-1;
-    display:flex; flex-wrap:wrap; gap:1rem; align-items:center;
-  }
-
-  /* ─── Library ───────────────────────── */
-  #library {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-    gap:1.5rem;
-  }
-  .card {
-    background:rgba(255,255,255,0.05);
-    border-radius:12px; overflow:hidden;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    display:flex; flex-direction:column;
-  }
-  .card img { width:100%; height:140px; object-fit:cover; }
-  .card-body {
-    padding:1rem; flex:1; display:flex; flex-direction:column;
-  }
-  .card-body h3 { margin-bottom:.5rem; }
-  .card-body p.info { opacity:.8; margin-bottom:.5rem; }
-  .card-body p.desc { flex:1; line-height:1.3; margin-bottom:.5rem; }
-  .card-body button {
-    background:var(--gold); color:var(--bg);
-    padding:.6rem; border-radius:6px;
-  }
-
-  /* ─── Detail Modal ───────────────────── */
-  #detailModal {
-    display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,0.8);
-    align-items:center; justify-content:center;
-    padding:1rem; z-index:95;
-  }
-  #detailModal .modal-content {
-    background:rgba(0,0,0,0.9);
-    border-radius:12px; padding:1.5rem;
-    width:100%; max-width:600px; max-height:90%; overflow-y:auto;
-    position:relative;
-  }
-  #detailModal .close {
-    position:absolute; top:1rem; right:1rem;
-    font-size:1.5rem; color:var(--gold); cursor:pointer;
-  }
-  #detailModal h2 { color:var(--gold); margin-bottom:.5rem; }
-  #detailModal p { margin-bottom:.5rem; line-height:1.4; }
-  #detailModal ul { list-style:disc; margin:0 0 1rem 1.5rem; }
-
-  /* ─── My Plans ───────────────────────── */
-  #myPlans {
-    background:rgba(255,255,255,0.05);
-    border-radius:12px; padding:1rem;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-  }
-  #myPlans h2 { color:var(--gold); margin-bottom:.75rem; }
-  #myPlans ul { list-style:none; }
-  #myPlans li {
-    display:flex; justify-content:space-between;
-    padding:.5rem 0; border-bottom:1px solid rgba(255,255,255,0.1);
-  }
-  #myPlans button { background:none; color:var(--gold); }
-
-  /* ─── Progress Chart ─────────────────── */
-  #progressSummary {
-    background:rgba(255,255,255,0.05);
-    border-radius:12px; padding:1rem;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    grid-column:1/-1;
-  }
-  #progressSummary h2 { color:var(--gold); margin-bottom:.75rem; }
-  #progressSummary canvas { width:100% !important; height:200px !important; }
-
-  /* ─── Challenge Modes ─────────────────── */
-  #challengeModes {
-    background:rgba(255,255,255,0.05);
-    border-radius:12px; padding:1rem;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    grid-column:1/-1;
-  }
-  #challengeModes h2 { color:var(--gold); margin-bottom:1rem; }
-  .challenge {
-    background:rgba(255,255,255,0.1);
-    border-radius:8px; padding:1rem; margin-bottom:1rem;
-    transition:transform var(--transition);
-  }
-  .challenge:hover { transform:translateY(-4px); }
-  .challenge h3 { margin-bottom:.5rem; }
-  .challenge p { line-height:1.3; margin-bottom:.5rem; }
-  .prog-bar {
-    background:rgba(255,255,255,0.2);
-    border-radius:6px; overflow:hidden;
-    height:14px; margin-bottom:.5rem;
-  }
-  .prog-bar .fill {
-    height:100%; background:var(--gold);
-    width:0;               /* animated in JS */
-    transition:width 1s ease;
-  }
-  .challenge button {
-    background:var(--gold); color:var(--bg);
-    padding:.6rem .8rem; border-radius:6px;
-  }
-
-  /* ─── Live Sessions ───────────────────── */
-  #liveSessions {
-    background:rgba(255,255,255,0.05);
-    border-radius:12px; padding:1rem;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    grid-column:1/-1;
-  }
-  #liveSessions h2 { color:var(--gold); margin-bottom:1rem; }
-  .session {
-    display:flex; align-items:center; gap:1rem;
-    background:rgba(255,255,255,0.1);
-    border-radius:8px; padding:1rem; margin-bottom:1rem;
-    transition:transform var(--transition);
-  }
-  .session:hover { transform:translateY(-4px); }
-  .session img {
-    width:60px; height:60px; border-radius:50%;
-    object-fit:cover; border:2px solid var(--white);
-  }
-  .session-details { flex:1; }
-  .session-details h3 { margin-bottom:.25rem; }
-  .session-details p { margin-bottom:.25rem; line-height:1.3; }
-  .session button {
-    background:var(--gold); color:var(--bg);
-    padding:.6rem .8rem; border-radius:6px;
-  }
-
-  /* ─── AI Chatbot (stylish B&W) ───────────────────────────────────────── */
+    /* my plans, progress, challenges, sessions same pattern… */
+    #myPlans, #progressSummary, #challengeModes, #liveSessions {
+      background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      grid-column:1/-1;
+    }
+   /* ─── AI Chatbot (stylish B&W) ───────────────────────────────────────── */
     #chatbot {
       position:fixed; bottom:20px; right:20px;
       width:320px; max-height:420px;
@@ -430,55 +203,63 @@
   right: 0.75rem; /* a bit more room on the side */
 }
 
-</style>
 
+    @media (max-width: var(--bp)) {
+      aside#sidebar { position:fixed; width:var(--mobile-w); transform:translateX(-100%); }
+      aside#sidebar.open { transform:translateX(0); }
+      .sidebar-close { display:block; }
+      .main { margin-left:0; }
+      .sidebar-toggle { display:block; }
+      .hamburger, .profile-btn {
+        display:block; position:fixed; top:1rem; font-size:1.5rem; background:transparent; border:none; color:var(--white); z-index:999;
+      }
+      .hamburger { left:1rem; }
+      .profile-btn { right:1rem; }
+      header { padding:1rem 3rem; }
+      .content { grid-template-columns:1fr; padding:1rem; }
+      #library { grid-template-columns:1fr; }
+      button, select { width:100%; }
+    }
+  </style>
 </head>
 <body>
-  <!-- overlay for mobile sidebar -->
+  <!-- mobile overlay -->
   <div id="overlay"></div>
-<!-- MOBILE CONTROLS -->
-<button id="hamburger" class="hamburger" aria-label="Open menu">
-  <i class="fas fa-bars"></i>
-</button>
-<button id="profile-btn" class="profile-btn" aria-label="View profile">
-  <div id="topbarAvatar" class="profile-icon"></div>
-</button>
 
-  <!-- SIDEBAR -->
-  <aside id="sidebar" class="sidebar" role="navigation">
-    <button class="sidebar-close" aria-label="Close menu"><i class="fas fa-times"></i></button>
+  <!-- mobile controls -->
+  <button id="hamburger" class="hamburger"><i class="fas fa-bars"></i></button>
+  <button id="profile-btn" class="profile-btn"><div id="topbarAvatar" class="profile-icon"></div></button>
+
+  <!-- sidebar -->
+  <aside id="sidebar">
+    <button class="sidebar-close"><i class="fas fa-times"></i></button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
-    <a href="log.html"           class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html"      class="menu-item active"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="leaderboard.html"   class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <a href="profile.html"       class="menu-item">
-      <div id="sidebarAvatar" class="profile-icon"
-           style="background:url('https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png') center/cover no-repeat;"></div>
-      <span>Profile</span>
+    <a href="log.html" class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html" class="menu-item active"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <a href="profile.html" class="menu-item">
+      <div id="sidebarAvatar" class="profile-icon"></div><span>Profile</span>
     </a>
-    <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+    <a href="home.html" class="menu-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- main -->
   <div class="main">
-    <!-- TOPBAR -->
     <header>
-      <button class="sidebar-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+      <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
       <div class="header-center">
         <h1>Workouts</h1>
-        <p>Browse routines, join challenges, and chat for suggestions.</p>
+        <p>Browse routines, join challenges, and chat!</p>
       </div>
       <div class="header-right">
-  <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log</button>
-  <div id="topbarAvatar" class="profile-icon"></div>
-</div>
-
+        <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log</button>
+        <div id="topbarAvatar" class="profile-icon"></div>
+      </div>
     </header>
 
-    <!-- GRID LAYOUT -->
     <div class="content">
-      <!-- 1. Workout of the Day -->
+      <!-- Workout of the Day -->
       <section id="workoutOfDay">
         <h2><i class="fas fa-star"></i> Workout of the Day</h2>
         <p id="wodTitle">Loading…</p>
@@ -486,7 +267,7 @@
         <button id="randomizeWOD">Randomize</button>
       </section>
 
-      <!-- 2. Filters -->
+      <!-- Filters -->
       <div id="filters">
         <select id="filterCategory"><option value="">All Categories</option></select>
         <select id="filterDuration">
@@ -503,7 +284,7 @@
         </select>
       </div>
 
-      <!-- 3. Workout Library -->
+      <!-- Library -->
       <section id="library"></section>
 
       <!-- Detail Modal -->
@@ -516,31 +297,31 @@
           <p><strong>Equipment:</strong> <span id="detailEquip"></span></p>
           <p><strong>Calories:</strong> <span id="detailCal">0</span></p>
           <div style="margin-top:1rem;">
-            <button class="start-btn" id="detailStart">Log This Workout</button>
-            <button class="save-plan"  id="savePlan">Save to My Plans</button>
+            <button id="detailStart">Log This Workout</button>
+            <button id="savePlan">Save to My Plans</button>
           </div>
         </div>
       </div>
 
-      <!-- 4. My Plans -->
+      <!-- My Plans -->
       <section id="myPlans">
         <h2><i class="fas fa-bookmark"></i> My Plans</h2>
         <ul id="plansList"></ul>
       </section>
 
-      <!-- 5. Progress Summary -->
+      <!-- Progress -->
       <section id="progressSummary">
         <h2><i class="fas fa-chart-bar"></i> Your Progress</h2>
         <canvas id="progressChart"></canvas>
       </section>
 
-      <!-- 6. Challenge Modes -->
+      <!-- Challenges -->
       <section id="challengeModes">
-        <h2><i class="fas fa-flag"></i> Challenge Modes</h2>
+        <h2><i class="fas fa-flag"></i> Challenges</h2>
         <div id="challengesList"></div>
       </section>
 
-      <!-- 7. Live Sessions -->
+      <!-- Live Sessions -->
       <section id="liveSessions">
         <h2><i class="fas fa-video"></i> Live Sessions</h2>
         <div id="sessionsList"></div>
@@ -548,7 +329,7 @@
     </div>
   </div>
 
-  <!-- ─── AI Chatbot ─────────────────────────────────────────────────── -->
+ <!-- ─── AI Chatbot ─────────────────────────────────────────────────── -->
   <div id="chatbot">
     <header>
       <i class="fas fa-comments"></i>
@@ -569,48 +350,44 @@
   <button id="chatToggle">
     <i class="fas fa-comments"></i>
   </button>
-
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // theme & avatars
       FT.applyTheme();
-FT.updateSidebarAvatar();    // this will populate both #sidebarAvatar & #topbarAvatar
-FT.updateStats();
-const sidebar  = document.getElementById('sidebar'),
-      overlay  = document.getElementById('overlay'),
-      btnOpen  = document.getElementById('hamburger'),
-      btnClose = document.querySelector('.sidebar-close'),
-      links    = document.querySelectorAll('aside#sidebar a.menu-item');
+      FT.updateSidebarAvatar(); // populates both sidebarAvatar & topbarAvatar
+      FT.updateStats();
 
-// open / close logic
-btnOpen.addEventListener('click', ()=>{
-  sidebar.classList.add('open');
-  overlay.classList.add('active');
-});
-btnClose.addEventListener('click', ()=>{
-  sidebar.classList.remove('open');
-  overlay.classList.remove('active');
-});
-overlay.addEventListener('click', ()=>{
-  sidebar.classList.remove('open');
-  overlay.classList.remove('active');
-});
-// close on any menu click
-links.forEach(a=>a.addEventListener('click', ()=>{
- if (window.innerWidth <= 900) {
-  sidebar.classList.remove('open');
-  overlay.classList.remove('active');
-}
-}));
+      // sidebar toggle
+      const sidebar = document.getElementById('sidebar'),
+            overlay = document.getElementById('overlay'),
+            btnOpen = document.getElementById('hamburger'),
+            btnClose = document.querySelector('.sidebar-close'),
+            links = document.querySelectorAll('aside#sidebar a.menu-item');
 
-// profile button -> profile.html
-document.getElementById('profile-btn').addEventListener('click', ()=>{
-  location.href = 'profile.html';
-});
+      function open() {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+      }
+      function close() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      }
 
-      
+      btnOpen.addEventListener('click', open);
+      btnClose.addEventListener('click', close);
+      overlay.addEventListener('click', close);
+      links.forEach(a => a.addEventListener('click', () => {
+        if (window.innerWidth <= parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bp'))) {
+          close();
+        }
+      }));
 
-      // SAMPLE WORKOUTS DATA
+      // profile button
+      document.getElementById('profile-btn').onclick = () => {
+        location.href = 'profile.html';
+      };
+
+       // SAMPLE WORKOUTS DATA
       const workouts = [
         { id:1, title:'Full-Body HIIT',    category:'Cardio',   duration:20, difficulty:'Intermediate',
           image:'hiit.jpg', description:'Fast-paced full-body intervals.',
@@ -897,7 +674,6 @@ document.getElementById('clearChat').addEventListener('click', () => {
   chat.style.display       = 'none';
   chatToggle.style.display = 'flex';
 });
-
     });
   </script>
 </body>
