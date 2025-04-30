@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="storage.js"></script>
+
   <style>
     :root {
       --bg: #000;
@@ -26,7 +27,11 @@
       --transition: .3s ease;
       --sidebar-w: 80px;
       --mobile-break: 600px;
+      --overlay-z: 90;
+      --sidebar-z: 100;
+      --header-z: 200;
     }
+
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       display:flex; min-height:100vh;
@@ -44,6 +49,15 @@
       color:var(--white);
     }
 
+    /* ─── OVERLAY (for mobile sidebar) ────────────────────────── */
+    .overlay {
+      display:none;
+      position:fixed; inset:0;
+      background:rgba(0,0,0,0.5);
+      z-index:var(--overlay-z);
+    }
+    .overlay.active { display:block; }
+
     /* ─── NOTIFICATION BAR ───────────────────────────────────────── */
     .notif-bar {
       display:flex;
@@ -57,9 +71,6 @@
     }
     .notif-bar.hidden { display:none; }
     .notif-bar button {
-      background:transparent;
-      border:none;
-      color:var(--white);
       font-size:1.2rem;
       margin-left:1rem;
     }
@@ -74,25 +85,25 @@
       padding-top:1rem;
       position:sticky; top:0; height:100vh;
       transition:transform var(--transition), width var(--transition);
+      z-index:var(--sidebar-z);
     }
     .sidebar .sidebar-close { display:none; }
     .sidebar .logo {
-      font-size:1.6rem;
-      color:var(--gold);
+      font-size:1.6rem; color:var(--gold);
       margin-bottom:2rem;
     }
-    .sidebar .menu-item {
+    .sidebar a.menu-item {
       width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      transition:background var(--transition);
+      display:flex; flex-direction:column; align-items:center;
+      gap:.3rem; transition:background var(--transition);
     }
-    .sidebar .menu-item:hover,
-    .sidebar .menu-item.active {
+    .sidebar a.menu-item:hover,
+    .sidebar a.menu-item.active {
       background:rgba(255,152,0,0.2);
     }
-    .sidebar .menu-item i { font-size:1.2rem; }
-    .sidebar .menu-item span { font-size:.75rem; }
-    .sidebar .sign-out { margin-top:auto; margin-bottom:1rem; }
+    .sidebar a.menu-item i { font-size:1.2rem; }
+    .sidebar a.menu-item span { font-size:.75rem; }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
 
     /* ─── MAIN & HEADER ───────────────────────────────────────────── */
     .main { flex:1; display:flex; flex-direction:column; }
@@ -100,12 +111,10 @@
       display:flex; align-items:center; justify-content:space-between;
       padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
-      position:sticky; top:0; z-index:100;
+      position:sticky; top:0; z-index:var(--header-z);
     }
     header h1 {
-      font-size:1.4rem;
-      text-align:center;
-      flex:1;
+      font-size:1.4rem; text-align:center; flex:1;
     }
     .new-workout {
       display:flex; align-items:center; gap:.4rem;
@@ -114,19 +123,14 @@
     }
     .hamburger, .profile-btn {
       display:none; font-size:1.5rem;
-      background:transparent; border:none; color:var(--white);
     }
 
     /* ─── CONTENT BLOCKS ──────────────────────────────────────────── */
     .content { padding:1rem 1.5rem; overflow-y:auto; }
-    .stats {
-      display:grid; gap:1rem;
-      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-    }
+    .stats { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
     .stat-card {
-      background:rgba(255,255,255,0.05);
-      border-radius:8px; padding:1rem;
-      text-align:center; transition:var(--transition);
+      background:rgba(255,255,255,0.05); border-radius:8px;
+      padding:1rem; text-align:center; transition:var(--transition);
     }
     .stat-card:hover { background:rgba(255,255,255,0.1); }
     .stat-card i { font-size:1.4rem; color:var(--gold); margin-bottom:.4rem; }
@@ -143,13 +147,11 @@
     }
 
     .goals {
-      margin-top:1rem;
-      display:grid; gap:1rem;
+      margin-top:1rem; display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
     }
     .goal-card {
-      background:rgba(255,255,255,0.05);
-      border-radius:8px; padding:.8rem;
+      background:rgba(255,255,255,0.05); border-radius:8px; padding:.8rem;
     }
     .goal-container {
       background:rgba(255,255,255,0.2);
@@ -161,13 +163,11 @@
     }
 
     .charts {
-      margin-top:1rem;
-      display:grid; gap:1rem;
+      margin-top:1rem; display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
     }
     .chart-card {
-      background:rgba(255,255,255,0.05);
-      border-radius:8px; padding:1rem;
+      background:rgba(255,255,255,0.05); border-radius:8px; padding:1rem;
     }
     .chart-card canvas {
       width:100% !important; height:300px !important;
@@ -180,18 +180,12 @@
       background:rgba(255,255,255,0.05);
       padding:.6rem; border-radius:6px; cursor:pointer;
     }
-    .challenges li.completed {
-      background:rgba(76,175,80,0.2);
-    }
+    .challenges li.completed { background:rgba(76,175,80,0.2); }
 
     .leaderboard ol { padding-left:1.2rem; }
-    .leaderboard li {
-      margin-bottom:.4rem; color:rgba(255,255,255,0.8);
-    }
+    .leaderboard li { margin-bottom:.4rem; color:rgba(255,255,255,0.8); }
 
-    .community .feed-list {
-      display:flex; flex-direction:column; gap:.6rem;
-    }
+    .community .feed-list { display:flex; flex-direction:column; gap:.6rem; }
     .community .feed-item {
       background:rgba(255,255,255,0.05);
       padding:.6rem; border-radius:6px;
@@ -205,9 +199,9 @@
     }
     .modal-overlay.active { display:flex; }
     .modal {
-      position:relative; background:var(--bg);
-      border:2px solid var(--gold); border-radius:8px;
-      padding:1.5rem; width:90%; max-width:320px;
+      background:var(--bg); border:2px solid var(--gold);
+      border-radius:8px; padding:1.5rem;
+      width:90%; max-width:320px; position:relative;
     }
     .modal .close {
       position:absolute; top:.6rem; right:.6rem;
@@ -215,8 +209,7 @@
     }
     .modal input {
       width:100%; padding:.6rem; margin-bottom:.8rem;
-      border-radius:6px;
-      border:1px solid rgba(255,255,255,0.3);
+      border-radius:6px; border:1px solid rgba(255,255,255,0.3);
       background:rgba(255,255,255,0.05); color:var(--white);
     }
     .modal button.primary {
@@ -233,88 +226,91 @@
 
     /* ─── MOBILE (<=600px) ────────────────────────────────────────── */
     @media(max-width:var(--mobile-break)) {
-      /* sidebar as drawer */
+
+      /* overlay */
+      .overlay { display:none; }
+      .overlay.active { display:block; }
+
+      /* sidebar drawer */
       .sidebar {
         position:fixed; top:0; bottom:0; left:0;
         width:75vw; max-width:260px;
         transform:translateX(-100%);
       }
       .sidebar.open { transform:translateX(0); }
+
       .sidebar .sidebar-close {
         display:block; position:absolute;
-        top:1rem; right:1rem;
-        font-size:1.5rem; color:var(--white);
-        background:transparent; border:none;
+        top:1rem; right:1rem; font-size:1.5rem;
       }
 
-      /* header hamburger & profile */
-      .hamburger {
-        display:block; position:absolute;
-        left:1rem; top:1rem;
+      /* show hamburger & profile btn */
+      .hamburger, .profile-btn {
+        display:block; position:absolute; top:1rem;
+        background:transparent; border:none; z-index:var(--header-z);
       }
-      .profile-btn {
-        display:block; position:absolute;
-        right:1rem; top:1rem;
-      }
-      header h1 { display:none; }
+      .hamburger { left:1rem; }
+      .profile-btn { right:1rem; }
 
-      /* stats two columns */
-      .stats {
-        grid-template-columns:1fr 1fr;
-      }
-      .stat-card { padding:.6rem; }
+      /* hide centered heading, but keep accessible */
+      header h1 { position:absolute; left:-9999px; }
+      header { padding:1rem; }
 
-      /* narrower charts */
-      .charts {
-        grid-template-columns:1fr;
-      }
-      .chart-card canvas { height:200px !important; }
-
-      /* stack goals vertically */
-      .goals {
-        grid-template-columns:1fr;
-      }
-
-      /* tighten content padding */
+      /* adjust content padding */
       .content { padding:.8rem 1rem; }
 
-      /* notif smaller */
-      .notif-bar {
-        font-size:.9rem; padding:.6rem 1rem;
-      }
+      /* smaller notif */
+      .notif-bar { font-size:.9rem; padding:.6rem 1rem; }
+
+      /* stats two columns */
+      .stats { grid-template-columns:1fr 1fr; }
+      .stat-card { padding:.6rem; }
+
+      /* stack goals */
+      .goals { grid-template-columns:1fr; }
+
+      /* single chart per row */
+      .charts { grid-template-columns:1fr; }
+      .chart-card canvas { height:200px !important; }
     }
   </style>
 </head>
 
 <body>
+  <!-- OVERLAY for mobile sidebar -->
+  <div id="overlay" class="overlay"></div>
 
   <!-- 1) Notification Banner -->
   <div id="notif-bar" class="notif-bar hidden">
-    👋 Don’t forget to <a href="profile.html" style="color:var(--white); text-decoration:underline;">complete your profile</a>.
-    <button id="notif-close">&times;</button>
+    👋 Don’t forget to <a href="profile.html">complete your profile</a>.
+    <button id="notif-close" aria-label="Close notification">&times;</button>
   </div>
 
-  <!-- 2) Mobile Hamburger -->
-  <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
-  <button class="profile-btn" id="profile-btn"><i class="fas fa-user-circle"></i></button>
+  <!-- 2) Mobile Hamburger & Profile -->
+  <button class="hamburger" id="hamburger" aria-label="Open menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <button class="profile-btn" id="profile-btn" aria-label="Your profile">
+    <i class="fas fa-user-circle"></i>
+  </button>
 
   <!-- 3) Sidebar -->
   <aside class="sidebar" id="sidebar">
-    <button class="sidebar-close" id="sidebar-close">&times;</button>
+    <button class="sidebar-close" id="sidebar-close" aria-label="Close menu">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <div class="menu-item active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></div>
-    <div class="menu-item"><i class="fas fa-pen"></i><span>Log</span></div>
-    <div class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></div>
-    <div class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></div>
-    <div class="menu-item"><i class="fas fa-user-circle"></i><span>Profile</span></div>
-    <div class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></div>
+    <a href="dashboard.html"    class="menu-item active">   <i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+    <a href="log.html"          class="menu-item">         <i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"     class="menu-item">         <i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="board.html"        class="menu-item">         <i class="fas fa-trophy"></i><span>Board</span></a>
+    <a href="profile.html"      class="menu-item">         <i class="fas fa-user-circle"></i><span>Profile</span></a>
+    <a href="signout.html"      class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
   <!-- 4) Main Content -->
   <div class="main">
     <header>
       <h1 id="greeting">Loading…</h1>
-      <button class="new-workout">
+      <button class="new-workout" aria-label="Log new workout">
         <i class="fas fa-plus"></i>
         <span class="label">New Workout</span>
       </button>
@@ -323,78 +319,31 @@
     <div class="content">
       <!-- STATS -->
       <section class="stats">
-        <div class="stat-card">
-          <i class="fas fa-dumbbell"></i>
-          <h3 id="workoutsCount">0</h3>
-          <p>This Month</p>
-        </div>
-        <div class="stat-card">
-          <i class="fas fa-road"></i>
-          <h3 id="distanceCount">0 km</h3>
-          <p>Distance</p>
-        </div>
-        <div class="stat-card">
-          <i class="fas fa-fire"></i>
-          <h3 id="caloriesCount">0</h3>
-          <p>Calories</p>
-        </div>
-        <div class="stat-card">
-          <i class="fas fa-calendar-day"></i>
-          <h3 id="activeDaysCount">0</h3>
-          <p>Days</p>
-        </div>
-        <div class="stat-card">
-          <i class="fas fa-stopwatch"></i>
-          <h3 id="todayTime">0 min</h3>
-          <p>Today’s Time</p>
-        </div>
-        <div class="stat-card">
-          <i class="fas fa-percentage"></i>
-          <h3 id="avgCalories">0</h3>
-          <p>Avg Calories</p>
-        </div>
+        <div class="stat-card"><i class="fas fa-dumbbell"></i><h3 id="workoutsCount">0</h3><p>This Month</p></div>
+        <div class="stat-card"><i class="fas fa-road"></i><h3 id="distanceCount">0 km</h3><p>Distance</p></div>
+        <div class="stat-card"><i class="fas fa-fire"></i><h3 id="caloriesCount">0</h3><p>Calories</p></div>
+        <div class="stat-card"><i class="fas fa-calendar-day"></i><h3 id="activeDaysCount">0</h3><p>Days</p></div>
+        <div class="stat-card"><i class="fas fa-stopwatch"></i><h3 id="todayTime">0 min</h3><p>Today’s Time</p></div>
+        <div class="stat-card"><i class="fas fa-percentage"></i><h3 id="avgCalories">0</h3><p>Avg Calories</p></div>
       </section>
 
       <!-- PROGRESS BAR -->
       <section class="progress">
         <h3><i class="fas fa-chart-line"></i> Weekly Goal</h3>
-        <div class="bar-container">
-          <div class="bar-fill" id="progressBar"></div>
-        </div>
+        <div class="bar-container"><div class="bar-fill" id="progressBar"></div></div>
       </section>
 
       <!-- GOALS -->
       <section class="goals">
-        <div class="goal-card">
-          <p>Daily: 30 min</p>
-          <div class="goal-container">
-            <div class="goal-fill" id="goalDaily"></div>
-          </div>
-        </div>
-        <div class="goal-card">
-          <p>Weekly: 5 workouts</p>
-          <div class="goal-container">
-            <div class="goal-fill" id="goalWeekly"></div>
-          </div>
-        </div>
-        <div class="goal-card">
-          <p>Monthly: 20 workouts</p>
-          <div class="goal-container">
-            <div class="goal-fill" id="goalMonthly"></div>
-          </div>
-        </div>
+        <div class="goal-card"><p>Daily: 30 min</p><div class="goal-container"><div class="goal-fill" id="goalDaily"></div></div></div>
+        <div class="goal-card"><p>Weekly: 5 workouts</p><div class="goal-container"><div class="goal-fill" id="goalWeekly"></div></div></div>
+        <div class="goal-card"><p>Monthly: 20 workouts</p><div class="goal-container"><div class="goal-fill" id="goalMonthly"></div></div></div>
       </section>
 
       <!-- CHARTS -->
       <section class="charts">
-        <div class="chart-card">
-          <h3><i class="fas fa-chart-line"></i> Activity Over Time</h3>
-          <canvas id="activityChart"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3><i class="fas fa-chart-pie"></i> Workout Distribution</h3>
-          <canvas id="distributionChart"></canvas>
-        </div>
+        <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Activity Over Time</h3><canvas id="activityChart"></canvas></div>
+        <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Workout Distribution</h3><canvas id="distributionChart"></canvas></div>
       </section>
 
       <!-- CHALLENGES -->
@@ -424,7 +373,7 @@
   <!-- NEW WORKOUT MODAL -->
   <div class="modal-overlay" id="workout-modal">
     <div class="modal">
-      <button class="close" id="workout-close">&times;</button>
+      <button class="close" id="workout-close" aria-label="Close">&times;</button>
       <h2>Log New Workout</h2>
       <input type="date" id="w-date" />
       <input type="number" id="w-duration" placeholder="Duration (mins)" />
@@ -433,165 +382,169 @@
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // —————————————— 1) GREETING & NOTIFICATION ——————————————
-    const cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
-    if (!cur.name) return location.href='home.html';
-    document.getElementById('greeting').textContent = cur.isNew
-      ? `Hello ${cur.name}!`
-      : `Welcome back, ${cur.name}!`;
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1) GREETING & NOTIFICATION
+      const cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
+      if (!cur.name) return location.href = 'home.html';
+      document.getElementById('greeting').textContent = cur.isNew
+        ? `Hello ${cur.name}!`
+        : `Welcome back, ${cur.name}!`;
 
-    const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}'),
-          shown = sessionStorage.getItem('notifShown');
-    if (!shown && !prof.complete) {
-      document.getElementById('notif-bar').classList.remove('hidden');
-      document.getElementById('notif-close').onclick = () => {
-        document.getElementById('notif-bar').classList.add('hidden');
-      };
-      sessionStorage.setItem('notifShown','1');
-    }
-    // mark not new going forward
-    cur.isNew = false;
-    localStorage.setItem('ft_current', JSON.stringify(cur));
-
-    // —————————————— 2) MOBILE SIDEBAR TOGGLE ——————————————
-    const sidebar = document.getElementById('sidebar'),
-          openBtn  = document.getElementById('hamburger'),
-          closeBtn = document.getElementById('sidebar-close');
-    openBtn.onclick  = () => sidebar.classList.add('open');
-    closeBtn.onclick = () => sidebar.classList.remove('open');
-    document.addEventListener('click', e => {
-      if (sidebar.classList.contains('open')
-          && !sidebar.contains(e.target)
-          && e.target !== openBtn
-      ) sidebar.classList.remove('open');
-    });
-
-    // —————————————— 3) PROFILE SHORTCUT (MOBILE) ——————————————
-    document.getElementById('profile-btn').onclick = () => {
-      location.href = 'profile.html';
-    };
-
-    // —————————————— 4) NEW WORKOUT MODAL ——————————————
-    const wm = document.getElementById('workout-modal');
-    document.querySelector('.new-workout').onclick = () => wm.classList.add('active');
-    document.getElementById('workout-close').onclick = () => wm.classList.remove('active');
-    wm.onclick = e => { if (e.target === wm) wm.classList.remove('active'); };
-    document.getElementById('w-save').onclick = () => {
-      const date = document.getElementById('w-date').value,
-            dur  = document.getElementById('w-duration').value;
-      if (!date || !dur) return alert('Date & duration required');
-      const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-      acts.push({ date, duration: dur });
-      localStorage.setItem('ft_activities', JSON.stringify(acts));
-      location.reload();
-    };
-
-    // —————————————— 5) STATS, PROGRESS, GOALS ——————————————
-    const stats = cur.stats || {};
-    document.getElementById('workoutsCount').textContent = stats.workouts || 0;
-    document.getElementById('distanceCount').textContent = (stats.distanceKm||0).toFixed(2) + ' km';
-    document.getElementById('caloriesCount').textContent = stats.calories || 0;
-    document.getElementById('activeDaysCount').textContent = (stats.daysSet||[]).length;
-    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
-          today = new Date().toISOString().slice(0,10),
-          todayTotal = acts.filter(a => a.date === today)
-                           .reduce((s,a) => s + (+a.duration||0), 0);
-    document.getElementById('todayTime').textContent = todayTotal + ' min';
-    document.getElementById('avgCalories').textContent = stats.workouts
-      ? Math.round((stats.calories||0)/stats.workouts) : 0;
-    const weekCount = acts.filter(a => {
-      const d = new Date(a.date), n = new Date();
-      return (n - d)/(1000*60*60*24) <= 7;
-    }).length;
-    document.getElementById('progressBar').style.width =
-      Math.min(100, Math.round(weekCount/5*100)) + '%';
-    document.getElementById('goalDaily').style.width =
-      Math.min(100, Math.round(todayTotal/30*100)) + '%';
-    document.getElementById('goalWeekly').style.width =
-      Math.min(100, Math.round(weekCount/5*100)) + '%';
-    document.getElementById('goalMonthly').style.width =
-      Math.min(100, Math.round((stats.workouts||0)/20*100)) + '%';
-
-    // —————————————— 6) CHARTS ——————————————
-    const cd = cur.chartData || { labels:[], activity:[], distribution:[] };
-    new Chart(document.getElementById('activityChart'), {
-      type:'line',
-      data:{ labels:cd.labels, datasets:[{
-        label:'Minutes', data:cd.activity,
-        borderColor:'#ff9800',
-        backgroundColor:'rgba(255,152,0,0.2)',
-        fill:true, tension:.3
-      }]},
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ position:'bottom' } }
+      const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+      if (!sessionStorage.getItem('notifShown') && !prof.complete) {
+        document.getElementById('notif-bar').classList.remove('hidden');
+        document.getElementById('notif-close').onclick = () => {
+          document.getElementById('notif-bar').classList.add('hidden');
+        };
+        sessionStorage.setItem('notifShown','1');
       }
-    });
-    new Chart(document.getElementById('distributionChart'), {
-      type:'pie',
-      data:{ labels:['Cardio','Strength','Flexibility','Other'],
-             datasets:[{ data:cd.distribution,
-               backgroundColor:[
-                 'rgba(255,152,0,0.8)',
-                 'rgba(255,87,34,0.8)',
-                 'rgba(76,175,80,0.8)',
-                 'rgba(3,169,244,0.8)'
-               ]
-             }]
-      },
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ position:'bottom' } }
-      }
-    });
+      // mark user as no longer new
+      cur.isNew = false;
+      localStorage.setItem('ft_current', JSON.stringify(cur));
 
-    // —————————————— 7) CHALLENGES ——————————————
-    const defaultCh = [
-      { id:1, text:'Run 50 km',    done:false },
-      { id:2, text:'Push-ups ×50', done:false },
-      { id:3, text:'Cycle 100 km', done:false }
-    ];
-    const chs = JSON.parse(localStorage.getItem('ft_challenges')) || defaultCh,
-          ul = document.getElementById('challengesList');
-    ul.innerHTML = '';
-    chs.forEach(ch => {
-      const li = document.createElement('li');
-      li.textContent = ch.text;
-      if (ch.done) li.classList.add('completed');
-      li.onclick = () => {
-        ch.done = !ch.done;
-        localStorage.setItem('ft_challenges', JSON.stringify(chs));
-        li.classList.toggle('completed', ch.done);
+      // 2) MOBILE SIDEBAR TOGGLE + OVERLAY
+      const sidebar = document.getElementById('sidebar'),
+            overlay = document.getElementById('overlay'),
+            openBtn = document.getElementById('hamburger'),
+            closeBtn = document.getElementById('sidebar-close');
+      openBtn.onclick = () => {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
       };
-      ul.append(li);
-    });
+      closeBtn.onclick = () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      };
+      overlay.onclick = () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      };
 
-    // —————————————— 8) LEADERBOARD ——————————————
-    const lb = JSON.parse(localStorage.getItem('ft_leaderboard')) || [
-      { name:'You',  score: stats.workouts||0 },
-      { name:'Alex', score:12 },
-      { name:'Sarah',score:15 }
-    ];
-    const ol = document.getElementById('leaderboardList');
-    ol.innerHTML = '';
-    lb.forEach(e => {
-      const li = document.createElement('li');
-      li.textContent = `${e.name}: ${e.score}`;
-      ol.append(li);
-    });
+      // 3) PROFILE SHORTCUT (MOBILE)
+      document.getElementById('profile-btn').onclick = () => {
+        location.href = 'profile.html';
+      };
 
-    // —————————————— 9) COMMUNITY FEED ——————————————
-    const feed = JSON.parse(localStorage.getItem('ft_feed')) || [
-      'Alex ran 5 km', 'Sarah completed 50 push-ups'
-    ];
-    const div = document.getElementById('feedList');
-    div.innerHTML = '';
-    feed.forEach(item => {
-      const d = document.createElement('div');
-      d.className = 'feed-item';
-      d.textContent = item;
-      div.append(d);
+      // 4) NEW WORKOUT MODAL
+      const wm = document.getElementById('workout-modal');
+      document.querySelector('.new-workout').onclick = () => wm.classList.add('active');
+      document.getElementById('workout-close').onclick = () => wm.classList.remove('active');
+      wm.onclick = e => { if (e.target === wm) wm.classList.remove('active'); };
+      document.getElementById('w-save').onclick = () => {
+        const date = document.getElementById('w-date').value,
+              dur  = document.getElementById('w-duration').value;
+        if (!date || !dur) return alert('Date & duration required');
+        const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+        acts.push({ date, duration: dur });
+        localStorage.setItem('ft_activities', JSON.stringify(acts));
+        location.reload();
+      };
+
+      // 5) STATS, PROGRESS, GOALS
+      const stats = cur.stats || {};
+      document.getElementById('workoutsCount').textContent = stats.workouts || 0;
+      document.getElementById('distanceCount').textContent = (stats.distanceKm||0).toFixed(2) + ' km';
+      document.getElementById('caloriesCount').textContent = stats.calories || 0;
+      document.getElementById('activeDaysCount').textContent = (stats.daysSet||[]).length;
+      const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
+            today = new Date().toISOString().slice(0,10),
+            todayTotal = acts.filter(a => a.date === today)
+                             .reduce((s,a) => s + (+a.duration||0), 0);
+      document.getElementById('todayTime').textContent = todayTotal + ' min';
+      document.getElementById('avgCalories').textContent = stats.workouts
+        ? Math.round((stats.calories||0)/stats.workouts) : 0;
+      const weekCount = acts.filter(a => {
+        const d = new Date(a.date), n = new Date();
+        return (n - d)/(1000*60*60*24) <= 7;
+      }).length;
+      document.getElementById('progressBar').style.width =
+        Math.min(100, Math.round(weekCount/5*100)) + '%';
+      document.getElementById('goalDaily').style.width =
+        Math.min(100, Math.round(todayTotal/30*100)) + '%';
+      document.getElementById('goalWeekly').style.width =
+        Math.min(100, Math.round(weekCount/5*100)) + '%';
+      document.getElementById('goalMonthly').style.width =
+        Math.min(100, Math.round((stats.workouts||0)/20*100)) + '%';
+
+      // 6) CHARTS
+      const cd = cur.chartData || { labels:[], activity:[], distribution:[] };
+      new Chart(document.getElementById('activityChart'), {
+        type:'line',
+        data:{ labels:cd.labels, datasets:[{
+          label:'Minutes', data:cd.activity,
+          borderColor:'#ff9800',
+          backgroundColor:'rgba(255,152,0,0.2)',
+          fill:true, tension:.3
+        }]},
+        options:{ responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ position:'bottom' } }
+        }
+      });
+      new Chart(document.getElementById('distributionChart'), {
+        type:'pie',
+        data:{ labels:['Cardio','Strength','Flexibility','Other'],
+               datasets:[{ data:cd.distribution,
+                 backgroundColor:[
+                   'rgba(255,152,0,0.8)',
+                   'rgba(255,87,34,0.8)',
+                   'rgba(76,175,80,0.8)',
+                   'rgba(3,169,244,0.8)'
+                 ]
+               }]
+        },
+        options:{ responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ position:'bottom' } }
+        }
+      });
+
+      // 7) CHALLENGES
+      const defaultCh = [
+        { id:1, text:'Run 50 km',    done:false },
+        { id:2, text:'Push-ups ×50', done:false },
+        { id:3, text:'Cycle 100 km', done:false }
+      ];
+      const chs = JSON.parse(localStorage.getItem('ft_challenges')) || defaultCh,
+            ul = document.getElementById('challengesList');
+      ul.innerHTML = '';
+      chs.forEach(ch => {
+        const li = document.createElement('li');
+        li.textContent = ch.text;
+        if (ch.done) li.classList.add('completed');
+        li.onclick = () => {
+          ch.done = !ch.done;
+          localStorage.setItem('ft_challenges', JSON.stringify(chs));
+          li.classList.toggle('completed', ch.done);
+        };
+        ul.append(li);
+      });
+
+      // 8) LEADERBOARD
+      const lb = JSON.parse(localStorage.getItem('ft_leaderboard')) || [
+        { name:'You',  score: stats.workouts||0 },
+        { name:'Alex', score:12 },
+        { name:'Sarah',score:15 }
+      ];
+      const ol = document.getElementById('leaderboardList');
+      ol.innerHTML = '';
+      lb.forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = `${e.name}: ${e.score}`;
+        ol.append(li);
+      });
+
+      // 9) COMMUNITY FEED
+      const feed = JSON.parse(localStorage.getItem('ft_feed')) || [
+        'Alex ran 5 km', 'Sarah completed 50 push-ups'
+      ];
+      const div = document.getElementById('feedList');
+      div.innerHTML = '';
+      feed.forEach(item => {
+        const d = document.createElement('div');
+        d.className = 'feed-item';
+        d.textContent = item;
+        div.append(d);
+      });
     });
-  });
   </script>
 </body>
 </html>
