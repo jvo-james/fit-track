@@ -155,6 +155,118 @@
       #logForm { grid-template-columns:1fr; }
       #duration,#distance,#calories { grid-column:span 1; }
     }
+    /* ─── PHONE ONLY (≤414px) ───────────────────────────────────────── */
+@media only screen and (max-width: 414px) {
+ .sidebar {
+    position: fixed;
+    top: 0;
+    right: -80px;           /* off-screen */
+    width: 0;
+    height: 100vh;
+    background: var(--bg);  /* same as page */
+    border-left: 2px solid var(--gold);
+    overflow: hidden;
+    transition: right .3s ease, width .3s ease;
+    z-index: 1100;
+  }
+  .sidebar.open {
+    right: 0;
+    width: 200px;           /* slide in */
+  }
+
+  /* —— Hamburger toggle at top-right —— */
+  .sidebar-toggle {
+    position: fixed;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1200;
+    background: var(--gold);
+    color: var(--bg);
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    display: block;
+  }
+
+  /* —— Close button inside sidebar, top-left —— */
+  .sidebar-close {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    font-size: 1.2rem;
+    display: block;
+  }
+
+  /* log section */
+  .log-section {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  .log-section h2 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* timer */
+  .timer {
+    gap: 0.5rem;
+  }
+  #timerDisplay {
+    font-size: 1rem;
+    min-width: 50px;
+  }
+  .timer button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  /* presets */
+  .presets {
+    gap: 0.25rem;
+  }
+  .presets button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  /* form → single column */
+  #logForm {
+    grid-template-columns: 1fr !important;
+  }
+  #logForm input,
+  #logForm select,
+  #logForm textarea,
+  #logForm button {
+    font-size: 0.9rem;
+  }
+  .voice-control {
+    text-align: center;
+    grid-column: span 1;
+  }
+
+  /* recent & list */
+  .recent,
+  .activities {
+    margin: 0 1rem 1rem;
+  }
+  .recent h2,
+  .activities h2 {
+    font-size: 1rem;
+  }
+  #recentEdit {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+  }
+  .activity-item {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+}
+
   </style>
     <script src="storage.js"></script>
 
