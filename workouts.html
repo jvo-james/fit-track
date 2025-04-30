@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Workouts</title>
 
   <!-- Google Fonts & FontAwesome -->
@@ -12,112 +12,282 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-  <!-- Chart.js -->
+  <!-- Chart.js & storage helper -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="storage.js"></script>
 
   <style>
     :root {
-      --bg: #000; --gold: #ff9800; --white: #fff; --font: 'Raleway', sans-serif;
+      --bg: #000;
+      --gold: #ff9800;
+      --white: #fff;
+      --font-base: 'Raleway', sans-serif;
+      --font-head: 'Poppins', sans-serif;
+      --transition: .3s ease;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display:flex; min-height:100vh;
-      background:var(--bg); color:var(--white);
-      font-family:var(--font);
+      display:flex;
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--white);
+      font-family:var(--font-base);
+      overflow-x:hidden;
     }
     a { color:inherit; text-decoration:none; }
+    button { font-family:var(--font-head); transition:var(--transition); cursor:pointer; }
 
-    /* ─── SIDEBAR ─────────────────────────────────── */
-    .sidebar { position:sticky; top:0; height:100vh; width:80px;
-      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0; z-index:1000;
+    /* ─── OVERLAY ─────────────────────────── */
+    .overlay {
+      display:none;
+      position:fixed; inset:0;
+      background:rgba(0,0,0,0.5);
+      z-index:90;
     }
-    .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
-    .menu-item { width:100%; text-align:center; padding:1rem 0; transition:background .2s; }
-    .menu-item.active, .menu-item:hover { background:rgba(255,152,0,0.2); }
-    .menu-item a { display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; }
-    .menu-item i { font-size:1.4rem; }
-    .menu-item span { font-size:0.6rem; margin-top:.2rem; }
-    .sign-in-btn { margin-top:auto; margin-bottom:1rem; width:50px; height:50px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 0 10px var(--gold); transition:transform .2s; }
-    .sign-in-btn:hover { transform:scale(1.1); }
+    .overlay.active { display:block; }
 
-    /* ─── MAIN ───────────────────────────────────── */
-    .main { flex:1; overflow-y:auto; }
-    header { position:sticky; top:0; z-index:200; display:flex; align-items:center; justify-content:space-between; padding:1.5rem; background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold); }
-    header h1 { font-size:1.6rem; }
-    header p { font-size:0.9rem; opacity:0.7; }
-    header button { background:var(--gold); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:30px; cursor:pointer; transition:transform .2s; }
-    header button:hover { transform:scale(1.05); }
+    /* ─── SIDEBAR ─────────────────────────── */
+    .sidebar {
+      position:sticky; top:0;
+      width:80px; height:100vh;
+      background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding:1rem 0;
+      z-index:1000;
+      transform: translateX(0);
+      transition:transform var(--transition);
+    }
+    .sidebar a.menu-item {
+      width:100%; text-align:center; padding:1rem 0;
+      transition:background var(--transition);
+    }
+    .sidebar a.menu-item.active,
+    .sidebar a.menu-item:hover {
+      background:rgba(255,152,0,0.2);
+    }
+    .sidebar a.menu-item i { font-size:1.4rem; }
+    .sidebar a.menu-item span { font-size:.6rem; margin-top:.2rem; }
+    .sidebar .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar .profile-icon {
+      margin-top:auto; margin-bottom:1.5rem;
+      width:32px; height:32px; border-radius:50%;
+      object-fit:cover; border:2px solid var(--white);
+    }
+    .sidebar .sign-out {
+      width:100%; text-align:center; padding:1rem 0;
+      margin-top:auto; border-top:1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar .sidebar-close {
+      display:none;
+      position:absolute; top:1rem; right:1rem;
+      background:transparent; border:none;
+      color:var(--white); font-size:1.2rem; cursor:pointer;
+    }
+
+    /* ─── TOPBAR ──────────────────────────── */
+    header {
+      position:sticky; top:0; z-index:200;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.5rem;
+      background:rgba(0,0,0,0.9);
+      border-bottom:2px solid var(--gold);
+    }
+    .header-left, .header-center, .header-right {
+      display:flex; align-items:center;
+    }
+    .header-left { flex:0; }
+    .sidebar-toggle {
+      display:none;
+      background:var(--gold); color:var(--bg);
+      border:none; border-radius:4px;
+      padding:.5rem; font-size:1.2rem;
+    }
+    .header-center {
+      flex:1; flex-direction:column; text-align:center;
+    }
+    .header-center h1 { font-size:1.6rem; }
+    .header-center p { font-size:.9rem; opacity:.7; }
+    .header-right { gap:1rem; }
+    .header-right button {
+      background:var(--gold); color:var(--bg);
+      border:none; padding:.5rem 1rem; border-radius:30px;
+    }
+    .header-right img {
+      width:32px; height:32px; border-radius:50%;
+      object-fit:cover; border:2px solid var(--white);
+    }
+
+    /* ─── MAIN CONTENT ─────────────────────── */
+    .main { flex:1; overflow-y:auto; margin-left:80px; }
     .content { padding:1.5rem; display:grid; gap:2rem; }
 
-    /* ─── Workout of the Day ────────────────────── */
-    #workoutOfDay { background:rgba(255,255,255,0.05); border-radius:12px; padding:1.5rem; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
-    #workoutOfDay h2 { display:flex; align-items:center; gap:.5rem; color:var(--gold); margin-bottom:1rem; }
+    /* ─── Workout of the Day ──────────────── */
+    #workoutOfDay {
+      background:rgba(255,255,255,0.05);
+      border-radius:12px; padding:1.5rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    #workoutOfDay h2 {
+      display:flex; align-items:center; gap:.5rem;
+      color:var(--gold); margin-bottom:1rem;
+    }
     #workoutOfDay p { margin-bottom:1rem; line-height:1.4; }
-    #workoutOfDay button { background:var(--gold); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:30px; cursor:pointer; transition:transform .2s; }
+    #workoutOfDay button {
+      background:var(--gold); color:var(--bg);
+      border:none; padding:.5rem 1rem;
+      border-radius:30px;
+    }
     #workoutOfDay button:hover { transform:scale(1.05); }
 
-    /* ─── Filters ───────────────────────────────── */
-    #filters { display:flex; flex-wrap:wrap; gap:1rem; align-items:center; }
-    #filters select { background:rgba(255,255,255,0.05); color:var(--white); border:1px solid rgba(255,255,255,0.3); padding:.5rem; border-radius:6px; }
+    /* ─── Filters ─────────────────────────── */
+    #filters {
+      display:flex; flex-wrap:wrap; gap:1rem; align-items:center;
+    }
+    #filters select {
+      padding:.5rem;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.3);
+      border-radius:6px;
+    }
 
-    /* ─── Workout Library ───────────────────────── */
-    #library { display:grid; gap:1.5rem; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
-    .card { background:rgba(255,255,255,0.05); border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.5); overflow:hidden; display:flex; flex-direction:column; }
+    /* ─── Library ─────────────────────────── */
+    #library {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:1.5rem;
+    }
+    .card {
+      background:rgba(255,255,255,0.05);
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      overflow:hidden;
+      display:flex; flex-direction:column;
+    }
     .card img { width:100%; height:120px; object-fit:cover; }
-    .card-body { padding:1rem; flex:1; display:flex; flex-direction:column; }
-    .card-body h3 { margin-bottom:.5rem; font-size:1.1rem; }
-    .card-body p.info { font-size:.9rem; opacity:.8; margin-bottom:.5rem; }
-    .card-body p.desc { flex:1; font-size:.85rem; line-height:1.3; margin-bottom:.5rem; }
-    .card-body button { background:var(--gold); color:var(--bg); border:none; padding:.4rem; border-radius:6px; cursor:pointer; transition:transform .2s; }
+    .card-body {
+      padding:1rem; flex:1;
+      display:flex; flex-direction:column;
+    }
+    .card-body h3 { font-size:1.1rem; margin-bottom:.5rem; }
+    .card-body p.info { opacity:.8; margin-bottom:.5rem; }
+    .card-body p.desc {
+      flex:1; font-size:.85rem; line-height:1.3; margin-bottom:.5rem;
+    }
+    .card-body button {
+      background:var(--gold); color:var(--bg);
+      border:none; padding:.4rem; border-radius:6px;
+    }
     .card-body button:hover { transform:scale(1.05); }
 
-    /* ─── Detail Modal ─────────────────────────── */
+    /* ─── Detail Modal ────────────────────── */
     .flex-center { display:flex; }
-    #detailModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; padding:1rem; }
-    #detailModal .modal-content { background:rgba(0,0,0,0.9); border-radius:12px; width:100%; max-width:600px; max-height:90%; overflow-y:auto; padding:1.5rem; position:relative; }
-    #detailModal .close { position:absolute; top:1rem; right:1rem; font-size:1.5rem; cursor:pointer; color:var(--gold); }
-    #detailModal h2 { margin-bottom:.5rem; color:var(--gold); }
-    #detailModal p { margin-bottom:.5rem; line-height:1.4; }
-    #detailModal ul { list-style:disc; margin:0 0 1rem 1.5rem; }
-    #detailModal .start-btn, #detailModal .save-plan { background:var(--gold); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:30px; cursor:pointer; transition:transform .2s; margin-right:.5rem; }
-    #detailModal .start-btn:hover, #detailModal .save-plan:hover { transform:scale(1.05); }
+    #detailModal {
+      display:none;
+      position:fixed; inset:0;
+      background:rgba(0,0,0,0.8);
+      align-items:center; justify-content:center;
+      padding:1rem; z-index:95;
+    }
+    #detailModal .modal-content {
+      background:rgba(0,0,0,0.9);
+      border-radius:12px;
+      width:100%; max-width:600px;
+      max-height:90%; overflow-y:auto;
+      padding:1.5rem; position:relative;
+    }
+    #detailModal .close {
+      position:absolute; top:1rem; right:1rem;
+      font-size:1.5rem; color:var(--gold);
+      cursor:pointer;
+    }
+    #detailModal h2 { color:var(--gold); margin-bottom:.5rem; }
+    #detailModal p { line-height:1.4; margin-bottom:.5rem; }
+    #detailModal ul {
+      list-style:disc; margin:0 0 1rem 1.5rem;
+    }
+    #detailModal .start-btn,
+    #detailModal .save-plan {
+      background:var(--gold); color:var(--bg);
+      padding:.5rem 1rem; border:none; border-radius:30px;
+      margin-right:.5rem;
+    }
+    #detailModal .start-btn:hover,
+    #detailModal .save-plan:hover {
+      transform:scale(1.05);
+    }
 
-    /* ─── My Plans ─────────────────────────────── */
-    #myPlans { background:rgba(255,255,255,0.05); border-radius:12px; padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+    /* ─── My Plans ────────────────────────── */
+    #myPlans {
+      background:rgba(255,255,255,0.05);
+      border-radius:12px; padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
     #myPlans h2 { color:var(--gold); margin-bottom:.75rem; }
     #myPlans ul { list-style:none; }
-    #myPlans li { display:flex; justify-content:space-between; padding:.5rem 0; border-bottom:1px solid rgba(255,255,255,0.1); }
-    #myPlans button { background:transparent; border:none; color:var(--gold); cursor:pointer; }
+    #myPlans li {
+      display:flex; justify-content:space-between;
+      padding:.5rem 0;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    #myPlans button {
+      background:transparent; border:none; color:var(--gold);
+    }
 
-    /* ─── Progress Chart ───────────────────────── */
-    #progressSummary { background:rgba(255,255,255,0.05); border-radius:12px; padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+    /* ─── Progress Chart ───────────────────── */
+    #progressSummary {
+      background:rgba(255,255,255,0.05);
+      border-radius:12px; padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
     #progressSummary h2 { color:var(--gold); margin-bottom:.75rem; }
-    #progressSummary canvas { width:100% !important; height:200px !important; }
+    #progressSummary canvas {
+      width:100% !important; height:200px !important;
+    }
 
-    /* ─── Challenge Modes ─────────────────────── */
-    #challengeModes { background:rgba(255,255,255,0.05); border-radius:12px; padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+    /* ─── Challenge Modes ─────────────────── */
+    #challengeModes {
+      background:rgba(255,255,255,0.05);
+      border-radius:12px; padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
     #challengeModes h2 { color:var(--gold); margin-bottom:1rem; }
     .challenge { margin-bottom:1rem; }
     .challenge h3 { font-size:1.1rem; margin-bottom:.5rem; }
-    .challenge p { font-size:.9rem; margin-bottom:.5rem; line-height:1.3; }
-    .challenge .prog-bar { background:rgba(255,255,255,0.1); border-radius:6px; overflow:hidden; height:12px; margin-bottom:.5rem; }
-    .challenge .prog-bar .fill { width:0; height:100%; background:var(--gold); transition:width 1s ease; }
-    .challenge button { background:var(--gold); color:var(--bg); border:none; padding:.4rem .8rem; border-radius:6px; cursor:pointer; transition:transform .2s; }
+    .challenge p { line-height:1.3; margin-bottom:.5rem; }
+    .challenge .prog-bar {
+      background:rgba(255,255,255,0.1);
+      border-radius:6px; overflow:hidden; height:12px;
+      margin-bottom:.5rem;
+    }
+    .challenge .prog-bar .fill {
+      height:100%; background:var(--gold);
+      transition:width 1s ease;
+    }
+    .challenge button {
+      background:var(--gold); color:var(--bg);
+      border:none; padding:.4rem .8rem; border-radius:6px;
+    }
     .challenge button:hover { transform:scale(1.05); }
 
-    /* ─── Live Sessions ───────────────────────── */
-    #liveSessions { background:rgba(255,255,255,0.05); border-radius:12px; padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+    /* ─── Live Sessions ───────────────────── */
+    #liveSessions {
+      background:rgba(255,255,255,0.05);
+      border-radius:12px; padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
     #liveSessions h2 { color:var(--gold); margin-bottom:1rem; }
     .session { margin-bottom:1rem; }
     .session h3 { font-size:1.1rem; margin-bottom:.5rem; }
-    .session p.info { font-size:.8rem; opacity:.8; margin-bottom:.5rem; }
-    .session p { font-size:.9rem; margin-bottom:.5rem; line-height:1.3; }
-    .session button { background:var(--gold); color:var(--bg); border:none; padding:.4rem .8rem; border-radius:6px; cursor:pointer; transition:transform .2s; }
+    .session p.info { opacity:.8; margin-bottom:.5rem; }
+    .session p { line-height:1.3; margin-bottom:.5rem; }
+    .session button {
+      background:var(--gold); color:var(--bg);
+      border:none; padding:.4rem .8rem; border-radius:6px;
+    }
     .session button:hover { transform:scale(1.05); }
 
-    /* ─── AI Chatbot (stylish B&W) ───────────────────────────────────────── */
+      /* ─── AI Chatbot (stylish B&W) ───────────────────────────────────────── */
     #chatbot {
       position:fixed; bottom:20px; right:20px;
       width:320px; max-height:420px;
@@ -204,170 +374,68 @@
   right: 0.75rem; /* a bit more room on the side */
 }
 
-    @media(max-width:900px){
-      .content { display:flex; flex-direction:column; }
-      #filters { flex-direction:column; align-items:flex-start; }
+
+    /* ─── RESPONSIVE ───────────────────────── */
+    @media(max-width:900px) {
+      .sidebar {
+        position:fixed; top:0; left:0;
+        transform:translateX(-100%);
+      }
+      .sidebar.open { transform:translateX(0); }
+      .sidebar-close { display:block; }
+      .sidebar-toggle { display:block; }
+      .main { margin-left:0; }
     }
-
-    /* ─── PHONE ONLY (≤414px) ─────────────────────────────────────────── */
-@media only screen and (max-width: 414px) {
-  /* —— Sidebar slides in from right —— */
-  .sidebar {
-    position: fixed;
-    top: 0;
-    right: -200px;           /* hidden by default */
-    width: 200px;
-    height: 100vh;
-    background: var(--bg);
-    border-left: 2px solid var(--gold);
-    transition: right .3s ease;
-    z-index: 1000;
-  }
-  .sidebar.open {
-    right: 0;               /* slide into view */
-  }
-
-  /* —— Hamburger toggle in top-right —— */
-  .sidebar-toggle {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1100;
-    background: var(--gold);
-    color: var(--bg);
-    border: none;
-    border-radius: 4px;
-    padding: 0.6rem;
-    font-size: 1.2rem;
-    display: block;
-  }
-
-  /* —— Close button inside sidebar —— */
-  .sidebar .sidebar-close {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    background: transparent;
-    border: none;
-    color: var(--white);
-    font-size: 1.2rem;
-    display: block;
-  }
-
-  /* —— Main content spans full width —— */
-  .main {
-    margin: 0 !important;
-  }
-
-  /* —— Header stacks neatly —— */
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 1rem;
-  }
-  header h1 {
-    font-size: 1.4rem;
-  }
-  header p {
-    font-size: 0.8rem;
-  }
-  header button {
-    width: 100%;
-    margin-top: 0.5rem;
-    padding: 0.6rem;
-    font-size: 0.9rem;
-  }
-
-  /* —— Single-column grid for filters/library/etc. —— */
-  #filters {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .content {
-    display: block;
-    padding: 1rem;
-  }
-  #workoutOfDay,
-  #library,
-  #myPlans,
-  #progressSummary,
-  #challengeModes,
-  #liveSessions {
-    margin-bottom: 1.5rem;
-  }
-  #library {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  /* —— Buttons & selects full-width —— */
-  #filters select,
-  #workoutOfDay button,
-  .card-body button {
-    width: 100%;
-  }
-
-  /* —— Tighter padding in cards —— */
-  .card,
-  .stat-card,
-  .chart-card {
-    padding: 1rem;
-  }
-
-  /* —— Smaller chart area —— */
-  #progressSummary canvas {
-    height: 150px !important;
-  }
-
-  /* —— Stack challenge items —— */
-  .challenge {
-    padding: 0.75rem;
-  }
-  .session {
-    padding: 0.75rem;
-  }
-}
-
+    @media(max-width:600px) {
+      header { flex-wrap:wrap; gap:.5rem; }
+      .header-center { order:3; width:100%; text-align:left; }
+      .header-left, .header-right { flex:1; justify-content:space-between; }
+      .content { display:flex; flex-direction:column; gap:1.5rem; }
+      #filters { flex-direction:column; }
+      #library { grid-template-columns:1fr; }
+      #progressSummary canvas { height:150px !important; }
+    }
   </style>
-    <script src="storage.js"></script>
-
 </head>
-<body>
-<!-- Hamburger button -->
-<button class="sidebar-toggle" aria-label="Open menu">
-  <i class="fas fa-bars"></i>
-</button>
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-     <!-- Close button -->
-  <button class="sidebar-close" aria-label="Close menu">
-    <i class="fas fa-times"></i>
-  </button>
-    <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
-    <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
-    <div class="menu-item active"><a href="#"><i class="fas fa-dumbbell"></i><span>Workouts</span></a></div>
-    <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
-<div class="menu-item profile">
-  <a href="profile.html">
-    <img id="sidebarAvatar"
-         src="https://i.pravatar.cc/150?u=default"
-         alt="Profile"
-         style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
-    <span>Profile</span>
-  </a>
-</div>
 
-    <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
+<body>
+  <!-- OVERLAY -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" role="navigation">
+    <button class="sidebar-close" aria-label="Close menu"><i class="fas fa-times"></i></button>
+    <div class="logo"><i class="fas fa-heartbeat"></i></div>
+    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
+    <a href="log.html" class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html" class="menu-item active"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <a href="profile.html" class="menu-item">
+      <img id="sidebarAvatar"
+           src="https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png"
+           alt="Profile"
+           class="profile-icon">
+      <span>Profile</span>
+    </a>
+    <a href="home.html" class="sign-out menu-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
   </aside>
 
+  <!-- MAIN & TOPBAR -->
   <div class="main">
     <header>
-      <h1>Workouts</h1>
-      <p>Browse routines, join challenges, and chat for suggestions.</p>
-      <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log Activity</button>
+      <div class="header-left">
+        <button class="sidebar-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+      </div>
+      <div class="header-center">
+        <h1>Workouts</h1>
+        <p>Browse routines, join challenges, and chat for suggestions.</p>
+      </div>
+      <div class="header-right">
+        <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log Activity</button>
+        <img id="topbarAvatar"
+             src="https://www.instagram.com/static/images/anonymousUser.png/23e7e7b853.png"
+             alt="Profile">
+      </div>
     </header>
 
     <div class="content">
@@ -441,7 +509,7 @@
     </div>
   </div>
 
-  <!-- ─── AI Chatbot ─────────────────────────────────────────────────── -->
+<!-- ─── AI Chatbot ─────────────────────────────────────────────────── -->
   <div id="chatbot">
     <header>
       <i class="fas fa-comments"></i>
@@ -462,253 +530,236 @@
   <button id="chatToggle">
     <i class="fas fa-comments"></i>
   </button>
-</body>
 
-  <script>
-    FT.applyTheme();
-FT.updateStats();
-FT.updateSidebarAvatar();
+
+
+<script>
   document.addEventListener('DOMContentLoaded', () => {
-    // ─── Helpers ────────────────────────────────────────────────────
-    const loadArr = key => JSON.parse(localStorage.getItem(key) || '[]');
-    const saveArr = (key, arr) => localStorage.setItem(key, JSON.stringify(arr));
+    // theme & avatars
+    FT.applyTheme();
+    FT.updateSidebarAvatar();        // updates both #sidebarAvatar & #topbarAvatar
+    FT.updateStats();
 
-    // ─── Sample Workouts Data ───────────────────────────────────────
+    // SIDEBAR TOGGLE
+    const sidebar   = document.getElementById('sidebar');
+    const overlay   = document.getElementById('overlay');
+    const btnOpen   = document.querySelector('.sidebar-toggle');
+    const btnClose  = document.querySelector('.sidebar-close');
+    const links     = sidebar.querySelectorAll('.menu-item a');
+
+    const openMenu = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); };
+    const closeMenu = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+
+    btnOpen.addEventListener('click', openMenu);
+    btnClose.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+    links.forEach(a=>a.addEventListener('click', closeMenu));
+
+    // SAMPLE WORKOUTS
     const workouts = [
-      { id:1, title:'Full-Body HIIT', category:'Cardio', duration:20, difficulty:'Intermediate', image:'hiit.jpg',
-        description:'Fast-paced, full-body intervals.',
-        exercises:['Jumping Jacks','Burpees','Mountain Climbers'],
-        equipment:'None', calories:200 },
-      { id:2, title:'Upper Body Strength', category:'Strength', duration:45, difficulty:'Advanced', image:'upper.jpg',
-        description:'Build upper-body power with weights.',
-        exercises:['Push-Ups','Pull-Ups','Dumbbell Rows'],
-        equipment:'Dumbbells', calories:300 },
-      { id:3, title:'Morning Yoga Flow', category:'Yoga', duration:30, difficulty:'Beginner', image:'yoga.jpg',
-        description:'Gentle sequences to wake up your body.',
-        exercises:['Sun Salutations','Tree Pose','Child’s Pose'],
-        equipment:'Mat', calories:120 }
+      { id:1, title:'Full-Body HIIT',    category:'Cardio',   duration:20, difficulty:'Intermediate', image:'hiit.jpg',
+        description:'Fast-paced full-body intervals.', exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None', calories:200 },
+      { id:2, title:'Upper Body Strength',category:'Strength', duration:45, difficulty:'Advanced',     image:'upper.jpg',
+        description:'Build upper-body power with weights.', exercises:['Push-Ups','Pull-Ups','Rows'], equipment:'Dumbbells', calories:300 },
+      { id:3, title:'Morning Yoga Flow',  category:'Yoga',     duration:30, difficulty:'Beginner',     image:'yoga.jpg',
+        description:'Gentle sequences to wake up your body.', exercises:['Sun Salutation','Tree Pose','Child’s Pose'], equipment:'Mat', calories:120 }
     ];
 
-    // ─── Workout of the Day ──────────────────────────────────────────
-    const wodTitle = document.getElementById('wodTitle');
-    const wodDesc  = document.getElementById('wodDesc');
-    const pickWOD = () => {
-      const w = workouts[Math.floor(Math.random() * workouts.length)];
+    // WOD
+    const wodTitle = document.getElementById('wodTitle'),
+          wodDesc  = document.getElementById('wodDesc');
+    const pickWOD = ()=>{
+      const w = workouts[Math.floor(Math.random()*workouts.length)];
       wodTitle.textContent = w.title;
       wodDesc.textContent  = w.description;
     };
     document.getElementById('randomizeWOD').addEventListener('click', pickWOD);
     pickWOD();
 
-    // ─── Filters & Library Rendering ───────────────────────────────
-    const filterCategory   = document.getElementById('filterCategory');
-    const filterDuration   = document.getElementById('filterDuration');
-    const filterDifficulty = document.getElementById('filterDifficulty');
-    const libraryEl        = document.getElementById('library');
+    // FILTERS & LIBRARY
+    const catSel = document.getElementById('filterCategory'),
+          durSel = document.getElementById('filterDuration'),
+          difSel = document.getElementById('filterDifficulty'),
+          lib    = document.getElementById('library');
 
-    new Set(workouts.map(w=>w.category)).forEach(cat => {
-      filterCategory.append(new Option(cat, cat));
-    });
+    new Set(workouts.map(w=>w.category)).forEach(c=>catSel.append(new Option(c,c)));
 
-    function renderLibrary() {
-      const cat  = filterCategory.value;
-      const maxD = +filterDuration.value || Infinity;
-      const diff = filterDifficulty.value;
-      libraryEl.innerHTML = '';
-      workouts
-        .filter(w => (!cat || w.category === cat) && w.duration <= maxD && (!diff || w.difficulty === diff))
-        .forEach(w => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = `
-            <img src="${w.image}" alt="${w.title}">
-            <div class="card-body">
-              <h3>${w.title}</h3>
-              <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
-              <p class="desc">${w.description}</p>
-              <button data-id="${w.id}">Details</button>
-            </div>`;
-          libraryEl.append(card);
-        });
-    }
-    [filterCategory, filterDuration, filterDifficulty].forEach(el => el.addEventListener('change', renderLibrary));
-    renderLibrary();
-const sidebar      = document.querySelector('.sidebar');
-const toggleBtn    = document.querySelector('.sidebar-toggle');
-const closeBtn     = document.querySelector('.sidebar-close');
-
-toggleBtn.addEventListener('click', () => sidebar.classList.add('open'));
-closeBtn .addEventListener('click', () => sidebar.classList.remove('open'));
-
-    // ─── Detail Modal Logic ────────────────────────────────────────
-    const modal       = document.getElementById('detailModal');
-    const detailTitle = document.getElementById('detailTitle');
-    const detailDesc  = document.getElementById('detailDesc');
-    const detailList  = document.getElementById('detailList');
-    const detailEquip = document.getElementById('detailEquip');
-    const detailCal   = document.getElementById('detailCal');
-    const btnLog      = document.getElementById('detailStart');
-    const btnSavePlan = document.getElementById('savePlan');
-
-    document.body.addEventListener('click', e => {
-      if (e.target.tagName === 'BUTTON' && e.target.dataset.id) {
-        const w = workouts.find(x => x.id == e.target.dataset.id);
-        detailTitle.textContent = w.title;
-        detailDesc.textContent  = w.description;
-        detailList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
-        detailEquip.textContent = w.equipment;
-        detailCal.textContent   = w.calories;
-
-        btnLog.onclick = () => {
-          const acts = loadArr('ft_activities');
-          acts.unshift({
-            date: new Date().toISOString().split('T')[0],
-            type:w.title, duration:w.duration,
-            distance:'', calories:w.calories, notes:''
-          });
-          saveArr('ft_activities', acts);
-          modal.style.display = 'none';
-          alert('Workout logged!');
-        };
-        btnSavePlan.onclick = () => {
-          const plans = loadArr('ft_plans');
-          if (!plans.includes(w.id)) plans.push(w.id);
-          saveArr('ft_plans', plans);
-          renderPlans();
-          alert('Saved to My Plans');
-        };
-        modal.style.display = 'flex';
-      }
-      if (e.target.classList.contains('close') || e.target === modal) {
-        modal.style.display = 'none';
-      }
-    });
-FT.updateStats();
-
-
-    // ─── My Plans ────────────────────────────────────────────────────
-    const plansList = document.getElementById('plansList');
-    function renderPlans() {
-      const plans = loadArr('ft_plans');
-      plansList.innerHTML = '';
-      plans.forEach((id,i) => {
-        const w  = workouts.find(x=>x.id===id);
-        const li = document.createElement('li');
-        li.textContent = w.title;
-        const btn = document.createElement('button');
-        btn.textContent = 'Remove';
-        btn.onclick = () => {
-          plans.splice(i,1);
-          saveArr('ft_plans', plans);
-          renderPlans();
-        };
-        li.append(btn);
-        plansList.append(li);
+    function renderLibrary(){
+      const cat = catSel.value,
+            max = +durSel.value || Infinity,
+            dif = difSel.value;
+      lib.innerHTML = '';
+      workouts.filter(w=>
+        (!cat||w.category===cat)
+        && w.duration<=max
+        && (!dif||w.difficulty===dif)
+      ).forEach(w=>{
+        const card = document.createElement('div'); card.className='card';
+        card.innerHTML=`
+          <img src="${w.image}" alt="${w.title}"/>
+          <div class="card-body">
+            <h3>${w.title}</h3>
+            <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+            <p class="desc">${w.description}</p>
+            <button data-id="${w.id}">Details</button>
+          </div>`;
+        lib.append(card);
       });
     }
+    [catSel,durSel,difSel].forEach(s=>s.addEventListener('change', renderLibrary));
+    renderLibrary();
+
+    // DETAIL MODAL
+    const modal = document.getElementById('detailModal'),
+          dt    = modal.querySelector('.close'),
+          dtTitle = document.getElementById('detailTitle'),
+          dtDesc  = document.getElementById('detailDesc'),
+          dtList  = document.getElementById('detailList'),
+          dtEquip = document.getElementById('detailEquip'),
+          dtCal   = document.getElementById('detailCal'),
+          btnLog  = document.getElementById('detailStart'),
+          btnSave = document.getElementById('savePlan');
+
+    document.body.addEventListener('click', e=>{
+      if(e.target.matches('.card-body button')){
+        const w = workouts.find(x=>x.id==e.target.dataset.id);
+        dtTitle.textContent = w.title;
+        dtDesc.textContent  = w.description;
+        dtList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
+        dtEquip.textContent = w.equipment;
+        dtCal.textContent   = w.calories;
+        modal.style.display = 'flex';
+
+        btnLog.onclick = ()=>{
+          const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+          acts.unshift({ date:new Date().toISOString().split('T')[0], type:w.title, duration:w.duration, distance:'', calories:w.calories, notes:'' });
+          localStorage.setItem('ft_activities', JSON.stringify(acts));
+          modal.style.display='none';
+          alert('Logged!');
+          FT.updateStats();
+        };
+        btnSave.onclick = ()=>{
+          const plans = JSON.parse(localStorage.getItem('ft_plans')||'[]');
+          if(!plans.includes(w.id)) plans.push(w.id);
+          localStorage.setItem('ft_plans', JSON.stringify(plans));
+          alert('Saved to My Plans');
+        };
+      }
+      if(e.target===dt||e.target===modal) modal.style.display='none';
+    });
+
+    // MY PLANS
+    function renderPlans(){
+      const out = document.getElementById('plansList');
+      const plans = JSON.parse(localStorage.getItem('ft_plans')||'[]');
+      out.innerHTML='';
+      plans.forEach((id,i)=>{
+        const w = workouts.find(x=>x.id===id);
+        const li = document.createElement('li');
+        li.innerHTML = `${w.title} <button data-idx="${i}">Remove</button>`;
+        out.append(li);
+      });
+    }
+    document.getElementById('plansList').addEventListener('click', e=>{
+      if(e.target.matches('button')){
+        const idx = +e.target.dataset.idx;
+        const arr = JSON.parse(localStorage.getItem('ft_plans')||'[]');
+        arr.splice(idx,1);
+        localStorage.setItem('ft_plans', JSON.stringify(arr));
+        renderPlans();
+      }
+    });
     renderPlans();
 
-    // ─── Progress Chart ─────────────────────────────────────────────
+    // PROGRESS CHART
     const ctx = document.getElementById('progressChart').getContext('2d');
-    function renderProgress() {
-      const acts = loadArr('ft_activities');
-      const byCat = acts.reduce((o,a) => {
-        const w = workouts.find(wk=>wk.title===a.type);
-        const cat = w ? w.category : 'Other';
-        o[cat] = (o[cat]||0) + 1;
+    function renderProgress(){
+      const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+      const byCat = acts.reduce((o,a)=>{
+        const w=workouts.find(x=>x.title===a.type);
+        const c=w? w.category:'Other';
+        o[c]=(o[c]||0)+1;
         return o;
-      }, {});
-      new Chart(ctx, {
-        type: 'bar',
-        data: { labels:Object.keys(byCat), datasets:[{ data:Object.values(byCat), label:'Sessions' }]},
-        options: {
-  responsive: true,
-  scales: {
-    x: {
-      title: { display: true, text: 'Workout Type', color: '#fff' },
-      ticks: { color: '#fff' }
-    },
-    y: {
-      title: { display: true, text: 'Sessions', color: '#fff' },
-      beginAtZero: true,
-      ticks: { color: '#fff' }
-    }
-  },
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      callbacks: {
-        title: ctx => ctx[0].label,
-        label: ctx => ` ${ctx.formattedValue} sessions`
-      }
-    }
-  }
-}
-
+      },{});
+      new Chart(ctx,{
+        type:'bar',
+        data:{labels:Object.keys(byCat),datasets:[{data:Object.values(byCat),label:'Sessions'}]},
+        options:{
+          responsive:true,
+          scales:{ x:{ticks:{color:'#fff'}}, y:{ticks:{color:'#fff'},beginAtZero:true} },
+          plugins:{legend:{display:false}}
+        }
       });
     }
     renderProgress();
 
-    // ─── Challenge Modes ─────────────────────────────────────────────
+    // CHALLENGE MODES
     const challenges = [
-      { id:1, title:'7-Day Abs', desc:'Daily core routine for 7 days.', target:7 },
-      { id:2, title:'30-Day Push-Up', desc:'Increase push-ups each day for 30 days.', target:30 }
+      { id:1, title:'7-Day Abs',           desc:'Daily core work to sculpt your mid-section.', target:7 },
+      { id:2, title:'30-Day Push-Up',      desc:'Build strength by adding 2 push-ups/day.', target:30 },
+      { id:3, title:'14-Day Yoga Retreat', desc:'Stretch, breath & unwind each morning.', target:14 },
+      { id:4, title:'10K Steps for 10 Days',desc:'Walk 10,000 steps each day.', target:10 }
     ];
-    const chList = document.getElementById('challengesList');
-    function renderChallenges() {
-      const joined = loadArr('ft_joined');
-      chList.innerHTML = '';
-      joined.forEach(id => {
-        const ch = challenges.find(c=>c.id===id);
-        const prog = Math.min(ch.target, loadArr('ft_activities').filter(a => a.type.includes(ch.title.split(' ')[1])).length);
-        const pct = Math.round(prog/ch.target*100);
-        const div = document.createElement('div');
-        div.className = 'challenge';
-        div.innerHTML = `
+    function renderChallenges(){
+      const list = document.getElementById('challengesList');
+      const joined = JSON.parse(localStorage.getItem('ft_joined')||'[]');
+      list.innerHTML='';
+      challenges.forEach(ch=>{
+        const done = joined.includes(ch.id);
+        const sessions = JSON.parse(localStorage.getItem('ft_activities')||'[]')
+          .filter(a=>a.type.includes(ch.title.split('-')[1])).length;
+        const pct = Math.min(100,Math.round((sessions/ch.target)*100));
+        const div = document.createElement('div'); div.className='challenge';
+        div.innerHTML=`
           <h3>${ch.title}</h3>
           <p>${ch.desc}</p>
           <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
-          <p style="opacity:.8;">${prog}/${ch.target}</p>`;
-        chList.append(div);
-      });
-      challenges.filter(c=>!joined.includes(c.id)).forEach(ch => {
-        const div = document.createElement('div');
-        div.className = 'challenge';
-        div.innerHTML = `<h3>${ch.title}</h3><p>${ch.desc}</p>`;
-        const btn = document.createElement('button');
-        btn.textContent = 'Join';
-        btn.onclick = () => { joined.push(ch.id); saveArr('ft_joined', joined); renderChallenges(); };
-        div.append(btn);
-        chList.append(div);
+          <p style="opacity:.8;">${sessions}/${ch.target}</p>
+          <button>${done?'Joined ✓':'Join Challenge'}</button>
+        `;
+        div.querySelector('button').onclick = ()=>{
+          if(!done){
+            joined.push(ch.id);
+            localStorage.setItem('ft_joined', JSON.stringify(joined));
+            renderChallenges();
+          }
+        };
+        list.append(div);
       });
     }
     renderChallenges();
 
-    // ─── Live Sessions ────────────────────────────────────────────────
+    // LIVE SESSIONS
     const sessions = [
-      { id:1, title:'Live Yoga Flow', desc:'30-min guided stretch.', host:'Alice', time:'Today 6pm UTC' },
-      { id:2, title:'HIIT Blast', desc:'High-intensity interval.', host:'Bob', time:'Tomorrow 7am UTC' }
+      { id:1, img:'alice.jpg', title:'Sunrise Yoga',    host:'Alice', time:'Today 6 AM UTC', desc:'Gentle awaken your body with Vinyasa.' },
+      { id:2, img:'bob.jpg',   title:'HIIT Blast',      host:'Bob',   time:'Today 7 PM UTC', desc:'High-intensity intervals to torch calories.' },
+      { id:3, img:'cara.jpg',  title:'Cardio Dance',    host:'Cara',  time:'Tomorrow 5 PM UTC', desc:'Fun dance routine to get your heart racing.' },
+      { id:4, img:'dan.jpg',   title:'Core & Balance',  host:'Dan',   time:'Tomorrow 9 AM UTC', desc:'Stability drills for core strength.' }
     ];
-    const sessList = document.getElementById('sessionsList');
-    function renderSessions() {
-      const joined = loadArr('ft_sessions');
-      sessList.innerHTML = '';
-      sessions.forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'session';
-        div.innerHTML = `
-          <h3>${s.title}</h3>
-          <p class="info">${s.host} • ${s.time}</p>
-          <p>${s.desc}</p>`;
-        const btn = document.createElement('button');
-        btn.textContent = joined.includes(s.id) ? 'Joined' : 'Join';
-        btn.onclick = () => {
-          if (!joined.includes(s.id)) joined.push(s.id);
-          saveArr('ft_sessions', joined);
-          renderSessions();
+    function renderSessions(){
+      const list = document.getElementById('sessionsList');
+      const joined = JSON.parse(localStorage.getItem('ft_sessions')||'[]');
+      list.innerHTML='';
+      sessions.forEach(s=>{
+        const joinedThis = joined.includes(s.id);
+        const div = document.createElement('div'); div.className='session';
+        div.innerHTML=`
+          <img src="${s.img}" alt="${s.host}"/>
+          <div class="session-details">
+            <h3>${s.title}</h3>
+            <p class="info">${s.host} • ${s.time}</p>
+            <p class="desc">${s.desc}</p>
+          </div>
+          <button>${joinedThis?'Joined ✓':'Join'}</button>
+        `;
+        div.querySelector('button').onclick = ()=>{
+          if(!joinedThis){
+            joined.push(s.id);
+            localStorage.setItem('ft_sessions', JSON.stringify(joined));
+            renderSessions();
+          }
         };
-        div.append(btn);
-        sessList.append(div);
+        list.append(div);
       });
     }
     renderSessions();
@@ -779,8 +830,5 @@ document.getElementById('clearChat').addEventListener('click', () => {
   chatToggle.style.display = 'flex';
 });
 
-
   });
   </script>
-</body>
-</html>
