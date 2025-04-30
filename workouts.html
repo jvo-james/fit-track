@@ -208,14 +208,143 @@
       .content { display:flex; flex-direction:column; }
       #filters { flex-direction:column; align-items:flex-start; }
     }
+
+    /* ─── PHONE ONLY (≤414px) ─────────────────────────────────────────── */
+@media only screen and (max-width: 414px) {
+  /* —— Sidebar slides in from right —— */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: -200px;           /* hidden by default */
+    width: 200px;
+    height: 100vh;
+    background: var(--bg);
+    border-left: 2px solid var(--gold);
+    transition: right .3s ease;
+    z-index: 1000;
+  }
+  .sidebar.open {
+    right: 0;               /* slide into view */
+  }
+
+  /* —— Hamburger toggle in top-right —— */
+  .sidebar-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1100;
+    background: var(--gold);
+    color: var(--bg);
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem;
+    font-size: 1.2rem;
+    display: block;
+  }
+
+  /* —— Close button inside sidebar —— */
+  .sidebar .sidebar-close {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    font-size: 1.2rem;
+    display: block;
+  }
+
+  /* —— Main content spans full width —— */
+  .main {
+    margin: 0 !important;
+  }
+
+  /* —— Header stacks neatly —— */
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  header h1 {
+    font-size: 1.4rem;
+  }
+  header p {
+    font-size: 0.8rem;
+  }
+  header button {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  /* —— Single-column grid for filters/library/etc. —— */
+  #filters {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .content {
+    display: block;
+    padding: 1rem;
+  }
+  #workoutOfDay,
+  #library,
+  #myPlans,
+  #progressSummary,
+  #challengeModes,
+  #liveSessions {
+    margin-bottom: 1.5rem;
+  }
+  #library {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* —— Buttons & selects full-width —— */
+  #filters select,
+  #workoutOfDay button,
+  .card-body button {
+    width: 100%;
+  }
+
+  /* —— Tighter padding in cards —— */
+  .card,
+  .stat-card,
+  .chart-card {
+    padding: 1rem;
+  }
+
+  /* —— Smaller chart area —— */
+  #progressSummary canvas {
+    height: 150px !important;
+  }
+
+  /* —— Stack challenge items —— */
+  .challenge {
+    padding: 0.75rem;
+  }
+  .session {
+    padding: 0.75rem;
+  }
+}
+
   </style>
     <script src="storage.js"></script>
 
 </head>
 <body>
-
+<!-- Hamburger button -->
+<button class="sidebar-toggle" aria-label="Open menu">
+  <i class="fas fa-bars"></i>
+</button>
   <!-- SIDEBAR -->
   <aside class="sidebar">
+     <!-- Close button -->
+  <button class="sidebar-close" aria-label="Close menu">
+    <i class="fas fa-times"></i>
+  </button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
@@ -404,6 +533,12 @@ FT.updateSidebarAvatar();
     }
     [filterCategory, filterDuration, filterDifficulty].forEach(el => el.addEventListener('change', renderLibrary));
     renderLibrary();
+const sidebar      = document.querySelector('.sidebar');
+const toggleBtn    = document.querySelector('.sidebar-toggle');
+const closeBtn     = document.querySelector('.sidebar-close');
+
+toggleBtn.addEventListener('click', () => sidebar.classList.add('open'));
+closeBtn .addEventListener('click', () => sidebar.classList.remove('open'));
 
     // ─── Detail Modal Logic ────────────────────────────────────────
     const modal       = document.getElementById('detailModal');
