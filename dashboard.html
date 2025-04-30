@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FitTrack | Dashboard</title>
   <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
+   <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
@@ -12,9 +16,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <!-- Your shared utilities -->
   <script src="storage.js"></script>
+
   <style>
     :root {
       --bg: #000;
@@ -23,11 +27,13 @@
       --font-base: 'Raleway', sans-serif;
       --font-head: 'Poppins', sans-serif;
       --transition: .3s ease;
-      --sidebar-w: 200px;
+      --sidebar-w: 80px;
+      --mobile-break: 600px;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display:flex; min-height:100vh;
+      display:flex;
+      min-height:100vh;
       background:var(--bg); color:var(--white);
       font-family:var(--font-base);
       overflow-x:hidden;
@@ -35,7 +41,7 @@
     a { color:inherit; text-decoration:none; }
     button { font-family:var(--font-head); transition:var(--transition); cursor:pointer; }
 
-    /* ─── SIDEBAR (desktop) ─── */
+    /* ─── DESKTOP SIDEBAR ─── */
     .sidebar {
       width: var(--sidebar-w);
       background:rgba(0,0,0,0.9);
@@ -49,15 +55,15 @@
       font-size:1.6rem; color:var(--gold); margin-bottom:2rem;
     }
     .sidebar .menu-item {
-      width:100%; padding:.8rem 1rem;
-      display:flex; align-items:center; gap:.6rem;
+      width:100%; padding:.8rem 0;
+      display:flex; flex-direction:column; align-items:center; gap:.4rem;
       transition:background var(--transition);
     }
     .sidebar .menu-item:hover,
     .sidebar .menu-item.active {
       background:rgba(255,152,0,0.2);
     }
-    .sidebar .menu-item i { width:20px; text-align:center; }
+    .sidebar .menu-item i { font-size:1.2rem; }
     .sidebar .sign-out {
       margin-top:auto; margin-bottom:1rem;
     }
@@ -70,7 +76,7 @@
       border-bottom:2px solid var(--gold);
       position:sticky; top:0; z-index:100;
     }
-    /* greeting + button centered by default */
+    /* center block for greeting & button */
     header .center {
       flex:1; text-align:center;
     }
@@ -82,8 +88,8 @@
       border:none; border-radius:30px; padding:.5rem 1rem;
       font-weight:600;
     }
-    /* hidden on desktop */
-    .hamburger, .profile-btn {
+    header .hamburger,
+    header .profile-btn {
       display:none; background:transparent; border:none;
       font-size:1.5rem; color:var(--white);
     }
@@ -92,7 +98,7 @@
     .content { padding:1rem 1.5rem; overflow-y:auto; }
     .stats {
       display:grid; gap:1rem;
-      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
     }
     .stat-card {
       background:rgba(255,255,255,0.05);
@@ -103,11 +109,11 @@
       background:rgba(255,255,255,0.1);
     }
     .stat-card i {
-      font-size:1.6rem; color:var(--gold); margin-bottom:.5rem;
+      font-size:1.4rem; color:var(--gold); margin-bottom:.4rem;
     }
-    .stat-card h3 { font-size:1.3rem; }
+    .stat-card h3 { font-size:1.2rem; }
 
-    .progress { margin-top:1.5rem; }
+    .progress { margin-top:1rem; }
     .progress .bar-container {
       background:rgba(255,255,255,0.2);
       border-radius:6px; overflow:hidden; height:10px;
@@ -118,9 +124,9 @@
     }
 
     .goals {
-      margin-top:1.5rem;
+      margin-top:1rem;
       display:grid; gap:1rem;
-      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
     }
     .goal-card {
       background:rgba(255,255,255,0.05); border-radius:8px; padding:.8rem;
@@ -135,9 +141,9 @@
     }
 
     .charts {
-      margin-top:1.5rem;
+      margin-top:1rem;
       display:grid; gap:1rem;
-      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
     }
     .chart-card {
       background:rgba(255,255,255,0.05);
@@ -232,7 +238,7 @@
       font-size:.9rem; opacity:.7;
     }
 
-    /* ─── MOBILE (≤600px) ─── */
+    /* ─── MOBILE (≤var(--mobile-break)) ─── */
     @media(max-width:600px) {
       /* hide desktop sidebar */
       .sidebar {
@@ -245,18 +251,17 @@
         transform:translateX(0);
       }
       /* show hamburger & profile in header */
-      .hamburger, .profile-btn {
+      header .hamburger,
+      header .profile-btn {
         display:block;
-        background:transparent; border:none;
-        font-size:1.4rem; color:var(--white);
       }
-      .hamburger { position:absolute; left:1rem; }
-      .profile-btn { position:absolute; right:1rem; }
+      header .hamburger { position:absolute; left:1rem; }
+      header .profile-btn { position:absolute; right:1rem; }
       /* center greeting & button */
       header .center {
         text-align:center; margin:0 auto;
       }
-      /* stack charts smaller */
+      /* smaller charts */
       .chart-card canvas {
         height:200px !important;
       }
@@ -265,22 +270,22 @@
 </head>
 <body>
 
-  <!-- MOBILE SIDEBAR TOGGLE -->
+  <!-- MOBILE HAMBURGER -->
   <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
 
-  <!-- DESKTOP / MOBILE SIDEBAR -->
+  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <button class="close sidebar-close" id="sidebar-close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <div class="menu-item active"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dash</a></div>
-    <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i> Log</a></div>
-    <div class="menu-item"><a href="workouts.html"><i class="fas fa-dumbbell"></i> Workouts</a></div>
-    <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i> Board</a></div>
-    <div class="menu-item"><a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a></div>
-    <div class="sign-out menu-item"><a href="home.html"><i class="fas fa-sign-out-alt"></i> Sign Out</a></div>
+    <div class="menu-item active"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i></a></div>
+    <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i></a></div>
+    <div class="menu-item"><a href="workouts.html"><i class="fas fa-dumbbell"></i></a></div>
+    <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i></a></div>
+    <div class="menu-item"><a href="profile.html"><i class="fas fa-user-circle"></i></a></div>
+    <div class="sign-out menu-item"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
   </aside>
 
-  <!-- PROFILE INCOMPLETE TOAST -->
+  <!-- PROFILE REMINDER TOAST -->
   <div class="toast hidden" id="profile-toast">
     👋 Hey, complete your <a href="profile.html" style="color:var(--gold);">profile</a> to unlock all features!
     <button id="toast-close">&times;</button>
@@ -288,6 +293,7 @@
 
   <div class="main">
     <header>
+      <button class="hamburger" id="hamburger-clone" style="display:none;"><i class="fas fa-bars"></i></button>
       <button class="profile-btn" id="profile-btn"><i class="fas fa-user-circle"></i></button>
       <div class="center">
         <h1 id="greeting">Loading…</h1>
@@ -302,17 +308,8 @@
         <div class="stat-card"><i class="fas fa-road"></i><h3 id="distanceCount">0 km</h3><p>Distance</p></div>
         <div class="stat-card"><i class="fas fa-fire"></i><h3 id="caloriesCount">0</h3><p>Calories</p></div>
         <div class="stat-card"><i class="fas fa-calendar-day"></i><h3 id="activeDaysCount">0</h3><p>Days</p></div>
-       <div class="stat-card">
-  <i class="fas fa-stopwatch"></i>
-  <h3 id="todayTime">0 min</h3>
-  <p>Today’s Time</p>
-</div>
-<div class="stat-card">
-  <i class="fas fa-percentage"></i>
-  <h3 id="avgCalories">0</h3>
-  <p>Avg Calories</p>
-</div>
-
+        <div class="stat-card"><i class="fas fa-stopwatch"></i><h3 id="todayTime">0 min</h3><p>Today’s Time</p></div>
+        <div class="stat-card"><i class="fas fa-percentage"></i><h3 id="avgCalories">0</h3><p>Avg Calories</p></div>
       </section>
 
       <!-- PROGRESS -->
@@ -371,31 +368,33 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1) User & greeting
+      // 1) Load user
       const cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
       if (!cur.name) return location.href='home.html';
       const greet = document.getElementById('greeting');
       greet.textContent = cur.isNew
         ? `Hello ${cur.name}!`
         : `Welcome back, ${cur.name}!`;
-      // show profile reminder once if incomplete
-      const profile = JSON.parse(localStorage.getItem('ft_profile')||'{}');
-      if (cur.isNew && !profile.complete) {
-        const toast = document.getElementById('profile-toast');
-        toast.classList.remove('hidden');
-        document.getElementById('toast-close')
-          .onclick = () => toast.classList.add('hidden');
-      }
-      cur.isNew = false;
-      localStorage.setItem('ft_current', JSON.stringify(cur));
 
-      // 2) Sidebar mobile toggle
+      // 2) Profile reminder toast (once)
+      const profile = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+      if (cur.isNew && !profile.complete && !sessionStorage.getItem('profileToasted')) {
+        document.getElementById('profile-toast').classList.remove('hidden');
+        sessionStorage.setItem('profileToasted','1');
+      }
+      document.getElementById('toast-close').onclick = ()=>{
+        document.getElementById('profile-toast').classList.add('hidden');
+      };
+      cur.isNew = false;
+      localStorage.setItem('ft_current',JSON.stringify(cur));
+
+      // 3) Sidebar toggle (mobile)
       const sb = document.getElementById('sidebar'),
             openBtn = document.getElementById('hamburger'),
             closeBtn = document.getElementById('sidebar-close');
-      openBtn.onclick = () => sb.classList.add('open');
-      closeBtn.onclick = () => sb.classList.remove('open');
-      document.addEventListener('click', e => {
+      openBtn.onclick = ()=> sb.classList.add('open');
+      closeBtn.onclick = ()=> sb.classList.remove('open');
+      document.addEventListener('click', e=>{
         if (sb.classList.contains('open')
             && !sb.contains(e.target)
             && !openBtn.contains(e.target)) {
@@ -403,150 +402,119 @@
         }
       });
 
-      // 3) Profile button on mobile
-      document.getElementById('profile-btn')
-        .onclick = () => location.href='profile.html';
+      // 4) Profile button
+      document.getElementById('profile-btn').onclick = ()=> location.href='profile.html';
 
-      // 4) “New Workout” modal
+      // 5) New workout modal
       const wm = document.getElementById('workout-modal');
-      document.querySelector('.new-workout')
-        .onclick = () => wm.classList.add('active');
-      document.getElementById('workout-close')
-        .onclick = () => wm.classList.remove('active');
+      document.querySelector('.new-workout').onclick = ()=> wm.classList.add('active');
+      document.getElementById('workout-close').onclick = ()=> wm.classList.remove('active');
       wm.onclick = e => { if (e.target===wm) wm.classList.remove('active'); };
-      document.getElementById('w-save')
-        .onclick = () => {
-          const date = document.getElementById('w-date').value;
-          const dur  = document.getElementById('w-duration').value;
-          if (!date||!dur) return alert('Date & duration required');
-          const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-          acts.push({date,duration:dur});
-          localStorage.setItem('ft_activities', JSON.stringify(acts));
-          location.reload();
-        };
+      document.getElementById('w-save').onclick = ()=>{
+        const date = document.getElementById('w-date').value;
+        const dur  = document.getElementById('w-duration').value;
+        if (!date||!dur) return alert('Date & duration required');
+        const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+        acts.push({date,duration:dur});
+        localStorage.setItem('ft_activities',JSON.stringify(acts));
+        location.reload();
+      };
 
-      // 3) Stats cards
-  const { workouts = 0, distanceKm = 0, calories = 0, daysSet = [] } = cur.stats || {};
-  document.getElementById('workoutsCount').textContent  = workouts;
-  document.getElementById('distanceCount').textContent  = distanceKm.toFixed(2) + ' km';
-  document.getElementById('caloriesCount').textContent  = calories;
-  document.getElementById('activeDaysCount').textContent = daysSet.length;
+      // 6) Stats & goals
+      const stats = cur.stats||{};
+      document.getElementById('workoutsCount').textContent  = stats.workouts||0;
+      document.getElementById('distanceCount').textContent  = (stats.distanceKm||0).toFixed(2)+' km';
+      document.getElementById('caloriesCount').textContent  = stats.calories||0;
+      document.getElementById('activeDaysCount').textContent = (stats.daysSet||[]).length;
 
-  // 4) Today's time & avg calories
-  const acts   = JSON.parse(localStorage.getItem('ft_activities') || '[]');
-  const today  = new Date().toISOString().slice(0,10);
-  const todayTotal = acts
-    .filter(a => a.date === today)
-    .reduce((sum,a) => sum + (parseFloat(a.duration)||0), 0);
-  document.getElementById('todayTime').textContent = todayTotal + ' min';
+      const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+      const today = new Date().toISOString().slice(0,10);
+      const todayTotal = acts.filter(a=>a.date===today)
+                             .reduce((s,a)=>s+(+a.duration||0),0);
+      document.getElementById('todayTime').textContent = todayTotal+' min';
+      document.getElementById('avgCalories').textContent = stats.workouts
+        ? Math.round((stats.calories||0)/stats.workouts)
+        : 0;
 
-  const avgCal = workouts ? Math.round(calories / workouts) : 0;
-  document.getElementById('avgCalories').textContent = avgCal;
+      // weekly goal
+      const weekCount = acts.filter(a=>{
+        const d=new Date(a.date), n=new Date();
+        return (n-d)/(1000*60*60*24)<=7;
+      }).length;
+      const progPct = Math.min(100,Math.round(weekCount/5*100));
+      document.getElementById('progressBar').style.width = progPct+'%';
 
-  // 5) Weekly progress bar (5 workouts goal)
-  const weekCount = acts.filter(a => {
-    const d = new Date(a.date), now = new Date();
-    return (now - d)/(1000*60*60*24) <= 7;
-  }).length;
-  const progPct = Math.min(100, Math.round(weekCount/5*100));
-  document.getElementById('progressBar').style.width = progPct + '%';
+      document.getElementById('goalDaily').style.width   = Math.min(100,Math.round(todayTotal/30*100))+'%';
+      document.getElementById('goalWeekly').style.width  = progPct+'%';
+      document.getElementById('goalMonthly').style.width = Math.min(100,Math.round((stats.workouts||0)/20*100))+'%';
 
-  // 6) Goal fills
-  document.getElementById('goalDaily').style.width   = Math.min(100, Math.round(todayTotal/30*100)) + '%';
-  document.getElementById('goalWeekly').style.width  = progPct + '%';
-  document.getElementById('goalMonthly').style.width = Math.min(100, Math.round(workouts/20*100)) + '%';
+      // 7) Charts
+      const cd = cur.chartData||{labels:[],activity:[],distribution:[]};
+      new Chart(document.getElementById('activityChart'), {
+        type:'line',
+        data:{ labels:cd.labels,datasets:[{
+          label:'Minutes',data:cd.activity,
+          borderColor:'#ff9800',backgroundColor:'rgba(255,152,0,0.2)',fill:true,tension:.3
+        }]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+      });
+      new Chart(document.getElementById('distributionChart'), {
+        type:'pie',
+        data:{ labels:['Cardio','Strength','Flexibility','Other'],datasets:[{
+          data:cd.distribution,
+          backgroundColor:['rgba(255,152,0,0.8)','rgba(255,87,34,0.8)','rgba(76,175,80,0.8)','rgba(3,169,244,0.8)']
+        }]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+      });
 
-  // 7) Charts
-  const { labels = [], activity = [], distribution = [] } = cur.chartData || {};
-  new Chart(document.getElementById('activityChart'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Minutes',
-        data: activity,
-        borderColor: '#ff9800',
-        backgroundColor: 'rgba(255,152,0,0.2)',
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: true, position: 'bottom' } },
-      scales: {
-        x: { title: { display: true, text: 'Day' } },
-        y: { title: { display: true, text: 'Duration (min)' }, beginAtZero: true }
-      }
-    }
-  });
-  new Chart(document.getElementById('distributionChart'), {
-    type: 'pie',
-    data: {
-      labels: ['Cardio','Strength','Flexibility','Other'],
-      datasets: [{
-        data: distribution,
-        backgroundColor: [
-          'rgba(255,152,0,0.8)',
-          'rgba(255,87,34,0.8)',
-          'rgba(76,175,80,0.8)',
-          'rgba(3,169,244,0.8)'
-        ]
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: true, position: 'bottom' } }
-    }
-  });
-
- // 5) Challenges
+      // 8) Challenges
       const defaultCh = [
-        {id:1,text:'Run 50km',done:false},
-        {id:2,text:'Push-ups ×50',done:false},
-        {id:3,text:'Cycle 100km',done:false},
+        {id:1,text:'Run 50 km',done:false},
+        {id:2,text:'Push-ups × 50',done:false},
+        {id:3,text:'Cycle 100 km',done:false},
       ];
       const chs = JSON.parse(localStorage.getItem('ft_challenges'))||defaultCh;
       const ul = document.getElementById('challengesList');
       ul.innerHTML = '';
       chs.forEach(ch=>{
-        const li=document.createElement('li');
-        li.textContent=ch.text;
-        li.classList.toggle('completed',ch.done);
-        li.onclick=()=>{
-          ch.done=!ch.done;
+        const li = document.createElement('li');
+        li.textContent = ch.text;
+        if(ch.done) li.classList.add('completed');
+        li.onclick = ()=>{
+          ch.done = !ch.done;
           localStorage.setItem('ft_challenges',JSON.stringify(chs));
-          li.classList.toggle('completed',ch.done);
+          li.classList.toggle('completed', ch.done);
         };
-        ul.appendChild(li);
+        ul.append(li);
       });
 
-      // 6) Leaderboard
+      // 9) Leaderboard
       const lb = JSON.parse(localStorage.getItem('ft_leaderboard'))||[
-       {name:'You',score:workouts}
-        {name:'Alex',score:12},{name:'Sarah',score:15}
+        {name:'You',score:stats.workouts||0},
+        {name:'Alex',score:12},
+        {name:'Sarah',score:15}
       ];
       const ol = document.getElementById('leaderboardList');
-      ol.innerHTML='';
-      lb.forEach(entry=>{
-        const li=document.createElement('li');
-        li.textContent=`${entry.name}: ${entry.score}`;
-        ol.appendChild(li);
+      ol.innerHTML = '';
+      lb.forEach(e=>{
+        const li = document.createElement('li');
+        li.textContent = `${e.name}: ${e.score}`;
+        ol.append(li);
       });
 
-      // 7) Community feed
+      // 10) Community feed
       const feed = JSON.parse(localStorage.getItem('ft_feed'))||[
-        'Alex ran 5km','Sarah completed 50 push-ups'
+        'Alex ran 5 km','Sarah completed 50 push-ups'
       ];
       const div = document.getElementById('feedList');
-      div.innerHTML='';
+      div.innerHTML = '';
       feed.forEach(item=>{
-        const d=document.createElement('div');d.className='feed-item';d.textContent=item;
-        div.appendChild(d);
+        const d = document.createElement('div');
+        d.className = 'feed-item';
+        d.textContent = item;
+        div.append(d);
       });
-}); 
+    });
   </script>
 </body>
 </html>
