@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FitTrack | Dashboard</title>
   <!-- Google Fonts & FontAwesome -->
@@ -44,21 +44,17 @@
       font-family:var(--font-head);
       transition:var(--transition);
       cursor:pointer;
-      background:transparent;
-      border:none;
-      color:var(--white);
+      background:transparent; border:none; color:var(--white);
     }
 
-    /* Overlay for mobile sidebar */
+    /* Overlay */
     .overlay {
-      display:none;
-      position:fixed; inset:0;
-      background:rgba(0,0,0,0.5);
-      z-index:var(--overlay-z);
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.5); z-index:var(--overlay-z);
     }
     .overlay.active { display:block; }
 
-    /* Notification bar */
+    /* Notification */
     .notif-bar {
       display:flex; align-items:center; justify-content:space-between;
       background:rgba(255,152,0,0.1); border-left:4px solid var(--gold);
@@ -68,23 +64,24 @@
     .notif-bar.hidden { display:none; }
     .notif-bar button { font-size:1.2rem; margin-left:1rem; }
 
-    /* Desktop sidebar */
+    /* Sidebar */
     .sidebar {
-      width: var(--sidebar-w);
-      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
+      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
       padding-top:1rem; position:sticky; top:0; height:100vh;
-      transition:transform var(--transition), width var(--transition);
+      transition:transform var(--transition);
       z-index:var(--sidebar-z);
     }
+    .sidebar.open { transform:translateX(0); }
     .sidebar .sidebar-close { display:none; }
     .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item,
     .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
       display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      transition:background var(--transition);
-      background:transparent; border:none; color:var(--white);
+      transition:background var(--transition); color:var(--white);
+      background:transparent; border:none;
     }
     .sidebar a.menu-item:hover,
     .sidebar a.menu-item.active,
@@ -92,19 +89,23 @@
       background:rgba(255,152,0,0.2);
     }
     .sidebar a.menu-item i,
-    .sidebar button.profile-menu img.avatar {
+    .sidebar button.profile-menu i.avatar {
       font-size:1.2rem;
     }
     .sidebar a.menu-item span,
     .sidebar button.profile-menu span { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
 
-    /* Avatar styling */
+    /* Avatar default */
+    i.avatar {
+      width:32px; height:32px;
+      border-radius:50%; line-height:32px;
+      text-align:center; font-size:1.5rem;
+      border:2px solid var(--white);
+    }
     img.avatar {
-      width:32px;
-      height:32px;
-      border-radius:50%;
-      object-fit:cover;
+      width:32px; height:32px;
+      border-radius:50%; object-fit:cover;
       border:2px solid var(--white);
     }
 
@@ -122,9 +123,9 @@
       background:var(--gold); color:var(--bg);
       border-radius:30px; padding:.5rem 1rem;
     }
-    .hamburger, .profile-btn { display:none; font-size:1.5rem; }
+    .hamburger, .profile-btn { display:none; }
 
-    /* Content blocks */
+    /* Content */
     .content { padding:1rem 1.5rem; overflow-y:auto; }
     .stats { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
     .stat-card { background:rgba(255,255,255,0.05); border-radius:8px; padding:1rem; text-align:center; transition:var(--transition); }
@@ -161,9 +162,13 @@
     /* Footer */
     footer { text-align:center; padding:1rem 0; border-top:1px solid rgba(255,255,255,0.2); font-size:.9rem; opacity:.7; }
 
-    /* Mobile tweaks */
+    /* Mobile */
     @media (max-width:600px) {
-      .sidebar { position:fixed; top:0; bottom:0; left:0; width:75vw; max-width:260px; transform:translateX(-100%); }
+      .sidebar {
+        position:fixed; top:0; bottom:0; left:0;
+        width:75vw; max-width:260px;
+        transform:translateX(-100%);
+      }
       .sidebar.open { transform:translateX(0); }
       .sidebar-close { display:block; position:absolute; top:1rem; right:1rem; font-size:1.5rem; }
 
@@ -175,7 +180,7 @@
         position:static; font-size:1rem; flex:1; text-align:center; color:var(--white);
       }
       .hamburger, .profile-btn {
-        display:block; position: fixed; top:1rem; font-size:1.5rem; z-index:201;
+        display:block; position:fixed; top:1rem; font-size:1.5rem; z-index:var(--header-z); color: white;
       }
       .hamburger { left:1rem; }
       .profile-btn { right:1rem; }
@@ -198,33 +203,32 @@
   <!-- Notification -->
   <div id="notif-bar" class="notif-bar hidden">
     👋 Don’t forget to <a href="profile.html">complete your profile</a>.
-    <button id="notif-close" aria-label="Close notification">&times;</button>
+    <button id="notif-close" aria-label="Close">&times;</button>
   </div>
 
   <!-- Mobile controls -->
   <button id="hamburger" class="hamburger" aria-label="Open menu">
     <i class="fas fa-bars"></i>
   </button>
- <button id="profile-btn" class="profile-btn" aria-label="View profile">
-  <i id="top-avatar" class="fas fa-user-circle avatar"></i>
-</button>
+  <button id="profile-btn" class="profile-btn" aria-label="View profile">
+    <i id="top-avatar" class="fas fa-user-circle avatar"></i>
+  </button>
 
   <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">&times;</button>
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
+
+    <a href="dashboard.html" class="menu-item active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+    <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="board.html"     class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+
     <button class="menu-item profile-menu">
-      <img id="side-avatar" class="avatar" src="default-avatar.png" alt="Profile">
+      <i id="side-avatar" class="fas fa-user-circle avatar"></i>
       <span>Profile</span>
     </button>
-    <a href="dashboard.html" class="menu-item active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-    <a href="log.html" class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html" class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="board.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-     <button class="menu-item profile-menu">
-  <i id="side-avatar" class="fas fa-user-circle avatar"></i>
-  <span>Profile</span>
-</button>
+
     <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
@@ -232,8 +236,8 @@
   <div class="main">
     <header>
       <h1 id="greeting">Loading…</h1>
-      <button class="new-workout" aria-label="Log new workout">
-        <i class="fas fa-plus"></i><span class="label">New Workout</span>
+      <button class="new-workout" aria-label="New workout">
+        <i class="fas fa-plus"></i><span>New Workout</span>
       </button>
     </header>
 
@@ -305,28 +309,21 @@
         ? `Hello ${cur.name}!`
         : `Welcome back, ${cur.name}!`;
 
-      
-const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+      const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
 
-// helper to swap an <i> for an <img>
-function maybeReplaceIcon(id) {
-  const icon = document.getElementById(id);
-  if (prof.avatar) {
-    const img = document.createElement('img');
-    img.src = prof.avatar;
-    img.className = 'avatar';
-    img.alt = 'Profile';
-    icon.replaceWith(img);
-  }
-}
-
-// run for top & side
-maybeReplaceIcon('top-avatar');
-maybeReplaceIcon('side-avatar');
-
-      // 2) Avatar init
-      document.getElementById('top-avatar').src = avatarUrl;
-      document.getElementById('side-avatar').src = avatarUrl;
+      // 2) Maybe replace default icon with uploaded avatar
+      function maybeReplaceIcon(id) {
+        const icon = document.getElementById(id);
+        if (prof.avatar) {
+          const img = document.createElement('img');
+          img.src = prof.avatar;
+          img.className = 'avatar';
+          img.alt = 'Profile';
+          icon.replaceWith(img);
+        }
+      }
+      maybeReplaceIcon('top-avatar');
+      maybeReplaceIcon('side-avatar');
 
       // 3) Notification once per session
       if (!sessionStorage.getItem('notifShown') && !prof.complete) {
@@ -338,12 +335,11 @@ maybeReplaceIcon('side-avatar');
       cur.isNew = false;
       localStorage.setItem('ft_current', JSON.stringify(cur));
 
-      // 4) Sidebar toggle + overlay
+      // 4) Sidebar toggle
       const sidebar = document.getElementById('sidebar'),
             overlay = document.getElementById('overlay'),
             openBtn = document.getElementById('hamburger'),
             closeBtn= document.getElementById('sidebar-close');
-
       openBtn.onclick = () => {
         sidebar.classList.add('open');
         overlay.classList.add('active');
@@ -375,7 +371,7 @@ maybeReplaceIcon('side-avatar');
         location.reload();
       };
 
-       // ————————— STATS, PROGRESS, GOALS —————————
+      // ————————— STATS, PROGRESS, GOALS —————————
       const stats = cur.stats || {};
       document.getElementById('workoutsCount').textContent = stats.workouts || 0;
       document.getElementById('distanceCount').textContent = (stats.distanceKm||0).toFixed(2) + ' km';
@@ -465,7 +461,6 @@ maybeReplaceIcon('side-avatar');
         d.textContent=item;
         div.append(d);
       });
-
     });
   </script>
 </body>
