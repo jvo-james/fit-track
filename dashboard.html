@@ -302,6 +302,17 @@
         <div class="stat-card"><i class="fas fa-road"></i><h3 id="distanceCount">0 km</h3><p>Distance</p></div>
         <div class="stat-card"><i class="fas fa-fire"></i><h3 id="caloriesCount">0</h3><p>Calories</p></div>
         <div class="stat-card"><i class="fas fa-calendar-day"></i><h3 id="activeDaysCount">0</h3><p>Days</p></div>
+       <div class="stat-card">
+  <i class="fas fa-stopwatch"></i>
+  <h3 id="todayTime">0 min</h3>
+  <p>Today’s Time</p>
+</div>
+<div class="stat-card">
+  <i class="fas fa-percentage"></i>
+  <h3 id="avgCalories">0</h3>
+  <p>Avg Calories</p>
+</div>
+
       </section>
 
       <!-- PROGRESS -->
@@ -514,7 +525,7 @@
 
       // 6) Leaderboard
       const lb = JSON.parse(localStorage.getItem('ft_leaderboard'))||[
-        {name:'You',score:stats.workouts||0},
+       {name:'You',score:workouts}
         {name:'Alex',score:12},{name:'Sarah',score:15}
       ];
       const ol = document.getElementById('leaderboardList');
@@ -535,7 +546,7 @@
         const d=document.createElement('div');d.className='feed-item';d.textContent=item;
         div.appendChild(d);
       });
-
+}); 
   </script>
 </body>
 </html>
