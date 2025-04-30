@@ -160,7 +160,16 @@
 
 </head>
 <body>
+  <!-- Hamburger toggle -->
+<button class="sidebar-toggle" aria-label="Open menu">
+  <i class="fas fa-bars"></i>
+</button>
+
   <aside class="sidebar" role="navigation" aria-label="Main sidebar">
+    <button class="sidebar-close" aria-label="Close menu">
+  <i class="fas fa-times"></i>
+</button>
+
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
     <div class="menu-item active"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
@@ -422,6 +431,32 @@ FT.updateSidebarAvatar();
       FT.updateStats();
 
     });
+    document.addEventListener('DOMContentLoaded', () => {
+  const sidebar      = document.querySelector('.sidebar');
+  const toggleBtn    = document.querySelector('.sidebar-toggle');
+  const closeBtn     = document.querySelector('.sidebar-close');
+  const pageWrapper  = document.body; // to disable scroll if you want
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    pageWrapper.classList.add('no-scroll');
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    pageWrapper.classList.remove('no-scroll');
+  }
+
+  toggleBtn.addEventListener('click', openSidebar);
+  closeBtn .addEventListener('click', closeSidebar);
+
+  // Also auto-close when a menu link is tapped
+  sidebar.querySelectorAll('.menu-item a').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 900) closeSidebar();
+    });
+  });
+});
+
   </script>
 </body>
 </html>
