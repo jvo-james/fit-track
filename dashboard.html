@@ -175,7 +175,7 @@
         position:static; font-size:1rem; flex:1; text-align:center; color:var(--white);
       }
       .hamburger, .profile-btn {
-        display:block; position:absolute; top:1rem; font-size:1.5rem; z-index:201;
+        display:block; position: fixed; top:1rem; font-size:1.5rem; z-index:201;
       }
       .hamburger { left:1rem; }
       .profile-btn { right:1rem; }
@@ -205,9 +205,9 @@
   <button id="hamburger" class="hamburger" aria-label="Open menu">
     <i class="fas fa-bars"></i>
   </button>
-  <button id="profile-btn" class="profile-btn" aria-label="View profile">
-    <img id="top-avatar" class="avatar" src="default-avatar.png" alt="Profile">
-  </button>
+ <button id="profile-btn" class="profile-btn" aria-label="View profile">
+  <i id="top-avatar" class="fas fa-user-circle avatar"></i>
+</button>
 
   <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
@@ -221,6 +221,10 @@
     <a href="log.html" class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html" class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="board.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+     <button class="menu-item profile-menu">
+  <i id="side-avatar" class="fas fa-user-circle avatar"></i>
+  <span>Profile</span>
+</button>
     <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
@@ -301,8 +305,24 @@
         ? `Hello ${cur.name}!`
         : `Welcome back, ${cur.name}!`;
 
-      const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}'),
-            avatarUrl = prof.avatar || 'default-avatar.png';
+      
+const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+
+// helper to swap an <i> for an <img>
+function maybeReplaceIcon(id) {
+  const icon = document.getElementById(id);
+  if (prof.avatar) {
+    const img = document.createElement('img');
+    img.src = prof.avatar;
+    img.className = 'avatar';
+    img.alt = 'Profile';
+    icon.replaceWith(img);
+  }
+}
+
+// run for top & side
+maybeReplaceIcon('top-avatar');
+maybeReplaceIcon('side-avatar');
 
       // 2) Avatar init
       document.getElementById('top-avatar').src = avatarUrl;
