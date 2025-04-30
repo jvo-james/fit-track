@@ -90,45 +90,92 @@
       .nav-links.open { right:0; }
     }
 
-    /* ─── HERO ─── */
-    #hero {
-      display:flex; align-items:center; justify-content:center;
-      height:66vh; padding:0 2rem; gap:2rem;
-    }
-    .hero-content {
-      flex:1;
-      max-width:500px;
-    }
-    .hero-content h1 {
-      font-size:3rem; color:var(--gold); line-height:1.2;
-    }
-    .hero-content p {
-      margin:1rem 0; color:rgba(255,255,255,0.8);
-      font-size:1rem;
-    }
-    .hero-features {
-      list-style:none; margin:1.5rem 0; padding:0;
-    }
-    .hero-features li {
-      display:flex; align-items:center; gap:.75rem;
-      margin-bottom:.75rem; font-size:.95rem; color:rgba(255,255,255,0.9);
-    }
-    .hero-features i {
-      color:var(--gold); font-size:1.2rem;
-    }
-    .hero-buttons {
-      display:flex; gap:1rem; margin-top:1rem;
-    }
-    .hero-screenshot {
-      flex:1; max-width:400px;
-      border-radius:20px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.7);
-      animation:float 6s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%,100%{transform: translateY(0);}
-      50%{transform: translateY(-20px);}
-    }
+   /* ─── HERO ─── */
+#hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 66vh;
+  padding: 0 2rem;
+  gap: 2rem;
+}
+.hero-content {
+  flex: 1;
+  max-width: 500px;
+}
+.hero-content h1 {
+  font-size: 3rem;
+  color: var(--gold);
+  line-height: 1.2;
+  overflow: hidden;            /* for typewriter */
+  white-space: nowrap;
+  border-right: .15em solid var(--gold);
+  animation:
+    typing 3s steps(30,end) 1,
+    blink  .7s step-end infinite;
+}
+.hero-content p {
+  margin: 1rem 0;
+  color: rgba(255,255,255,0.8);
+  font-size: 1rem;
+}
+.hero-features {
+  list-style: none;
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.hero-features li {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .75rem;
+  font-size: .95rem;
+  color: rgba(255,255,255,0.9);
+}
+.hero-features i {
+  color: var(--gold);
+  font-size: 1.2rem;
+}
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.hero-screenshot {
+  flex: 1;
+  max-width: 400px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+  animation: float 6s ease-in-out infinite;
+}
+
+/* TYPEWRITER KEYFRAMES */
+@keyframes typing {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+/* FLOAT ANIMATION */
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-20px); }
+}
+
+/* STACK on MOBILE */
+@media (max-width: 768px) {
+  #hero {
+    flex-direction: column;
+    height: auto;
+    padding: 2rem 1rem;
+  }
+  .hero-screenshot {
+    margin-top: 1.5rem;
+    width: 80%;
+  }
+}
 
     /* ─── FEATURES ─── */
     #features {
@@ -336,23 +383,31 @@
     <div class="nav-toggle"><i class="fas fa-bars"></i></div>
   </nav>
 
-  <!-- HERO -->
-  <section id="hero">
-    <div class="hero-content">
-      <h1>Welcome to FitTrack</h1>
-      <p>Your fitness journey made simple. Log workouts, join challenges, and track progress with AI-driven insights.</p>
-      <ul class="hero-features">
-        <li><i class="fas fa-chart-line"></i> Real-Time Analytics</li>
-        <li><i class="fas fa-users"></i> Global Community Challenges</li>
-        <li><i class="fas fa-robot"></i> Personalized AI Coaching</li>
-      </ul>
-      <div class="hero-buttons">
-        <button class="primary" data-modal="signin"><i class="fas fa-sign-in-alt"></i> Get Started</button>
-        <button data-modal="signup"><i class="fas fa-user-plus"></i> Join Free</button>
-      </div>
+<section id="hero">
+  <div class="hero-content">
+    <h1 id="typewriter"></h1>
+    <p>Your fitness journey made simple. Log workouts, join challenges, and track progress with AI-driven insights.</p>
+    <ul class="hero-features">
+      <li><i class="fas fa-chart-line"></i> Real-Time Analytics</li>
+      <li><i class="fas fa-users"></i> Global Community Challenges</li>
+      <li><i class="fas fa-robot"></i> Personalized AI Coaching</li>
+    </ul>
+    <div class="hero-buttons">
+      <button class="primary" data-modal="signin">
+        <i class="fas fa-sign-in-alt"></i> Get Started
+      </button>
+      <button data-modal="signup">
+        <i class="fas fa-user-plus"></i> Join Free
+      </button>
     </div>
-    <img src="hero-screenshot.jpg" alt="App Screenshot" class="hero-screenshot">
-  </section>
+  </div>
+  <img
+    src="hero-screenshot.jpg"
+    alt="FitTrack App Screenshot"
+    class="hero-screenshot"
+  />
+</section>
+
   
   <!-- FEATURES -->
   <section id="features">
@@ -513,6 +568,37 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+  
+  const texts = [
+    "Welcome to FitTrack",
+    "Log Every Workout",
+    "Join Fun Challenges",
+    "Climb the Leaderboards"
+  ];
+  let ti = 0, ci = 0;
+  const el = document.getElementById("typewriter");
+
+  function type() {
+    if (ci < texts[ti].length) {
+      el.textContent += texts[ti][ci++];
+      setTimeout(type, 100);
+    } else {
+      setTimeout(erase, 2000);
+    }
+  }
+  function erase() {
+    if (ci > 0) {
+      el.textContent = texts[ti].substring(0, --ci);
+      setTimeout(erase, 50);
+    } else {
+      ti = (ti + 1) % texts.length;
+      setTimeout(type, 500);
+    }
+  }
+  setTimeout(type, 500);
+
+
+
    // ─── NAVBAR SCROLL & MOBILE MENU ─────────────────────────
     
       const nav = document.getElementById('navbar');
