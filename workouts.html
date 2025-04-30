@@ -14,44 +14,92 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="storage.js"></script>
 
   <style>
     :root {
-      --bg: #000; --gold: #ff9800; --white: #fff; --font: 'Raleway', sans-serif;
+      --bg:#000; --gold:#ff9800; --white:#fff;
+      --font-base:'Raleway',sans-serif;
+      --font-head:'Poppins',sans-serif;
+      --transition:.3s ease;
+      --sidebar-w:80px; --mobile-break:600px;
+      --overlay-z:90; --sidebar-z:100; --header-z:200;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
+    * {margin:0;padding:0;box-sizing:border-box;}
     body {
       display:flex; min-height:100vh;
       background:var(--bg); color:var(--white);
-      font-family:var(--font);
+      font-family:var(--font-base);
+      overflow-x:hidden;
     }
-    a { color:inherit; text-decoration:none; }
+    a {color:inherit;text-decoration:none;}
+    button {font-family:var(--font-head);transition:var(--transition);cursor:pointer;background:transparent;border:none;color:var(--white);}
 
-    /* ─── SIDEBAR ─────────────────────────────────── */
-    .sidebar { position:sticky; top:0; height:100vh; width:80px;
-      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
+    /* OVERLAY */
+    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:var(--overlay-z); }
+    .overlay.active { display:block; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0; z-index:1000;
+      padding-top:1rem; position:sticky; top:0; height:100vh;
+      transform:translateX(-100%); transition:transform var(--transition);
+      z-index:var(--sidebar-z);
     }
-    .logo { font-size:1.5rem; color:var(--gold); margin-bottom:2rem; }
-    .menu-item { width:100%; text-align:center; padding:1rem 0; transition:background .2s; }
-    .menu-item.active, .menu-item:hover { background:rgba(255,152,0,0.2); }
-    .menu-item a { display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; }
-    .menu-item i { font-size:1.4rem; }
-    .menu-item span { font-size:0.6rem; margin-top:.2rem; }
-    .sign-in-btn { margin-top:auto; margin-bottom:1rem; width:50px; height:50px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 0 10px var(--gold); transition:transform .2s; }
-    .sign-in-btn:hover { transform:scale(1.1); }
+    .sidebar.open {transform:translateX(0);}
+    .sidebar-close {display:none;}
+    .logo {font-size:1.6rem;color:var(--gold);margin-bottom:2rem;}
 
-    /* ─── MAIN ───────────────────────────────────── */
-    .main { flex:1; overflow-y:auto; }
-    header { position:sticky; top:0; z-index:200; display:flex; align-items:center; justify-content:space-between; padding:1.5rem; background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold); }
+    .sidebar a.menu-item,
+    .sidebar button.profile-menu {
+      width:100%;padding:.8rem 0;
+      display:flex;flex-direction:column;align-items:center;gap:.3rem;
+      transition:background var(--transition);
+    }
+    .sidebar a.menu-item:hover,
+    .sidebar a.menu-item.active,
+    .sidebar button.profile-menu:hover {
+      background:rgba(255,152,0,0.2);
+    }
+    .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar {font-size:1.2rem;}
+    .sidebar a.menu-item span,
+    .sidebar button.profile-menu span {font-size:.75rem;}
+    .sidebar a.sign-out {margin-top:auto;margin-bottom:1rem!important;}
+
+    /* AVATAR */
+    i.avatar, img.avatar {
+      width:32px;height:32px;border-radius:50%;
+      object-fit:cover;border:2px solid var(--white);
+    }
+
+    /* HEADER */
+    header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
+      border-bottom:2px solid var(--gold);
+      position:sticky; top:0; z-index:var(--header-z);
+    }
     header h1 { font-size:1.6rem; }
-    header p { font-size:0.9rem; opacity:0.7; }
-    header button { background:var(--gold); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:30px; cursor:pointer; transition:transform .2s; }
+    header p { font-size:.9rem; opacity:.7; }
+    header button { background:var(--gold); color:var(--bg); padding:.5rem 1rem; border-radius:30px; }
     header button:hover { transform:scale(1.05); }
+
+    /* MOBILE CONTROLS */
+    .hamburger,.profile-btn {
+      display:none; position:fixed; top:1rem;
+      font-size:1.5rem; z-index:9999;
+    }
+    .hamburger { left:1rem; }
+    .profile-btn { right:1rem; }
+
+    /* MAIN CONTENT */
+    .main { flex:1; overflow-y:auto; }
     .content { padding:1.5rem; display:grid; gap:2rem; }
 
-    /* ─── Workout of the Day ────────────────────── */
+   /* ─── Workout of the Day ────────────────────── */
     #workoutOfDay { background:rgba(255,255,255,0.05); border-radius:12px; padding:1.5rem; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
     #workoutOfDay h2 { display:flex; align-items:center; gap:.5rem; color:var(--gold); margin-bottom:1rem; }
     #workoutOfDay p { margin-bottom:1rem; line-height:1.4; }
@@ -204,7 +252,20 @@
   right: 0.75rem; /* a bit more room on the side */
 }
 
+
+    /* RESPONSIVE */
     @media(max-width:900px){
+      .sidebar {position:fixed;}
+      .main {margin-left:var(--sidebar-w);}
+    }
+    @media(max-width:var(--mobile-break)){
+      header {padding:1rem 3rem;} 
+      .hamburger,.profile-btn {display:block;}
+      .sidebar {position:fixed;transform:translateX(-100%);}
+      .sidebar.open {transform:translateX(0);}
+    }
+
+     @media(max-width:900px){
       .content { display:flex; flex-direction:column; }
       #filters { flex-direction:column; align-items:flex-start; }
     }
@@ -331,46 +392,44 @@
 }
 
   </style>
-    <script src="storage.js"></script>
-
 </head>
 <body>
-<!-- Hamburger button -->
-<button class="sidebar-toggle" aria-label="Open menu">
-  <i class="fas fa-bars"></i>
-</button>
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-     <!-- Close button -->
-  <button class="sidebar-close" aria-label="Close menu">
-    <i class="fas fa-times"></i>
-  </button>
-    <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
-    <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
-    <div class="menu-item active"><a href="#"><i class="fas fa-dumbbell"></i><span>Workouts</span></a></div>
-    <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
-<div class="menu-item profile">
-  <a href="profile.html">
-    <img id="sidebarAvatar"
-         src="https://i.pravatar.cc/150?u=default"
-         alt="Profile"
-         style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
-    <span>Profile</span>
-  </a>
-</div>
+  <!-- OVERLAY -->
+  <div id="overlay" class="overlay"></div>
 
-    <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
+  <!-- MOBILE BUTTONS -->
+  <button id="hamburger" class="hamburger" aria-label="Open menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <button id="profile-btn" class="profile-btn" aria-label="View profile">
+    <i id="top-avatar" class="fas fa-user-circle avatar"></i>
+  </button>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar">
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="logo"><i class="fas fa-heartbeat"></i></div>
+    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+    <a href="log.html" class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html" class="menu-item active"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <button class="menu-item profile-menu">
+      <i id="side-avatar" class="fas fa-user-circle avatar"></i>
+      <span>Profile</span>
+    </button>
+    <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
+  <!-- MAIN -->
   <div class="main">
     <header>
       <h1>Workouts</h1>
       <p>Browse routines, join challenges, and chat for suggestions.</p>
       <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log Activity</button>
     </header>
-
-    <div class="content">
+  <div class="content">
       <!-- 1. Workout of the Day -->
       <section id="workoutOfDay">
         <h2><i class="fas fa-star"></i> Workout of the Day</h2>
@@ -462,8 +521,36 @@
   <button id="chatToggle">
     <i class="fas fa-comments"></i>
   </button>
-</body>
 
+  <!-- ALL YOUR SCRIPTS BELOW -->
+  <script>
+    // Sidebar toggling
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const sidebar = document.getElementById('sidebar'),
+            overlay = document.getElementById('overlay'),
+            openBtn = document.getElementById('hamburger'),
+            closeBtn= document.getElementById('sidebar-close'),
+            prof    = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+
+      openBtn.onclick = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); };
+      const closeBar = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+      closeBtn.onclick = closeBar;
+      overlay.onclick  = closeBar;
+      sidebar.querySelectorAll('.menu-item a').forEach(a=> a.onclick=closeBar);
+
+      // Avatar swap
+      ['top-avatar','side-avatar'].forEach(id=>{
+        const icon = document.getElementById(id);
+        if(prof.avatar){
+          const img = document.createElement('img');
+          img.src=prof.avatar; img.className='avatar'; img.alt='Profile';
+          icon.replaceWith(img);
+        }
+      });
+    });
+
+    // … rest of your page scripts (filters, modals, charts, chatbot) unchanged …
+  </script>
   <script>
     FT.applyTheme();
 FT.updateStats();
