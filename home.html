@@ -17,12 +17,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   
   <style>
-    /* ─── VARIABLES & RESET ─── */
+   /* ─── VARIABLES & RESET ─── */
     :root {
       --bg: #000;
       --gold: #ff9800;
       --white: #fff;
-      --font: 'Poppins', sans-serif;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -41,28 +40,24 @@
       display:flex; align-items:center; justify-content:space-between;
       padding:1rem 2rem; background:rgba(0,0,0,0.8);
       backdrop-filter: blur(6px); z-index:1000;
-      transition:background .3s, padding .3s;
+      transition:background .3s,padding .3s;
     }
     nav.scrolled {
       background:rgba(0,0,0,0.95); padding:.5rem 2rem;
     }
-    .logo {
-      font-size:1.8rem; font-weight:700;
-      color: var(--gold);
-    }
+    .logo { font-size:1.8rem; font-weight:700; color:var(--gold); }
     .nav-links {
       display:flex; gap:1.5rem;
     }
     .nav-links a {
-      display:flex; align-items:center; gap:.3rem;
       font-weight:500; text-transform:uppercase;
       position:relative; padding:.2rem 0;
-      transition: color .3s;
+      transition:color .3s;
     }
     .nav-links a::after {
       content:''; position:absolute; left:0; bottom:-3px;
       width:0; height:2px; background:var(--gold);
-      transition: width .3s;
+      transition:width .3s;
     }
     .nav-links a:hover {
       color: var(--gold);
@@ -70,69 +65,70 @@
     .nav-links a:hover::after {
       width:100%;
     }
-   .cta-btns button {
-      margin-left: 1rem;
-      padding: .5rem 1.2rem;
-      border: 2px solid var(--gold);
-      background: transparent;
-      color: var(--gold);
-      border-radius: 30px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all .3s;
+    .cta-btns button {
+      margin-left:1rem; padding:.5rem 1.2rem;
+      border:2px solid var(--gold); background:transparent;
+      color:var(--gold); border-radius:30px;
+      font-weight:600; cursor:pointer; transition:all .3s;
     }
     .cta-btns button.primary {
-      background: var(--gold);
-      color: var(--bg);
+      background:var(--gold); color:var(--bg);
     }
-    .cta-btns button:hover {
-      transform: scale(1.05);
-    }
-    .nav-toggle {
-      display:none; font-size:1.5rem; cursor:pointer;
-    }
+    .cta-btns button:hover { transform:scale(1.05); }
+    .nav-toggle { display:none; font-size:1.5rem; cursor:pointer; }
 
     @media(max-width:900px){
-      .nav-links { 
-        position: fixed; top:0; right:-100%; height:100vh;
-        width:240px; background:rgba(0,0,0,0.95);
+      .nav-toggle { display:block; }
+      .cta-btns { display:none; }
+      .nav-links {
+        position:fixed; top:0; right:-100%;
+        height:100vh; width:220px;
+        background:rgba(0,0,0,0.95);
         flex-direction:column; padding-top:5rem; gap:1.5rem;
         transition:right .3s;
       }
       .nav-links.open { right:0; }
-      .cta-btns { display:none; }
-      .nav-toggle { display:block; }
     }
 
     /* ─── HERO ─── */
     #hero {
-      height:100vh; display:flex; align-items:center; justify-content:center;
-      text-align:center; position:relative; padding:0 1rem;
-      overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+      height:66vh; padding:0 2rem; gap:2rem;
     }
-    #hero h1 {
-      font-size:3rem; color:var(--gold);
-      line-height:1.2; z-index:2;
+    .hero-content {
+      flex:1;
+      max-width:500px;
     }
-    #hero p {
-      margin-top:.8rem; color:rgba(255,255,255,0.8);
-      max-width:600px; z-index:2;
+    .hero-content h1 {
+      font-size:3rem; color:var(--gold); line-height:1.2;
     }
-    .hero-buttons { margin-top:2rem; display:flex; gap:1rem; justify-content:center; z-index:2; }
+    .hero-content p {
+      margin:1rem 0; color:rgba(255,255,255,0.8);
+      font-size:1rem;
+    }
+    .hero-features {
+      list-style:none; margin:1.5rem 0; padding:0;
+    }
+    .hero-features li {
+      display:flex; align-items:center; gap:.75rem;
+      margin-bottom:.75rem; font-size:.95rem; color:rgba(255,255,255,0.9);
+    }
+    .hero-features i {
+      color:var(--gold); font-size:1.2rem;
+    }
+    .hero-buttons {
+      display:flex; gap:1rem; margin-top:1rem;
+    }
     .hero-screenshot {
-      position:absolute; bottom:5%; right:5%;
-      width:300px; border-radius:20px;
+      flex:1; max-width:400px;
+      border-radius:20px;
       box-shadow:0 10px 30px rgba(0,0,0,0.7);
-      animation: float 6s ease-in-out infinite;
-      z-index:1;
+      animation:float 6s ease-in-out infinite;
     }
     @keyframes float {
       0%,100%{transform: translateY(0);}
       50%{transform: translateY(-20px);}
     }
-    .typewriter { display:inline-block; overflow:hidden; white-space:nowrap; border-right:.15em solid var(--gold); animation: typing 3s steps(30,end), blink .7s infinite; }
-    @keyframes typing { from{width:0;} to{width:100%;} }
-    @keyframes blink { 50%{border-color:transparent;} }
 
     /* ─── FEATURES ─── */
     #features {
@@ -274,15 +270,14 @@
     .modal {
       background:var(--bg); border:2px solid var(--gold);
       border-radius:12px; padding:2rem; width:90%; max-width:360px;
-      transform: scale(0.8); transition:transform .3s;
+      transform:scale(0.8); transition:transform .3s;
       box-shadow:0 10px 30px rgba(0,0,0,0.7);
       position:relative;
     }
-    .modal-overlay.active .modal {
-      transform: scale(1);
-    }
-    .modal h2 {
-      text-align:center; color:var(--gold); margin-bottom:1rem;
+    .modal-overlay.active .modal { transform:scale(1); }
+    .modal .close {
+      position:absolute; top:1rem; right:1rem; font-size:1.2rem;
+      cursor:pointer; color:rgba(255,255,255,0.7);
     }
     .modal input {
       width:100%; padding:.8rem; margin-bottom:1rem;
@@ -294,18 +289,14 @@
       background:var(--gold); color:var(--bg); font-weight:600;
       cursor:pointer; transition:transform .3s;
     }
-    .modal .btn:hover { transform: scale(1.05); }
-    .modal .close {
-      position:absolute; top:1rem; right:1rem; font-size:1.2rem;
-      cursor:pointer; color:rgba(255,255,255,0.7);
-    }
+    .modal .btn:hover { transform:scale(1.05); }
 
     @media(max-width:768px){
-      .features-grid, .testimonials-grid, .pricing-grid {
-        grid-template-columns:1fr !important;
+      #hero {
+        flex-direction:column;
+        height:auto; padding:2rem 1rem;
       }
-      #hero h1 { font-size:2.4rem; }
-      .hero-screenshot { display:none; }
+      .hero-screenshot { margin-top:1.5rem; width:80%; }
     }
   </style>
 </head>
@@ -313,26 +304,20 @@
 
   <!-- SIGN-IN/SIGN-UP MODAL -->
   <div class="modal-overlay" id="modal">
- <div class="modal">
-  <span class="close" data-close>&times;</span>
-  <h2 id="modal-title">Sign In</h2>
-
-  <!-- NEW: Full Name (only used in Sign Up) -->
-  <input type="text" id="name" placeholder="Full Name" style="display:none" />
-
-  <input type="email" id="email" placeholder="Email" required />
-  <input type="password" id="password" placeholder="Password" required />
-  <!-- NEW: Confirm Password -->
-  <input type="password" id="confirm-password" placeholder="Confirm Password" style="display:none" />
-
-  <button class="btn" id="modal-action">Sign In</button>
-
-  <p style="text-align:center; color:rgba(255,255,255,0.7);">
-    <span id="switch-text">Don’t have an account?</span>
-    <a href="#" id="switch-link" style="color:var(--gold);">Sign Up</a>
-  </p>
-</div>
-</div> 
+    <div class="modal">
+      <span class="close" data-close>&times;</span>
+      <h2 id="modal-title">Sign In</h2>
+      <input type="text" id="name" placeholder="Full Name" style="display:none" />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="password" id="confirm-password" placeholder="Confirm Password" style="display:none" />
+      <button class="btn" id="modal-action">Sign In</button>
+      <p style="text-align:center;color:rgba(255,255,255,0.7);">
+        <span id="switch-text">Don’t have an account?</span>
+        <a href="#" id="switch-link" style="color:var(--gold);">Sign Up</a>
+      </p>
+    </div>
+  </div>
 
   <!-- NAVBAR -->
   <nav id="navbar">
@@ -353,21 +338,22 @@
 
   <!-- HERO -->
   <section id="hero">
-    <div>
-      <h1>
-  <span id="typewriter" class="typewriter"></span>
-  <span class="cursor"></span>
-</h1>
-<p>Log workouts • Join challenges • Climb leaderboards • Stay motivated</p>
-      <br>
-      <div class="cta-btns">
+    <div class="hero-content">
+      <h1>Welcome to FitTrack</h1>
+      <p>Your fitness journey made simple. Log workouts, join challenges, and track progress with AI-driven insights.</p>
+      <ul class="hero-features">
+        <li><i class="fas fa-chart-line"></i> Real-Time Analytics</li>
+        <li><i class="fas fa-users"></i> Global Community Challenges</li>
+        <li><i class="fas fa-robot"></i> Personalized AI Coaching</li>
+      </ul>
+      <div class="hero-buttons">
         <button class="primary" data-modal="signin"><i class="fas fa-sign-in-alt"></i> Get Started</button>
-        <button class="" data-modal="signup"><i class="fas fa-user-plus"></i> Join Free</button>
+        <button data-modal="signup"><i class="fas fa-user-plus"></i> Join Free</button>
       </div>
     </div>
     <img src="hero-screenshot.jpg" alt="App Screenshot" class="hero-screenshot">
   </section>
-
+  
   <!-- FEATURES -->
   <section id="features">
     <div class="features-grid">
@@ -527,11 +513,15 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    // ─── NAVBAR SCROLL ───────────────────────────
-    const nav = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      nav.classList.toggle('scrolled', window.scrollY > 50);
-    });
+   // ─── NAVBAR SCROLL & MOBILE MENU ─────────────────────────
+    
+      const nav = document.getElementById('navbar');
+      window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 50);
+      });
+      const toggle = document.querySelector('.nav-toggle');
+      const links = document.querySelector('.nav-links');
+      toggle.addEventListener('click', () => links.classList.toggle('open'));
 
     // ─── MOBILE MENU ─────────────────────────────
     const navToggle = document.querySelector('.nav-toggle');
