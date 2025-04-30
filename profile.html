@@ -139,14 +139,137 @@
       .fields { grid-template-columns:1fr; }
       .field textarea { grid-column:span 1; }
     }
+    /* ─── PHONE ONLY (≤414px) ───────────────────────────────────────── */
+@media only screen and (max-width: 414px) {
+  /* —— Off-canvas sidebar on the right —— */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: -80px;             /* hidden offscreen */
+    width: 0;
+    height: 100vh;
+    background: var(--bg);
+    border-left: 2px solid var(--gold);
+    border-right: none;
+    overflow: hidden;
+    transition: right .3s ease, width .3s ease;
+    z-index: 1100;
+  }
+  .sidebar.open {
+    right: 0;                /* slide in */
+    width: 200px;
+  }
+
+  /* —— Sidebar toggle button (☰) —— */
+  #sidebarToggle {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1200;
+    background: var(--gold);
+    color: var(--bg);
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    display: block;
+  }
+
+  /* —— Sidebar close button (×) —— */
+  #sidebarClose {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--fg);
+    font-size: 1.2rem;
+    display: block;
+  }
+
+  /* —— Main content full width —— */
+  .main {
+    margin: 0 !important;
+  }
+
+  /* —— Header stacks & shrinks —— */
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  header h1 {
+    font-size: 1.4rem;
+  }
+  header button {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  /* —— Profile form to single column —— */
+  #profileForm {
+    grid-template-columns: 1fr !important;
+    padding: 1rem !important;
+    gap: 1rem;
+  }
+  .fields {
+    grid-template-columns: 1fr !important;
+  }
+  .field textarea {
+    grid-column: span 1 !important;
+  }
+
+  /* —— Avatar preview smaller —— */
+  #avatarPreview {
+    width: 140px;
+    height: 140px;
+    font-size: 3rem;
+  }
+  .avatar-buttons button {
+    flex: 1;
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  /* —— Inputs and buttons full-width —— */
+  .field input,
+  .field select,
+  .field textarea {
+    font-size: 0.9rem;
+  }
+  .actions {
+    justify-content: center !important;
+  }
+  .actions button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  /* —— Footer tweak —— */
+  footer {
+    font-size: 0.85rem;
+    padding: 0.75rem;
+  }
+}
+
   </style>
 
   <!-- shared storage & helpers -->
   <script src="storage.js"></script>
 </head>
 <body>
+  <button id="sidebarToggle" aria-label="Open menu">
+  <i class="fas fa-bars"></i>
+</button>
+
   <!-- SIDEBAR -->
   <aside class="sidebar" role="navigation">
+    <button id="sidebarClose" aria-label="Close menu">&times;</button>
+
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
@@ -397,6 +520,15 @@
     // initial render
     initForm();
   });
+    document.addEventListener('DOMContentLoaded', () => {
+  const sidebar   = document.querySelector('.sidebar');
+  const openBtn   = document.getElementById('sidebarToggle');
+  const closeBtn  = document.getElementById('sidebarClose');
+
+  openBtn.addEventListener('click',  ()=> sidebar.classList.add('open'));
+  closeBtn.addEventListener('click', ()=> sidebar.classList.remove('open'));
+});
+
 </script>
 
 
