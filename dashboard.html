@@ -161,6 +161,138 @@
 
     /* Footer */
     footer { text-align:center; padding:1rem 0; border-top:1px solid rgba(255,255,255,0.2); font-size:.9rem; opacity:.7; }
+.quick-log {
+  background: rgba(255,255,255,0.05);
+  padding: 1rem; border-radius: 8px; margin: 1.5rem 0;
+}
+.quick-log table {
+  width:100%; border-collapse: collapse; margin-bottom: .8rem;
+}
+.quick-log th, .quick-log td {
+  padding: .4rem; text-align:left; font-size: .9rem;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.fast-stats { display:flex; gap:1rem; font-size:.9rem; }
+
+    .actions-grid { 
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1rem; margin:1.5rem 0;
+}
+.action-card {
+  background:rgba(255,255,255,0.05);
+  border-radius:8px; padding:1rem;
+  transition:transform var(--transition),box-shadow var(--transition);
+}
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.5);
+}
+.action-card h3 { margin-bottom:.75rem; color:var(--gold); font-size:1rem; display:flex; align-items:center; gap:.5rem; }
+.card-list { display:flex; flex-direction:column; gap:.6rem; max-height:140px; overflow-y:auto; }
+.card-list div, .card-list li {
+  background:rgba(255,255,255,0.1); padding:.6rem; border-radius:6px;
+}
+
+    .daily-tip {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+.daily-tip h2 {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--gold);
+  font-size: 1rem;
+  margin-bottom: .75rem;
+}
+.daily-tip p {
+  font-size: .9rem;
+  line-height: 1.4;
+  opacity: .8;
+}
+.live-sessions {
+  margin: 1.5rem 0;
+}
+.live-sessions h2 {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--gold);
+  font-size: 1rem;
+  margin-bottom: .75rem;
+}
+.live-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+  gap: .75rem;
+}
+.live-card {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: .75rem;
+  text-align: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.live-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.live-card img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: .5rem;
+}
+.live-card h3 {
+  font-size: .95rem;
+  margin-bottom: .25rem;
+}
+.live-card p {
+  font-size: .8rem;
+  opacity: .7;
+}
+
+    .top-achievements {
+  margin: 1.5rem 0;
+}
+.top-achievements h2 {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--gold);
+  font-size: 1rem;
+  margin-bottom: .75rem;
+}
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px,1fr));
+  gap: .75rem;
+}
+.achievement-badge {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: .75rem;
+  text-align: center;
+  opacity: .4;
+  transition: opacity .3s, box-shadow .3s;
+}
+.achievement-badge.unlocked {
+  opacity: 1;
+  box-shadow: 0 4px 12px rgba(255,152,0,0.4);
+}
+.achievement-badge i {
+  font-size: 1.4rem;
+  color: var(--gold);
+  margin-bottom: .25rem;
+}
+.achievement-badge p {
+  font-size: .8rem;
+  margin: 0;
+}
 
     /* Mobile */
     @media (max-width:600px) {
@@ -277,22 +409,48 @@
         <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Workout Distribution</h3><canvas id="distributionChart"></canvas></div>
       </section>
 
-      <section class="challenges">
-        <h2><i class="fas fa-flag-checkered"></i> Current Challenges</h2>
-        <ul id="challengesList"></ul>
-      </section>
+   <section class="actions-grid">
+  <div class="action-card" id="card-challenges">
+    <h3><i class="fas fa-flag-checkered"></i> My Challenges</h3>
+    <div class="card-list" id="action-challenges"></div>
+  </div>
+  <div class="action-card" id="card-leaderboard">
+    <h3><i class="fas fa-trophy"></i> Leaderboard</h3>
+    <ol id="action-leaderboard"></ol>
+  </div>
+  <div class="action-card" id="card-feed">
+    <h3><i class="fas fa-users"></i> Community Feed</h3>
+    <div class="card-list" id="action-feed"></div>
+  </div>
+</section>
 
-      <section class="leaderboard">
-        <h2><i class="fas fa-trophy"></i> Leaderboard</h2>
-        <ol id="leaderboardList"></ol>
-      </section>
+   
+<section class="quick-log">
+  <h2><i class="fas fa-history"></i> Recent Activities</h2>
+  <table>
+    <thead><tr><th>Date</th><th>Type</th><th>Dur.</th><th>Km</th></tr></thead>
+    <tbody id="recent-acts"></tbody>
+  </table>
+  <div class="fast-stats">
+    <div><strong id="avg-dur">0</strong> min avg</div>
+    <div><strong id="tot-dist">0</strong> km total</div>
+    <div><strong id="tot-cal">0</strong> cal total</div>
+  </div>
+</section>
+      <section class="daily-tip">
+  <h2><i class="fas fa-lightbulb"></i> Tip of the Day</h2>
+  <p id="tip-of-day"></p>
+</section>
+<section class="live-sessions">
+  <h2><i class="fas fa-video"></i> Upcoming Live Sessions</h2>
+  <div class="live-grid" id="liveSessionsGrid"></div>
+</section>
+<section class="top-achievements">
+  <h2><i class="fas fa-medal"></i> Your Achievements</h2>
+  <div class="achievements-grid" id="yourAchievements"></div>
+</section>
 
-      <section class="community">
-        <h2><i class="fas fa-users"></i> Community Feed</h2>
-        <div id="feedList" class="feed-list"></div>
-      </section>
-    </div>
-
+ </div>
     <footer>
       <p>&copy; 2025 FitTrack. All rights reserved.</p>
     </footer>
@@ -333,6 +491,26 @@
       }
       maybeReplaceIcon('top-avatar');
       maybeReplaceIcon('side-avatar');
+
+      // Pull last 5 activities
+const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+const recent = acts.slice(0,5);
+const tbody = document.getElementById('recent-acts');
+recent.forEach(a => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${a.date}</td><td>${a.type}</td>
+                  <td>${a.duration}</td><td>${a.distance||'-'}</td>`;
+  tbody.appendChild(tr);
+});
+// Fast stats
+const avgDur = acts.length
+  ? Math.round(acts.reduce((s,a)=>s+ +a.duration,0)/acts.length)
+  : 0;
+const totDist = acts.reduce((s,a)=>s+ (parseFloat(a.distance)||0),0).toFixed(1);
+const totCal  = acts.reduce((s,a)=>s+ (parseFloat(a.calories)||0),0);
+document.getElementById('avg-dur').textContent = avgDur;
+document.getElementById('tot-dist').textContent = totDist;
+document.getElementById('tot-cal').textContent = totCal;
 
       // 3) Notification once per session
       if (!sessionStorage.getItem('notifShown') && !prof.complete) {
@@ -379,6 +557,51 @@
         localStorage.setItem('ft_activities', JSON.stringify(acts));
         location.reload();
       };
+// Tip of the Day
+const tips = [
+  "Stay hydrated—drink at least 250 ml of water before each session.",
+  "Warm up for 5 minutes to activate your muscles.",
+  "Focus on form, not speed—quality reps build strength safer.",
+  "Cool down and stretch for 3–5 minutes after every workout.",
+  "Mix in one fun activity (dance, sports) each week to stay motivated."
+];
+document.getElementById('tip-of-day').textContent =
+  tips[Math.floor(Math.random()*tips.length)];
+
+      // Mock data or load from localStorage
+const liveSessions = [
+  { img: 'alice.jpg', title: 'Sunrise Yoga',  host:'Alice', time:'6 AM UTC' },
+  { img: 'bob.jpg',   title: 'HIIT Blast',    host:'Bob',   time:'7 PM UTC' },
+  { img: 'cara.jpg',  title: 'Cardio Dance',  host:'Cara',  time:'5 PM UTC' }
+];
+const grid = document.getElementById('liveSessionsGrid');
+liveSessions.forEach(s => {
+  const card = document.createElement('div');
+  card.className = 'live-card';
+  card.innerHTML = `
+    <img src="${s.img}" alt="${s.title}">
+    <h3>${s.title}</h3>
+    <p>${s.host} • ${s.time}</p>
+  `;
+  grid.appendChild(card);
+});
+
+      // thresholds & labels
+const thresholds = [
+  { count: 1,  icon: 'fas fa-star',    label: 'First Workout' },
+  { count: 5,  icon: 'fas fa-medal',   label: '5 Workouts' },
+  { count: 10, icon: 'fas fa-trophy',  label: '10 Workouts' },
+  { count: 30, icon: 'fas fa-award',   label: '30 Workouts' }
+];
+const totalWorkouts = (JSON.parse(localStorage.getItem('ft_activities')||'[]')).length;
+const achGrid = document.getElementById('yourAchievements');
+
+thresholds.forEach(t => {
+  const div = document.createElement('div');
+  div.className = 'achievement-badge' + (totalWorkouts >= t.count ? ' unlocked' : '');
+  div.innerHTML = `<i class="${t.icon}"></i><p>${t.label}</p>`;
+  achGrid.appendChild(div);
+});
 
       // ————————— STATS, PROGRESS, GOALS —————————
       const stats = cur.stats || {};
@@ -430,6 +653,25 @@
               }]},
         options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
       });
+// Challenges as pills
+chs.forEach(c => {
+  const d = document.createElement('div');
+  d.textContent = c.text;
+  d.classList.toggle('completed', !!c.done);
+  document.getElementById('action-challenges').appendChild(d);
+});
+// Leaderboard top 5
+lb.slice(0,5).forEach(u => {
+  const li = document.createElement('li');
+  li.textContent = `${u.name}: ${u.score}`;
+  document.getElementById('action-leaderboard').appendChild(li);
+});
+// Feed entries
+fd.slice(0,5).forEach(item => {
+  const d = document.createElement('div');
+  d.textContent = item;
+  document.getElementById('action-feed').appendChild(d);
+});
 
       // ————————— CHALLENGES —————————
       const defaultCh=[{id:1,text:'Run 50 km',done:false},{id:2,text:'Push-ups ×50',done:false},{id:3,text:'Cycle 100 km',done:false}];
