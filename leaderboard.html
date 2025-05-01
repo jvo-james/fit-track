@@ -49,21 +49,20 @@
     width:var(--sidebar-w); background:rgba(0,0,0,0.9);
     border-right:2px solid var(--gold);
     display:flex; flex-direction:column; align-items:center;
-    padding:1rem 0; position:sticky; top:0; height:100vh;
+    padding-top:1rem; position:sticky; top:0; height:100vh;
     z-index:var(--sidebar-z);
   }
-  .sidebar .logo {
-    font-size:1.6rem; color:var(--gold); margin-bottom:2rem;
-  }
-  .sidebar a, .sidebar .profile-menu {
+  .sidebar a, .sidebar button.profile-menu {
     width:100%; padding:.8rem 0;
     display:flex; flex-direction:column; align-items:center; gap:.3rem;
     color:var(--white); background:transparent; border:none;
     transition:background var(--transition);
   }
-  .sidebar a:hover, .sidebar a.active, .sidebar .profile-menu:hover {
+  .sidebar a:hover, .sidebar a.active,
+  .sidebar button.profile-menu:hover {
     background:var(--accent);
   }
+  .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
   .sidebar i { font-size:1.2rem; }
   .sidebar span { font-size:.75rem; }
   .sidebar .sign-out { margin-top:auto; margin-bottom:1rem; }
@@ -151,7 +150,7 @@
     width:24px; height:24px; border-radius:50%;
   }
 
-  /* generic section */
+  /* reusable section style */
   .section {
     margin:1rem; padding:1rem;
     background:var(--accent); border-radius:8px;
@@ -159,7 +158,7 @@
   }
   .section h2 { color:var(--gold); margin-bottom:.75rem; font-size:1.2rem; }
 
-  /* live */
+  /* live sessions */
   .live-grid {
     display:grid; gap:1rem;
     grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
@@ -184,7 +183,7 @@
     position:relative; margin:1rem; height:200px;
   }
 
-  /* champion */
+  /* monthly champion */
   .champion {
     margin:1rem; padding:1rem; display:flex; align-items:center; gap:1rem;
     background:var(--accent); border-radius:8px;
@@ -202,6 +201,7 @@
     .sidebar.open { transform:translateX(0); }
     header { padding:.75rem 1rem; flex-wrap:wrap; }
     .hamburger { display:block; position:absolute; top:50%; left:1rem; transform:translateY(-50%); }
+    .profile-btn { display:block; position:absolute; top:50%; right:1rem; transform:translateY(-50%); }
     .logo-header { font-size:1.2rem; }
     .search { width:100%; max-width:none; }
     .hall-of-fame, .leaderboard, .section { margin:.5rem; }
@@ -213,26 +213,33 @@
   <div id="overlay"></div>
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
-    <a href="log.html" class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html" class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="profile-menu"><i id="sideAvatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
-    <a href="signout.html" class="sign-out"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a>
+    <button class="menu-item profile-menu"><i id="sideAvatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
+    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a>
   </aside>
 
   <!-- Main -->
   <div class="main">
     <!-- Header -->
     <header>
-      <button id="hamburger" class="hamburger"><i class="fas fa-bars"></i></button>
-      <div class="logo-header"><i class="fas fa-trophy"></i> FitTrack</div>
-      <div class="search"><input id="searchInput" placeholder="Search user…"></div>
+      <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+      <div class="logo-header"><i class="fas fa-trophy"></i> Leaderboard</div>
+      <div class="search">
+        <input id="searchInput" type="text" placeholder="Search user…">
+      </div>
       <div class="controls">
-        <select id="timeframe"><option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select>
-        <button id="profile-btn"><i class="fas fa-user-circle"></i></button>
+        <select id="timeframe">
+          <option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option>
+        </select>
+        <button id="notifBtn"><i class="fas fa-bell"></i></button>
+        <button class="avatar-btn" id="hdrAvatarBtn">
+          <img id="hdrAvatar" src="">
+        </button>
       </div>
     </header>
 
@@ -240,18 +247,26 @@
     <div class="hall-of-fame" id="hallOfFame"></div>
 
     <div class="container">
-      <!-- Leaderboard -->
+      <!-- Leaderboard Table -->
       <div class="leaderboard">
         <table>
-          <thead><tr><th class="rank">#</th><th>User</th><th>Workouts</th><th>Km</th><th>Score</th></tr></thead>
+          <thead>
+            <tr>
+              <th class="rank">#</th>
+              <th>User</th>
+              <th>Workouts</th>
+              <th>Km</th>
+              <th>Score</th>
+            </tr>
+          </thead>
           <tbody id="leaderboardBody"></tbody>
         </table>
       </div>
 
-      <!-- Live -->
+      <!-- Live Workouts -->
       <section class="section live-now">
         <h2><i class="fas fa-video"></i> Live Workouts</h2>
-        <p id="liveDesc">Go live—others can join you in real time.</p>
+        <p id="liveDesc">Broadcast live—others join on Workouts page.</p>
         <div class="live-grid" id="liveNowGrid"></div>
         <button id="toggleLiveBtn">Go Live</button>
         <video id="liveVideo" autoplay playsinline hidden></video>
@@ -259,30 +274,32 @@
         <div id="pastStreams"></div>
       </section>
 
-      <!-- Trends -->
+      <!-- Trends Chart -->
       <section class="section trends">
-        <h2><i class="fas fa-chart-bar"></i> Last 7 Days</h2>
-        <div class="chart-container"><canvas id="trendChart"></canvas></div>
+        <h2><i class="fas fa-chart-bar"></i> Last 7 Days Activity</h2>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
       </section>
 
-      <!-- Champion -->
+      <!-- Monthly Champion -->
       <section class="champion">
-        <img id="champAvatar" src="" alt="Champion"/>
-        <div><strong id="champName"></strong><br/>This Month’s Top</div>
+        <img id="champAvatar" src="" alt="Champion">
+        <div><strong id="champName"></strong><br>Top this month</div>
       </section>
     </div>
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', ()=>{
+  document.addEventListener('DOMContentLoaded',()=>{
     // Sidebar toggle
     const overlay = document.getElementById('overlay'),
           sidebar = document.getElementById('sidebar'),
-          hamb = document.getElementById('hamburger');
-    hamb.onclick = ()=>{ sidebar.classList.toggle('open'); overlay.classList.toggle('active'); };
-    overlay.onclick = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+          hamb    = document.getElementById('hamburger');
+    hamb.onclick = ()=> { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); };
+    overlay.onclick = ()=> { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
 
-    // Auth & avatar
+    // Auth & avatars
     const curJSON = localStorage.getItem('ft_current');
     if(!curJSON) return location.href='home.html';
     const cur = JSON.parse(curJSON);
@@ -292,7 +309,7 @@
           defaultAv = 'https://www.instagram.com/static/images/anonymousUser.jpg',
           avatarUrl = prof.avatar || defaultAv;
 
-    document.getElementById('profile-btn').onclick = ()=>location.href='profile.html';
+    document.getElementById('hdrAvatar').src = avatarUrl;
     document.getElementById('sideAvatar').outerHTML =
       `<img id="sideAvatar" src="${avatarUrl}" style="width:32px;height:32px;border-radius:50%">`;
 
@@ -300,37 +317,35 @@
     const load = k=>JSON.parse(localStorage.getItem(k)||'[]'),
           save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
-    // Build list
+    // Build user list (5 pseudo + you)
     const pseudo = [
-      {name:'Alice', workouts:25, distance:120, avatar:'https://i.pravatar.cc/150?u=alice'},
-      {name:'Bob',   workouts:20, distance:95,  avatar:'https://i.pravatar.cc/150?u=bob'},
-      {name:'Cara',  workouts:18, distance:80,  avatar:'https://i.pravatar.cc/150?u=cara'},
-      {name:'Dana',  workouts:15, distance:70,  avatar:'https://i.pravatar.cc/150?u=dana'},
-      {name:'Evan',  workouts:12, distance:55,  avatar:'https://i.pravatar.cc/150?u=evan'}
+      {name:'Alice',workouts:25,distance:120,avatar:'https://i.pravatar.cc/150?u=alice'},
+      {name:'Bob',workouts:20,distance:95,avatar:'https://i.pravatar.cc/150?u=bob'},
+      {name:'Cara',workouts:18,distance:80,avatar:'https://i.pravatar.cc/150?u=cara'},
+      {name:'Dana',workouts:15,distance:70,avatar:'https://i.pravatar.cc/150?u=dana'},
+      {name:'Evan',workouts:12,distance:55,avatar:'https://i.pravatar.cc/150?u=evan'}
     ];
-    const stats = cur.stats || { workouts:0, distanceKm:0 },
+    const stats = cur.stats||{workouts:0,distanceKm:0},
           me = {
-            name:cur.name,
-            workouts:stats.workouts,
-            distance:parseFloat((stats.distanceKm||0).toFixed(1)),
-            avatar:avatarUrl
+            name: cur.name,
+            workouts: stats.workouts||0,
+            distance: parseFloat((stats.distanceKm||0).toFixed(1)),
+            avatar: avatarUrl
           },
           scoreOf = u => u.workouts*10 + Math.round(u.distance*5);
 
-    const all = [...pseudo, me]
-      .map(u=>({...u, score: scoreOf(u)}))
+    const all = [...pseudo,me].map(u=>({...u,score:scoreOf(u)}))
       .sort((a,b)=>b.score - a.score);
 
-    // Hall of fame
+    // Hall of Fame
     const hof = document.getElementById('hallOfFame');
     all.slice(0,3).forEach((u,i)=>{
-      const div = document.createElement('div');
-      div.className = 'hall-card';
-      div.innerHTML = `<img src="${u.avatar}"><span>#${i+1} ${u.name}</span>`;
-      hof.append(div);
+      const d = document.createElement('div'); d.className='hall-card';
+      d.innerHTML = `<img src="${u.avatar}" alt="${u.name}"><span>#${i+1} ${u.name}</span>`;
+      hof.appendChild(d);
     });
 
-    // Leaderboard
+    // Leaderboard table
     const lbBody = document.getElementById('leaderboardBody');
     all.forEach((u,i)=>{
       const tr = document.createElement('tr');
@@ -341,15 +356,15 @@
         <td>${u.workouts}</td>
         <td>${u.distance}</td>
         <td>${u.score}</td>`;
-      lbBody.append(tr);
+      lbBody.appendChild(tr);
     });
 
-    // Search
-    document.getElementById('searchInput').addEventListener('input', e=>{
+    // Search filter
+    document.getElementById('searchInput').addEventListener('input',e=>{
       const q = e.target.value.toLowerCase();
-      lbBody.querySelectorAll('tr').forEach(r=>{
-        const n = r.querySelector('td:nth-child(2) span').textContent.toLowerCase();
-        r.style.display = n.includes(q)? '' : 'none';
+      document.querySelectorAll('#leaderboardBody tr').forEach(r=>{
+        const name = r.querySelector('td:nth-child(2) span').textContent.toLowerCase();
+        r.style.display = name.includes(q)? '' : 'none';
       });
     });
 
@@ -357,23 +372,25 @@
     let live = load('ft_liveWorkouts'),
         past = load('ft_pastStreams');
     const liveGrid = document.getElementById('liveNowGrid'),
-          pastDiv  = document.getElementById('pastStreams'),
-          btn      = document.getElementById('toggleLiveBtn'),
-          vid      = document.getElementById('liveVideo');
+          pastDiv = document.getElementById('pastStreams'),
+          btn     = document.getElementById('toggleLiveBtn'),
+          vid     = document.getElementById('liveVideo');
 
     function renderLive(){
       liveGrid.innerHTML = live.length
         ? live.map(u=>`
             <div class="live-card">
-              <img src="${u.avatar}"><div>${u.name}</div>
+              <img src="${u.avatar}" alt=""><div>${u.name}</div>
               <div style="opacity:.8">${u.type} • ${u.start}</div>
             </div>`).join('')
         : `<p style="opacity:.7">No active streams.</p>`;
+
       pastDiv.innerHTML = past.length
         ? past.map(s=>`<p style="opacity:.8;font-size:.85rem">
             ${s.name} • ${s.type} • ${s.start}–${s.end}
           </p>`).join('')
         : `<p style="opacity:.7;font-size:.85rem">No past streams.</p>`;
+
       const idx = live.findIndex(u=>u.email===cur.email);
       btn.textContent = idx>=0 ? 'End Live' : 'Go Live';
       vid.hidden = idx<0;
@@ -393,24 +410,24 @@
     btn.onclick = ()=>{
       const i = live.findIndex(u=>u.email===cur.email);
       if(i>=0){
-        past.unshift({...live[i], end:new Date().toLocaleTimeString()});
+        past.unshift({...live[i],end:new Date().toLocaleTimeString()});
         live.splice(i,1);
-        save('ft_pastStreams', past);
+        save('ft_pastStreams',past);
       } else {
         live.unshift({
-          email:cur.email,
-          name:cur.name,
-          avatar:avatarUrl,
-          type:'Mixed',
-          start:new Date().toLocaleTimeString()
+          email: cur.email,
+          name: cur.name,
+          avatar: avatarUrl,
+          type: 'Mixed',
+          start: new Date().toLocaleTimeString()
         });
       }
-      save('ft_liveWorkouts', live);
+      save('ft_liveWorkouts',live);
       renderLive();
     };
     renderLive();
 
-    // Trends chart
+    // Trends chart (last 7 days)
     const ctx = document.getElementById('trendChart').getContext('2d'),
           acts = load('ft_activities'),
           labels = [], data = [];
@@ -423,14 +440,17 @@
       data.push(tot);
     }
     const gold = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim();
-    new Chart(ctx,{
+    new Chart(ctx, {
       type:'bar',
-      data:{labels,datasets:[{label:'Minutes',data,backgroundColor:gold}]},
+      data:{
+        labels,
+        datasets:[{ label:'Minutes', data, backgroundColor: gold }]
+      },
       options:{
-        plugins:{legend:{display:false}},
+        plugins:{ legend:{ display:false }},
         scales:{
-          y:{beginAtZero:true,title:{display:true,text:'Minutes'}},
-          x:{title:{display:true,text:'Day'}}
+          y:{ beginAtZero:true, title:{ display:true, text:'Minutes'}} ,
+          x:{ title:{ display:true, text:'Day'} }
         }
       }
     });
