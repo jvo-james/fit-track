@@ -9,8 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
     :root {
@@ -18,112 +16,104 @@
       --fg: #fff;
       --gold: #ff9800;
       --accent: #222;
+      --gray: rgba(255,255,255,0.1);
       --font-sans: 'Raleway', sans-serif;
       --font-head: 'Poppins', sans-serif;
       --transition: .3s ease;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display:flex; min-height:100vh; flex-direction:column;
+      display:flex; flex-direction:column; min-height:100vh;
       background:var(--bg); color:var(--fg);
       font-family:var(--font-sans);
-      overflow-x:hidden;
     }
     a { color:inherit; text-decoration:none; }
 
     /* HEADER */
     header {
       position:sticky; top:0; left:0; right:0;
-      background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold);
+      background:var(--accent); border-bottom:2px solid var(--gold);
       display:flex; align-items:center; justify-content:space-between;
-      padding:0.75rem 1rem; z-index:1000;
+      padding:0.75rem 1rem; z-index:100;
     }
-    .brand { font-family:var(--font-head); font-size:1.25rem; color:var(--gold); }
+    .logo { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
+    .search {
+      flex:1; max-width:300px; margin:0 1rem;
+    }
+    .search input {
+      width:100%; padding:0.4rem 0.6rem; border-radius:6px;
+      border:1px solid var(--gray); background:var(--bg);
+      color:var(--fg);
+    }
     .controls {
-      display:flex; align-items:center; gap:1rem;
+      display:flex; align-items:center; gap:0.75rem;
     }
     .controls select, .controls button {
-      font-family:var(--font-head);
-      background:rgba(255,255,255,0.05);
-      border:1px solid rgba(255,255,255,0.2);
-      border-radius:6px;
-      padding:0.4rem 0.6rem;
-      color:var(--fg);
-      cursor:pointer;
+      background:var(--accent);
+      border:1px solid var(--gray);
+      border-radius:6px; padding:0.4rem 0.6rem;
+      color:var(--fg); cursor:pointer;
       transition:background var(--transition);
     }
     .controls select:hover, .controls button:hover {
-      background:rgba(255,255,255,0.1);
-    }
-    .clock {
-      font-size:0.9rem; opacity:0.7;
+      background:var(--gray);
     }
     .avatar-btn {
       width:36px; height:36px; border-radius:50%;
-      overflow:hidden; border:2px solid var(--gold);  
+      overflow:hidden; border:2px solid var(--gold);
     }
-    .avatar-btn img {
-      width:100%; height:100%; object-fit:cover;
-    }
-
-    /* MAIN CONTAINER */
-    .container { flex:1; overflow-y:auto; }
+    .avatar-btn img { width:100%; height:100%; object-fit:cover; }
 
     /* HALL OF FAME */
     .hall-of-fame {
-      display:flex; gap:1rem; justify-content:center;
-      padding:1rem 0; background:rgba(255,255,255,0.05);
+      display:flex; justify-content:center; gap:1rem;
+      padding:1rem 0; background:var(--accent);
     }
     .hall-card {
-      background:var(--accent); border-radius:50%; width:60px; height:60px;
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 2px 8px rgba(0,0,0,0.5);
-      flex-shrink:0;
+      width:60px; height:60px; border-radius:50%;
+      background:var(--gray); display:flex;
+      align-items:center; justify-content:center;
+      box-shadow:0 2px 8px rgba(0,0,0,0.6);
     }
-    .hall-card:nth-child(1) { transform:scale(1.2); }
-    .hall-card img { width:50px; height:50px; border-radius:50%; }
+    .hall-card img {
+      width:52px; height:52px; border-radius:50%;
+    }
+
+    /* MAIN CONTENT */
+    .container { flex:1; overflow-y:auto; }
 
     /* LEADERBOARD */
     .leaderboard {
       margin:1rem; overflow:hidden; border-radius:8px;
-      background:rgba(255,255,255,0.05);
-      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      background:var(--accent); box-shadow:0 4px 12px rgba(0,0,0,0.6);
     }
     table {
       width:100%; border-collapse:collapse;
-      font-family:var(--font-sans);
     }
     th, td {
       padding:0.75rem 1rem; text-align:left;
+      border-bottom:1px solid var(--gray);
     }
     th {
       background:var(--gold); color:var(--bg);
       font-size:0.9rem; text-transform:uppercase;
     }
-    tbody tr {
-      transition:background var(--transition);
-    }
-    tbody tr:hover {
-      background:rgba(255,255,255,0.1);
-    }
-    tbody tr.current {
-      background:rgba(255,152,0,0.2) !important;
-    }
-    tbody td.rank {
-      width:3rem; font-weight:700; color:var(--gold);
-    }
-    tbody td.user {
+    tbody tr:hover { background:var(--gray); }
+    tbody tr.me { background:rgba(255,152,0,0.2); }
+    .rank { width:3rem; color:var(--gold); font-weight:700; }
+    .user-cell {
       display:flex; align-items:center; gap:0.5rem;
     }
-    tbody td.user img {
-      width:24px; height:24px; border-radius:50%; object-fit:cover;
+    .user-cell img {
+      width:24px; height:24px; border-radius:50%;
+      object-fit:cover;
     }
 
     /* LIVE SESSIONS */
     .section {
       margin:1rem; padding:1rem;
-      background:rgba(255,255,255,0.05);
-      border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      background:var(--accent); border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.6);
     }
     .section h2 { color:var(--gold); margin-bottom:0.75rem; }
     .live-grid {
@@ -131,180 +121,192 @@
       grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
     }
     .live-card {
-      background:rgba(255,255,255,0.1);
-      border-radius:8px; padding:0.75rem;
+      background:var(--gray); border-radius:8px; padding:0.75rem;
       text-align:center; transition:transform var(--transition);
     }
-    .live-card:hover {
-      transform:translateY(-4px);
-    }
+    .live-card:hover { transform:translateY(-4px); }
     .live-card img {
-      width:48px; height:48px; border-radius:50%; margin-bottom:0.5rem;
+      width:48px; height:48px; border-radius:50%;
+      margin-bottom:0.5rem;
     }
     #liveDesc { font-size:0.9rem; opacity:0.8; margin-bottom:1rem; }
     #toggleLiveBtn {
-      background:var(--gold); border:none; color:var(--bg);
-      padding:0.5rem 1rem; border-radius:6px;
+      background:var(--gold); color:var(--bg);
+      border:none; border-radius:6px;
+      padding:0.5rem 1rem; cursor:pointer;
     }
     #liveVideo {
       width:100%; max-width:320px; margin-top:1rem; border-radius:8px;
-      background:#222;
+      background:#111;
     }
+
+    /* SCORE TRENDS */
+    .trends {
+      margin:1rem; padding:1rem;
+      background:var(--accent); border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.6);
+    }
+    .bars {
+      display:flex; align-items:flex-end; gap:4px; height:80px;
+    }
+    .bar {
+      flex:1; background:var(--gray); border-radius:4px 4px 0 0;
+      position:relative;
+    }
+    .bar span {
+      position:absolute; top:-1.2rem; left:50%; transform:translateX(-50%);
+      font-size:0.7rem; opacity:0.8;
+    }
+    .bar.filled { background:var(--gold); }
+
+    /* MONTHLY CHAMPION */
+    .champion {
+      margin:1rem; padding:1rem; display:flex; align-items:center; gap:1rem;
+      background:var(--accent); border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.6);
+    }
+    .champion img {
+      width:80px; height:80px; border-radius:50%; object-fit:cover;
+      border:3px solid var(--gold);
+    }
+    .champion div { color:var(--fg); }
 
     /* RESPONSIVE */
     @media (max-width:600px) {
       header { flex-direction:column; align-items:flex-start; gap:0.5rem; }
-      .controls { flex-wrap:wrap; }
-      .hall-of-fame { justify-content:flex-start; overflow-x:auto; padding:0.5rem; }
+      .search { width:100%; max-width:none; }
+      .hall-of-fame { overflow-x:auto; justify-content:flex-start; }
       .hall-card { margin-right:0.5rem; }
       .leaderboard { margin:0.5rem; }
-      .section { margin:0.5rem; }
+      .section, .trends, .champion { margin:0.5rem; }
       table { font-size:0.85rem; }
     }
   </style>
 </head>
 <body>
+
+  <!-- HEADER -->
   <header>
-    <div class="brand">🏆 FitTrack</div>
+    <div class="logo"><i class="fas fa-heartbeat"></i> FitTrack</div>
+    <div class="search"><input type="text" placeholder="Search users…"></div>
     <div class="controls">
-      <span class="clock" id="clock">--:--:--</span>
-      <select id="viewType">
-        <option>Overall</option>
-        <option>Running</option>
-        <option>Cycling</option>
-        <option>Strength</option>
-      </select>
-      <button class="icon-btn" id="refreshBtn"><i class="fas fa-sync"></i></button>
-      <button class="avatar-btn" id="avatarBtn">
-        <img id="hdrAvatar" src="https://i.pravatar.cc/150?u=default" alt="You"/>
-      </button>
+      <select id="timeframe"><option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select>
+      <button id="notifBtn"><i class="fas fa-bell"></i></button>
+      <button class="avatar-btn"><img id="hdrAvatar" src="https://i.pravatar.cc/150?u=default"></button>
     </div>
   </header>
 
-  <div class="hall-of-fame" id="hallOfFame">
-    <!-- top 3 avatars injected here -->
-  </div>
+  <!-- HALL OF FAME -->
+  <div class="hall-of-fame" id="hallOfFame"></div>
 
   <div class="container">
-    <!-- Leaderboard -->
+    <!-- LEADERBOARD -->
     <div class="leaderboard">
       <table>
         <thead>
-          <tr>
-            <th>#</th><th>User</th><th>Workouts</th><th>Distance (km)</th><th>Score</th>
-          </tr>
+          <tr><th class="rank">#</th><th>User</th><th>Workouts</th><th>Distance</th><th>Score</th></tr>
         </thead>
-        <tbody id="leaderboardBody">
-          <!-- rows injected by JS -->
-        </tbody>
+        <tbody id="leaderboardBody"></tbody>
       </table>
     </div>
 
-    <!-- Live Sessions -->
+    <!-- LIVE SESSIONS -->
     <section class="section live-now">
       <h2><i class="fas fa-video"></i> Live Workouts</h2>
-      <p id="liveDesc">
-        Go live now to broadcast your workout—friends can join right from their Workouts page!
-      </p>
-      <div class="live-grid" id="liveNowGrid">
-        <!-- live hosts here -->
-      </div>
-      <button id="toggleLiveBtn">Start Live</button>
+      <p id="liveDesc">Broadcast your workout live—friends can tune in on their Workouts page.</p>
+      <div class="live-grid" id="liveNowGrid"></div>
+      <button id="toggleLiveBtn">Go Live</button>
       <video id="liveVideo" autoplay playsinline hidden></video>
+    </section>
+
+    <!-- SCORE TRENDS -->
+    <section class="trends">
+      <h2><i class="fas fa-chart-bar"></i> Last 7 Days</h2>
+      <div class="bars" id="trendBars"></div>
+    </section>
+
+    <!-- MONTHLY CHAMPION -->
+    <section class="champion" id="monthlyChampion">
+      <img src="" alt="Champion">
+      <div><strong id="champName"></strong><br>Top scorer this month!</div>
     </section>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded',()=> {
-      // clock
-      const clockEl = document.getElementById('clock');
-      setInterval(()=>{
-        const t=new Date();
-        clockEl.textContent=t.toLocaleTimeString();
-      },1000);
-
-      // user & redirect
-      const curJSON = localStorage.getItem('ft_current');
+      // redirect if not logged in
+      const curJSON=localStorage.getItem('ft_current');
       if(!curJSON) return location.href='home.html';
-      const cur = JSON.parse(curJSON);
+      const cur=JSON.parse(curJSON);
       if(!cur.name) return location.href='home.html';
 
       // header avatar
-      const hdrAv = document.getElementById('hdrAvatar');
-      const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
-      if(prof.avatar) hdrAv.src=prof.avatar;
+      const prof=JSON.parse(localStorage.getItem('ft_profile')||'{}');
+      if(prof.avatar) document.getElementById('hdrAvatar').src=prof.avatar;
 
-      // Hall of Fame & Leaderboard data
-      const pseudo = [
+      // pseudo + you
+      const pseudo=[
         {name:'Alice', workouts:25, distance:120, avatar:'https://i.pravatar.cc/150?u=alice'},
         {name:'Bob',   workouts:20, distance:95,  avatar:'https://i.pravatar.cc/150?u=bob'},
         {name:'Cara',  workouts:18, distance:80,  avatar:'https://i.pravatar.cc/150?u=cara'},
         {name:'Dana',  workouts:15, distance:70,  avatar:'https://i.pravatar.cc/150?u=dana'},
         {name:'Evan',  workouts:12, distance:55,  avatar:'https://i.pravatar.cc/150?u=evan'}
       ];
-      // current user stats
-      const stats = cur.stats||{workouts:0,distanceKm:0};
-      const me = {
+      const stats=cur.stats||{workouts:0,distanceKm:0};
+      const me={
         name:cur.name,
         workouts:stats.workouts||0,
-        distance: (stats.distanceKm||0).toFixed(1),
-        avatar: prof.avatar||`https://i.pravatar.cc/150?u=${cur.email}`
+        distance:parseFloat((stats.distanceKm||0).toFixed(1)),
+        avatar:prof.avatar||`https://i.pravatar.cc/150?u=${cur.email}`
       };
-      // compute score: workouts*10 + distance*5
-      const compute = u=> u.workouts*10 + Math.round(u.distance*5);
-      const all = [...pseudo, me].map(u=>{
-        return {...u, score: compute(u)};
-      }).sort((a,b)=>b.score - a.score);
+      const compute=u=>u.workouts*10 + Math.round(u.distance*5);
+      const all=[...pseudo,me].map(u=>({...u,score:compute(u)}))
+        .sort((a,b)=>b.score-a.score);
 
-      // render Hall of Fame (top3)
-      const hof = document.getElementById('hallOfFame');
+      // Hall of Fame
+      const hof=document.getElementById('hallOfFame');
       all.slice(0,3).forEach(u=>{
-        const d=document.createElement('div');
-        d.className='hall-card';
+        const d=document.createElement('div'); d.className='hall-card';
         d.innerHTML=`<img src="${u.avatar}" alt="${u.name}" title="${u.name}">`;
         hof.appendChild(d);
       });
 
-      // render Leaderboard table
-      const lbBody = document.getElementById('leaderboardBody');
+      // Leaderboard table
+      const lb=document.getElementById('leaderboardBody');
       all.forEach((u,i)=>{
         const tr=document.createElement('tr');
-        if(u.name===me.name) tr.classList.add('current');
+        if(u.name===me.name) tr.classList.add('me');
         tr.innerHTML=`
           <td class="rank">${i+1}</td>
-          <td class="user">
-            <img src="${u.avatar}" alt=""><span>${u.name}</span>
-          </td>
-          <td>${u.workouts}</td>
-          <td>${u.distance}</td>
-          <td>${u.score}</td>
-        `;
-        lbBody.appendChild(tr);
+          <td class="user-cell"><img src="${u.avatar}"><span>${u.name}</span></td>
+          <td>${u.workouts}</td><td>${u.distance}</td><td>${u.score}</td>`;
+        lb.appendChild(tr);
       });
 
-      // Live section
-      let live = JSON.parse(localStorage.getItem('ft_liveWorkouts')||'[]');
-      const liveGrid = document.getElementById('liveNowGrid'),
-            btnLive  = document.getElementById('toggleLiveBtn'),
-            vid      = document.getElementById('liveVideo');
+      // Live sessions
+      let live=JSON.parse(localStorage.getItem('ft_liveWorkouts')||'[]');
+      const liveGrid=document.getElementById('liveNowGrid'),
+            btnLive=document.getElementById('toggleLiveBtn'),
+            vid=document.getElementById('liveVideo');
       function renderLive(){
-        liveGrid.innerHTML = live.length
-          ? live.map(u=>`
-              <div class="live-card">
-                <img src="${u.avatar}"/><div>${u.name}</div>
-                <div style="opacity:.8;">${u.type} • ${u.start}</div>
-              </div>`
-            ).join('')
-          : `<p style="opacity:.7;">No active streams.</p>`;
-        const meIdx = live.findIndex(x=>x.email===cur.email);
-        btnLive.textContent = meIdx>=0 ? 'End Live' : 'Go Live';
-        vid.hidden = meIdx<0;
-        if(meIdx>=0) startCam(); else stopCam();
+        if(live.length){
+          liveGrid.innerHTML=live.map(u=>`
+            <div class="live-card">
+              <img src="${u.avatar}"><div>${u.name}</div>
+              <div style="opacity:.8;">${u.type} • ${u.start}</div>
+            </div>
+          `).join('');
+        } else {
+          liveGrid.innerHTML=`<p style="opacity:.7;">No active streams.</p>`;
+        }
+        const idx=live.findIndex(x=>x.email===cur.email);
+        btnLive.textContent=idx>=0?'End Live':'Go Live';
+        vid.hidden=idx<0;
+        if(idx>=0) startCam(); else stopCam();
       }
       async function startCam(){
         if(!navigator.mediaDevices) return;
-        try{
-          const s=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+        try{ const s=await navigator.mediaDevices.getUserMedia({video:true});
           vid.srcObject=s;
         }catch{}
       }
@@ -316,14 +318,31 @@
         const idx=live.findIndex(x=>x.email===cur.email);
         if(idx>=0) live.splice(idx,1);
         else live.unshift({
-          email:cur.email, name:cur.name,
-          avatar:me.avatar, type:'Mixed',
+          email:cur.email,name:cur.name,
+          avatar:me.avatar,type:'Mixed',
           start:new Date().toLocaleTimeString()
         });
         localStorage.setItem('ft_liveWorkouts',JSON.stringify(live));
         renderLive();
       };
       renderLive();
+
+      // Score Trends (last 7 days random)
+      const bars=document.getElementById('trendBars');
+      for(let i=0;i<7;i++){
+        const val=Math.floor(Math.random()*60)+10;
+        const b=document.createElement('div');
+        b.className='bar'+(i%2?' filled':'');
+        b.style.height=val+'px';
+        b.innerHTML=`<span>${val}</span>`;
+        bars.appendChild(b);
+      }
+
+      // Monthly Champion = top1
+      const champ=all[0];
+      document.getElementById('monthlyChampion').querySelector('img').src=champ.avatar;
+      document.getElementById('champName').textContent=champ.name;
+
     });
   </script>
 </body>
