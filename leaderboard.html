@@ -28,7 +28,7 @@
       font-family:var(--font-base); overflow-x:hidden;
     }
     a { color:inherit; text-decoration:none; }
-    button { font-family:var(--font-head); cursor:pointer; }
+    button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
 
     /* OVERLAY */
     #overlay {
@@ -45,12 +45,12 @@
       display:flex; flex-direction:column; align-items:center;
       padding:1rem 0; position:sticky; top:0; height:100vh;
       transition:width var(--transition);
+      z-index:100;
     }
     .sidebar.open { width:200px; }
     .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar .menu-item {
       width:100%; padding:.8rem 0; text-align:center;
-      transition:background var(--transition);
     }
     .sidebar .menu-item:hover,
     .sidebar .menu-item.active { background:rgba(255,152,0,0.2); }
@@ -87,13 +87,10 @@
     /* MAIN */
     .main { flex:1; overflow-y:auto; }
 
-    section { margin:1.5rem; animation:fadeIn .5s ease; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
-
-    /* LIVE */
+    /* LIVE WORKOUTS */
     .live-now {
       background:rgba(255,255,255,0.05); padding:1rem; border-radius:8px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      box-shadow:0 4px 12px rgba(0,0,0,0.5); margin:1.5rem;
     }
     .live-now h2 { color:var(--gold); margin-bottom:.75rem; }
     .live-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); }
@@ -101,23 +98,24 @@
       background:rgba(255,255,255,0.05); border-radius:8px; padding:.75rem;
       text-align:center; transition:transform var(--transition),box-shadow var(--transition);
     }
-    .live-card:hover {
-      transform:translateY(-4px); box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    }
+    .live-card:hover { transform:translateY(-4px); box-shadow:0 4px 12px rgba(0,0,0,0.5); }
     .live-card img {
       width:48px; height:48px; border-radius:50%; object-fit:cover;
       margin-bottom:.5rem;
     }
-    .live-card .host { font-weight:600; }
     #liveVideo {
       width:100%; max-width:320px; margin-top:1rem;
       border-radius:8px; background:#222;
+    }
+    #toggleLiveBtn {
+      margin-top:1rem; background:var(--gold); border:none;
+      padding:.5rem 1rem; border-radius:6px; color:var(--bg);
     }
 
     /* SCORE SUMMARY */
     .score-summary {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-      gap:1rem; margin-bottom:1.5rem;
+      gap:1rem; margin:1.5rem;
     }
     .score-card {
       background:rgba(255,255,255,0.05); border-radius:8px;
@@ -126,10 +124,11 @@
     .score-card h3 { font-size:1.4rem; margin:.5rem 0; }
     .score-card p { opacity:.8; }
 
-    /* LEADERBOARD */
+    /* LEADERBOARD TABLE */
     .leaderboard {
       overflow-x:auto; background:rgba(255,255,255,0.05);
       border-radius:8px; padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      margin:1.5rem;
     }
     table {
       width:100%; border-collapse:collapse; min-width:600px;
@@ -145,13 +144,13 @@
     #yourRank {
       display:flex; align-items:center; gap:1rem;
       background:rgba(255,255,255,0.05); border-radius:8px; padding:1rem;
-      box-shadow:0 4px 12px rgba(0,0,0,0.5); margin-top:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5); margin:1.5rem;
     }
     #yourRank img { width:60px; height:60px; border-radius:50%; }
 
     /* FEATURED WORKOUTS */
     .featured {
-      margin-top:2rem;
+      margin:1.5rem;
     }
     .featured h2 { color:var(--gold); margin-bottom:.75rem; }
     .featured-grid {
@@ -171,6 +170,9 @@
     }
 
     /* COMMUNITY CHALLENGES */
+    .community {
+      margin:1.5rem;
+    }
     .community h2 { color:var(--gold); margin-bottom:.75rem; }
     .add-challenge {
       display:flex; gap:.5rem; margin-bottom:1rem;
@@ -211,7 +213,7 @@
     /* DAILY TIP & MOTIVATION */
     .daily-tip, .motivation {
       background:rgba(255,255,255,0.05); border-radius:8px; padding:1rem;
-      box-shadow:0 4px 12px rgba(0,0,0,0.5); margin-top:2rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5); margin:1.5rem;
     }
     .daily-tip h2, .motivation h2 { color:var(--gold); margin-bottom:.75rem; }
     .daily-tip p, .motivation blockquote { opacity:.8; line-height:1.4; }
@@ -221,8 +223,9 @@
       .sidebar { position:fixed; left:-80px; }
       .sidebar.open { left:0; }
       .hamburger, .profile-btn {
-        display:block; position:fixed; top:1rem; background:var(--gold);
-        color:var(--bg); border:none; padding:.5rem; border-radius:4px; z-index:200;
+        display:block; position:fixed; top:1rem;
+        background:var(--gold); color:var(--bg);
+        border:none; padding:.5rem; border-radius:4px; z-index:200;
       }
       .hamburger { left:1rem; }
       .profile-btn { right:1rem; }
@@ -246,7 +249,7 @@
     <div class="menu-item"><a href="workouts.html"><i class="fas fa-dumbbell"></i><span>Workouts</span></a></div>
     <div class="menu-item active"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
     <div class="menu-item"><a href="profile.html"><i class="fas fa-user-circle"></i><span>Profile</span></a></div>
-    <div class="sign-out menu-item"><a href="home.html"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a></div>
+    <div class="menu-item sign-out"><a href="home.html"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a></div>
   </aside>
 
   <!-- HEADER -->
@@ -273,32 +276,20 @@
   </header>
 
   <div class="main">
-    <!-- LIVE NOW -->
+    <!-- LIVE WORKOUTS -->
     <section class="live-now">
       <h2><i class="fas fa-video"></i> Live Workouts</h2>
       <div class="live-grid" id="liveNowGrid"></div>
-      <button id="toggleLiveBtn" style="margin-top:1rem;
-         background:var(--gold);border:none;padding:.5rem 1rem;
-         border-radius:6px;color:var(--bg);cursor:pointer;">
-        Start Live Workout
-      </button>
+      <button id="toggleLiveBtn">Start Live Workout</button>
       <video id="liveVideo" autoplay playsinline hidden></video>
     </section>
 
     <!-- SCORE SUMMARY -->
     <section class="score-summary">
-      <div class="score-card">
-        <p>Total Workouts</p><h3 id="sumWorkouts">0</h3>
-      </div>
-      <div class="score-card">
-        <p>Total Minutes</p><h3 id="sumMinutes">0</h3>
-      </div>
-      <div class="score-card">
-        <p>Total Km</p><h3 id="sumDistance">0</h3>
-      </div>
-      <div class="score-card">
-        <p>Your Score</p><h3 id="yourScore">0</h3>
-      </div>
+      <div class="score-card"><p>Total Workouts</p><h3 id="sumWorkouts">0</h3></div>
+      <div class="score-card"><p>Total Minutes</p><h3 id="sumMinutes">0</h3></div>
+      <div class="score-card"><p>Total Km</p><h3 id="sumDistance">0</h3></div>
+      <div class="score-card"><p>Your Score</p><h3 id="yourScore">0</h3></div>
     </section>
 
     <!-- LEADERBOARD TABLE -->
@@ -325,9 +316,7 @@
       <h2><i class="fas fa-globe"></i> Community Challenges</h2>
       <div class="add-challenge">
         <input id="newChallengeInput" placeholder="Add new challenge…"/>
-        <button id="addChallengeBtn" style="background:var(--gold);border:none;padding:.5rem;border-radius:6px;">
-          <i class="fas fa-plus"></i>
-        </button>
+        <button id="addChallengeBtn"><i class="fas fa-plus"></i></button>
       </div>
       <div class="challenge-list" id="challenges"></div>
     </section>
@@ -345,25 +334,25 @@
     </section>
   </div>
 
-  <script src="storage.js"></script>
   <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // ── Redirect if not signed in ─────────────────────
+    // Redirect if not signed in
     const curJSON = localStorage.getItem('ft_current');
     if (!curJSON) return location.href='home.html';
     const cur = JSON.parse(curJSON);
     if (!cur.name) return location.href='home.html';
 
-    // ── Greeting & avatar ─────────────────────────────
+    // Greeting & avatar
     document.querySelector('.welcome-text').textContent =
       cur.isNew ? `Hello ${cur.name}!` : `Welcome back, ${cur.name}!`;
     if (cur.isNew) {
       cur.isNew=false;
       localStorage.setItem('ft_current',JSON.stringify(cur));
     }
-    FT.updateSidebarAvatar();
+    // Swap sidebar avatar if using storage.js helper
+    if (window.FT && FT.updateSidebarAvatar) FT.updateSidebarAvatar();
 
-    // ── Sidebar toggle (mobile) ───────────────────────
+    // Sidebar toggle (mobile)
     const sb=document.getElementById('sidebar'),
           ov=document.getElementById('overlay'),
           hb=document.getElementById('hamburger'),
@@ -372,18 +361,18 @@
     ov.onclick = ()=> { sb.classList.remove('open'); ov.classList.remove('active'); };
     pb.onclick = ()=> location.href='profile.html';
 
-    // ── Load activities & compute totals ──────────────
+    // Load activities & compute totals
     const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
     const totalWorkouts = acts.length,
           totalMinutes = acts.reduce((s,a)=>s+ +a.duration,0),
-          totalDistance= acts.reduce((s,a)=>s+(parseFloat(a.distance)||0),0);
-    const yourScore = totalMinutes*2 + Math.round(totalDistance*5);
+          totalDistance= acts.reduce((s,a)=>s+(parseFloat(a.distance)||0),0),
+          yourScore = totalMinutes*2 + Math.round(totalDistance*5);
     document.getElementById('sumWorkouts').textContent = totalWorkouts;
     document.getElementById('sumMinutes').textContent  = totalMinutes;
     document.getElementById('sumDistance').textContent = totalDistance.toFixed(1);
     document.getElementById('yourScore').textContent   = yourScore;
 
-    // ── Live Workout (camera) ─────────────────────────
+    // Live Workouts
     let live = JSON.parse(localStorage.getItem('ft_liveWorkouts')||'[]');
     const liveGrid = document.getElementById('liveNowGrid'),
           toggleLive = document.getElementById('toggleLiveBtn'),
@@ -432,8 +421,8 @@
     };
     renderLive();
 
-    // ── Leaderboard ──────────────────────────────────
-    const allUsers = FT.load('ft_users', []);
+    // Leaderboard
+    const allUsers = (window.FT&&FT.load)? FT.load('ft_users',[]) : [];
     const users = allUsers.map(u=>{
       const s=u.stats||{workouts:0,distanceKm:0};
       return {
@@ -466,10 +455,7 @@
       yourRankEl.innerHTML = meIdx>=0
         ? `<div id="yourRank">
              <img src="${list[meIdx].avatar}" alt="">
-             <div class="info">
-               <strong>${cur.name}</strong> you’re #${meIdx+1}<br>
-               ${list[meIdx].score} pts
-             </div>
+             <div><strong>${cur.name}</strong> you’re #${meIdx+1}<br>${list[meIdx].score} pts</div>
            </div>`
         : `<p style="opacity:.7;">You’re not on the board yet.</p>`;
       highlights.innerHTML = list.slice(0,3).map(u=>`
@@ -482,20 +468,20 @@
     tf.onchange=cat.onchange=renderBoard;
     renderBoard();
 
-    // ── Featured Workouts ────────────────────────────
+    // Featured Workouts
     const featured = JSON.parse(localStorage.getItem('ft_featured'))||[
       {img:'run.jpg',title:'5 km Morning Run'},
       {img:'yoga.jpg',title:'Sunrise Yoga'},
       {img:'hiit.jpg',title:'HIIT Blast'}
     ];
-    const fGrid = document.getElementById('featuredGrid');
-    fGrid.innerHTML = featured.map(w=>`
-      <div class="workout-card">
-        <img src="${w.img}" alt="${w.title}">
-        <div>${w.title}</div>
-      </div>`).join('');
+    document.getElementById('featuredGrid').innerHTML =
+      featured.map(w=>`
+        <div class="workout-card">
+          <img src="${w.img}" alt="${w.title}">
+          <div>${w.title}</div>
+        </div>`).join('');
 
-    // ── Community Challenges ────────────────────────
+    // Community Challenges
     let challenges = JSON.parse(localStorage.getItem('ft_challenges'))||[
       {id:1,title:'Weekend 5K',desc:'Run 5 km every Sat.',joined:[]}
     ];
@@ -533,11 +519,11 @@
     };
     renderChallenges();
 
-    // ── Tip & Motivation ────────────────────────────
+    // Daily Tip & Motivation
     const tips=[
       "Hydrate before & after every session.",
       "Quality > quantity—focus on form.",
-      "Cool down & stretch for 5 min."
+      "Cool down and stretch for 5 min."
     ];
     document.getElementById('tipOfDay').textContent =
       tips[Math.floor(Math.random()*tips.length)];
