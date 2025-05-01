@@ -193,6 +193,23 @@
 .card-list div, .card-list li {
   background:rgba(255,255,255,0.1); padding:.6rem; border-radius:6px;
 }
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap: 1rem;
+}
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  max-height: 200px;   /* optional scroll */
+  overflow-y: auto;
+}
+.card-list div, .card-list li {
+  background: rgba(255,255,255,0.1);
+  padding: .6rem;
+  border-radius: 6px;
+}
 
     .daily-tip {
   background: rgba(255,255,255,0.05);
@@ -410,18 +427,31 @@
       </section>
 
    <section class="actions-grid">
-  <div class="action-card" id="card-challenges">
-    <h3><i class="fas fa-flag-checkered"></i> My Challenges</h3>
-    <div class="card-list" id="action-challenges"></div>
-  </div>
+  <div id="action-challenges" class="card-list">
+  <div>🏃 Run 5 km every day</div>
+  <div>💪 50 Push-Ups in one set</div>
+  <div>🚴 Cycle 20 km this week</div>
+  <div>🧘 Meditate 10 min daily</div>
+</div>
+
   <div class="action-card" id="card-leaderboard">
     <h3><i class="fas fa-trophy"></i> Leaderboard</h3>
-    <ol id="action-leaderboard"></ol>
+    <ol id="action-leaderboard">
+  <li><strong>You</strong> — 12 workouts</li>
+  <li><strong>Alice</strong> — 15 workouts</li>
+  <li><strong>Bob</strong> — 10 workouts</li>
+  <li><strong>Carol</strong> —  8 workouts</li>
+  <li><strong>Dave</strong>  —  5 workouts</li>
+</ol>
+
   </div>
-  <div class="action-card" id="card-feed">
-    <h3><i class="fas fa-users"></i> Community Feed</h3>
-    <div class="card-list" id="action-feed"></div>
-  </div>
+ <div id="action-feed" class="card-list">
+  <div><strong>Alice</strong> just smashed a 5 km run 🏃</div>
+  <div><strong>Bob</strong> hit 50 push-ups 💥</div>
+  <div><strong>Carol</strong> joined “Sunrise Yoga” session 🌅</div>
+  <div><strong>Dave</strong> tracked a 20 km bike ride 🚴</div>
+</div>
+
 </section>
 
    
