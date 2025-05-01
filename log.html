@@ -234,7 +234,7 @@
       /* show mobile toggles */
       .hamburger, .profile-btn {
         display:block;
-        position:absolute; top:50%;
+        position:sticky; top:50%;
         transform:translateY(-50%);
         font-size:1.4rem;
         background:transparent; border:none; color:var(--white);
@@ -244,12 +244,10 @@
       .profile-btn { right:1rem; }
       header h1 { margin:0 auto; font-size:1.2rem; }
 
-      /* stack the timer */
-      .timer { flex-direction:column; align-items:stretch; }
-      .timer button { width:100%; }
+     
 
       /* full-width controls */
-      .presets, .achievement, .tips-section .tip {
+     .achievement, .tips-section .tip {
         flex-direction:column; align-items:flex-start;
       }
       .presets button, #logForm input, #logForm select, #logForm textarea, #logForm button {
@@ -277,6 +275,11 @@
     <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
+
+  
+  <!-- MAIN CONTENT -->
+  <div class="main">
+   
  <!-- HEADER -->
   <header>
     <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i></button>
@@ -287,11 +290,6 @@
       <button id="profile-btn" class="profile-btn" aria-label="Profile"><i class="fas fa-user-circle"></i></button>
     </div>
   </header>
-  
-  <!-- MAIN CONTENT -->
-  <div class="main">
-   
-
     <!-- QUICK STATS -->
     <section class="stats-section">
       <div class="stat-card">
