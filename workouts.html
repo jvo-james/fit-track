@@ -514,6 +514,56 @@ header, .sidebar {
     justify-content: center;
   }
 }
+@media (max-width: 600px) {
+  header {
+    position: relative;  /* allow absolutely‐positioned children */
+  }
+
+  /* pull them out of fixed and into the header */
+  .hamburger,
+  .profile-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: block;
+    background: transparent;
+    border: none;
+    color: var(--white);
+  }
+
+  /* left & right inside the header padding */
+  .hamburger {
+    left: 1rem;
+  }
+  .profile-btn {
+    right: 1rem;
+  }
+}
+@media (max-width: 414px) {
+  header {
+    position: relative;  /* allow absolutely‐positioned children */
+  }
+
+  /* pull them out of fixed and into the header */
+  .hamburger,
+  .profile-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: block;
+    background: transparent;
+    border: none;
+    color: var(--white);
+  }
+
+  /* left & right inside the header padding */
+  .hamburger {
+    left: 1rem;
+  }
+  .profile-btn {
+    right: 1rem;
+  }
+}
 
 </style>
 
