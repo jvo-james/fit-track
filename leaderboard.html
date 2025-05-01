@@ -213,21 +213,22 @@
   <div id="overlay"></div>
 
   <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
+  <aside id="sidebar" class="sidebar">
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
-    <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+    <a href="log.html"         class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="menu-item profile-menu"><i id="sideAvatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
-    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a>
+    <button class="menu-item profile-menu"><i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
+    <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
   <!-- Main -->
   <div class="main">
     <!-- Header -->
     <header>
-      <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+  <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i></button>
       <div class="logo-header"><i class="fas fa-trophy"></i> Leaderboard</div>
       <div class="search">
         <input id="searchInput" type="text" placeholder="Search user…">
@@ -236,10 +237,7 @@
         <select id="timeframe">
           <option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option>
         </select>
-        <button id="notifBtn"><i class="fas fa-bell"></i></button>
-        <button class="avatar-btn" id="hdrAvatarBtn">
-          <img id="hdrAvatar" src="">
-        </button>
+        <button id="profile-btn" class="profile-btn" aria-label="Profile"><i class="fas fa-user-circle"></i></button>
       </div>
     </header>
 
@@ -292,12 +290,23 @@
 
   <script>
   document.addEventListener('DOMContentLoaded',()=>{
-    // Sidebar toggle
-    const overlay = document.getElementById('overlay'),
-          sidebar = document.getElementById('sidebar'),
-          hamb    = document.getElementById('hamburger');
-    hamb.onclick = ()=> { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); };
-    overlay.onclick = ()=> { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+      // ELEMENTS
+    const overlay    = document.getElementById('overlay'),
+          sidebar    = document.getElementById('sidebar'),
+          openBtn    = document.getElementById('hamburger'),
+          closeBtn   = document.getElementById('sidebar-close'),
+          profileBtn = document.getElementById('profile-btn');
+    
+      // OPEN / CLOSE SIDEBAR
+    openBtn.onclick = () => {
+      sidebar.classList.add('open');
+      overlay.classList.add('active');
+    };
+    closeBtn.onclick = overlay.onclick = () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    };
+    profileBtn.onclick = () => location.href = 'profile.html';
 
     // Auth & avatars
     const curJSON = localStorage.getItem('ft_current');
@@ -305,9 +314,18 @@
     const cur = JSON.parse(curJSON);
     if(!cur.name) return location.href='home.html';
 
-    const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}'),
-          defaultAv = 'https://www.instagram.com/static/images/anonymousUser.jpg',
-          avatarUrl = prof.avatar || defaultAv;
+  // AVATAR SWAP
+    const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+    ['top-avatar','side-avatar'].forEach(id=>{
+      const icon = document.getElementById(id);
+      if(icon && prof.avatar){
+        const img = document.createElement('img');
+        img.src = prof.avatar;
+        img.className = 'avatar';
+        icon.replaceWith(img);
+      }
+    });
+
 
     document.getElementById('hdrAvatar').src = avatarUrl;
     document.getElementById('sideAvatar').outerHTML =
@@ -319,9 +337,9 @@
 
     // Build user list (5 pseudo + you)
     const pseudo = [
-      {name:'Alice',workouts:25,distance:120,avatar:'https://i.pravatar.cc/150?u=alice'},
-      {name:'Bob',workouts:20,distance:95,avatar:'https://i.pravatar.cc/150?u=bob'},
-      {name:'Cara',workouts:18,distance:80,avatar:'https://i.pravatar.cc/150?u=cara'},
+      {name:'Alice',workouts:25,distance:120,avatar:'alice.jpg'},
+      {name:'Bob',workouts:20,distance:95,avatar:'bob.jpg'},
+      {name:'Cara',workouts:18,distance:80,avatar:'cara.jpg'},
       {name:'Dana',workouts:15,distance:70,avatar:'https://i.pravatar.cc/150?u=dana'},
       {name:'Evan',workouts:12,distance:55,avatar:'https://i.pravatar.cc/150?u=evan'}
     ];
