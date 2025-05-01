@@ -112,18 +112,60 @@
 
    /* Main & header */
     .main { flex:1; display:flex; flex-direction:column; }
-    header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
-      border-bottom:2px solid var(--gold);
-      position:sticky; top:0; z-index:var(--header-z);
-    }
-    header h1 { font-size:1.4rem; text-align:center; flex:1; color:var(--white); }
-    .new-workout {
-      display:flex; align-items:center; gap:.4rem;
-      background:var(--gold); color:var(--bg);
-      border-radius:30px; padding:.5rem 1rem;
-    }
+   header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* subtitle under title */
+.subtitle {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-top: 0.15rem;
+  color: #ddd;
+}
+
+/* icon button style */
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-size: 1.2rem;
+  position: relative;
+  margin: 0 0.3rem;
+}
+
+.icon-btn .badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #e74c3c;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.6rem;
+  width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ensure nothing scrolls under it */
+header, .sidebar {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+   
     .hamburger, .profile-btn { display:none; }
 
 
@@ -159,6 +201,15 @@
     grid-column:1/-1;
     display:flex; flex-wrap:wrap; gap:1rem; align-items:center;
   }
+    /* make all selects clearly dropdowns */
+#filters select {
+  padding-right: 2.5rem;
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23fff" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg"><path d="M31 192h258c17.7 0 26.7 21.5 14.1 34l-129 129a16 16 0 01-22.6 0l-129-129c-12.6-12.5-3.6-34 14.5-34z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.65rem auto;
+}
+
 
   /* ─── Library ───────────────────────── */
   #library {
@@ -413,6 +464,29 @@
       .charts { grid-template-columns:1fr; }
       .chart-card canvas { height:200px !important; }
     }
+    @media (max-width: 414px) {
+  header {
+    padding: 0.5rem 0.75rem;
+  }
+  .hamburger, .icon-btn {
+    font-size: 1.4rem;
+    margin: 0 0.5rem;
+  }
+  header h1 {
+    font-size: 1.1rem;
+  }
+  .subtitle {
+    display: none;  /* keep it clean on small screens */
+  }
+  #filters {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  #filters select {
+    width: 100%;
+  }
+}
+
 </style>
 
 </head>
@@ -450,12 +524,19 @@
     <header>
    
       <div class="header-center">
-        <h1>Workouts</h1>
-        <span>Browse routines, join challenges, and chat for suggestions.</span>
-      </div>
-      <div class="header-right">
-        <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log</button>
-        </div>
+       <!-- center: page title + a subtle subtitle -->
+  <div class="header-center">
+    <h1>Workouts</h1>
+    <small class="subtitle">Find your perfect routine</small>
+  </div>
+
+  <!-- right: search + notifications + profile -->
+  <div class="header-right">
+    <button class="icon-btn"><i class="fas fa-search"></i></button>
+    <button class="icon-btn"><i class="fas fa-bell"></i><span class="badge">3</span></button>
+    <button class="icon-btn profile-btn"><i class="fas fa-user-circle"></i></button>
+  </div>
+     
     </header>
 
     <!-- GRID LAYOUT -->
@@ -514,6 +595,8 @@
       <section id="progressSummary">
         <h2><i class="fas fa-chart-bar"></i> Your Progress</h2>
         <canvas id="progressChart"></canvas>
+        <br>
+         <button onclick="location.href='log.html'"><i class="fas fa-plus"></i> Log</button>
       </section>
 
       <!-- 6. Challenge Modes -->
