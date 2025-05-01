@@ -425,26 +425,33 @@ header, .sidebar {
       .sidebar-close { display:block; position:absolute; top:1rem; right:1rem; font-size:1.5rem; }
 
       header {
-        display:flex; align-items:center; justify-content:space-between;
+        display:flex; align-items:center; justify-content:space-between; position: relative;
         padding:1rem 3rem; /* room for icons */
          z-index: 1000;
       }
       header h1 {
         position:static; font-size:1rem; flex:1; text-align:center; color:var(--white);
       }
-      .hamburger,
+     .hamburger,
   .profile-btn {
     display: block;
-    position: fixed;
-    top: 1rem;
-    font-size: 1.5rem;
-    z-index: 9999;      /* way above header/content */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     background: transparent;
     border: none;
-    color: white;
+    color: var(--white);
+    font-size: 1.5rem;
+    z-index: 200; /* above header content */
   }
-      .hamburger { left:1rem; }
-      .profile-btn { right:1rem; }
+  .hamburger { left: 1rem; }
+  .profile-btn { right: 1rem; }
+
+  /* hide tagline & new-workout on small */
+  .header-left .subtle,
+  .header-right .new-workout {
+    display: none;
+  }
 
       .content { padding:.8rem 1rem; }
       .notif-bar { font-size:.9rem; padding:.6rem 1rem; }
@@ -571,13 +578,7 @@ header, .sidebar {
 <body>
   <!-- overlay for mobile sidebar -->
   <div id="overlay"></div>
- <!-- Mobile controls -->
-  <button id="hamburger" class="hamburger" aria-label="Open menu">
-    <i class="fas fa-bars"></i>
-  </button>
-  <button id="profile-btn" class="profile-btn" aria-label="View profile">
-    <i id="top-avatar" class="fas fa-user-circle avatar"></i>
-  </button>
+ 
 <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
     <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
@@ -599,19 +600,27 @@ header, .sidebar {
   <!-- MAIN CONTENT -->
   <div class="main">
     <!-- TOPBAR -->
-   <header>
-  <div class="header-left">
-    <h1 id="greeting">
-      <i class="fas fa-dumbbell"></i>
-      Workouts
-      <span class="subtle">Browse routines & challenges</span>
-    </h1>
-  </div>
-  <div class="header-right">
-    <button class="new-workout"><i class="fas fa-plus"></i></button>
-  </div>
-</header>
+  <header>
+      <!-- move them here -->
+      <button id="hamburger" class="hamburger" aria-label="Open menu">
+        <i class="fas fa-bars"></i>
+      </button>
 
+      <div class="header-left">
+        <h1>
+          <i class="fas fa-dumbbell"></i> Workouts
+          <span class="subtle">Browse routines &amp; challenges</span>
+        </h1>
+      </div>
+
+      <div class="header-right">
+        <button class="new-workout"><i class="fas fa-plus"></i></button>
+      </div>
+
+      <button id="profile-btn" class="profile-btn" aria-label="View profile">
+        <i id="top-avatar" class="fas fa-user-circle avatar"></i>
+      </button>
+    </header>
 
     <!-- GRID LAYOUT -->
     <div class="content">
