@@ -13,628 +13,317 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
-     :root {
+    :root {
       --bg: #000;
+      --fg: #fff;
       --gold: #ff9800;
-      --white: #fff;
-      --font-base: 'Raleway', sans-serif;
+      --accent: #222;
+      --font-sans: 'Raleway', sans-serif;
       --font-head: 'Poppins', sans-serif;
       --transition: .3s ease;
-      --sidebar-w: 80px;
-      --mobile-sidebar-w: 200px;
-      --break-mobile: 900px;
-      --overlay-z: 90;
-      --sidebar-z: 100;
-      --header-z: 200;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display:flex; min-height:100vh;
-      background:var(--bg); color:var(--white);
-      font-family:var(--font-base);
+      display:flex; min-height:100vh; flex-direction:column;
+      background:var(--bg); color:var(--fg);
+      font-family:var(--font-sans);
       overflow-x:hidden;
     }
     a { color:inherit; text-decoration:none; }
-    button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
-
-    /* OVERLAY */
-    #overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.5);
-      opacity:0; visibility:hidden; transition:opacity var(--transition);
-      z-index:140;
-    }
-    #overlay.active { opacity:1; visibility:visible; }
-
-    /* ─── SIDEBAR ───────────────── */
-    .sidebar {
-      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
-      border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
-      transform: translateX(0);
-      transition:transform var(--transition);
-      z-index:var(--sidebar-z);
-    }
-    .sidebar.open { transform:translateX(0); }
-    .sidebar-close {
-      display:none; font-size:1.5rem;
-      position:absolute; top:1rem; right:1rem;
-      background:transparent; border:none; color:var(--white);
-    }
-    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-    .sidebar a.menu-item,
-    .sidebar button.profile-menu {
-      width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      color:var(--white);
-      transition:background var(--transition);
-    }
-    .sidebar a.menu-item:hover,
-    .sidebar a.menu-item.active,
-    .sidebar button.profile-menu:hover {
-      background:rgba(255,152,0,0.2);
-    }
-    .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.2rem; }
-    .sidebar a.menu-item span,
-    .sidebar button.profile-menu span { font-size:.75rem; }
-    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
 
     /* HEADER */
     header {
       position:sticky; top:0; left:0; right:0;
-      z-index:var(--header-z);
+      background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold);
       display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.5rem;
-      background:rgba(0,0,0,0.9);
-      border-bottom:2px solid var(--gold);
+      padding:0.75rem 1rem; z-index:1000;
     }
-    .hamburger, .profile-btn { display:none; }
-    header h1 {
-      flex:1; text-align:center;
-      font-family:var(--font-head); font-size:1.5rem;
-      color:var(--white);
-    }
-    .header-right {
+    .brand { font-family:var(--font-head); font-size:1.25rem; color:var(--gold); }
+    .controls {
       display:flex; align-items:center; gap:1rem;
     }
-    .welcome-text {
-      color:var(--gold); font-weight:600;
-    }
-    .icon-btn {
-      background:rgba(255,152,0,0.2);
-      border:none; padding:.4rem .6rem; border-radius:6px;
-      color:var(--white);
-      transition:background var(--transition);
-    }
-    .icon-btn:hover {
-      background:rgba(255,152,0,0.4);
-    }
-    #filters {
-      display:flex; gap:.75rem;
-    }
-    #filters select {
-      padding:.4rem .6rem;
+    .controls select, .controls button {
+      font-family:var(--font-head);
       background:rgba(255,255,255,0.05);
-      border:1px solid rgba(255,255,255,0.3);
+      border:1px solid rgba(255,255,255,0.2);
       border-radius:6px;
-      color:var(--white);
+      padding:0.4rem 0.6rem;
+      color:var(--fg);
       cursor:pointer;
       transition:background var(--transition);
     }
-    #filters select:hover {
+    .controls select:hover, .controls button:hover {
       background:rgba(255,255,255,0.1);
     }
+    .clock {
+      font-size:0.9rem; opacity:0.7;
+    }
+    .avatar-btn {
+      width:36px; height:36px; border-radius:50%;
+      overflow:hidden; border:2px solid var(--gold);  
+    }
+    .avatar-btn img {
+      width:100%; height:100%; object-fit:cover;
+    }
 
-    /* MAIN */
-    .main { flex:1; }
+    /* MAIN CONTAINER */
+    .container { flex:1; overflow-y:auto; }
 
-    .section {
-      margin:1.5rem;
+    /* HALL OF FAME */
+    .hall-of-fame {
+      display:flex; gap:1rem; justify-content:center;
+      padding:1rem 0; background:rgba(255,255,255,0.05);
+    }
+    .hall-card {
+      background:var(--accent); border-radius:50%; width:60px; height:60px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 2px 8px rgba(0,0,0,0.5);
+      flex-shrink:0;
+    }
+    .hall-card:nth-child(1) { transform:scale(1.2); }
+    .hall-card img { width:50px; height:50px; border-radius:50%; }
+
+    /* LEADERBOARD */
+    .leaderboard {
+      margin:1rem; overflow:hidden; border-radius:8px;
       background:rgba(255,255,255,0.05);
-      border-radius:8px;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      padding:1rem;
     }
-    .section h2 {
-      color:var(--gold); font-size:1.2rem; margin-bottom:.75rem;
+    table {
+      width:100%; border-collapse:collapse;
+      font-family:var(--font-sans);
+    }
+    th, td {
+      padding:0.75rem 1rem; text-align:left;
+    }
+    th {
+      background:var(--gold); color:var(--bg);
+      font-size:0.9rem; text-transform:uppercase;
+    }
+    tbody tr {
+      transition:background var(--transition);
+    }
+    tbody tr:hover {
+      background:rgba(255,255,255,0.1);
+    }
+    tbody tr.current {
+      background:rgba(255,152,0,0.2) !important;
+    }
+    tbody td.rank {
+      width:3rem; font-weight:700; color:var(--gold);
+    }
+    tbody td.user {
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    tbody td.user img {
+      width:24px; height:24px; border-radius:50%; object-fit:cover;
     }
 
-    /* Live Workouts */
+    /* LIVE SESSIONS */
+    .section {
+      margin:1rem; padding:1rem;
+      background:rgba(255,255,255,0.05);
+      border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    .section h2 { color:var(--gold); margin-bottom:0.75rem; }
     .live-grid {
-      display:grid;
-      gap:1rem;
+      display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
     }
     .live-card {
       background:rgba(255,255,255,0.1);
-      border-radius:8px; padding:.75rem;
-      text-align:center;
-      transition:transform var(--transition),box-shadow var(--transition);
+      border-radius:8px; padding:0.75rem;
+      text-align:center; transition:transform var(--transition);
     }
     .live-card:hover {
       transform:translateY(-4px);
-      box-shadow:0 4px 12px rgba(0,0,0,0.5);
     }
     .live-card img {
-      width:48px; height:48px; border-radius:50%;
-      object-fit:cover; margin-bottom:.5rem;
+      width:48px; height:48px; border-radius:50%; margin-bottom:0.5rem;
     }
-    #liveDesc {
-      font-size:.9rem; opacity:.8; margin-bottom:.75rem;
+    #liveDesc { font-size:0.9rem; opacity:0.8; margin-bottom:1rem; }
+    #toggleLiveBtn {
+      background:var(--gold); border:none; color:var(--bg);
+      padding:0.5rem 1rem; border-radius:6px;
     }
     #liveVideo {
-      width:100%; max-width:320px; margin-top:1rem;
-      border-radius:8px; background:#222;
-    }
-    #toggleLiveBtn {
-      margin-top:1rem;
-      background:var(--gold); border:none;
-      padding:.5rem 1rem; border-radius:6px; color:var(--bg);
-    }
-
-    /* Score Summary */
-    .score-summary {
-      display:grid;
-      gap:1rem;
-      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-    }
-    .score-card {
-      text-align:center; padding:1rem; border-radius:8px;
-      background:rgba(255,255,255,0.1);
-    }
-    .score-card h3 { font-size:1.4rem; margin:.5rem 0; }
-    .score-card p { opacity:.8; }
-
-    /* Leaderboard Table */
-    .leaderboard {
-      overflow-x:auto; border-radius:8px; padding:0;
-    }
-    table {
-      width:100%; border-collapse:collapse; min-width:600px;
-    }
-    th, td {
-      padding:.75rem 1rem; text-align:left;
-      border-bottom:1px solid rgba(255,255,255,0.1);
-    }
-    th { color:var(--gold); }
-    tbody tr:hover {
-      background:rgba(255,255,255,0.1);
-    }
-
-    /* Your Rank */
-    #yourRank {
-      display:flex; align-items:center; gap:1rem;
-      background:rgba(255,255,255,0.1);
-      border-radius:8px; padding:1rem; margin-top:1rem;
-    }
-    #yourRank img {
-      width:60px; height:60px; border-radius:50%;
-    }
-
-    /* Featured Workouts */
-    .featured-grid {
-      display:grid; gap:1rem;
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    }
-    .workout-card {
-      background:rgba(255,255,255,0.1);
-      border-radius:8px; padding:1rem;
-      transition:transform var(--transition),box-shadow var(--transition);
-    }
-    .workout-card:hover {
-      transform:translateY(-4px);
-      box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    }
-    .workout-card img {
-      width:100%; height:100px; object-fit:cover;
-      border-radius:6px; margin-bottom:.5rem;
-    }
-
-    /* Community Challenges */
-    .add-challenge {
-      display:flex; gap:.5rem; margin-bottom:1rem;
-    }
-    .add-challenge input {
-      flex:1; padding:.5rem; border-radius:6px;
-      border:1px solid rgba(255,255,255,0.3);
-      background:rgba(255,255,255,0.05);
-      color:var(--white);
-    }
-    .challenge-list {
-      display:grid; gap:1rem;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    }
-    .challenge-card {
-      background:rgba(255,255,255,0.1);
-      border-radius:8px; padding:1rem;
-      display:flex; flex-direction:column; justify-content:space-between;
-      transition:transform var(--transition);
-    }
-    .challenge-card:hover {
-      transform:translateY(-4px);
-      box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    }
-    .challenge-card .progress {
-      height:6px; background:rgba(255,255,255,0.2);
-      border-radius:3px; overflow:hidden; margin:0.5rem 0;
-    }
-    .challenge-card .progress-fill {
-      width:0; height:100%; background:var(--gold);
-      transition:width .5s;
-    }
-    .challenge-card button {
-      background:var(--gold); color:var(--bg);
-      border:none; border-radius:6px; padding:.5rem;
-      transition:transform .2s;
-    }
-    .challenge-card button:hover {
-      transform:scale(1.03);
-    }
-
-    /* Daily Tip & Motivation */
-    .daily-tip p,
-    .motivation blockquote {
-      opacity:.8; line-height:1.4; margin-top:.5rem;
+      width:100%; max-width:320px; margin-top:1rem; border-radius:8px;
+      background:#222;
     }
 
     /* RESPONSIVE */
-   /* ─── RESPONSIVE ───────────────── */
     @media (max-width:600px) {
-      .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--mobile-sidebar-w);
-        transform:translateX(-100%); }
-      .sidebar.open { transform:translateX(0); }
-      .sidebar-close { display:block; }
-
-      header { padding:0.75rem 1rem; }
-     header h1 { margin: 0 auto; font-size: 1.2rem; }
-  .hamburger,
-  .profile-btn {
-    display: block;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  .hamburger { left: 1rem; }
-  .profile-btn { right: 1rem; }
-
-      header {
-        padding:1rem;
-        flex-direction:column; align-items:flex-start;
-      }
-      header h1 { margin: .5rem 0; font-size:1.2rem; }
-      #filters { flex-wrap:wrap; gap:.5rem; }
-      .live-grid, .featured-grid, .challenge-list {
-        grid-template-columns:1fr;
-      }
-      .score-summary { grid-template-columns:1fr; }
-      table { font-size:.85rem; }
+      header { flex-direction:column; align-items:flex-start; gap:0.5rem; }
+      .controls { flex-wrap:wrap; }
+      .hall-of-fame { justify-content:flex-start; overflow-x:auto; padding:0.5rem; }
+      .hall-card { margin-right:0.5rem; }
+      .leaderboard { margin:0.5rem; }
+      .section { margin:0.5rem; }
+      table { font-size:0.85rem; }
     }
   </style>
 </head>
 <body>
-  <div id="overlay"></div>
-
-  <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
-    <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-    <a href="log.html"         class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="menu-item profile-menu"><i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
-    <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
-  </aside>
-
-  <!-- MAIN -->
-  <div class="main">
-    <!-- HEADER -->
-    <header>
-      <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i>
+  <header>
+    <div class="brand">🏆 FitTrack</div>
+    <div class="controls">
+      <span class="clock" id="clock">--:--:--</span>
+      <select id="viewType">
+        <option>Overall</option>
+        <option>Running</option>
+        <option>Cycling</option>
+        <option>Strength</option>
+      </select>
+      <button class="icon-btn" id="refreshBtn"><i class="fas fa-sync"></i></button>
+      <button class="avatar-btn" id="avatarBtn">
+        <img id="hdrAvatar" src="https://i.pravatar.cc/150?u=default" alt="You"/>
       </button>
-      <h1><i class="fas fa-trophy"></i> Leaderboard</h1>
-      <div class="header-right">
-        <span class="welcome-text">Welcome back!</span>
-        <button class="icon-btn"><i class="fas fa-bolt"></i></button>
-        <button id="profile-btn" class="icon-btn"><i class="fas fa-user-circle"></i></button>
-      </div>
-      <div id="filters">
-        <select id="timeframe"><option>Daily</option><option selected>Weekly</option><option>All-Time</option></select>
-        <select id="category"><option>All Types</option><option>Running</option><option>Cycling</option><option>Strength</option><option>Yoga</option></select>
-      </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- LIVE WORKOUTS -->
+  <div class="hall-of-fame" id="hallOfFame">
+    <!-- top 3 avatars injected here -->
+  </div>
+
+  <div class="container">
+    <!-- Leaderboard -->
+    <div class="leaderboard">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>User</th><th>Workouts</th><th>Distance (km)</th><th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody">
+          <!-- rows injected by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Live Sessions -->
     <section class="section live-now">
       <h2><i class="fas fa-video"></i> Live Workouts</h2>
-      <p id="liveDesc">Go live to share your workout in real-time. Others can join from the Workouts page.</p>
-      <div class="live-grid" id="liveNowGrid"></div>
-      <button id="toggleLiveBtn">Start Live Workout</button>
-      <video id="liveVideo" autoplay playsinline hidden></video>
-    </section>
-
-    <!-- SCORE SUMMARY -->
-    <section class="section score-summary">
-      <div class="score-card"><p>Total Workouts</p><h3 id="sumWorkouts">0</h3></div>
-      <div class="score-card"><p>Total Minutes</p><h3 id="sumMinutes">0</h3></div>
-      <div class="score-card"><p>Total Km</p><h3 id="sumDistance">0</h3></div>
-      <div class="score-card"><p>Your Score</p><h3 id="yourScore">0</h3></div>
-    </section>
-
-    <!-- LEADERBOARD TABLE -->
-    <section class="section leaderboard">
-      <table>
-        <thead><tr><th>Rank</th><th>User</th><th>Type</th><th>Score</th></tr></thead>
-        <tbody id="leaderboardBody"></tbody>
-      </table>
-    </section>
-
-    <!-- YOUR RANK -->
-    <section class="section" id="yourRank"></section>
-
-    <!-- FEATURED WORKOUTS -->
-    <section class="section featured">
-      <h2><i class="fas fa-star"></i> Featured Workouts</h2>
-      <div class="featured-grid" id="featuredGrid"></div>
-    </section>
-
-    <!-- COMMUNITY CHALLENGES -->
-    <section class="section community">
-      <h2><i class="fas fa-globe"></i> Community Challenges</h2>
-      <div class="add-challenge">
-        <input id="newChallengeInput" placeholder="Add new challenge…"/>
-        <button id="addChallengeBtn"><i class="fas fa-plus"></i></button>
+      <p id="liveDesc">
+        Go live now to broadcast your workout—friends can join right from their Workouts page!
+      </p>
+      <div class="live-grid" id="liveNowGrid">
+        <!-- live hosts here -->
       </div>
-      <div class="challenge-list" id="challenges"></div>
-    </section>
-
-    <!-- DAILY TIP -->
-    <section class="section daily-tip">
-      <h2><i class="fas fa-lightbulb"></i> Tip of the Day</h2>
-      <p id="tipOfDay"></p>
-    </section>
-
-    <!-- MOTIVATION -->
-    <section class="section motivation">
-      <h2><i class="fas fa-heart"></i> Motivation</h2>
-      <blockquote id="motivationQuote"></blockquote>
+      <button id="toggleLiveBtn">Start Live</button>
+      <video id="liveVideo" autoplay playsinline hidden></video>
     </section>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Elements
-      const overlay     = document.getElementById('overlay');
-      const sidebar     = document.getElementById('sidebar');
-      const openBtn     = document.getElementById('hamburger');
-      const closeBtn    = document.getElementById('sidebar-close');
-      const profileBtn  = document.getElementById('profile-btn');
+    document.addEventListener('DOMContentLoaded',()=> {
+      // clock
+      const clockEl = document.getElementById('clock');
+      setInterval(()=>{
+        const t=new Date();
+        clockEl.textContent=t.toLocaleTimeString();
+      },1000);
 
-      // Redirect if not signed in
+      // user & redirect
       const curJSON = localStorage.getItem('ft_current');
-      if (!curJSON) return location.href = 'home.html';
+      if(!curJSON) return location.href='home.html';
       const cur = JSON.parse(curJSON);
-      if (!cur.name) return location.href = 'home.html';
+      if(!cur.name) return location.href='home.html';
 
-      // Greeting
-      const welcome = document.querySelector('.welcome-text');
-      welcome.textContent = cur.isNew
-        ? `Hello ${cur.name}!`
-        : `Welcome back, ${cur.name}!`;
-      if (cur.isNew) {
-        cur.isNew = false;
-        localStorage.setItem('ft_current', JSON.stringify(cur));
-      }
+      // header avatar
+      const hdrAv = document.getElementById('hdrAvatar');
+      const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+      if(prof.avatar) hdrAv.src=prof.avatar;
 
-      // Sidebar toggle
-      openBtn.onclick = () => {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
+      // Hall of Fame & Leaderboard data
+      const pseudo = [
+        {name:'Alice', workouts:25, distance:120, avatar:'https://i.pravatar.cc/150?u=alice'},
+        {name:'Bob',   workouts:20, distance:95,  avatar:'https://i.pravatar.cc/150?u=bob'},
+        {name:'Cara',  workouts:18, distance:80,  avatar:'https://i.pravatar.cc/150?u=cara'},
+        {name:'Dana',  workouts:15, distance:70,  avatar:'https://i.pravatar.cc/150?u=dana'},
+        {name:'Evan',  workouts:12, distance:55,  avatar:'https://i.pravatar.cc/150?u=evan'}
+      ];
+      // current user stats
+      const stats = cur.stats||{workouts:0,distanceKm:0};
+      const me = {
+        name:cur.name,
+        workouts:stats.workouts||0,
+        distance: (stats.distanceKm||0).toFixed(1),
+        avatar: prof.avatar||`https://i.pravatar.cc/150?u=${cur.email}`
       };
-      closeBtn.onclick = overlay.onclick = () => {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-      };
-      profileBtn.onclick = () => location.href = 'profile.html';
+      // compute score: workouts*10 + distance*5
+      const compute = u=> u.workouts*10 + Math.round(u.distance*5);
+      const all = [...pseudo, me].map(u=>{
+        return {...u, score: compute(u)};
+      }).sort((a,b)=>b.score - a.score);
 
-      // Helper to load/save arrays
-      const load = key => JSON.parse(localStorage.getItem(key) || '[]');
-      const save = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+      // render Hall of Fame (top3)
+      const hof = document.getElementById('hallOfFame');
+      all.slice(0,3).forEach(u=>{
+        const d=document.createElement('div');
+        d.className='hall-card';
+        d.innerHTML=`<img src="${u.avatar}" alt="${u.name}" title="${u.name}">`;
+        hof.appendChild(d);
+      });
 
-      // ——— Load activities & compute totals ———
-      const acts = load('ft_activities');
-      const totalWorkouts = acts.length;
-      const totalMinutes  = acts.reduce((s,a)=>s + (+a.duration||0), 0);
-      const totalDistance = acts.reduce((s,a)=>s + (parseFloat(a.distance)||0), 0);
-      const yourScore     = totalMinutes*2 + Math.round(totalDistance*5);
-      document.getElementById('sumWorkouts').textContent = totalWorkouts;
-      document.getElementById('sumMinutes').textContent  = totalMinutes;
-      document.getElementById('sumDistance').textContent = totalDistance.toFixed(1);
-      document.getElementById('yourScore').textContent   = yourScore;
+      // render Leaderboard table
+      const lbBody = document.getElementById('leaderboardBody');
+      all.forEach((u,i)=>{
+        const tr=document.createElement('tr');
+        if(u.name===me.name) tr.classList.add('current');
+        tr.innerHTML=`
+          <td class="rank">${i+1}</td>
+          <td class="user">
+            <img src="${u.avatar}" alt=""><span>${u.name}</span>
+          </td>
+          <td>${u.workouts}</td>
+          <td>${u.distance}</td>
+          <td>${u.score}</td>
+        `;
+        lbBody.appendChild(tr);
+      });
 
-      // ——— Live workouts ———
-      let live = load('ft_liveWorkouts');
-      const liveGrid = document.getElementById('liveNowGrid');
-      const toggleLive = document.getElementById('toggleLiveBtn');
-      const videoEl = document.getElementById('liveVideo');
-
-      function renderLive() {
-        if (live.length) {
-          liveGrid.innerHTML = live.map(u=>`
-            <div class="live-card">
-              <img src="${u.avatar}" alt="">
-              <div>${u.name}</div>
-              <div style="opacity:.8;">${u.type} • ${u.start}</div>
-            </div>
-          `).join('');
-        } else {
-          liveGrid.innerHTML = `<p style="opacity:.7;">No one’s live right now.</p>`;
-        }
-        const meIdx = live.findIndex(u=>u.email===cur.email);
-        toggleLive.textContent = meIdx>=0 ? 'End Live Workout' : 'Start Live Workout';
-        videoEl.hidden = meIdx<0;
-        if (meIdx>=0) startCamera(); else stopCamera();
+      // Live section
+      let live = JSON.parse(localStorage.getItem('ft_liveWorkouts')||'[]');
+      const liveGrid = document.getElementById('liveNowGrid'),
+            btnLive  = document.getElementById('toggleLiveBtn'),
+            vid      = document.getElementById('liveVideo');
+      function renderLive(){
+        liveGrid.innerHTML = live.length
+          ? live.map(u=>`
+              <div class="live-card">
+                <img src="${u.avatar}"/><div>${u.name}</div>
+                <div style="opacity:.8;">${u.type} • ${u.start}</div>
+              </div>`
+            ).join('')
+          : `<p style="opacity:.7;">No active streams.</p>`;
+        const meIdx = live.findIndex(x=>x.email===cur.email);
+        btnLive.textContent = meIdx>=0 ? 'End Live' : 'Go Live';
+        vid.hidden = meIdx<0;
+        if(meIdx>=0) startCam(); else stopCam();
       }
-      async function startCamera() {
-        if (!navigator.mediaDevices) return;
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
-          videoEl.srcObject = stream;
-        } catch(e){ console.warn(e); }
+      async function startCam(){
+        if(!navigator.mediaDevices) return;
+        try{
+          const s=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+          vid.srcObject=s;
+        }catch{}
       }
-      function stopCamera() {
-        if (videoEl.srcObject) {
-          videoEl.srcObject.getTracks().forEach(t=>t.stop());
-          videoEl.srcObject = null;
-        }
+      function stopCam(){
+        if(vid.srcObject) vid.srcObject.getTracks().forEach(t=>t.stop());
+        vid.srcObject=null;
       }
-      toggleLive.onclick = () => {
-        const idx = live.findIndex(u=>u.email===cur.email);
-        if (idx>=0) {
-          live.splice(idx,1);
-        } else {
-          live.unshift({
-            email: cur.email,
-            name: cur.name,
-            avatar: cur.avatarDataUrl || `https://i.pravatar.cc/150?u=${cur.email}`,
-            type: acts[0]?.type || 'Mixed',
-            start: new Date().toLocaleTimeString()
-          });
-        }
-        save('ft_liveWorkouts', live);
+      btnLive.onclick=()=>{
+        const idx=live.findIndex(x=>x.email===cur.email);
+        if(idx>=0) live.splice(idx,1);
+        else live.unshift({
+          email:cur.email, name:cur.name,
+          avatar:me.avatar, type:'Mixed',
+          start:new Date().toLocaleTimeString()
+        });
+        localStorage.setItem('ft_liveWorkouts',JSON.stringify(live));
         renderLive();
       };
       renderLive();
-
-      // ——— Leaderboard ———
-      const allUsers = (window.FT && FT.load) ? FT.load('ft_users', []) : [];
-      const users = allUsers.map(u=>{
-        const s = u.stats||{workouts:0,distanceKm:0};
-        return {
-          email: u.email,
-          name: u.name,
-          avatar: u.avatarDataUrl || `https://i.pravatar.cc/150?u=${u.email}`,
-          type: u.lastType || '—',
-          score: s.workouts*10 + Math.round(s.distanceKm*5)
-        };
-      });
-      const lbBody    = document.getElementById('leaderboardBody');
-      const tf        = document.getElementById('timeframe');
-      const cat       = document.getElementById('category');
-      const yourRankEl= document.getElementById('yourRank');
-
-      function renderBoard() {
-        let list = users
-          .filter(u=> !cat.value || u.type===cat.value)
-          .sort((a,b)=>b.score-a.score);
-
-        lbBody.innerHTML = list.map((u,i)=>`
-          <tr>
-            <td>${i+1}</td>
-            <td>
-              <img src="${u.avatar}" width="24" height="24"
-                   style="border-radius:50%;vertical-align:middle;margin-right:.5rem">
-              ${u.name}
-            </td>
-            <td>${u.type}</td>
-            <td>${u.score}</td>
-          </tr>
-        `).join('');
-
-        const meIdx = list.findIndex(u=>u.email===cur.email);
-        if (meIdx>=0) {
-          const me = list[meIdx];
-          yourRankEl.innerHTML = `
-            <div id="yourRank">
-              <img src="${me.avatar}" alt="">
-              <div>
-                <strong>${cur.name}</strong>, you’re #${meIdx+1}<br>
-                ${me.score} pts
-              </div>
-            </div>`;
-        } else {
-          yourRankEl.innerHTML = `<p style="opacity:.7;">You’re not on the board yet.</p>`;
-        }
-      }
-      tf.onchange = cat.onchange = renderBoard;
-      renderBoard();
-
-      // ——— Featured Workouts ———
-      const featured = load('ft_featured').length
-        ? load('ft_featured')
-        : [
-          {img:'run.jpg', title:'5 km Morning Run'},
-          {img:'yoga.jpg',title:'Sunrise Yoga'},
-          {img:'hiit.jpg',title:'HIIT Blast'}
-        ];
-      document.getElementById('featuredGrid').innerHTML =
-        featured.map(w=>`
-          <div class="workout-card">
-            <img src="${w.img}" alt="${w.title}">
-            <div>${w.title}</div>
-          </div>`).join('');
-
-      // ——— Community Challenges ———
-      let challenges = load('ft_challenges').length
-        ? load('ft_challenges')
-        : [{id:1,title:'Weekend 5K',desc:'Run 5 km every Saturday.',joined:[]}];
-      const chList = document.getElementById('challenges');
-      const addInp = document.getElementById('newChallengeInput');
-      const addBtn = document.getElementById('addChallengeBtn');
-
-      function renderChallenges() {
-        chList.innerHTML = challenges.map(c=>`
-          <div class="challenge-card" data-id="${c.id}">
-            <h3>${c.title}</h3>
-            <p>${c.desc}</p>
-            <div class="progress">
-              <div class="progress-fill" style="width:${
-                c.joined.includes(cur.email) ? '100%' : '0%'
-              }"></div>
-            </div>
-            <button>${
-              c.joined.includes(cur.email) ? '✔ Joined' : 'Join'
-            }</button>
-          </div>`).join('');
-      }
-      chList.addEventListener('click', e=>{
-        if (e.target.tagName==='BUTTON') {
-          const id = +e.target.closest('.challenge-card').dataset.id;
-          const ch = challenges.find(x=>x.id===id);
-          if (!ch.joined.includes(cur.email)) {
-            ch.joined.push(cur.email);
-            save('ft_challenges', challenges);
-            renderChallenges();
-          }
-        }
-      });
-      addBtn.onclick = ()=>{
-        const title = addInp.value.trim();
-        if (!title) return;
-        challenges.push({id:Date.now(),title,desc:'—',joined:[]});
-        save('ft_challenges', challenges);
-        addInp.value='';
-        renderChallenges();
-      };
-      renderChallenges();
-
-      // ——— Daily Tip & Motivation ———
-      const tips = [
-        "Hydrate before & after every session.",
-        "Quality over quantity: focus on form.",
-        "Cool down and stretch for 5 minutes."
-      ];
-      document.getElementById('tipOfDay').textContent =
-        tips[Math.floor(Math.random()*tips.length)];
-
-      const quotes = [
-        "“Push yourself, no one else will.”",
-        "“One more rep.”",
-        "“Sweat is fat crying.”"
-      ];
-      document.getElementById('motivationQuote').textContent =
-        quotes[Math.floor(Math.random()*quotes.length)];
     });
   </script>
 </body>
