@@ -29,6 +29,8 @@
       --transition: .3s ease;
       --sidebar-w: 80px; --mobile-break: 600px;
       --overlay-z: 90; --sidebar-z: 100; --header-z: 200;
+       --mobile-sidebar-w: 200px;
+    --break-mobile: 900px;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -45,32 +47,32 @@
       background:transparent; border:none; color:var(--white);
     }
 
-    /* ────────── OVERLAY ────────── */
-    .overlay {
-      display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,0.5); z-index:var(--overlay-z);
-    }
-    .overlay.active { display:block; }
+   /* ─── OVERLAY ─────────────────────────── */
+  #overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.5);
+    opacity:0; visibility:hidden; transition:opacity var(--transition);
+    z-index: 90;
+  }
+  #overlay.active { opacity:1; visibility:visible; }
 
-    /* ────────── SIDEBAR ────────── */
+ /* Sidebar */
     .sidebar {
       width:var(--sidebar-w); background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0; position:sticky; top:0; height:100vh;
+      padding-top:1rem; position:sticky; top:0; height:100vh;
       transition:transform var(--transition);
       z-index:var(--sidebar-z);
     }
     .sidebar.open { transform:translateX(0); }
     .sidebar .sidebar-close { display:none; }
-    .logo { font-size:1.6rem; color:var(--gold); margin-bottom:2rem; }
-
+    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item,
     .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center;
-      gap:.3rem; transition:background var(--transition);
-      background:transparent; border:none; color:var(--white);
+      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      transition:background var(--transition); color:var(--white);
+      background:transparent; border:none;
     }
     .sidebar a.menu-item:hover,
     .sidebar a.menu-item.active,
@@ -85,33 +87,54 @@
     .sidebar button.profile-menu span { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
 
-    /* ─── AVATAR ICONS ─── */
-    i.avatar {
-      width:32px; height:32px; line-height:32px;
-      text-align:center; border:2px solid var(--white);
-      border-radius:50%; font-size:1.5rem;
-    }
-    img.avatar {
-      width:32px; height:32px; border-radius:50%;
-      object-fit:cover; border:2px solid var(--white);
-    }
+
 
     /* ────────── HEADER & CONTROLS ────────── */
-    .hamburger, .profile-btn {
-      display:none; font-size:1.5rem;
-    }
-    header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
-      border-bottom:2px solid var(--gold);
-      position:sticky; top:0; z-index:var(--header-z);
-    }
-    header h1 { font-size:1.4rem; text-align:center; flex:1; color:var(--white); }
-    .new-workout {
-      display:flex; align-items:center; gap:.4rem;
-      background:var(--gold); color:var(--bg);
-      border-radius:30px; padding:.5rem 1rem;
-    }
+   header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: rgba(0,0,0,0.9);
+  border-bottom: 2px solid var(--gold);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  color: var(--white);
+}
+
+.header-left h1 i {
+  font-size: 1.4rem;
+  color: var(--gold);
+}
+
+.header-left .subtle {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+.header-right .new-workout {
+  padding: 0.4rem 0.8rem;
+  font-size: 1rem;
+}
+
+/* ensure nothing scrolls under it */
+header, .sidebar {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+   
+    .hamburger, .profile-btn { display:none; }
 
     /* ────────── MAIN LAYOUT ────────── */
     .main { flex:1; display:flex; flex-direction:column; overflow-y:auto; }
@@ -206,32 +229,7 @@
       #duration,#distance,#calories { grid-column:span 1; }
     }
 
-    /* ────────── MOBILE (≤600px) ────────── */
-    @media (max-width:600px) {
-      header { padding:1rem 3rem; }
-      header h1 { font-size:1rem; }
-      .hamburger, .profile-btn {
-        display:block; position:fixed; top:1rem;
-        font-size:1.5rem; z-index:9999;
-      }
-      .hamburger { left:1rem; }
-      .profile-btn { right:1rem; }
-      .log-section { margin:1rem; padding:1rem; }
-      .log-section h2 { font-size:1rem; margin-bottom:.75rem; }
-      .timer { gap:.5rem; }
-      #timerDisplay { font-size:1rem; min-width:50px; }
-      .timer button { padding:.25rem .5rem; font-size:.85rem; }
-      .presets { gap:.25rem; }
-      .presets button { padding:.3rem .6rem; font-size:.8rem; }
-      #logForm { grid-template-columns:1fr!important; }
-      #logForm input, #logForm select, #logForm textarea,
-      #logForm button { font-size:.9rem; }
-      .voice-control { text-align:center; grid-column:span 1; }
-      .recent, .activities { margin:0 1rem 1rem; }
-      .recent h2, .activities h2 { font-size:1rem; }
-      #recentEdit { width:100%; padding:.4rem .6rem; }
-      .activity-item { padding:.75rem; gap:.5rem; }
-    }
+   
   </style>
 </head>
 
@@ -239,32 +237,24 @@
   <!-- OVERLAY -->
   <div id="overlay" class="overlay"></div>
 
-  <!-- MOBILE CONTROLS -->
-  <button id="hamburger" class="hamburger" aria-label="Open menu">
-    <i class="fas fa-bars"></i>
-  </button>
-  <button id="profile-btn" class="profile-btn" aria-label="View profile">
-    <i id="top-avatar" class="fas fa-user-circle avatar"></i>
-  </button>
+  
 
-  <!-- SIDEBAR -->
+  <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">
-      <i class="fas fa-times"></i>
-    </button>
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
 
     <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-    <a href="log.html"        class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html"   class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="leaderboard.html"class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <a href="log.html"       class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html"     class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
 
     <button class="menu-item profile-menu">
       <i id="side-avatar" class="fas fa-user-circle avatar"></i>
       <span>Profile</span>
     </button>
 
-    <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
   <!-- MAIN CONTENT -->
@@ -350,11 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
   closeBtn.onclick  = closeSidebar;
   overlay.onclick   = closeSidebar;
   // auto-close on menu click (mobile)
-  sidebar.querySelectorAll('.menu-item a').forEach(a => {
-    a.onclick = () => {
-      if (window.innerWidth <= 600) closeSidebar();
-    };
-  });
+
 
   // Swap default <i> avatar for uploaded photo if exists
   function swapAvatar(id) {
@@ -377,7 +363,11 @@ document.addEventListener('DOMContentLoaded', () => {
     FT.updateSidebarAvatar && FT.updateSidebarAvatar();
   }
 });
-
+ // 5) Profile navigation
+      document.getElementById('profile-btn').onclick =
+        document.querySelector('.profile-menu').onclick =
+          () => location.href='profile.html';
+   
 // ────────── LOGIC: ACTIVITIES & UI ──────────
 document.addEventListener('DOMContentLoaded', () => {
   // localStorage helpers
