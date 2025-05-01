@@ -112,51 +112,41 @@
 
    /* Main & header */
     .main { flex:1; display:flex; flex-direction:column; }
-   header {
+ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(6px);
+  padding: 1rem 1.5rem;
+  background: rgba(0,0,0,0.9);
+  border-bottom: 2px solid var(--gold);
   position: sticky;
   top: 0;
-  z-index: 999;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  z-index: 100;
 }
 
-/* subtitle under title */
-.subtitle {
-  display: block;
-  font-size: 0.75rem;
-  opacity: 0.7;
-  margin-top: 0.15rem;
-  color: #ddd;
-}
-
-/* icon button style */
-.icon-btn {
-  background: transparent;
-  border: none;
-  color: var(--white);
-  font-size: 1.2rem;
-  position: relative;
-  margin: 0 0.3rem;
-}
-
-.icon-btn .badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: #e74c3c;
-  color: #fff;
-  border-radius: 50%;
-  font-size: 0.6rem;
-  width: 1rem;
-  height: 1rem;
+.header-left h1 {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  color: var(--white);
+}
+
+.header-left h1 i {
+  font-size: 1.4rem;
+  color: var(--gold);
+}
+
+.header-left .subtle {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+.header-right .new-workout {
+  padding: 0.4rem 0.8rem;
+  font-size: 1rem;
 }
 
 /* ensure nothing scrolls under it */
@@ -521,23 +511,19 @@ header, .sidebar {
   <!-- MAIN CONTENT -->
   <div class="main">
     <!-- TOPBAR -->
-    <header>
-   
-      <div class="header-center">
-       <!-- center: page title + a subtle subtitle -->
-  <div class="header-center">
-    <h1>Workouts</h1>
-    <small class="subtitle">Find your perfect routine</small>
+   <header>
+  <div class="header-left">
+    <h1 id="greeting">
+      <i class="fas fa-dumbbell"></i>
+      Workouts
+      <span class="subtle">Browse routines & challenges</span>
+    </h1>
   </div>
-
-  <!-- right: search + notifications + profile -->
   <div class="header-right">
-    <button class="icon-btn"><i class="fas fa-search"></i></button>
-    <button class="icon-btn"><i class="fas fa-bell"></i><span class="badge">3</span></button>
-    <button class="icon-btn profile-btn"><i class="fas fa-user-circle"></i></button>
+    <button class="new-workout"><i class="fas fa-plus"></i></button>
   </div>
-     
-    </header>
+</header>
+
 
     <!-- GRID LAYOUT -->
     <div class="content">
