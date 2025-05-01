@@ -467,143 +467,161 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // 1) Greeting & notification
-      const cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
-      if (!cur.name) return location.href='home.html';
-      document.getElementById('greeting').textContent = cur.isNew
-        ? `Hello ${cur.name}!`
-        : `Welcome back, ${cur.name}!`;
+ <script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ─── Redirect if not signed up/in ─────────────────
+  const curJSON = localStorage.getItem('ft_current');
+  if (!curJSON) return location.href = 'home.html';
+  const cur = JSON.parse(curJSON);
+  if (!cur.name) return location.href = 'home.html';
 
-      const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+  // ─── Greeting ───────────────────────────────────────
+  const greetingEl = document.getElementById('greeting');
+  if (cur.isNew) {
+    greetingEl.textContent = `Hello ${cur.name}!`;
+    cur.isNew = false;
+    localStorage.setItem('ft_current', JSON.stringify(cur));
+  } else {
+    greetingEl.textContent = `Welcome back, ${cur.name}!`;
+  }
 
-      // 2) Maybe replace default icon with uploaded avatar
-      function maybeReplaceIcon(id) {
-        const icon = document.getElementById(id);
-        if (prof.avatar) {
-          const img = document.createElement('img');
-          img.src = prof.avatar;
-          img.className = 'avatar';
-          img.alt = 'Profile';
-          icon.replaceWith(img);
-        }
-      }
-      maybeReplaceIcon('top-avatar');
-      maybeReplaceIcon('side-avatar');
+  // ─── Avatar swap ────────────────────────────────────
+  const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+  ['top-avatar','side-avatar'].forEach(id => {
+    const icon = document.getElementById(id);
+    if (icon && prof.avatar) {
+      const img = document.createElement('img');
+      img.src = prof.avatar;
+      img.className = 'avatar';
+      icon.replaceWith(img);
+    }
+  });
 
-      // Pull last 5 activities
-const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-const recent = acts.slice(0,5);
-const tbody = document.getElementById('recent-acts');
-recent.forEach(a => {
-  const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${a.date}</td><td>${a.type}</td>
-                  <td>${a.duration}</td><td>${a.distance||'-'}</td>`;
-  tbody.appendChild(tr);
-});
-// Fast stats
-const avgDur = acts.length
-  ? Math.round(acts.reduce((s,a)=>s+ +a.duration,0)/acts.length)
-  : 0;
-const totDist = acts.reduce((s,a)=>s+ (parseFloat(a.distance)||0),0).toFixed(1);
-const totCal  = acts.reduce((s,a)=>s+ (parseFloat(a.calories)||0),0);
-document.getElementById('avg-dur').textContent = avgDur;
-document.getElementById('tot-dist').textContent = totDist;
-document.getElementById('tot-cal').textContent = totCal;
+  // ─── Sidebar toggle ─────────────────────────────────
+  const sidebar = document.getElementById('sidebar'),
+        overlay = document.getElementById('overlay'),
+        openBtn = document.getElementById('hamburger'),
+        closeBtn = document.getElementById('sidebar-close');
+  openBtn.onclick = () => {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  };
+  const closeSidebar = () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  };
+  closeBtn.onclick = overlay.onclick = closeSidebar;
 
-      // 3) Notification once per session
-      if (!sessionStorage.getItem('notifShown') && !prof.complete) {
-        document.getElementById('notif-bar').classList.remove('hidden');
-        document.getElementById('notif-close').onclick = () =>
-          document.getElementById('notif-bar').classList.add('hidden');
-        sessionStorage.setItem('notifShown','1');
-      }
-      cur.isNew = false;
-      localStorage.setItem('ft_current', JSON.stringify(cur));
+  // ─── Profile navigation ────────────────────────────
+  document.getElementById('profile-btn').onclick =
+    document.querySelector('.profile-menu').onclick =
+      () => location.href='profile.html';
 
-      // 4) Sidebar toggle
-      const sidebar = document.getElementById('sidebar'),
-            overlay = document.getElementById('overlay'),
-            openBtn = document.getElementById('hamburger'),
-            closeBtn= document.getElementById('sidebar-close');
-      openBtn.onclick = () => {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
-      };
-      const closeSidebar = () => {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-      };
-      closeBtn.onclick = closeSidebar;
-      overlay.onclick  = closeSidebar;
+  // ─── New‐workout modal ───────────────────────────────
+  const wm = document.getElementById('workout-modal');
+  document.querySelector('.new-workout').onclick = () => wm.classList.add('active');
+  document.getElementById('workout-close').onclick = () => wm.classList.remove('active');
+  wm.onclick = e => { if (e.target===wm) wm.classList.remove('active'); };
+  document.getElementById('w-save').onclick = () => {
+    const date = document.getElementById('w-date').value,
+          dur  = document.getElementById('w-duration').value;
+    if (!date || !dur) return alert('Date & duration required');
+    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+    acts.unshift({ date, duration: dur });
+    localStorage.setItem('ft_activities', JSON.stringify(acts));
+    location.reload();
+  };
 
-      // 5) Profile navigation
-      document.getElementById('profile-btn').onclick =
-        document.querySelector('.profile-menu').onclick =
-          () => location.href='profile.html';
+  // ─── Recent activities table & fast stats ───────────
+  const actsAll = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+  // fill recent‐5
+  const recent = actsAll.slice(0,5);
+  const tbody = document.getElementById('recent-acts');
+  recent.forEach(a => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${a.date}</td><td>${a.type}</td>
+                    <td>${a.duration}</td><td>${a.distance||'-'}</td>`;
+    tbody.appendChild(tr);
+  });
+  // fast stats
+  const avgDur = actsAll.length
+    ? Math.round(actsAll.reduce((s,a)=>s+ +a.duration,0)/actsAll.length)
+    : 0;
+  const totDist = actsAll.reduce((s,a)=>s+ (parseFloat(a.distance)||0),0).toFixed(1);
+  const totCal  = actsAll.reduce((s,a)=>s+ (parseFloat(a.calories)||0),0);
+  document.getElementById('avg-dur').textContent = avgDur;
+  document.getElementById('tot-dist').textContent = totDist;
+  document.getElementById('tot-cal').textContent = totCal;
 
-      // 6) New workout modal
-      const wm = document.getElementById('workout-modal');
-      document.querySelector('.new-workout').onclick = () => wm.classList.add('active');
-      document.getElementById('workout-close').onclick = () => wm.classList.remove('active');
-      wm.onclick = e => { if (e.target===wm) wm.classList.remove('active'); };
-      document.getElementById('w-save').onclick = () => {
-        const date = document.getElementById('w-date').value,
-              dur  = document.getElementById('w-duration').value;
-        if (!date || !dur) return alert('Date & duration required');
-        const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-        acts.push({ date, duration: dur });
-        localStorage.setItem('ft_activities', JSON.stringify(acts));
-        location.reload();
-      };
-// Tip of the Day
-const tips = [
-  "Stay hydrated—drink at least 250 ml of water before each session.",
-  "Warm up for 5 minutes to activate your muscles.",
-  "Focus on form, not speed—quality reps build strength safer.",
-  "Cool down and stretch for 3–5 minutes after every workout.",
-  "Mix in one fun activity (dance, sports) each week to stay motivated."
-];
-document.getElementById('tip-of-day').textContent =
-  tips[Math.floor(Math.random()*tips.length)];
+  // ─── Tip of the Day ─────────────────────────────────
+  const tips = [
+    "Stay hydrated—drink at least 250 ml of water before each session.",
+    "Warm up for 5 minutes to activate your muscles.",
+    "Focus on form; quality reps build strength safer.",
+    "Cool down and stretch for 3–5 minutes after every workout.",
+    "Mix in one fun activity (dance, sports) each week to stay motivated."
+  ];
+  document.getElementById('tip-of-day').textContent =
+    tips[Math.floor(Math.random()*tips.length)];
 
-      // Mock data or load from localStorage
-const liveSessions = [
-  { img: 'alice.jpg', title: 'Sunrise Yoga',  host:'Alice', time:'6 AM UTC' },
-  { img: 'bob.jpg',   title: 'HIIT Blast',    host:'Bob',   time:'7 PM UTC' },
-  { img: 'cara.jpg',  title: 'Cardio Dance',  host:'Cara',  time:'5 PM UTC' }
-];
-const grid = document.getElementById('liveSessionsGrid');
-liveSessions.forEach(s => {
-  const card = document.createElement('div');
-  card.className = 'live-card';
-  card.innerHTML = `
-    <img src="${s.img}" alt="${s.title}">
-    <h3>${s.title}</h3>
-    <p>${s.host} • ${s.time}</p>
-  `;
-  grid.appendChild(card);
-});
+  // ─── Upcoming live sessions ──────────────────────────
+  const liveSessions = JSON.parse(localStorage.getItem('ft_liveSessions')) || [
+    { img:'alice.jpg', title:'Sunrise Yoga',  host:'Alice', time:'6 AM UTC' },
+    { img:'bob.jpg',   title:'HIIT Blast',    host:'Bob',   time:'7 PM UTC' },
+    { img:'cara.jpg',  title:'Cardio Dance',  host:'Cara',  time:'5 PM UTC' }
+  ];
+  const grid = document.getElementById('liveSessionsGrid');
+  liveSessions.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'live-card';
+    card.innerHTML = `
+      <img src="${s.img}" alt="${s.title}">
+      <h3>${s.title}</h3>
+      <p>${s.host} • ${s.time}</p>
+    `;
+    grid.appendChild(card);
+  });
 
-      // thresholds & labels
-const thresholds = [
-  { count: 1,  icon: 'fas fa-star',    label: 'First Workout' },
-  { count: 5,  icon: 'fas fa-medal',   label: '5 Workouts' },
-  { count: 10, icon: 'fas fa-trophy',  label: '10 Workouts' },
-  { count: 30, icon: 'fas fa-award',   label: '30 Workouts' }
-];
-const totalWorkouts = (JSON.parse(localStorage.getItem('ft_activities')||'[]')).length;
-const achGrid = document.getElementById('yourAchievements');
+  // ─── Top achievements ────────────────────────────────
+  const thresholds = [
+    { count:1,  icon:'fas fa-star',   label:'First Workout' },
+    { count:5,  icon:'fas fa-medal',  label:'5 Workouts' },
+    { count:10, icon:'fas fa-trophy', label:'10 Workouts' },
+    { count:30, icon:'fas fa-award',  label:'30 Workouts' }
+  ];
+  const totalWorkouts = actsAll.length;
+  const achGrid = document.getElementById('yourAchievements');
+  thresholds.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'achievement-badge' + (totalWorkouts>=t.count ? ' unlocked':'');
+    div.innerHTML = `<i class="${t.icon}"></i><p>${t.label}</p>`;
+    achGrid.appendChild(div);
+  });
 
-thresholds.forEach(t => {
-  const div = document.createElement('div');
-  div.className = 'achievement-badge' + (totalWorkouts >= t.count ? ' unlocked' : '');
-  div.innerHTML = `<i class="${t.icon}"></i><p>${t.label}</p>`;
-  achGrid.appendChild(div);
-});
+  // ─── Populate tiny “My Challenges” / leaderboard / feed panels ───
+  const chs = JSON.parse(localStorage.getItem('ft_challenges')) || [];
+  chs.forEach(c => {
+    const d = document.createElement('div');
+    d.textContent = c.text;
+    d.classList.toggle('completed', c.done);
+    document.getElementById('action-challenges').appendChild(d);
+  });
 
-      // ————————— STATS, PROGRESS, GOALS —————————
+  const lb = JSON.parse(localStorage.getItem('ft_leaderboard')) || [];
+  lb.slice(0,5).forEach(u => {
+    const li = document.createElement('li');
+    li.textContent = `${u.name}: ${u.score}`;
+    document.getElementById('action-leaderboard').appendChild(li);
+  });
+
+  const fd = JSON.parse(localStorage.getItem('ft_feed')) || [];
+  fd.slice(0,5).forEach(item => {
+    const d = document.createElement('div');
+    d.textContent = item;
+    document.getElementById('action-feed').appendChild(d);
+  });
+
+     // ————————— STATS, PROGRESS, GOALS —————————
       const stats = cur.stats || {};
       document.getElementById('workoutsCount').textContent = stats.workouts || 0;
       document.getElementById('distanceCount').textContent = (stats.distanceKm||0).toFixed(2) + ' km';
@@ -712,7 +730,8 @@ fd.slice(0,5).forEach(item => {
         d.textContent=item;
         div.append(d);
       });
-    });
-  </script>
+});
+</script>
+
 </body>
 </html>
