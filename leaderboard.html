@@ -5,165 +5,162 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Leaderboard</title>
 
- 
   <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="storage.js"></script>
 
   <style>
     :root {
       --bg: #000;
       --fg: #fff;
       --gold: #ff9800;
-      --accent: #222;
+      --accent: #111;
       --gray: rgba(255,255,255,0.1);
       --font-sans: 'Raleway', sans-serif;
       --font-head: 'Poppins', sans-serif;
       --transition: .3s ease;
+      --sidebar-w: 80px;
+      --mobile-w: 200px;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      display:flex; flex-direction:column; min-height:100vh;
-      background:var(--bg); color:var(--fg);
-      font-family:var(--font-sans);
-    }
+    body { display:flex; min-height:100vh; background:var(--bg); color:var(--fg); font-family:var(--font-sans); overflow-x:hidden; }
     a { color:inherit; text-decoration:none; }
+    button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
 
-    /* HEADER */
+    /* Sidebar */
+    aside.sidebar {
+      width:var(--sidebar-w); background:var(--accent);
+      border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding-top:1rem; position:sticky; top:0; height:100vh;
+      z-index:100;
+    }
+    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
+    .sidebar a.menu-item, .sidebar button.profile-menu {
+      width:100%; padding:.8rem 0; display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      color:var(--fg); background:transparent; border:none;
+    }
+    .sidebar a.menu-item.active, .sidebar a.menu-item:hover, .sidebar button.profile-menu:hover {
+      background:var(--gray);
+    }
+    .sidebar a.menu-item i, .sidebar button.profile-menu i { font-size:1.2rem; }
+    .sidebar a.menu-item span, .sidebar button.profile-menu span { font-size:.75rem; }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
+
+    /* Overlay (for mobile) */
+    #overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      opacity:0; visibility:hidden; transition:opacity var(--transition);
+      z-index:90;
+    }
+    #overlay.active { opacity:1; visibility:visible; }
+
+    /* Header */
     header {
-      position:sticky; top:0; left:0; right:0;
-      background:var(--accent); border-bottom:2px solid var(--gold);
-      display:flex; align-items:center; justify-content:space-between;
-      padding:0.75rem 1rem; z-index:100;
+      position:sticky; top:0; left:0; right:0; background:var(--accent);
+      border-bottom:2px solid var(--gold); padding:0.75rem 1rem;
+      display:flex; align-items:center; justify-content:space-between; z-index:200;
     }
-    .logo { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
-    .search {
-      flex:1; max-width:300px; margin:0 1rem;
-    }
+    .hamburger { display:none; background:transparent; border:none; color:var(--fg); font-size:1.2rem; }
+    .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); flex:1; text-align:center; }
+    .search { flex:2; max-width:300px; }
     .search input {
       width:100%; padding:0.4rem 0.6rem; border-radius:6px;
-      border:1px solid var(--gray); background:var(--bg);
-      color:var(--fg);
+      border:1px solid var(--gray); background:var(--bg); color:var(--fg);
     }
     .controls {
       display:flex; align-items:center; gap:0.75rem;
     }
     .controls select, .controls button {
-      background:var(--accent);
-      border:1px solid var(--gray);
-      border-radius:6px; padding:0.4rem 0.6rem;
-      color:var(--fg); cursor:pointer;
-      transition:background var(--transition);
+      background:var(--accent); color:var(--fg);
+      border:1px solid var(--gray); border-radius:6px; padding:0.4rem 0.6rem;
     }
-    .controls select:hover, .controls button:hover {
-      background:var(--gray);
-    }
+    .controls select:hover, .controls button:hover { background:var(--gray); }
     .avatar-btn {
-      width:36px; height:36px; border-radius:50%;
-      overflow:hidden; border:2px solid var(--gold);
+      width:36px; height:36px; border-radius:50%; overflow:hidden; border:2px solid var(--gold);
     }
     .avatar-btn img { width:100%; height:100%; object-fit:cover; }
 
-    /* HALL OF FAME */
+    /* Hall of Fame */
     .hall-of-fame {
       display:flex; justify-content:center; gap:1rem;
-      padding:1rem 0; background:var(--accent);
+      padding:0.75rem; background:var(--accent);
     }
     .hall-card {
-      width:60px; height:60px; border-radius:50%;
-      background:var(--gray); display:flex;
-      align-items:center; justify-content:center;
+      width:60px; height:60px; border-radius:50%; background:var(--gray);
+      display:flex; align-items:center; justify-content:center;
       box-shadow:0 2px 8px rgba(0,0,0,0.6);
     }
-    .hall-card img {
-      width:52px; height:52px; border-radius:50%;
-    }
+    .hall-card img { width:52px; height:52px; border-radius:50%; }
 
-    /* MAIN CONTENT */
+    /* Main container */
     .container { flex:1; overflow-y:auto; }
 
-    /* LEADERBOARD */
+    /* Leaderboard */
     .leaderboard {
-      margin:1rem; overflow:hidden; border-radius:8px;
-      background:var(--accent); box-shadow:0 4px 12px rgba(0,0,0,0.6);
+      margin:1rem; border-radius:8px; background:var(--accent);
+      box-shadow:0 4px 12px rgba(0,0,0,0.6); overflow-x:auto;
     }
-    table {
-      width:100%; border-collapse:collapse;
-    }
+    table { width:100%; border-collapse:collapse; min-width:600px; }
     th, td {
-      padding:0.75rem 1rem; text-align:left;
-      border-bottom:1px solid var(--gray);
+      padding:0.75rem 1rem; text-align:left; border-bottom:1px solid var(--gray);
     }
     th {
-      background:var(--gold); color:var(--bg);
-      font-size:0.9rem; text-transform:uppercase;
+      background:var(--gold); color:var(--bg); text-transform:uppercase; font-size:0.85rem;
     }
     tbody tr:hover { background:var(--gray); }
     tbody tr.me { background:rgba(255,152,0,0.2); }
     .rank { width:3rem; color:var(--gold); font-weight:700; }
-    .user-cell {
-      display:flex; align-items:center; gap:0.5rem;
-    }
-    .user-cell img {
-      width:24px; height:24px; border-radius:50%;
-      object-fit:cover;
-    }
+    .user-cell { display:flex; align-items:center; gap:0.5rem; }
+    .user-cell img { width:24px; height:24px; border-radius:50%; }
 
-    /* LIVE SESSIONS */
+    /* Section style */
     .section {
       margin:1rem; padding:1rem;
       background:var(--accent); border-radius:8px;
       box-shadow:0 4px 12px rgba(0,0,0,0.6);
     }
     .section h2 { color:var(--gold); margin-bottom:0.75rem; }
+
+    /* Live Sessions */
     .live-grid {
       display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
     }
     .live-card {
-      background:var(--gray); border-radius:8px; padding:0.75rem;
-      text-align:center; transition:transform var(--transition);
+      background:var(--gray); border-radius:8px; padding:0.75rem; text-align:center;
+      transition:transform var(--transition);
     }
     .live-card:hover { transform:translateY(-4px); }
-    .live-card img {
-      width:48px; height:48px; border-radius:50%;
-      margin-bottom:0.5rem;
-    }
+    .live-card img { width:48px; height:48px; border-radius:50%; margin-bottom:0.5rem; }
     #liveDesc { font-size:0.9rem; opacity:0.8; margin-bottom:1rem; }
     #toggleLiveBtn {
       background:var(--gold); color:var(--bg);
-      border:none; border-radius:6px;
-      padding:0.5rem 1rem; cursor:pointer;
+      border:none; border-radius:6px; padding:0.5rem 1rem;
     }
     #liveVideo {
       width:100%; max-width:320px; margin-top:1rem; border-radius:8px;
       background:#111;
     }
 
-    /* SCORE TRENDS */
+    /* Trends Graph */
     .trends {
       margin:1rem; padding:1rem;
       background:var(--accent); border-radius:8px;
       box-shadow:0 4px 12px rgba(0,0,0,0.6);
     }
-    .bars {
-      display:flex; align-items:flex-end; gap:4px; height:80px;
-    }
+    .trends .bars { display:flex; align-items:flex-end; gap:4px; height:80px; }
+    .bar-container { flex:1; text-align:center; }
     .bar {
-      flex:1; background:var(--gray); border-radius:4px 4px 0 0;
+      width:100%; background:var(--gray); border-top-left-radius:4px; border-top-right-radius:4px;
       position:relative;
     }
-    .bar span {
-      position:absolute; top:-1.2rem; left:50%; transform:translateX(-50%);
-      font-size:0.7rem; opacity:0.8;
-    }
     .bar.filled { background:var(--gold); }
+    .bar-label { margin-top:0.25rem; font-size:0.7rem; opacity:0.8; }
+    .trends-title { margin-bottom:0.5rem; font-size:0.9rem; opacity:0.8; }
 
-    /* MONTHLY CHAMPION */
+    /* Monthly Champion */
     .champion {
       margin:1rem; padding:1rem; display:flex; align-items:center; gap:1rem;
       background:var(--accent); border-radius:8px;
@@ -173,14 +170,16 @@
       width:80px; height:80px; border-radius:50%; object-fit:cover;
       border:3px solid var(--gold);
     }
-    .champion div { color:var(--fg); }
+    .champion div { font-size:0.9rem; }
 
-    /* RESPONSIVE */
+    /* Responsive */
     @media (max-width:600px) {
-      header { flex-direction:column; align-items:flex-start; gap:0.5rem; }
+      .sidebar { display:none; }
+      .hamburger { display:block; }
+      header { flex-wrap:wrap; gap:0.5rem; }
+      .logo-header { text-align:left; flex:initial; }
       .search { width:100%; max-width:none; }
-      .hall-of-fame { overflow-x:auto; justify-content:flex-start; }
-      .hall-card { margin-right:0.5rem; }
+      .hall-of-fame { overflow-x:auto; }
       .leaderboard { margin:0.5rem; }
       .section, .trends, .champion { margin:0.5rem; }
       table { font-size:0.85rem; }
@@ -189,66 +188,88 @@
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div class="logo"><i class="fas fa-heartbeat"></i> FitTrack</div>
-    <div class="search"><input type="text" placeholder="Search users…"></div>
-    <div class="controls">
-      <select id="timeframe"><option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select>
-      <button id="notifBtn"><i class="fas fa-bell"></i></button>
-      <button class="avatar-btn"><img id="hdrAvatar" src="https://i.pravatar.cc/150?u=default"></button>
+  <div id="overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><i class="fas fa-heartbeat"></i></div>
+    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
+    <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <button class="menu-item profile-menu"><i id="sideAvatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
+    <a href="signout.html"   class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Header -->
+    <header>
+      <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+      <div class="logo-header"><i class="fas fa-trophy"></i> Leaderboard</div>
+      <div class="search"><input id="searchInput" type="text" placeholder="Search user…"></div>
+      <div class="controls">
+        <select id="timeframe"><option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select>
+        <button id="notifBtn"><i class="fas fa-bell"></i></button>
+        <button class="avatar-btn" id="hdrAvatarBtn"><img id="hdrAvatar" src=""></button>
+      </div>
+    </header>
+
+    <!-- Hall of Fame -->
+    <div class="hall-of-fame" id="hallOfFame"></div>
+
+    <div class="container">
+      <!-- Leaderboard -->
+      <div class="leaderboard">
+        <table>
+          <thead>
+            <tr><th class="rank">#</th><th>User</th><th>Workouts</th><th>Km</th><th>Score</th></tr>
+          </thead>
+          <tbody id="leaderboardBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Live Sessions -->
+      <section class="section live-now">
+        <h2><i class="fas fa-video"></i> Live Workouts</h2>
+        <p id="liveDesc">Broadcast your workout live—others join on Workouts page.</p>
+        <div class="live-grid" id="liveNowGrid"></div>
+        <button id="toggleLiveBtn">Go Live</button>
+        <video id="liveVideo" autoplay playsinline hidden></video>
+        <h3 style="margin-top:1rem;color:var(--gold)">Recent Streams</h3>
+        <div id="pastStreams"></div>
+      </section>
+
+      <!-- Score Trends -->
+      <section class="trends">
+        <div class="trends-title"><i class="fas fa-chart-bar"></i> Last 7 Days (mins)</div>
+        <div class="bars" id="trendBars"></div>
+      </section>
+
+      <!-- Monthly Champion -->
+      <section class="champion">
+        <img id="champAvatar" src="" alt="Champion">
+        <div><strong id="champName"></strong><br>Top scorer this month</div>
+      </section>
     </div>
-  </header>
-
-  <!-- HALL OF FAME -->
-  <div class="hall-of-fame" id="hallOfFame"></div>
-
-  <div class="container">
-    <!-- LEADERBOARD -->
-    <div class="leaderboard">
-      <table>
-        <thead>
-          <tr><th class="rank">#</th><th>User</th><th>Workouts</th><th>Distance</th><th>Score</th></tr>
-        </thead>
-        <tbody id="leaderboardBody"></tbody>
-      </table>
-    </div>
-
-    <!-- LIVE SESSIONS -->
-    <section class="section live-now">
-      <h2><i class="fas fa-video"></i> Live Workouts</h2>
-      <p id="liveDesc">Broadcast your workout live—friends can tune in on their Workouts page.</p>
-      <div class="live-grid" id="liveNowGrid"></div>
-      <button id="toggleLiveBtn">Go Live</button>
-      <video id="liveVideo" autoplay playsinline hidden></video>
-    </section>
-
-    <!-- SCORE TRENDS -->
-    <section class="trends">
-      <h2><i class="fas fa-chart-bar"></i> Last 7 Days</h2>
-      <div class="bars" id="trendBars"></div>
-    </section>
-
-    <!-- MONTHLY CHAMPION -->
-    <section class="champion" id="monthlyChampion">
-      <img src="" alt="Champion">
-      <div><strong id="champName"></strong><br>Top scorer this month!</div>
-    </section>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded',()=> {
-      // redirect if not logged in
+      // Redirect if needed
       const curJSON=localStorage.getItem('ft_current');
       if(!curJSON) return location.href='home.html';
       const cur=JSON.parse(curJSON);
       if(!cur.name) return location.href='home.html';
 
-      // header avatar
+      // Profile avatar
       const prof=JSON.parse(localStorage.getItem('ft_profile')||'{}');
-      if(prof.avatar) document.getElementById('hdrAvatar').src=prof.avatar;
+      const avatarUrl=prof.avatar||`https://i.pravatar.cc/150?u=${cur.email}`;
+      document.getElementById('hdrAvatar').src=avatarUrl;
+      document.getElementById('sideAvatar').classList.remove('fa-user-circle');
+      document.getElementById('sideAvatar').outerHTML=`<img id="sideAvatar" src="${avatarUrl}" style="width:32px;height:32px;border-radius:50%">`;
 
-      // pseudo + you
+      // Hall of Fame & Leaderboard
       const pseudo=[
         {name:'Alice', workouts:25, distance:120, avatar:'https://i.pravatar.cc/150?u=alice'},
         {name:'Bob',   workouts:20, distance:95,  avatar:'https://i.pravatar.cc/150?u=bob'},
@@ -257,17 +278,12 @@
         {name:'Evan',  workouts:12, distance:55,  avatar:'https://i.pravatar.cc/150?u=evan'}
       ];
       const stats=cur.stats||{workouts:0,distanceKm:0};
-      const me={
-        name:cur.name,
-        workouts:stats.workouts||0,
-        distance:parseFloat((stats.distanceKm||0).toFixed(1)),
-        avatar:prof.avatar||`https://i.pravatar.cc/150?u=${cur.email}`
-      };
-      const compute=u=>u.workouts*10 + Math.round(u.distance*5);
-      const all=[...pseudo,me].map(u=>({...u,score:compute(u)}))
+      const me={ name:cur.name, workouts:stats.workouts||0, distance:parseFloat((stats.distanceKm||0).toFixed(1)), avatar:avatarUrl };
+      const scoreOf=u=>u.workouts*10 + Math.round(u.distance*5);
+      const all=[...pseudo,me].map(u=>({...u,score:scoreOf(u)}))
         .sort((a,b)=>b.score-a.score);
 
-      // Hall of Fame
+      // Hall
       const hof=document.getElementById('hallOfFame');
       all.slice(0,3).forEach(u=>{
         const d=document.createElement('div'); d.className='hall-card';
@@ -275,8 +291,8 @@
         hof.appendChild(d);
       });
 
-      // Leaderboard table
-      const lb=document.getElementById('leaderboardBody');
+      // Leaderboard
+      const lbBody=document.getElementById('leaderboardBody');
       all.forEach((u,i)=>{
         const tr=document.createElement('tr');
         if(u.name===me.name) tr.classList.add('me');
@@ -284,33 +300,49 @@
           <td class="rank">${i+1}</td>
           <td class="user-cell"><img src="${u.avatar}"><span>${u.name}</span></td>
           <td>${u.workouts}</td><td>${u.distance}</td><td>${u.score}</td>`;
-        lb.appendChild(tr);
+        lbBody.appendChild(tr);
       });
 
-      // Live sessions
-      let live=JSON.parse(localStorage.getItem('ft_liveWorkouts')||'[]');
+      // Search filter
+      document.getElementById('searchInput').addEventListener('input',e=>{
+        const q=e.target.value.toLowerCase();
+        document.querySelectorAll('#leaderboardBody tr').forEach(row=>{
+          const name=row.querySelector('td:nth-child(2) span').textContent.toLowerCase();
+          row.style.display = name.includes(q)?'' :'none';
+        });
+      });
+
+      // Live sessions & past streams
+      const load=key=>JSON.parse(localStorage.getItem(key)||'[]');
+      const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+      let live=load('ft_liveWorkouts'), past=load('ft_pastStreams');
       const liveGrid=document.getElementById('liveNowGrid'),
-            btnLive=document.getElementById('toggleLiveBtn'),
+            pastDiv=document.getElementById('pastStreams'),
+            btn=document.getElementById('toggleLiveBtn'),
             vid=document.getElementById('liveVideo');
       function renderLive(){
-        if(live.length){
-          liveGrid.innerHTML=live.map(u=>`
-            <div class="live-card">
-              <img src="${u.avatar}"><div>${u.name}</div>
-              <div style="opacity:.8;">${u.type} • ${u.start}</div>
-            </div>
-          `).join('');
-        } else {
-          liveGrid.innerHTML=`<p style="opacity:.7;">No active streams.</p>`;
-        }
-        const idx=live.findIndex(x=>x.email===cur.email);
-        btnLive.textContent=idx>=0?'End Live':'Go Live';
-        vid.hidden=idx<0;
-        if(idx>=0) startCam(); else stopCam();
+        liveGrid.innerHTML = live.length
+          ? live.map(u=>`
+              <div class="live-card">
+                <img src="${u.avatar}"><div>${u.name}</div>
+                <div style="opacity:.8">${u.type} • ${u.start}</div>
+              </div>`).join('')
+          : `<p style="opacity:.7">No active streams.</p>`;
+
+        pastDiv.innerHTML = past.length
+          ? past.map(s=>`<p style="opacity:.8;font-size:.85rem">
+              ${s.name} • ${s.type} • ${s.start}–${s.end}
+            </p>`).join('')
+          : `<p style="opacity:.7;font-size:.85rem">No past streams.</p>`;
+
+        const meIdx=live.findIndex(u=>u.email===cur.email);
+        btn.textContent=meIdx>=0?'End Live':'Go Live';
+        vid.hidden=meIdx<0;
+        if(meIdx>=0) startCam(); else stopCam();
       }
       async function startCam(){
         if(!navigator.mediaDevices) return;
-        try{ const s=await navigator.mediaDevices.getUserMedia({video:true});
+        try{const s=await navigator.mediaDevices.getUserMedia({video:true});
           vid.srcObject=s;
         }catch{}
       }
@@ -318,35 +350,36 @@
         if(vid.srcObject) vid.srcObject.getTracks().forEach(t=>t.stop());
         vid.srcObject=null;
       }
-      btnLive.onclick=()=>{
-        const idx=live.findIndex(x=>x.email===cur.email);
-        if(idx>=0) live.splice(idx,1);
-        else live.unshift({
-          email:cur.email,name:cur.name,
-          avatar:me.avatar,type:'Mixed',
-          start:new Date().toLocaleTimeString()
-        });
-        localStorage.setItem('ft_liveWorkouts',JSON.stringify(live));
+      btn.onclick=()=>{
+        const idx=live.findIndex(u=>u.email===cur.email);
+        if(idx>=0) {
+          const ended={...live[idx], end:new Date().toLocaleTimeString()};
+          past.unshift(ended);
+          live.splice(idx,1);
+          save('ft_pastStreams',past);
+        } else {
+          live.unshift({ email:cur.email,name:cur.name,avatar, type:'Mixed',start:new Date().toLocaleTimeString() });
+        }
+        save('ft_liveWorkouts',live);
         renderLive();
       };
       renderLive();
 
-      // Score Trends (last 7 days random)
-      const bars=document.getElementById('trendBars');
+      // Trends chart
+      const barCtr=document.getElementById('trendBars'), days=['S','M','T','W','T','F','S'];
       for(let i=0;i<7;i++){
         const val=Math.floor(Math.random()*60)+10;
-        const b=document.createElement('div');
-        b.className='bar'+(i%2?' filled':'');
-        b.style.height=val+'px';
-        b.innerHTML=`<span>${val}</span>`;
-        bars.appendChild(b);
+        const c=document.createElement('div'); c.className='bar-container';
+        c.innerHTML=`
+          <div class="bar ${i%2?'filled':''}" style="height:${val}px"></div>
+          <div class="bar-label">${days[i]}</div>`;
+        barCtr.appendChild(c);
       }
 
-      // Monthly Champion = top1
+      // Monthly champion
       const champ=all[0];
-      document.getElementById('monthlyChampion').querySelector('img').src=champ.avatar;
+      document.getElementById('champAvatar').src=champ.avatar;
       document.getElementById('champName').textContent=champ.name;
-
     });
   </script>
 </body>
