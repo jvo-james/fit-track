@@ -91,7 +91,10 @@
       padding:1rem 1.5rem;
       background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
-      position:sticky; top:0; z-index:var(--header-z);
+      position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: var(--header-z);
     }
     /* mobile controls (hidden on desktop) */
     .hamburger, .profile-btn { display:none; }
@@ -231,23 +234,36 @@
       .sidebar-close { display:block; }
 
       header { padding:0.75rem 1rem; }
-      /* show mobile toggles */
-      .hamburger, .profile-btn {
-        display:block;
-        position:sticky; top:50%;
-        transform:translateY(-50%);
-        font-size:1.4rem;
-        background:transparent; border:none; color:var(--white);
-        z-index:var(--header-z);
-      }
-      .hamburger { left:1rem; }
-      .profile-btn { right:1rem; }
-      header h1 { margin:0 auto; font-size:1.2rem; }
+     header h1 { margin: 0 auto; font-size: 1.2rem; }
+  .hamburger,
+  .profile-btn {
+    display: block;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .hamburger { left: 1rem; }
+  .profile-btn { right: 1rem; }
+
+  /* hide all the extra header controls */
+  .header-right .welcome-text,
+  .header-right .icon-btn {
+    display: none;
+  }
+ .achievements-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  /* make sure the “Achivements” title spans both columns */
+  .achievements-section > h2 {
+    grid-column: 1 / -1;
+  }
 
      
 
       /* full-width controls */
-     .achievement, .tips-section .tip {
+   .tips-section .tip {
         flex-direction:column; align-items:flex-start;
       }
       .presets button, #logForm input, #logForm select, #logForm textarea, #logForm button {
