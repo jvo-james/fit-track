@@ -273,6 +273,14 @@
       #duration,#distance,#calories { grid-column:span 1; }
       body { padding-bottom: env(safe-area-inset-bottom); }
     }
+    @media (max-width: 600px) {
+  /* match the ☰ and 👤 to the H1’s 1.2rem size */
+  header h1 { font-size: 1.2rem; }
+  .hamburger, .profile-btn {
+    font-size: 1.2rem;
+  }
+}
+
   </style>
 </head>
 
