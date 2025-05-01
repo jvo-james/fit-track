@@ -5,243 +5,213 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Leaderboard</title>
 
-
-  <!-- Google Fonts & FontAwesome -->
+<!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="storage.js"></script>
+
   <style>
-   /* ────────── VARIABLES ────────── */
-:root {
-  --bg: #000;
-  --gold: #ff9800;
-  --white: #fff;
-  --accent: rgba(255,255,255,0.05);
-  --font-base: 'Raleway', sans-serif;
-  --font-head: 'Poppins', sans-serif;
-  --transition: .3s ease;
-  --sidebar-w: 80px;
-  --mobile-sidebar-w: 200px;
-  --overlay-z: 90;
-  --sidebar-z: 100;
-  --header-z: 200;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  display:flex; min-height:100vh;
-  background:var(--bg); color:var(--white);
-  font-family:var(--font-base);
-  overflow-x:hidden;
-}
-a { color:inherit; text-decoration:none; }
-button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
-
-/* ─── OVERLAY ───────────────── */
-#overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,0.5);
-  opacity:0; visibility:hidden; transition:opacity var(--transition);
-  z-index:var(--overlay-z);
-}
-#overlay.active { opacity:1; visibility:visible; }
-
-/* ─── SIDEBAR ───────────────── */
-.sidebar {
-  width:var(--sidebar-w); background:rgba(0,0,0,0.9);
-  border-right:2px solid var(--gold);
-  display:flex; flex-direction:column; align-items:center;
-  padding-top:1rem; position:sticky; top:0; height:100vh;
-  transition:transform var(--transition);
-  z-index:var(--sidebar-z);
-}
-.sidebar a.menu-item,
-.sidebar button.profile-menu {
-  width:100%; padding:.8rem 0;
-  display:flex; flex-direction:column; align-items:center; gap:.3rem;
-  color:var(--white); background:transparent; border:none;
-  transition:background var(--transition);
-}
-.sidebar a.menu-item:hover,
-.sidebar a.menu-item.active,
-.sidebar button.profile-menu:hover {
-  background:var(--accent);
-}
-.sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-.sidebar a.menu-item i,
-.sidebar button.profile-menu i { font-size:1.2rem; }
-.sidebar a.menu-item span,
-.sidebar button.profile-menu span { font-size:.75rem; }
-.sidebar .sign-out { margin-top:auto; margin-bottom:1rem; }
-
-/* ─── HEADER ───────────────── */
-header {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:1rem 1.5rem;
-  background:rgba(0,0,0,0.9);
-  border-bottom:2px solid var(--gold);
-  position:sticky; top:0; width:100%; z-index:var(--header-z);
-}
-.hamburger, .profile-btn { display:none; }
-header .logo-header {
-  flex:1; text-align:center;
-  font-family:var(--font-head); font-size:1.4rem;
-  color:var(--gold);
-}
-.search {
-  flex:2; max-width:300px;
-}
-.search input {
-  width:100%; padding:.4rem .6rem;
-  background:var(--accent); border:1px solid var(--accent);
-  border-radius:6px; color:var(--white);
-}
-.controls {
-  display:flex; align-items:center; gap:.75rem;
-}
-.controls select, .controls button {
-  background:var(--accent); color:var(--white);
-  border:1px solid var(--accent); border-radius:6px;
-  padding:.4rem .6rem;
-}
-.controls select:hover, .controls button:hover {
-  background:var(--gold); color:var(--bg);
-}
-.avatar-btn {
-  width:36px; height:36px; border:2px solid var(--gold); border-radius:50%;
-  overflow:hidden;
-}
-.avatar-btn img { width:100%; height:100%; object-fit:cover; }
-
-/* ─── HALL OF FAME ───────────────── */
-.hall-of-fame {
-  display:flex; justify-content:center; gap:1rem;
-  padding:.75rem; background:rgba(0,0,0,0.85);
-}
-.hall-card {
-  width:60px; height:60px; border-radius:50%; background:var(--accent);
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 2px 8px rgba(0,0,0,0.6);
-}
-.hall-card img { width:52px; height:52px; border-radius:50%; }
-
-/* ─── CONTAINER ───────────────── */
-.container { flex:1; overflow-y:auto; }
-
-/* ─── LEADERBOARD TABLE ───────────────── */
-.leaderboard {
-  margin:1rem; background:var(--accent); border-radius:8px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.6); overflow-x:auto;
-}
-table {
-  width:100%; border-collapse:collapse; min-width:600px;
-}
-th, td {
-  padding:.75rem 1rem; text-align:left; border-bottom:1px solid var(--accent);
-}
-th {
-  background:var(--gold); color:var(--bg);
-  font-size:.85rem; text-transform:uppercase;
-}
-tbody tr:hover { background:var(--accent); }
-tbody tr.me { background:rgba(255,152,0,0.2); }
-.rank { width:3rem; color:var(--gold); font-weight:700; }
-.user-cell {
-  display:flex; align-items:center; gap:.5rem;
-}
-.user-cell img {
-  width:24px; height:24px; border-radius:50%;
-}
-
-/* ─── SECTION GENERAL ───────────────── */
-.section {
-  margin:1rem; padding:1rem;
-  background:var(--accent); border-radius:8px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.6);
-}
-.section h2 { color:var(--gold); margin-bottom:.75rem; font-size:1.2rem; }
-
-/* ─── LIVE SESSIONS ───────────────── */
-.live-grid {
-  display:grid; gap:1rem;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-}
-.live-card {
-  background:var(--accent); border-radius:8px; padding:.75rem; text-align:center;
-  transition:transform var(--transition);
-}
-.live-card:hover { transform:translateY(-4px); }
-.live-card img { width:48px; height:48px; border-radius:50%; margin-bottom:.5rem; }
-#liveDesc { font-size:.9rem; opacity:.8; margin-bottom:1rem; }
-#toggleLiveBtn {
-  background:var(--gold); color:var(--bg);
-  border:none; border-radius:6px; padding:.5rem 1rem;
-}
-#liveVideo {
-  width:100%; max-width:320px; margin-top:1rem; border-radius:8px;
-  background:#111;
-}
-
-/* ─── TRENDS GRAPH ───────────────── */
-.trends {
-  margin:1rem; padding:1rem;
-  background:var(--accent); border-radius:8px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.6);
-}
-.trends-title { font-size:.9rem; opacity:.8; margin-bottom:.5rem; }
-.bars {
-  display:flex; align-items:flex-end; gap:4px; height:80px;
-}
-.bar-container { flex:1; text-align:center; }
-.bar {
-  width:100%; background:var(--accent);
-  border-top-left-radius:4px; border-top-right-radius:4px;
-}
-.bar.filled { background:var(--gold); }
-.bar-label { margin-top:.25rem; font-size:.7rem; opacity:.8; }
-
-/* ─── MONTHLY CHAMPION ───────────────── */
-.champion {
-  margin:1rem; padding:1rem; display:flex; align-items:center; gap:1rem;
-  background:var(--accent); border-radius:8px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.6);
-}
-.champion img {
-  width:80px; height:80px; border-radius:50%; object-fit:cover;
-  border:3px solid var(--gold);
-}
-.champion div { font-size:.9rem; }
-
-/* ─── RESPONSIVE ───────────────── */
-@media (max-width:600px) {
-  .sidebar { position:fixed; top:0; bottom:0; left:0;
-    width:var(--mobile-sidebar-w); transform:translateX(-100%);
+  :root {
+    --bg: #000;
+    --gold: #ff9800;
+    --white: #fff;
+    --accent: rgba(255,255,255,0.05);
+    --font-base: 'Raleway', sans-serif;
+    --font-head: 'Poppins', sans-serif;
+    --transition: .3s ease;
+    --sidebar-w: 80px;
+    --overlay-z: 90;
+    --sidebar-z: 100;
+    --header-z: 200;
   }
-  .sidebar.open { transform:translateX(0); }
-  .sidebar-close { display:block; }
-  header { padding:.75rem 1rem; flex-wrap:wrap; gap:.5rem; }
-  .logo-header { text-align:left; font-size:1.2rem; }
-  .hamburger { display:block; position:absolute; top:50%; left:1rem;
-    transform:translateY(-50%); background:transparent; border:none; color:var(--white);
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    display:flex; min-height:100vh;
+    background:var(--bg); color:var(--white);
+    font-family:var(--font-base); overflow-x:hidden;
   }
-  .profile-btn { display:block; position:absolute; top:50%; right:1rem;
-    transform:translateY(-50%); background:transparent; border:none; color:var(--white);
-  }
-  .search { width:100%; max-width:none; }
-  .hall-of-fame { overflow-x:auto; }
-  .leaderboard, .section { margin:.5rem; }
-  table { font-size:.85rem; }
-  .trends, .champion { margin:.5rem; }
-}
+  a { color:inherit; text-decoration:none; }
+  button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
 
+  /* overlay */
+  #overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.5);
+    opacity:0; visibility:hidden; transition:opacity var(--transition);
+    z-index:var(--overlay-z);
+  }
+  #overlay.active { opacity:1; visibility:visible; }
+
+  /* sidebar */
+  .sidebar {
+    width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+    border-right:2px solid var(--gold);
+    display:flex; flex-direction:column; align-items:center;
+    padding-top:1rem; position:sticky; top:0; height:100vh;
+    transition:transform var(--transition);
+    z-index:var(--sidebar-z);
+  }
+  .sidebar a, .sidebar button.profile-menu {
+    width:100%; padding:.8rem 0;
+    display:flex; flex-direction:column; align-items:center; gap:.3rem;
+    color:var(--white); background:transparent; border:none;
+    transition:background var(--transition);
+  }
+  .sidebar a:hover, .sidebar a.active, .sidebar button.profile-menu:hover {
+    background:var(--accent);
+  }
+  .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
+  .sidebar i { font-size:1.2rem; }
+  .sidebar span { font-size:.75rem; }
+  .sidebar .sign-out { margin-top:auto; margin-bottom:1rem; }
+
+  /* header */
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem 1.5rem;
+    background:rgba(0,0,0,0.9);
+    border-bottom:2px solid var(--gold);
+    position:sticky; top:0; width:100%; z-index:var(--header-z);
+  }
+  .hamburger, .profile-btn { display:none; }
+  .logo-header {
+    flex:1; text-align:center;
+    font-family:var(--font-head); font-size:1.4rem;
+    color:var(--gold);
+  }
+  .search {
+    flex:2; max-width:300px;
+  }
+  .search input {
+    width:100%; padding:.4rem .6rem;
+    background:var(--accent); border:1px solid var(--accent);
+    border-radius:6px; color:var(--white);
+  }
+  .controls {
+    display:flex; align-items:center; gap:.75rem;
+  }
+  .controls select, .controls button {
+    background:var(--accent); color:var(--white);
+    border:1px solid var(--accent); border-radius:6px;
+    padding:.4rem .6rem;
+  }
+  .controls select:hover, .controls button:hover {
+    background:var(--gold); color:var(--bg);
+  }
+  .avatar-btn {
+    width:36px; height:36px; border:2px solid var(--gold); border-radius:50%;
+    overflow:hidden;
+  }
+  .avatar-btn img { width:100%; height:100%; object-fit:cover; }
+
+  /* main */
+  .main {
+    flex:1; display:flex; flex-direction:column; width:calc(100% - var(--sidebar-w));
+  }
+  .hall-of-fame {
+    display:flex; justify-content:center; gap:1rem;
+    padding:.75rem; background:rgba(0,0,0,0.85);
+  }
+  .hall-card {
+    text-align:center; color:var(--white);
+  }
+  .hall-card img {
+    width:60px; height:60px; border-radius:50%; object-fit:cover;
+    border:2px solid var(--gold);
+  }
+  .hall-card span { display:block; margin-top:.25rem; font-size:.75rem; }
+
+  .container { flex:1; overflow-y:auto; padding-bottom:1rem; }
+
+  /* leaderboard */
+  .leaderboard {
+    margin:1rem; background:var(--accent); border-radius:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.6); overflow-x:auto;
+  }
+  table {
+    width:100%; border-collapse:collapse; min-width:600px;
+  }
+  th, td {
+    padding:.75rem 1rem; text-align:left; border-bottom:1px solid var(--accent);
+  }
+  th {
+    background:var(--gold); color:var(--bg);
+    font-size:.85rem; text-transform:uppercase;
+  }
+  tbody tr:hover { background:var(--accent); }
+  tbody tr.me { background:rgba(255,152,0,0.2); }
+  .rank { width:3rem; color:var(--gold); font-weight:700; }
+  .user-cell {
+    display:flex; align-items:center; gap:.5rem;
+  }
+  .user-cell img {
+    width:24px; height:24px; border-radius:50%;
+  }
+
+  /* sections */
+  .section {
+    margin:1rem; padding:1rem;
+    background:var(--accent); border-radius:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.6);
+  }
+  .section h2 { color:var(--gold); margin-bottom:.75rem; font-size:1.2rem; }
+
+  /* live */
+  .live-grid {
+    display:grid; gap:1rem;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  }
+  .live-card {
+    background:var(--accent); border-radius:8px; padding:.75rem; text-align:center;
+    transition:transform var(--transition);
+  }
+  .live-card:hover { transform:translateY(-4px); }
+  .live-card img { width:48px; height:48px; border-radius:50%; margin-bottom:.5rem; }
+  #liveDesc { font-size:.9rem; opacity:.8; margin-bottom:1rem; }
+  #toggleLiveBtn {
+    background:var(--gold); color:var(--bg);
+    border:none; border-radius:6px; padding:.5rem 1rem;
+  }
+  #liveVideo {
+    width:100%; max-width:320px; margin-top:1rem; border-radius:8px; background:#111;
+  }
+
+  /* chart */
+  .chart-container {
+    position:relative; margin:1rem; height:200px;
+  }
+
+  /* champion */
+  .champion {
+    margin:1rem; padding:1rem; display:flex; align-items:center; gap:1rem;
+    background:var(--accent); border-radius:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.6);
+  }
+  .champion img {
+    width:80px; height:80px; border-radius:50%; object-fit:cover;
+    border:3px solid var(--gold);
+  }
+  .champion div { font-size:.9rem; }
+
+  /* responsive */
+  @media (max-width:600px) {
+    .sidebar { position:fixed; top:0; bottom:0; left:0; transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); }
+    header { padding:.75rem 1rem; flex-wrap:wrap; }
+    .hamburger { display:block; position:absolute; top:50%; left:1rem; transform:translateY(-50%); }
+    .profile-btn { display:block; position:absolute; top:50%; right:1rem; transform:translateY(-50%); }
+    .logo-header { font-size:1.2rem; }
+    .search { width:100%; max-width:none; }
+    .hall-of-fame, .leaderboard, .section { margin:.5rem; }
+    table { font-size:.85rem; }
+  }
   </style>
 </head>
 <body>
-
   <div id="overlay"></div>
-
-  <!-- Sidebar -->
+  <!-- sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
@@ -249,15 +219,15 @@ tbody tr.me { background:rgba(255,152,0,0.2); }
     <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
     <button class="menu-item profile-menu"><i id="sideAvatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
-    <a href="signout.html"   class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a>
   </aside>
 
-  <!-- Main -->
+  <!-- main -->
   <div class="main">
-    <!-- Header -->
+    <!-- header -->
     <header>
       <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
-      <div class="logo-header"><i class="fas fa-trophy"></i> Leaderboard</div>
+      <div class="logo-header">FitTrack Leaderboard</div>
       <div class="search"><input id="searchInput" type="text" placeholder="Search user…"></div>
       <div class="controls">
         <select id="timeframe"><option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select>
@@ -266,24 +236,22 @@ tbody tr.me { background:rgba(255,152,0,0.2); }
       </div>
     </header>
 
-    <!-- Hall of Fame -->
+    <!-- hall of fame -->
     <div class="hall-of-fame" id="hallOfFame"></div>
 
     <div class="container">
-      <!-- Leaderboard -->
+      <!-- leaderboard -->
       <div class="leaderboard">
         <table>
-          <thead>
-            <tr><th class="rank">#</th><th>User</th><th>Workouts</th><th>Km</th><th>Score</th></tr>
-          </thead>
+          <thead><tr><th class="rank">#</th><th>User</th><th>Workouts</th><th>Km</th><th>Score</th></tr></thead>
           <tbody id="leaderboardBody"></tbody>
         </table>
       </div>
 
-      <!-- Live Sessions -->
+      <!-- live sessions -->
       <section class="section live-now">
         <h2><i class="fas fa-video"></i> Live Workouts</h2>
-        <p id="liveDesc">Broadcast your workout live—others join on Workouts page.</p>
+        <p id="liveDesc">Broadcast live—others join on Workouts page.</p>
         <div class="live-grid" id="liveNowGrid"></div>
         <button id="toggleLiveBtn">Go Live</button>
         <video id="liveVideo" autoplay playsinline hidden></video>
@@ -291,147 +259,167 @@ tbody tr.me { background:rgba(255,152,0,0.2); }
         <div id="pastStreams"></div>
       </section>
 
-      <!-- Score Trends -->
-      <section class="trends">
-        <div class="trends-title"><i class="fas fa-chart-bar"></i> Last 7 Days (mins)</div>
-        <div class="bars" id="trendBars"></div>
+      <!-- trends chart -->
+      <section class="section trends">
+        <h2><i class="fas fa-chart-bar"></i> Last 7 Days Activity</h2>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
       </section>
 
-      <!-- Monthly Champion -->
+      <!-- champion -->
       <section class="champion">
         <img id="champAvatar" src="" alt="Champion">
-        <div><strong id="champName"></strong><br>Top scorer this month</div>
+        <div><strong id="champName"></strong><br>Top this month</div>
       </section>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded',()=> {
-      // Redirect if needed
-      const curJSON=localStorage.getItem('ft_current');
-      if(!curJSON) return location.href='home.html';
-      const cur=JSON.parse(curJSON);
-      if(!cur.name) return location.href='home.html';
+  document.addEventListener('DOMContentLoaded',()=>{
+    // elements
+    const overlay = document.getElementById('overlay'),
+          sidebar = document.getElementById('sidebar'),
+          hamb    = document.getElementById('hamburger'),
+          hdrAvBtn= document.getElementById('hdrAvatarBtn'),
+          sideAv  = document.getElementById('sideAvatar');
 
-      // Profile avatar
-      const prof=JSON.parse(localStorage.getItem('ft_profile')||'{}');
-      const avatarUrl=prof.avatar||`https://i.pravatar.cc/150?u=${cur.email}`;
-      document.getElementById('hdrAvatar').src=avatarUrl;
-      document.getElementById('sideAvatar').classList.remove('fa-user-circle');
-      document.getElementById('sideAvatar').outerHTML=`<img id="sideAvatar" src="${avatarUrl}" style="width:32px;height:32px;border-radius:50%">`;
+    hamb.onclick = ()=>{ sidebar.classList.toggle('open'); overlay.classList.toggle('active'); };
+    overlay.onclick = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+    hdrAvBtn.onclick = ()=> location.href='profile.html';
 
-      // Hall of Fame & Leaderboard
-      const pseudo=[
-        {name:'Alice', workouts:25, distance:120, avatar:'https://i.pravatar.cc/150?u=alice'},
-        {name:'Bob',   workouts:20, distance:95,  avatar:'https://i.pravatar.cc/150?u=bob'},
-        {name:'Cara',  workouts:18, distance:80,  avatar:'https://i.pravatar.cc/150?u=cara'},
-        {name:'Dana',  workouts:15, distance:70,  avatar:'https://i.pravatar.cc/150?u=dana'},
-        {name:'Evan',  workouts:12, distance:55,  avatar:'https://i.pravatar.cc/150?u=evan'}
-      ];
-      const stats=cur.stats||{workouts:0,distanceKm:0};
-      const me={ name:cur.name, workouts:stats.workouts||0, distance:parseFloat((stats.distanceKm||0).toFixed(1)), avatar:avatarUrl };
-      const scoreOf=u=>u.workouts*10 + Math.round(u.distance*5);
-      const all=[...pseudo,me].map(u=>({...u,score:scoreOf(u)}))
-        .sort((a,b)=>b.score-a.score);
+    // auth
+    const curJSON=localStorage.getItem('ft_current');
+    if(!curJSON) return location.href='home.html';
+    const cur=JSON.parse(curJSON);
+    if(!cur.name) return location.href='home.html';
+    // avatar
+    const prof=JSON.parse(localStorage.getItem('ft_profile')||'{}'),
+          defaultAv='https://www.instagram.com/static/images/anonymousUser.jpg';
+    const avatarUrl= prof.avatar || defaultAv;
+    document.getElementById('hdrAvatar').src=avatarUrl;
+    sideAv.outerHTML=`<img id="sideAvatar" src="${avatarUrl}" style="width:32px;height:32px;border-radius:50%"/>`;
 
-      // Hall
-      const hof=document.getElementById('hallOfFame');
-      all.slice(0,3).forEach(u=>{
-        const d=document.createElement('div'); d.className='hall-card';
-        d.innerHTML=`<img src="${u.avatar}" alt="${u.name}" title="${u.name}">`;
-        hof.appendChild(d);
-      });
+    // helpers
+    const load=k=>JSON.parse(localStorage.getItem(k)||'[]'),
+          save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
-      // Leaderboard
-      const lbBody=document.getElementById('leaderboardBody');
-      all.forEach((u,i)=>{
-        const tr=document.createElement('tr');
-        if(u.name===me.name) tr.classList.add('me');
-        tr.innerHTML=`
-          <td class="rank">${i+1}</td>
-          <td class="user-cell"><img src="${u.avatar}"><span>${u.name}</span></td>
-          <td>${u.workouts}</td><td>${u.distance}</td><td>${u.score}</td>`;
-        lbBody.appendChild(tr);
-      });
+    // pseudo + me
+    const pseudo=[
+      {name:'Alice', workouts:25, distance:120, avatar:'https://i.pravatar.cc/150?u=alice'},
+      {name:'Bob',   workouts:20, distance:95,  avatar:'https://i.pravatar.cc/150?u=bob'},
+      {name:'Cara',  workouts:18, distance:80,  avatar:'https://i.pravatar.cc/150?u=cara'},
+      {name:'Dana',  workouts:15, distance:70,  avatar:'https://i.pravatar.cc/150?u=dana'},
+      {name:'Evan',  workouts:12, distance:55,  avatar:'https://i.pravatar.cc/150?u=evan'}
+    ];
+    const stats=cur.stats||{workouts:0,distanceKm:0};
+    const me={name:cur.name,workouts:stats.workouts||0,distance:parseFloat((stats.distanceKm||0).toFixed(1)),avatar:avatarUrl};
+    const scoreOf=u=>u.workouts*10 + Math.round(u.distance*5);
+    const all=[...pseudo,me].map(u=>({...u,score:scoreOf(u)}))
+      .sort((a,b)=>b.score-a.score);
 
-      // Search filter
-      document.getElementById('searchInput').addEventListener('input',e=>{
-        const q=e.target.value.toLowerCase();
-        document.querySelectorAll('#leaderboardBody tr').forEach(row=>{
-          const name=row.querySelector('td:nth-child(2) span').textContent.toLowerCase();
-          row.style.display = name.includes(q)?'' :'none';
-        });
-      });
-
-      // Live sessions & past streams
-      const load=key=>JSON.parse(localStorage.getItem(key)||'[]');
-      const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-      let live=load('ft_liveWorkouts'), past=load('ft_pastStreams');
-      const liveGrid=document.getElementById('liveNowGrid'),
-            pastDiv=document.getElementById('pastStreams'),
-            btn=document.getElementById('toggleLiveBtn'),
-            vid=document.getElementById('liveVideo');
-      function renderLive(){
-        liveGrid.innerHTML = live.length
-          ? live.map(u=>`
-              <div class="live-card">
-                <img src="${u.avatar}"><div>${u.name}</div>
-                <div style="opacity:.8">${u.type} • ${u.start}</div>
-              </div>`).join('')
-          : `<p style="opacity:.7">No active streams.</p>`;
-
-        pastDiv.innerHTML = past.length
-          ? past.map(s=>`<p style="opacity:.8;font-size:.85rem">
-              ${s.name} • ${s.type} • ${s.start}–${s.end}
-            </p>`).join('')
-          : `<p style="opacity:.7;font-size:.85rem">No past streams.</p>`;
-
-        const meIdx=live.findIndex(u=>u.email===cur.email);
-        btn.textContent=meIdx>=0?'End Live':'Go Live';
-        vid.hidden=meIdx<0;
-        if(meIdx>=0) startCam(); else stopCam();
-      }
-      async function startCam(){
-        if(!navigator.mediaDevices) return;
-        try{const s=await navigator.mediaDevices.getUserMedia({video:true});
-          vid.srcObject=s;
-        }catch{}
-      }
-      function stopCam(){
-        if(vid.srcObject) vid.srcObject.getTracks().forEach(t=>t.stop());
-        vid.srcObject=null;
-      }
-      btn.onclick=()=>{
-        const idx=live.findIndex(u=>u.email===cur.email);
-        if(idx>=0) {
-          const ended={...live[idx], end:new Date().toLocaleTimeString()};
-          past.unshift(ended);
-          live.splice(idx,1);
-          save('ft_pastStreams',past);
-        } else {
-          live.unshift({ email:cur.email,name:cur.name,avatar, type:'Mixed',start:new Date().toLocaleTimeString() });
-        }
-        save('ft_liveWorkouts',live);
-        renderLive();
-      };
-      renderLive();
-
-      // Trends chart
-      const barCtr=document.getElementById('trendBars'), days=['S','M','T','W','T','F','S'];
-      for(let i=0;i<7;i++){
-        const val=Math.floor(Math.random()*60)+10;
-        const c=document.createElement('div'); c.className='bar-container';
-        c.innerHTML=`
-          <div class="bar ${i%2?'filled':''}" style="height:${val}px"></div>
-          <div class="bar-label">${days[i]}</div>`;
-        barCtr.appendChild(c);
-      }
-
-      // Monthly champion
-      const champ=all[0];
-      document.getElementById('champAvatar').src=champ.avatar;
-      document.getElementById('champName').textContent=champ.name;
+    // hall of fame
+    const hof=document.getElementById('hallOfFame');
+    all.slice(0,3).forEach((u,i)=>{
+      const div=document.createElement('div'); div.className='hall-card';
+      div.innerHTML=`<img src="${u.avatar}" alt="${u.name}"><span>#${i+1} ${u.name}</span>`;
+      hof.appendChild(div);
     });
+
+    // leaderboard table
+    const lbBody=document.getElementById('leaderboardBody');
+    all.forEach((u,i)=>{
+      const tr=document.createElement('tr');
+      if(u.name===me.name) tr.classList.add('me');
+      tr.innerHTML=`
+        <td class="rank">${i+1}</td>
+        <td class="user-cell"><img src="${u.avatar}"><span>${u.name}</span></td>
+        <td>${u.workouts}</td><td>${u.distance}</td><td>${u.score}</td>`;
+      lbBody.appendChild(tr);
+    });
+
+    // search filter
+    document.getElementById('searchInput').addEventListener('input',e=>{
+      const q=e.target.value.toLowerCase();
+      document.querySelectorAll('#leaderboardBody tr').forEach(r=>{
+        const name=r.querySelector('td:nth-child(2) span').textContent.toLowerCase();
+        r.style.display=name.includes(q)?'':'none';
+      });
+    });
+
+    // live sessions
+    let live=load('ft_liveWorkouts'), past=load('ft_pastStreams');
+    const liveGrid=document.getElementById('liveNowGrid'),
+          pastDiv=document.getElementById('pastStreams'),
+          btn=document.getElementById('toggleLiveBtn'),
+          vid=document.getElementById('liveVideo');
+    function renderLive(){
+      liveGrid.innerHTML= live.length
+        ? live.map(u=>`
+            <div class="live-card">
+              <img src="${u.avatar}" alt=""><div>${u.name}</div>
+              <div style="opacity:.8">${u.type} • ${u.start}</div>
+            </div>`).join('')
+        : `<p style="opacity:.7">No active streams.</p>`;
+      pastDiv.innerHTML= past.length
+        ? past.map(s=>`<p style="opacity:.8;font-size:.85rem">
+            ${s.name} • ${s.type} • ${s.start}–${s.end}
+          </p>`).join('')
+        : `<p style="opacity:.7;font-size:.85rem">No past streams.</p>`;
+      const idx=live.findIndex(u=>u.email===cur.email);
+      btn.textContent=idx>=0?'End Live':'Go Live';
+      vid.hidden=idx<0;
+      if(idx>=0) startCam(); else stopCam();
+    }
+    async function startCam(){
+      if(!navigator.mediaDevices) return;
+      try{ const s=await navigator.mediaDevices.getUserMedia({video:true});
+        vid.srcObject=s;
+      }catch{}
+    }
+    function stopCam(){
+      if(vid.srcObject) vid.srcObject.getTracks().forEach(t=>t.stop());
+      vid.srcObject=null;
+    }
+    btn.onclick=()=>{
+      const i=live.findIndex(u=>u.email===cur.email);
+      if(i>=0){
+        past.unshift({...live[i],end:new Date().toLocaleTimeString()});
+        live.splice(i,1);
+        save('ft_pastStreams',past);
+      } else {
+        live.unshift({email:cur.email,name:cur.name,avatar:avatarUrl,type:'Mixed',start:new Date().toLocaleTimeString()});
+      }
+      save('ft_liveWorkouts',live);
+      renderLive();
+    };
+    renderLive();
+
+    // trends chart
+    const ctx=document.getElementById('trendChart').getContext('2d');
+    const acts=load('ft_activities');
+    // last 7 days
+    const labels=[], data=[];
+    for(let d=6;d>=0;d--){
+      const day=new Date(); day.setDate(day.getDate()-d);
+      const key=day.toISOString().slice(0,10);
+      labels.push(day.toLocaleDateString(undefined,{weekday:'short'}));
+      const total=acts.filter(a=>a.date===key)
+        .reduce((s,a)=>s+(+a.duration||0),0);
+      data.push(total);
+    }
+    new Chart(ctx,{
+      type:'bar',
+      data:{labels,datasets:[{label:'Minutes',data,backgroundColor:var(--gold)}]},
+      options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Min'}}}}
+    });
+
+    // monthly champion
+    const champ=all[0];
+    document.getElementById('champAvatar').src=champ.avatar;
+    document.getElementById('champName').textContent=champ.name;
+
+  });
   </script>
 </body>
 </html>
