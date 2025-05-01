@@ -416,18 +416,45 @@ header, .sidebar {
 }
   /* Mobile */
     @media (max-width:600px) {
-      .sidebar {
-        position:fixed; top:0; bottom:0; left:0;
-        width:75vw; max-width:260px;
-        transform:translateX(-100%);
-      }
-      .sidebar.open { transform:translateX(0); }
-      .sidebar-close { display:block; position:absolute; top:1rem; right:1rem; font-size:1.5rem; }
+    /* ensure the sidebar lives off‐canvas by default */
+.sidebar {
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  width: var(--mobile-sidebar-w);
+  max-width: 260px;
+  transform: translateX(-100%);
+  transition: transform var(--transition);
+  z-index: 1100;
+}
+
+/* when “open” class is added, slide it in */
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* always have a close button visible in the top-right corner */
+.sidebar-close {
+  display: block;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  color: var(--white);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1200;
+}
 
       header {
-        display:flex; align-items:center; justify-content:space-between; position: relative;
+        display:flex; align-items:center; justify-content:space-between; 
         padding:1rem 3rem; /* room for icons */
          z-index: 1000;
+        position: sticky;
+  top: 0;
+  
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: saturate(180%) blur(8px);
       }
       header h1 {
         position:static; font-size:1rem; flex:1; text-align:center; color:var(--white);
