@@ -228,6 +228,91 @@ header, .sidebar {
       #logForm { grid-template-columns:1fr; }
       #duration,#distance,#calories { grid-column:span 1; }
     }
+@media only screen and (max-width: 414px) {
+  /* ── HEADER ── */
+  header {
+    padding: 0.75rem 1rem;
+  }
+  header h1 {
+    font-size: 1.2rem;
+  }
+
+  /* ── LOG SECTION ── */
+  .log-section {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  .log-section h2 {
+    font-size: 1.1rem;
+  }
+
+  /* ── TIMER ── */
+  .timer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .timer button {
+    width: 100%;
+    padding: 0.6rem 0;
+    font-size: 1rem;
+  }
+
+  /* ── PRESETS ── */
+  .presets {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .presets button {
+    width: 100%;
+    padding: 0.6rem 0;
+  }
+
+  /* ── FORM ── */
+  #logForm {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  #logForm input,
+  #logForm select,
+  #logForm textarea {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.8rem;
+  }
+  .voice-control {
+    text-align: center;
+  }
+
+  /* ── RECENT & LIST ── */
+  .recent,
+  .activities {
+    margin: 1rem;
+  }
+  .activity-item {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── SIDEBAR (push off-canvas, full‐width) ── */
+  .sidebar {
+    position: fixed;
+    top: 0; bottom: 0; left: 0;
+    width: var(--mobile-sidebar-w);
+    max-width: 260px;
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .sidebar-close {
+    display: block;
+  }
+
+  /* ── SAFE-AREA PADDING ── */
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
 
    
   </style>
