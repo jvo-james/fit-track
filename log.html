@@ -166,6 +166,23 @@
       transition:transform .2s;
     }
     #logForm button:hover { transform:scale(1.03); }
+.log-section form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  max-width: 600px;      /* caps width on desktop */
+  margin: 0 auto;        /* centers it */
+  padding: 1rem;         /* optional inner padding */
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+}
+.log-section form label,
+.log-section form input,
+.log-section form select,
+.log-section form textarea,
+.log-section form button {
+  width: 100%;
+}
 
     /* ─── WORKOUT TIPS ───────────────── */
     .tips-section .tip {
@@ -222,6 +239,26 @@
       transition:transform .2s;
     }
     .delete-btn:hover { transform:scale(1.2); }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.welcome-text {
+  color: var(--gold);
+  font-weight: 600;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+.icon-btn {
+  font-size: 1.2rem;
+  padding: 0.4rem;
+  border-radius: 6px;
+  background: rgba(255,152,0,0.2);
+}
+.icon-btn:hover {
+  background: rgba(255,152,0,0.4);
+}
 
     /* ─── RESPONSIVE ───────────────── */
     @media (max-width:600px) {
@@ -276,18 +313,25 @@
     <button class="menu-item profile-menu"><i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
     <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
-
-  <!-- MAIN CONTENT -->
-  <div class="main">
-    <header>
+  
+ <header>
       <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i></button>
       <h1><i class="fas fa-pen"></i> Log Activity</h1>
       <div class="header-right">
-        <button class="icon-btn" aria-label="Notifications"><i class="fas fa-bell"></i></button>
-        <button class="icon-btn" aria-label="Settings"><i class="fas fa-cog"></i></button>
+       <div class="header-right">
+  <span class="welcome-text">Good Morning!</span>
+  <button class="icon-btn" aria-label="Quick Add"><i class="fas fa-bolt"></i></button>
+  <button id="profile-btn" class="profile-btn" aria-label="Profile">
+    <i class="fas fa-user-circle"></i>
+  </button>
+</div>
+
         <button id="profile-btn" class="profile-btn" aria-label="Profile"><i class="fas fa-user-circle"></i></button>
       </div>
     </header>
+  <!-- MAIN CONTENT -->
+  <div class="main">
+   
 
     <!-- QUICK STATS -->
     <section class="stats-section">
