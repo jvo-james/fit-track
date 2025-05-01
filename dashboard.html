@@ -467,15 +467,15 @@
     </div>
   </div>
 
- <script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
-  // ─── Redirect if not signed up/in ─────────────────
+  // ─── 1) Redirect if not signed up/in ─────────────────
   const curJSON = localStorage.getItem('ft_current');
   if (!curJSON) return location.href = 'home.html';
   const cur = JSON.parse(curJSON);
   if (!cur.name) return location.href = 'home.html';
 
-  // ─── Greeting ───────────────────────────────────────
+  // ─── 2) Greeting ───────────────────────────────────────
   const greetingEl = document.getElementById('greeting');
   if (cur.isNew) {
     greetingEl.textContent = `Hello ${cur.name}!`;
@@ -485,143 +485,133 @@ document.addEventListener('DOMContentLoaded', () => {
     greetingEl.textContent = `Welcome back, ${cur.name}!`;
   }
 
-  // ─── Avatar swap ────────────────────────────────────
-  const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+  // ─── 3) Swap in uploaded avatar ────────────────────────
+  const prof = JSON.parse(localStorage.getItem('ft_profile') || '{}');
   ['top-avatar','side-avatar'].forEach(id => {
-    const icon = document.getElementById(id);
-    if (icon && prof.avatar) {
+    const ico = document.getElementById(id);
+    if (ico && prof.avatar) {
       const img = document.createElement('img');
       img.src = prof.avatar;
       img.className = 'avatar';
-      icon.replaceWith(img);
+      ico.replaceWith(img);
     }
   });
 
-  // ─── Sidebar toggle ─────────────────────────────────
+  // ─── 4) Sidebar toggle ─────────────────────────────────
   const sidebar = document.getElementById('sidebar'),
         overlay = document.getElementById('overlay'),
-        openBtn = document.getElementById('hamburger'),
-        closeBtn = document.getElementById('sidebar-close');
-  openBtn.onclick = () => {
-    sidebar.classList.add('open');
-    overlay.classList.add('active');
-  };
-  const closeSidebar = () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
-  };
-  closeBtn.onclick = overlay.onclick = closeSidebar;
+        btnOpen = document.getElementById('hamburger'),
+        btnClose = document.getElementById('sidebar-close');
+  btnOpen.onclick = () => { sidebar.classList.add('open'); overlay.classList.add('active'); };
+  btnClose.onclick = overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
 
-  // ─── Profile navigation ────────────────────────────
+  // ─── 5) Profile nav ────────────────────────────────────
   document.getElementById('profile-btn').onclick =
     document.querySelector('.profile-menu').onclick =
-      () => location.href='profile.html';
+      () => location.href = 'profile.html';
 
-  // ─── New‐workout modal ───────────────────────────────
-  const wm = document.getElementById('workout-modal');
-  document.querySelector('.new-workout').onclick = () => wm.classList.add('active');
-  document.getElementById('workout-close').onclick = () => wm.classList.remove('active');
-  wm.onclick = e => { if (e.target===wm) wm.classList.remove('active'); };
-  document.getElementById('w-save').onclick = () => {
-    const date = document.getElementById('w-date').value,
-          dur  = document.getElementById('w-duration').value;
+  // ─── 6) New‐workout modal ───────────────────────────────
+  const modal   = document.getElementById('workout-modal'),
+        openM   = document.querySelector('.new-workout'),
+        closeM  = document.getElementById('workout-close'),
+        saveM   = document.getElementById('w-save');
+  openM.onclick  = () => modal.classList.add('active');
+  closeM.onclick = () => modal.classList.remove('active');
+  modal.onclick  = e => { if (e.target === modal) modal.classList.remove('active'); };
+  saveM.onclick  = () => {
+    const date = document.getElementById('w-date').value;
+    const dur  = document.getElementById('w-duration').value;
     if (!date || !dur) return alert('Date & duration required');
-    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-    acts.unshift({ date, duration: dur });
-    localStorage.setItem('ft_activities', JSON.stringify(acts));
+    const all = JSON.parse(localStorage.getItem('ft_activities') || '[]');
+    all.unshift({ date, duration: dur });
+    localStorage.setItem('ft_activities', JSON.stringify(all));
     location.reload();
   };
 
-  // ─── Recent activities table & fast stats ───────────
-  const actsAll = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-  // fill recent‐5
-  const recent = actsAll.slice(0,5);
-  const tbody = document.getElementById('recent-acts');
-  recent.forEach(a => {
+  // ─── 7) Recent activities & fast stats ─────────────────
+  const activities = JSON.parse(localStorage.getItem('ft_activities') || '[]');
+  const recent5 = activities.slice(0,5);
+  const tbody   = document.getElementById('recent-acts');
+  recent5.forEach(a => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${a.date}</td><td>${a.type}</td>
-                    <td>${a.duration}</td><td>${a.distance||'-'}</td>`;
+    tr.innerHTML = `<td>${a.date}</td><td>${a.type}</td><td>${a.duration}</td><td>${a.distance||'-'}</td>`;
     tbody.appendChild(tr);
   });
-  // fast stats
-  const avgDur = actsAll.length
-    ? Math.round(actsAll.reduce((s,a)=>s+ +a.duration,0)/actsAll.length)
+  const avgDur = activities.length
+    ? Math.round(activities.reduce((sum,x)=>sum+Number(x.duration),0)/activities.length)
     : 0;
-  const totDist = actsAll.reduce((s,a)=>s+ (parseFloat(a.distance)||0),0).toFixed(1);
-  const totCal  = actsAll.reduce((s,a)=>s+ (parseFloat(a.calories)||0),0);
+  const totDist = activities.reduce((sum,x)=>sum+ (parseFloat(x.distance)||0),0).toFixed(1);
+  const totCal  = activities.reduce((sum,x)=>sum+ (parseFloat(x.calories)||0),0);
   document.getElementById('avg-dur').textContent = avgDur;
   document.getElementById('tot-dist').textContent = totDist;
   document.getElementById('tot-cal').textContent = totCal;
 
-  // ─── Tip of the Day ─────────────────────────────────
+  // ─── 8) Tip of the Day ─────────────────────────────────
   const tips = [
-    "Stay hydrated—drink at least 250 ml of water before each session.",
-    "Warm up for 5 minutes to activate your muscles.",
+    "Stay hydrated—drink 250 ml of water before each session.",
+    "Warm up for 5 min to activate your muscles.",
     "Focus on form; quality reps build strength safer.",
-    "Cool down and stretch for 3–5 minutes after every workout.",
-    "Mix in one fun activity (dance, sports) each week to stay motivated."
+    "Cool down & stretch for 3–5 min after every workout.",
+    "Try one fun activity (dance, sports) weekly to stay motivated."
   ];
-  document.getElementById('tip-of-day').textContent =
-    tips[Math.floor(Math.random()*tips.length)];
+  document.getElementById('tip-of-day').textContent = tips[Math.floor(Math.random()*tips.length)];
 
-  // ─── Upcoming live sessions ──────────────────────────
-  const liveSessions = JSON.parse(localStorage.getItem('ft_liveSessions')) || [
-    { img:'alice.jpg', title:'Sunrise Yoga',  host:'Alice', time:'6 AM UTC' },
-    { img:'bob.jpg',   title:'HIIT Blast',    host:'Bob',   time:'7 PM UTC' },
-    { img:'cara.jpg',  title:'Cardio Dance',  host:'Cara',  time:'5 PM UTC' }
-  ];
-  const grid = document.getElementById('liveSessionsGrid');
-  liveSessions.forEach(s => {
-    const card = document.createElement('div');
-    card.className = 'live-card';
-    card.innerHTML = `
+  // ─── 9) Live sessions grid ─────────────────────────────
+  const sessions = JSON.parse(localStorage.getItem('ft_liveSessions') || '[]');
+  const liveGrid = document.getElementById('liveSessionsGrid');
+  (sessions.length ? sessions : [
+    { img:'alice.jpg',title:'Sunrise Yoga',host:'Alice',time:'6 AM UTC' },
+    { img:'bob.jpg',  title:'HIIT Blast',  host:'Bob',  time:'7 PM UTC' },
+    { img:'cara.jpg', title:'Cardio Dance',host:'Cara', time:'5 PM UTC' }
+  ]).forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'live-card';
+    d.innerHTML = `
       <img src="${s.img}" alt="${s.title}">
       <h3>${s.title}</h3>
       <p>${s.host} • ${s.time}</p>
     `;
-    grid.appendChild(card);
+    liveGrid.appendChild(d);
   });
 
-  // ─── Top achievements ────────────────────────────────
+  // ─── 10) Top achievements ───────────────────────────────
   const thresholds = [
-    { count:1,  icon:'fas fa-star',   label:'First Workout' },
-    { count:5,  icon:'fas fa-medal',  label:'5 Workouts' },
-    { count:10, icon:'fas fa-trophy', label:'10 Workouts' },
-    { count:30, icon:'fas fa-award',  label:'30 Workouts' }
+    { n:1,  icon:'fas fa-star',   text:'First Workout' },
+    { n:5,  icon:'fas fa-medal',  text:'5 Workouts' },
+    { n:10, icon:'fas fa-trophy', text:'10 Workouts' },
+    { n:30, icon:'fas fa-award',  text:'30 Workouts' }
   ];
-  const totalWorkouts = actsAll.length;
-  const achGrid = document.getElementById('yourAchievements');
+  const yourAch = document.getElementById('yourAchievements');
   thresholds.forEach(t => {
-    const div = document.createElement('div');
-    div.className = 'achievement-badge' + (totalWorkouts>=t.count ? ' unlocked':'');
-    div.innerHTML = `<i class="${t.icon}"></i><p>${t.label}</p>`;
-    achGrid.appendChild(div);
+    const el = document.createElement('div');
+    el.className = 'achievement-badge' + (activities.length>=t.n ? ' unlocked' : '');
+    el.innerHTML = `<i class="${t.icon}"></i><p>${t.text}</p>`;
+    yourAch.appendChild(el);
   });
 
-  // ─── Populate tiny “My Challenges” / leaderboard / feed panels ───
-  const chs = JSON.parse(localStorage.getItem('ft_challenges')) || [];
-  chs.forEach(c => {
-    const d = document.createElement('div');
-    d.textContent = c.text;
-    d.classList.toggle('completed', c.done);
-    document.getElementById('action-challenges').appendChild(d);
+  // ─── 11) Mini panels: challenges, leaderboard & feed ────
+  const panels = [
+    { key: 'ft_challenges',   container:'action-challenges',  format: c => c.text },
+    { key: 'ft_leaderboard',  container:'action-leaderboard', li:true,  format: u => `${u.name}: ${u.score}` },
+    { key: 'ft_feed',         container:'action-feed',       format: f => f }
+  ];
+  panels.forEach(p => {
+    const data = JSON.parse(localStorage.getItem(p.key) || '[]');
+    const cont = document.getElementById(p.container);
+    data.slice(0,5).forEach(item => {
+      if (p.li) {
+        const li = document.createElement('li');
+        li.textContent = p.format(item);
+        cont.appendChild(li);
+      } else {
+        const d = document.createElement('div');
+        d.textContent = p.format(item);
+        cont.appendChild(d);
+      }
+    });
   });
 
-  const lb = JSON.parse(localStorage.getItem('ft_leaderboard')) || [];
-  lb.slice(0,5).forEach(u => {
-    const li = document.createElement('li');
-    li.textContent = `${u.name}: ${u.score}`;
-    document.getElementById('action-leaderboard').appendChild(li);
-  });
-
-  const fd = JSON.parse(localStorage.getItem('ft_feed')) || [];
-  fd.slice(0,5).forEach(item => {
-    const d = document.createElement('div');
-    d.textContent = item;
-    document.getElementById('action-feed').appendChild(d);
-  });
-
-     // ————————— STATS, PROGRESS, GOALS —————————
+ // ————————— STATS, PROGRESS, GOALS —————————
       const stats = cur.stats || {};
       document.getElementById('workoutsCount').textContent = stats.workouts || 0;
       document.getElementById('distanceCount').textContent = (stats.distanceKm||0).toFixed(2) + ' km';
@@ -691,47 +681,9 @@ fd.slice(0,5).forEach(item => {
   document.getElementById('action-feed').appendChild(d);
 });
 
-      // ————————— CHALLENGES —————————
-      const defaultCh=[{id:1,text:'Run 50 km',done:false},{id:2,text:'Push-ups ×50',done:false},{id:3,text:'Cycle 100 km',done:false}];
-      const chs=JSON.parse(localStorage.getItem('ft_challenges'))||defaultCh,
-            ul=document.getElementById('challengesList');
-      ul.innerHTML=''; chs.forEach(ch=>{
-        const li=document.createElement('li'); li.textContent=ch.text;
-        if(ch.done)li.classList.add('completed');
-        li.onclick=()=>{
-          ch.done=!ch.done;
-          localStorage.setItem('ft_challenges',JSON.stringify(chs));
-          li.classList.toggle('completed',ch.done);
-        };
-        ul.append(li);
-      });
-
-      // ————————— LEADERBOARD —————————
-      const lb=JSON.parse(localStorage.getItem('ft_leaderboard'))||[
-        {name:'You',score:stats.workouts||0},
-        {name:'Alex',score:12},
-        {name:'Sarah',score:15}
-      ];
-      const ol=document.getElementById('leaderboardList');
-      ol.innerHTML=''; lb.forEach(e=>{
-        const li=document.createElement('li');
-        li.textContent=`${e.name}: ${e.score}`;
-        ol.append(li);
-      });
-
-      // ————————— COMMUNITY FEED —————————
-      const feed=JSON.parse(localStorage.getItem('ft_feed'))||[
-        'Alex ran 5 km','Sarah completed 50 push-ups'
-      ];
-      const div=document.getElementById('feedList');
-      div.innerHTML=''; feed.forEach(item=>{
-        const d=document.createElement('div');
-        d.className='feed-item';
-        d.textContent=item;
-        div.append(d);
-      });
 });
 </script>
+
 
 </body>
 </html>
