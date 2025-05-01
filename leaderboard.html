@@ -13,7 +13,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
-    :root {
+     :root {
       --bg: #000;
       --gold: #ff9800;
       --white: #fff;
@@ -21,9 +21,11 @@
       --font-head: 'Poppins', sans-serif;
       --transition: .3s ease;
       --sidebar-w: 80px;
-      --sidebar-open-w: 200px;
+      --mobile-sidebar-w: 200px;
+      --break-mobile: 900px;
+      --overlay-z: 90;
+      --sidebar-z: 100;
       --header-z: 200;
-      --sidebar-z: 150;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -43,36 +45,28 @@
     }
     #overlay.active { opacity:1; visibility:visible; }
 
-    /* SIDEBAR */
+    /* ─── SIDEBAR ───────────────── */
     .sidebar {
-      position:sticky; top:0; left:0;
-      width:var(--sidebar-w);
-      height:100vh;
-      background:rgba(0,0,0,0.9);
+      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0;
-      transition:width var(--transition),transform var(--transition);
+      padding-top:1rem; position:sticky; top:0; height:100vh;
+      transform: translateX(0);
+      transition:transform var(--transition);
       z-index:var(--sidebar-z);
     }
-    .sidebar.open {
-      width:var(--sidebar-open-w);
-      transform:translateX(0);
-    }
+    .sidebar.open { transform:translateX(0); }
     .sidebar-close {
-      display:none; position:absolute; top:1rem; right:1rem;
+      display:none; font-size:1.5rem;
+      position:absolute; top:1rem; right:1rem;
       background:transparent; border:none; color:var(--white);
-      font-size:1.5rem;
     }
-    .sidebar.open .sidebar-close { display:block; }
-    .sidebar .logo {
-      font-size:1.6rem; color:var(--gold); margin-bottom:2rem;
-    }
+    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
     .sidebar a.menu-item,
     .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
-      display:flex; align-items:center; justify-content:center; gap:.5rem;
-      color:var(--white); background:transparent; border:none;
+      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      color:var(--white);
       transition:background var(--transition);
     }
     .sidebar a.menu-item:hover,
@@ -81,13 +75,9 @@
       background:rgba(255,152,0,0.2);
     }
     .sidebar a.menu-item i,
-    .sidebar button.profile-menu i {
-      font-size:1.2rem;
-    }
+    .sidebar button.profile-menu i.avatar { font-size:1.2rem; }
     .sidebar a.menu-item span,
-    .sidebar button.profile-menu span {
-      font-size:.9rem; white-space:nowrap;
-    }
+    .sidebar button.profile-menu span { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
 
     /* HEADER */
@@ -289,17 +279,25 @@
     }
 
     /* RESPONSIVE */
-    @media(max-width:600px) {
-      .sidebar {
-        position:fixed; transform:translateX(-100%);
-      }
+   /* ─── RESPONSIVE ───────────────── */
+    @media (max-width:600px) {
+      .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--mobile-sidebar-w);
+        transform:translateX(-100%); }
       .sidebar.open { transform:translateX(0); }
-      .hamburger, .profile-btn {
-        display:block; background:var(--gold); color:var(--bg);
-        border:none; padding:.5rem; border-radius:4px; z-index:var(--header-z);
-      }
-      .hamburger { position:absolute; top:1rem; left:1rem; }
-      .profile-btn { position:absolute; top:1rem; right:1rem; }
+      .sidebar-close { display:block; }
+
+      header { padding:0.75rem 1rem; }
+     header h1 { margin: 0 auto; font-size: 1.2rem; }
+  .hamburger,
+  .profile-btn {
+    display: block;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .hamburger { left: 1rem; }
+  .profile-btn { right: 1rem; }
+
       header {
         padding:1rem;
         flex-direction:column; align-items:flex-start;
@@ -317,14 +315,14 @@
 <body>
   <div id="overlay"></div>
 
-  <!-- SIDEBAR -->
+  <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">&times;</button>
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
     <a href="log.html"         class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
+    <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
     <button class="menu-item profile-menu"><i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
     <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
