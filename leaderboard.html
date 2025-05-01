@@ -21,55 +21,58 @@
       --font-head: 'Poppins', sans-serif;
       --transition: .3s ease;
       --sidebar-w: 80px;
-      --mobile-sidebar-w: 200px;
-      --break-mobile: 900px;
-      --overlay-z: 90;
-      --sidebar-z: 100;
+      --sidebar-open-w: 200px;
       --header-z: 200;
+      --sidebar-z: 150;
     }
-
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display:flex;
-      min-height:100vh;
-      background:var(--bg);
-      color:var(--white);
+      display:flex; min-height:100vh;
+      background:var(--bg); color:var(--white);
       font-family:var(--font-base);
       overflow-x:hidden;
-      
     }
     a { color:inherit; text-decoration:none; }
+    button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
 
-    /* ─── OVERLAY ───────────────── */
+    /* OVERLAY */
     #overlay {
       position:fixed; inset:0; background:rgba(0,0,0,0.5);
       opacity:0; visibility:hidden; transition:opacity var(--transition);
-      z-index:var(--overlay-z);
+      z-index:140;
     }
     #overlay.active { opacity:1; visibility:visible; }
 
-    /* ─── SIDEBAR ───────────────── */
+    /* SIDEBAR */
     .sidebar {
-      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+      position:sticky; top:0; left:0;
+      width:var(--sidebar-w);
+      height:100vh;
+      background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
-      transform: translateX(0);
-      transition:transform var(--transition);
+      padding:1rem 0;
+      transition:width var(--transition),transform var(--transition);
       z-index:var(--sidebar-z);
     }
-    .sidebar.open { transform:translateX(0); }
-    .sidebar-close {
-      display:none; font-size:1.5rem;
-      position:absolute; top:1rem; right:1rem;
-      background:transparent; border:none; color:var(--white);
+    .sidebar.open {
+      width:var(--sidebar-open-w);
+      transform:translateX(0);
     }
-    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
+    .sidebar-close {
+      display:none; position:absolute; top:1rem; right:1rem;
+      background:transparent; border:none; color:var(--white);
+      font-size:1.5rem;
+    }
+    .sidebar.open .sidebar-close { display:block; }
+    .sidebar .logo {
+      font-size:1.6rem; color:var(--gold); margin-bottom:2rem;
+    }
     .sidebar a.menu-item,
     .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      color:var(--white);
+      display:flex; align-items:center; justify-content:center; gap:.5rem;
+      color:var(--white); background:transparent; border:none;
       transition:background var(--transition);
     }
     .sidebar a.menu-item:hover,
@@ -78,37 +81,62 @@
       background:rgba(255,152,0,0.2);
     }
     .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.2rem; }
+    .sidebar button.profile-menu i {
+      font-size:1.2rem;
+    }
     .sidebar a.menu-item span,
-    .sidebar button.profile-menu span { font-size:.75rem; }
+    .sidebar button.profile-menu span {
+      font-size:.9rem; white-space:nowrap;
+    }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
 
-    /* ─── HEADER ───────────────── */
+    /* HEADER */
     header {
+      position:sticky; top:0; left:0; right:0;
+      z-index:var(--header-z);
       display:flex; align-items:center; justify-content:space-between;
       padding:1rem 1.5rem;
       background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
-      position: sticky;
-  top: 0;
-  width: 100%;
-  z-index: var(--header-z);
     }
-    /* mobile controls (hidden on desktop) */
     .hamburger, .profile-btn { display:none; }
     header h1 {
-      flex:1;
-      text-align:center;
-      font-size:1.5rem;
+      flex:1; text-align:center;
+      font-family:var(--font-head); font-size:1.5rem;
       color:var(--white);
     }
-    .header-right .icon-btn {
-      font-size:1.2rem;
-      margin-left:1rem;
+    .header-right {
+      display:flex; align-items:center; gap:1rem;
+    }
+    .welcome-text {
+      color:var(--gold); font-weight:600;
+    }
+    .icon-btn {
+      background:rgba(255,152,0,0.2);
+      border:none; padding:.4rem .6rem; border-radius:6px;
+      color:var(--white);
+      transition:background var(--transition);
+    }
+    .icon-btn:hover {
+      background:rgba(255,152,0,0.4);
+    }
+    #filters {
+      display:flex; gap:.75rem;
+    }
+    #filters select {
+      padding:.4rem .6rem;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.3);
+      border-radius:6px;
+      color:var(--white);
+      cursor:pointer;
+      transition:background var(--transition);
+    }
+    #filters select:hover {
+      background:rgba(255,255,255,0.1);
     }
 
-
-    /* MAIN CONTENT */
+    /* MAIN */
     .main { flex:1; }
 
     .section {
@@ -118,18 +146,15 @@
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
       padding:1rem;
     }
-
     .section h2 {
-      color:var(--gold);
-      margin-bottom:.75rem;
-      font-size:1.2rem;
+      color:var(--gold); font-size:1.2rem; margin-bottom:.75rem;
     }
 
     /* Live Workouts */
     .live-grid {
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
       gap:1rem;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
     }
     .live-card {
       background:rgba(255,255,255,0.1);
@@ -145,6 +170,9 @@
       width:48px; height:48px; border-radius:50%;
       object-fit:cover; margin-bottom:.5rem;
     }
+    #liveDesc {
+      font-size:.9rem; opacity:.8; margin-bottom:.75rem;
+    }
     #liveVideo {
       width:100%; max-width:320px; margin-top:1rem;
       border-radius:8px; background:#222;
@@ -158,8 +186,8 @@
     /* Score Summary */
     .score-summary {
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
       gap:1rem;
+      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
     }
     .score-card {
       text-align:center; padding:1rem; border-radius:8px;
@@ -170,7 +198,7 @@
 
     /* Leaderboard Table */
     .leaderboard {
-      overflow-x:auto; padding:0; border-radius:8px;
+      overflow-x:auto; border-radius:8px; padding:0;
     }
     table {
       width:100%; border-collapse:collapse; min-width:600px;
@@ -180,14 +208,15 @@
       border-bottom:1px solid rgba(255,255,255,0.1);
     }
     th { color:var(--gold); }
-    tbody tr:hover { background:rgba(255,255,255,0.1); }
+    tbody tr:hover {
+      background:rgba(255,255,255,0.1);
+    }
 
     /* Your Rank */
     #yourRank {
       display:flex; align-items:center; gap:1rem;
-      padding:1rem; border-radius:8px;
       background:rgba(255,255,255,0.1);
-      margin-top:1rem;
+      border-radius:8px; padding:1rem; margin-top:1rem;
     }
     #yourRank img {
       width:60px; height:60px; border-radius:50%;
@@ -195,9 +224,8 @@
 
     /* Featured Workouts */
     .featured-grid {
-      display:grid;
+      display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-      gap:1rem;
     }
     .workout-card {
       background:rgba(255,255,255,0.1);
@@ -224,15 +252,13 @@
       color:var(--white);
     }
     .challenge-list {
-      display:grid;
+      display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:1rem;
     }
     .challenge-card {
       background:rgba(255,255,255,0.1);
       border-radius:8px; padding:1rem;
-      display:flex; flex-direction:column;
-      justify-content:space-between;
+      display:flex; flex-direction:column; justify-content:space-between;
       transition:transform var(--transition);
     }
     .challenge-card:hover {
@@ -257,94 +283,80 @@
     }
 
     /* Daily Tip & Motivation */
-    .daily-tip p, .motivation blockquote {
+    .daily-tip p,
+    .motivation blockquote {
       opacity:.8; line-height:1.4; margin-top:.5rem;
     }
 
-    /* Responsive */
+    /* RESPONSIVE */
     @media(max-width:600px) {
-      .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--mobile-sidebar-w);
-        transform:translateX(-100%); }
+      .sidebar {
+        position:fixed; transform:translateX(-100%);
+      }
       .sidebar.open { transform:translateX(0); }
-      .sidebar-close { display:block; }
-
-      header { padding:0.75rem 1rem; }
-     header h1 { margin: 0 auto; font-size: 1.2rem; }
-  .hamburger,
-  .profile-btn {
-    display: block;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  .hamburger { left: 1rem; }
-  .profile-btn { right: 1rem; }
-
-  /* hide all the extra header controls */
-  .header-right .welcome-text,
-  .header-right .icon-btn {
-    display: none;
-  }
+      .hamburger, .profile-btn {
+        display:block; background:var(--gold); color:var(--bg);
+        border:none; padding:.5rem; border-radius:4px; z-index:var(--header-z);
+      }
+      .hamburger { position:absolute; top:1rem; left:1rem; }
+      .profile-btn { position:absolute; top:1rem; right:1rem; }
+      header {
+        padding:1rem;
+        flex-direction:column; align-items:flex-start;
+      }
+      header h1 { margin: .5rem 0; font-size:1.2rem; }
+      #filters { flex-wrap:wrap; gap:.5rem; }
       .live-grid, .featured-grid, .challenge-list {
         grid-template-columns:1fr;
       }
       .score-summary { grid-template-columns:1fr; }
       table { font-size:.85rem; }
     }
-      @media (max-width: 600px) {
-  /* match the ☰ and 👤 to the H1’s 1.2rem size */
-  header h1 { font-size: 1.2rem; }
-  .hamburger, .profile-btn {
-    font-size: 1.2rem;
-  }
-}
-
   </style>
 </head>
 <body>
+  <div id="overlay"></div>
 
-   <div id="overlay"></div>
-
-  <!-- Sidebar -->
+  <!-- SIDEBAR -->
   <aside id="sidebar" class="sidebar">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
     <a href="log.html"         class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
     <button class="menu-item profile-menu"><i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
     <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
-
-
-
-  <!-- MAIN CONTENT -->
+  <!-- MAIN -->
   <div class="main">
-  <!-- HEADER -->
-  <header>
-  <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i></button>
-    <h1><i class="fas fa-trophy"></i> Leaderboard</h1>
-    <div class="header-right">
-      <span class="welcome-text">Welcome back!</span>
-      <button class="icon-btn"><i class="fas fa-bolt"></i></button>
-      <button id="profile-btn" class="icon-btn"><i class="fas fa-user-circle"></i></button>
-    </div>
-    <div id="filters">
-      <select id="timeframe"><option>Daily</option><option selected>Weekly</option><option>All-Time</option></select>
-      <select id="category"><option>All Types</option><option>Running</option><option>Cycling</option><option>Strength</option><option>Yoga</option></select>
-    </div>
-  </header>
-    <!-- Live Workouts -->
+    <!-- HEADER -->
+    <header>
+      <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i>
+      </button>
+      <h1><i class="fas fa-trophy"></i> Leaderboard</h1>
+      <div class="header-right">
+        <span class="welcome-text">Welcome back!</span>
+        <button class="icon-btn"><i class="fas fa-bolt"></i></button>
+        <button id="profile-btn" class="icon-btn"><i class="fas fa-user-circle"></i></button>
+      </div>
+      <div id="filters">
+        <select id="timeframe"><option>Daily</option><option selected>Weekly</option><option>All-Time</option></select>
+        <select id="category"><option>All Types</option><option>Running</option><option>Cycling</option><option>Strength</option><option>Yoga</option></select>
+      </div>
+    </header>
+
+    <!-- LIVE WORKOUTS -->
     <section class="section live-now">
       <h2><i class="fas fa-video"></i> Live Workouts</h2>
+      <p id="liveDesc">Go live to share your workout in real-time. Others can join from the Workouts page.</p>
       <div class="live-grid" id="liveNowGrid"></div>
       <button id="toggleLiveBtn">Start Live Workout</button>
       <video id="liveVideo" autoplay playsinline hidden></video>
     </section>
 
-    <!-- Score Summary -->
+    <!-- SCORE SUMMARY -->
     <section class="section score-summary">
       <div class="score-card"><p>Total Workouts</p><h3 id="sumWorkouts">0</h3></div>
       <div class="score-card"><p>Total Minutes</p><h3 id="sumMinutes">0</h3></div>
@@ -352,7 +364,7 @@
       <div class="score-card"><p>Your Score</p><h3 id="yourScore">0</h3></div>
     </section>
 
-    <!-- Leaderboard -->
+    <!-- LEADERBOARD TABLE -->
     <section class="section leaderboard">
       <table>
         <thead><tr><th>Rank</th><th>User</th><th>Type</th><th>Score</th></tr></thead>
@@ -360,16 +372,16 @@
       </table>
     </section>
 
-    <!-- Your Rank -->
+    <!-- YOUR RANK -->
     <section class="section" id="yourRank"></section>
 
-    <!-- Featured Workouts -->
+    <!-- FEATURED WORKOUTS -->
     <section class="section featured">
       <h2><i class="fas fa-star"></i> Featured Workouts</h2>
       <div class="featured-grid" id="featuredGrid"></div>
     </section>
 
-    <!-- Community Challenges -->
+    <!-- COMMUNITY CHALLENGES -->
     <section class="section community">
       <h2><i class="fas fa-globe"></i> Community Challenges</h2>
       <div class="add-challenge">
@@ -379,32 +391,33 @@
       <div class="challenge-list" id="challenges"></div>
     </section>
 
-    <!-- Daily Tip -->
+    <!-- DAILY TIP -->
     <section class="section daily-tip">
       <h2><i class="fas fa-lightbulb"></i> Tip of the Day</h2>
       <p id="tipOfDay"></p>
     </section>
 
-    <!-- Motivation -->
+    <!-- MOTIVATION -->
     <section class="section motivation">
       <h2><i class="fas fa-heart"></i> Motivation</h2>
       <blockquote id="motivationQuote"></blockquote>
     </section>
-
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
- const overlay    = document.getElementById('overlay'),
-          sidebar    = document.getElementById('sidebar'),
-          openBtn    = document.getElementById('hamburger'),
-          closeBtn   = document.getElementById('sidebar-close'),
-          profileBtn = document.getElementById('profile-btn'),
+      // Elements
+      const overlay     = document.getElementById('overlay');
+      const sidebar     = document.getElementById('sidebar');
+      const openBtn     = document.getElementById('hamburger');
+      const closeBtn    = document.getElementById('sidebar-close');
+      const profileBtn  = document.getElementById('profile-btn');
+
       // Redirect if not signed in
       const curJSON = localStorage.getItem('ft_current');
-      if (!curJSON) return location.href='home.html';
+      if (!curJSON) return location.href = 'home.html';
       const cur = JSON.parse(curJSON);
-      if (!cur.name) return location.href='home.html';
+      if (!cur.name) return location.href = 'home.html';
 
       // Greeting
       const welcome = document.querySelector('.welcome-text');
@@ -416,207 +429,214 @@
         localStorage.setItem('ft_current', JSON.stringify(cur));
       }
 
-     // OPEN / CLOSE SIDEBAR
-    openBtn.onclick = () => {
-      sidebar.classList.add('open');
-      overlay.classList.add('active');
-    };
-    closeBtn.onclick = overlay.onclick = () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('active');
-    };
-    profileBtn.onclick = () => location.href = 'profile.html';
-
-    // AVATAR SWAP
-    const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
-    ['top-avatar','side-avatar'].forEach(id=>{
-      const icon = document.getElementById(id);
-      if(icon && prof.avatar){
-        const img = document.createElement('img');
-        img.src = prof.avatar;
-        img.className = 'avatar';
-        icon.replaceWith(img);
-      }
-    });
-
-    // localStorage helpers
-    const load = k=>JSON.parse(localStorage.getItem(k)||'[]'),
-          save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
-
-       // Load activities & compute totals
-    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-    const totalWorkouts = acts.length,
-          totalMinutes = acts.reduce((s,a)=>s+ +a.duration,0),
-          totalDistance= acts.reduce((s,a)=>s+(parseFloat(a.distance)||0),0),
-          yourScore = totalMinutes*2 + Math.round(totalDistance*5);
-    document.getElementById('sumWorkouts').textContent = totalWorkouts;
-    document.getElementById('sumMinutes').textContent  = totalMinutes;
-    document.getElementById('sumDistance').textContent = totalDistance.toFixed(1);
-    document.getElementById('yourScore').textContent   = yourScore;
-
-    // Live Workouts
-    let live = JSON.parse(localStorage.getItem('ft_liveWorkouts')||'[]');
-    const liveGrid = document.getElementById('liveNowGrid'),
-          toggleLive = document.getElementById('toggleLiveBtn'),
-          videoEl    = document.getElementById('liveVideo');
-    function renderLive() {
-      liveGrid.innerHTML = live.length
-        ? live.map(u=>`
-            <div class="live-card">
-              <img src="${u.avatar}" alt="${u.name}">
-              <div class="host">${u.name}</div>
-              <div>${u.type} • ${u.start}</div>
-            </div>`).join('')
-        : `<p style="opacity:.7;">No one’s live right now.</p>`;
-      const me = live.find(u=>u.email===cur.email);
-      toggleLive.textContent = me ? 'End Live Workout' : 'Start Live Workout';
-      videoEl.hidden = !me;
-      if (me) startCamera(); else stopCamera();
-    }
-    async function startCamera(){
-      if (!navigator.mediaDevices) return;
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
-        videoEl.srcObject=stream;
-      } catch(e){ console.warn(e); }
-    }
-    function stopCamera(){
-      const s=videoEl.srcObject;
-      if (s) s.getTracks().forEach(t=>t.stop());
-      videoEl.srcObject=null;
-    }
-    toggleLive.onclick = ()=>{
-      const idx = live.findIndex(u=>u.email===cur.email);
-      if (idx>=0) {
-        live.splice(idx,1);
-      } else {
-        live.unshift({
-          email:cur.email,
-          name:cur.name,
-          avatar:cur.avatarDataUrl||`https://i.pravatar.cc/150?u=${cur.email}`,
-          type: acts[0]?.type||'Mixed',
-          start: new Date().toLocaleTimeString()
-        });
-      }
-      localStorage.setItem('ft_liveWorkouts',JSON.stringify(live));
-      renderLive();
-    };
-    renderLive();
-
-    // Leaderboard
-    const allUsers = (window.FT&&FT.load)? FT.load('ft_users',[]) : [];
-    const users = allUsers.map(u=>{
-      const s=u.stats||{workouts:0,distanceKm:0};
-      return {
-        email:u.email, name:u.name,
-        avatar:u.avatarDataUrl||`https://i.pravatar.cc/150?u=${u.email}`,
-        type:u.lastType||'—',
-        score:s.workouts*10 + Math.round(s.distanceKm*5)
+      // Sidebar toggle
+      openBtn.onclick = () => {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
       };
-    });
-    const lbBody=document.getElementById('leaderboardBody'),
-          tf=document.getElementById('timeframe'),
-          cat=document.getElementById('category'),
-          yourRankEl=document.getElementById('yourRank'),
-          highlights=document.getElementById('highlights');
-    function renderBoard(){
-      let list = users
-        .filter(u=>!cat.value||u.type===cat.value)
-        .sort((a,b)=>b.score-a.score);
-      lbBody.innerHTML = list.map((u,i)=>`
-        <tr>
-          <td>${i+1}</td>
-          <td><img src="${u.avatar}" width="24" height="24"
-                 style="border-radius:50%;vertical-align:middle;margin-right:.5rem">
-            ${u.name}
-          </td>
-          <td>${u.type}</td>
-          <td>${u.score}</td>
-        </tr>`).join('');
-      const meIdx=list.findIndex(u=>u.email===cur.email);
-      yourRankEl.innerHTML = meIdx>=0
-        ? `<div id="yourRank">
-             <img src="${list[meIdx].avatar}" alt="">
-             <div><strong>${cur.name}</strong> you’re #${meIdx+1}<br>${list[meIdx].score} pts</div>
-           </div>`
-        : `<p style="opacity:.7;">You’re not on the board yet.</p>`;
-      highlights.innerHTML = list.slice(0,3).map(u=>`
-        <div class="highlight-card">
-          <img src="${u.avatar}" alt="">
-          <div><strong>${u.name}</strong></div>
-          <div style="opacity:.8;">${u.score} pts</div>
-        </div>`).join('');
-    }
-    tf.onchange=cat.onchange=renderBoard;
-    renderBoard();
+      closeBtn.onclick = overlay.onclick = () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      };
+      profileBtn.onclick = () => location.href = 'profile.html';
 
-    // Featured Workouts
-    const featured = JSON.parse(localStorage.getItem('ft_featured'))||[
-      {img:'run.jpg',title:'5 km Morning Run'},
-      {img:'yoga.jpg',title:'Sunrise Yoga'},
-      {img:'hiit.jpg',title:'HIIT Blast'}
-    ];
-    document.getElementById('featuredGrid').innerHTML =
-      featured.map(w=>`
-        <div class="workout-card">
-          <img src="${w.img}" alt="${w.title}">
-          <div>${w.title}</div>
-        </div>`).join('');
+      // Helper to load/save arrays
+      const load = key => JSON.parse(localStorage.getItem(key) || '[]');
+      const save = (key, data) => localStorage.setItem(key, JSON.stringify(data));
 
-    // Community Challenges
-    let challenges = JSON.parse(localStorage.getItem('ft_challenges'))||[
-      {id:1,title:'Weekend 5K',desc:'Run 5 km every Sat.',joined:[]}
-    ];
-    const chList = document.getElementById('challenges'),
-          addInp = document.getElementById('newChallengeInput'),
-          addBtn = document.getElementById('addChallengeBtn');
-    function renderChallenges(){
-      chList.innerHTML = challenges.map(c=>`
-        <div class="challenge-card" data-id="${c.id}">
-          <h3>${c.title}</h3>
-          <p>${c.desc}</p>
-          <div class="progress"><div class="progress-fill" style="width:${
-            c.joined.includes(cur.email)? '100%' : '0%'
-          }"></div></div>
-          <button>${c.joined.includes(cur.email)? '✔ Joined':'Join'}</button>
-        </div>`).join('');
-    }
-    chList.addEventListener('click',e=>{
-      if(e.target.tagName==='BUTTON'){
-        const id=+e.target.closest('.challenge-card').dataset.id;
-        const ch=challenges.find(c=>c.id===id);
-        if(!ch.joined.includes(cur.email)){
-          ch.joined.push(cur.email);
-          localStorage.setItem('ft_challenges',JSON.stringify(challenges));
-          renderChallenges();
+      // ——— Load activities & compute totals ———
+      const acts = load('ft_activities');
+      const totalWorkouts = acts.length;
+      const totalMinutes  = acts.reduce((s,a)=>s + (+a.duration||0), 0);
+      const totalDistance = acts.reduce((s,a)=>s + (parseFloat(a.distance)||0), 0);
+      const yourScore     = totalMinutes*2 + Math.round(totalDistance*5);
+      document.getElementById('sumWorkouts').textContent = totalWorkouts;
+      document.getElementById('sumMinutes').textContent  = totalMinutes;
+      document.getElementById('sumDistance').textContent = totalDistance.toFixed(1);
+      document.getElementById('yourScore').textContent   = yourScore;
+
+      // ——— Live workouts ———
+      let live = load('ft_liveWorkouts');
+      const liveGrid = document.getElementById('liveNowGrid');
+      const toggleLive = document.getElementById('toggleLiveBtn');
+      const videoEl = document.getElementById('liveVideo');
+
+      function renderLive() {
+        if (live.length) {
+          liveGrid.innerHTML = live.map(u=>`
+            <div class="live-card">
+              <img src="${u.avatar}" alt="">
+              <div>${u.name}</div>
+              <div style="opacity:.8;">${u.type} • ${u.start}</div>
+            </div>
+          `).join('');
+        } else {
+          liveGrid.innerHTML = `<p style="opacity:.7;">No one’s live right now.</p>`;
+        }
+        const meIdx = live.findIndex(u=>u.email===cur.email);
+        toggleLive.textContent = meIdx>=0 ? 'End Live Workout' : 'Start Live Workout';
+        videoEl.hidden = meIdx<0;
+        if (meIdx>=0) startCamera(); else stopCamera();
+      }
+      async function startCamera() {
+        if (!navigator.mediaDevices) return;
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+          videoEl.srcObject = stream;
+        } catch(e){ console.warn(e); }
+      }
+      function stopCamera() {
+        if (videoEl.srcObject) {
+          videoEl.srcObject.getTracks().forEach(t=>t.stop());
+          videoEl.srcObject = null;
         }
       }
-    });
-    addBtn.onclick = ()=>{
-      const title=addInp.value.trim();
-      if(!title) return;
-      challenges.push({id:Date.now(),title,desc:'—',joined:[]});
-      localStorage.setItem('ft_challenges',JSON.stringify(challenges));
-      addInp.value=''; renderChallenges();
-    };
-    renderChallenges();
+      toggleLive.onclick = () => {
+        const idx = live.findIndex(u=>u.email===cur.email);
+        if (idx>=0) {
+          live.splice(idx,1);
+        } else {
+          live.unshift({
+            email: cur.email,
+            name: cur.name,
+            avatar: cur.avatarDataUrl || `https://i.pravatar.cc/150?u=${cur.email}`,
+            type: acts[0]?.type || 'Mixed',
+            start: new Date().toLocaleTimeString()
+          });
+        }
+        save('ft_liveWorkouts', live);
+        renderLive();
+      };
+      renderLive();
 
-    // Daily Tip & Motivation
-    const tips=[
-      "Hydrate before & after every session.",
-      "Quality > quantity—focus on form.",
-      "Cool down and stretch for 5 min."
-    ];
-    document.getElementById('tipOfDay').textContent =
-      tips[Math.floor(Math.random()*tips.length)];
-    const quotes=[
-      "“Push yourself, no one else will.”",
-      "“One more rep.”",
-      "“Sweat is fat crying.”"
-    ];
-    document.getElementById('motivationQuote').textContent =
-      quotes[Math.floor(Math.random()*quotes.length)];
+      // ——— Leaderboard ———
+      const allUsers = (window.FT && FT.load) ? FT.load('ft_users', []) : [];
+      const users = allUsers.map(u=>{
+        const s = u.stats||{workouts:0,distanceKm:0};
+        return {
+          email: u.email,
+          name: u.name,
+          avatar: u.avatarDataUrl || `https://i.pravatar.cc/150?u=${u.email}`,
+          type: u.lastType || '—',
+          score: s.workouts*10 + Math.round(s.distanceKm*5)
+        };
+      });
+      const lbBody    = document.getElementById('leaderboardBody');
+      const tf        = document.getElementById('timeframe');
+      const cat       = document.getElementById('category');
+      const yourRankEl= document.getElementById('yourRank');
 
+      function renderBoard() {
+        let list = users
+          .filter(u=> !cat.value || u.type===cat.value)
+          .sort((a,b)=>b.score-a.score);
+
+        lbBody.innerHTML = list.map((u,i)=>`
+          <tr>
+            <td>${i+1}</td>
+            <td>
+              <img src="${u.avatar}" width="24" height="24"
+                   style="border-radius:50%;vertical-align:middle;margin-right:.5rem">
+              ${u.name}
+            </td>
+            <td>${u.type}</td>
+            <td>${u.score}</td>
+          </tr>
+        `).join('');
+
+        const meIdx = list.findIndex(u=>u.email===cur.email);
+        if (meIdx>=0) {
+          const me = list[meIdx];
+          yourRankEl.innerHTML = `
+            <div id="yourRank">
+              <img src="${me.avatar}" alt="">
+              <div>
+                <strong>${cur.name}</strong>, you’re #${meIdx+1}<br>
+                ${me.score} pts
+              </div>
+            </div>`;
+        } else {
+          yourRankEl.innerHTML = `<p style="opacity:.7;">You’re not on the board yet.</p>`;
+        }
+      }
+      tf.onchange = cat.onchange = renderBoard;
+      renderBoard();
+
+      // ——— Featured Workouts ———
+      const featured = load('ft_featured').length
+        ? load('ft_featured')
+        : [
+          {img:'run.jpg', title:'5 km Morning Run'},
+          {img:'yoga.jpg',title:'Sunrise Yoga'},
+          {img:'hiit.jpg',title:'HIIT Blast'}
+        ];
+      document.getElementById('featuredGrid').innerHTML =
+        featured.map(w=>`
+          <div class="workout-card">
+            <img src="${w.img}" alt="${w.title}">
+            <div>${w.title}</div>
+          </div>`).join('');
+
+      // ——— Community Challenges ———
+      let challenges = load('ft_challenges').length
+        ? load('ft_challenges')
+        : [{id:1,title:'Weekend 5K',desc:'Run 5 km every Saturday.',joined:[]}];
+      const chList = document.getElementById('challenges');
+      const addInp = document.getElementById('newChallengeInput');
+      const addBtn = document.getElementById('addChallengeBtn');
+
+      function renderChallenges() {
+        chList.innerHTML = challenges.map(c=>`
+          <div class="challenge-card" data-id="${c.id}">
+            <h3>${c.title}</h3>
+            <p>${c.desc}</p>
+            <div class="progress">
+              <div class="progress-fill" style="width:${
+                c.joined.includes(cur.email) ? '100%' : '0%'
+              }"></div>
+            </div>
+            <button>${
+              c.joined.includes(cur.email) ? '✔ Joined' : 'Join'
+            }</button>
+          </div>`).join('');
+      }
+      chList.addEventListener('click', e=>{
+        if (e.target.tagName==='BUTTON') {
+          const id = +e.target.closest('.challenge-card').dataset.id;
+          const ch = challenges.find(x=>x.id===id);
+          if (!ch.joined.includes(cur.email)) {
+            ch.joined.push(cur.email);
+            save('ft_challenges', challenges);
+            renderChallenges();
+          }
+        }
+      });
+      addBtn.onclick = ()=>{
+        const title = addInp.value.trim();
+        if (!title) return;
+        challenges.push({id:Date.now(),title,desc:'—',joined:[]});
+        save('ft_challenges', challenges);
+        addInp.value='';
+        renderChallenges();
+      };
+      renderChallenges();
+
+      // ——— Daily Tip & Motivation ———
+      const tips = [
+        "Hydrate before & after every session.",
+        "Quality over quantity: focus on form.",
+        "Cool down and stretch for 5 minutes."
+      ];
+      document.getElementById('tipOfDay').textContent =
+        tips[Math.floor(Math.random()*tips.length)];
+
+      const quotes = [
+        "“Push yourself, no one else will.”",
+        "“One more rep.”",
+        "“Sweat is fat crying.”"
+      ];
+      document.getElementById('motivationQuote').textContent =
+        quotes[Math.floor(Math.random()*quotes.length)];
     });
   </script>
 </body>
