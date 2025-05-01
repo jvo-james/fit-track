@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+<meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Leaderboard</title>
 
@@ -17,390 +17,218 @@
       --bg: #000;
       --gold: #ff9800;
       --white: #fff;
-      --font: 'Raleway', sans-serif;
-      --accent: #111;
+      --font-base: 'Raleway', sans-serif;
+      --font-head: 'Poppins', sans-serif;
+      --transition: .3s ease;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      display:flex;
-      background:var(--bg);
-      color:var(--white);
-      font-family:var(--font);
-      min-height:100vh;
-      overflow-y:auto;
+      display:flex; min-height:100vh;
+      background:var(--bg); color:var(--white);
+      font-family:var(--font-base); overflow-x:hidden;
     }
     a { color:inherit; text-decoration:none; }
 
-    /* ─── SIDEBAR ───────────────────────────────── */
+    /* SIDEBAR */
     .sidebar {
-      position:fixed;
-      top:0; left:0;
-      width:80px;
-      height:100vh;
+      position:fixed; top:0; left:0;
+      width:80px; height:100vh;
       background:rgba(0,0,0,0.95);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0;
-      z-index:1000;
+      padding:1rem 0; z-index:1000;
+      transition:right var(--transition), width var(--transition);
     }
-    .sidebar .logo {
-      font-size:1.6rem; color:var(--gold); margin-bottom:2rem;
-    }
-    .sidebar .menu-item {
-      width:100%; text-align:center; padding:1rem 0;
-      transition:background .2s;
-    }
+    .sidebar.open { width:200px; }
+    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar .menu-item { width:100%; transition:background .2s; }
     .sidebar .menu-item:hover,
-    .sidebar .menu-item.active {
-      background:rgba(255,152,0,0.2);
-    }
+    .sidebar .menu-item.active { background:rgba(255,152,0,0.2); }
     .sidebar .menu-item a {
-      display:flex; flex-direction:column; align-items:center;
+      display:flex; align-items:center; gap:.5rem; padding:.75rem;
+      color:var(--white);
     }
-    .sidebar .menu-item i { font-size:1.4rem; }
-    .sidebar .menu-item span { font-size:.6rem; margin-top:.2rem; }
+    .sidebar .menu-item i { font-size:1.4rem; width:24px; text-align:center; }
+    .sidebar .menu-item span { font-size:.8rem; }
+    #sidebarToggle {
+      display:none; position:absolute; top:1rem; left:1rem;
+      background:var(--gold); color:var(--bg);
+      border:none; padding:.5rem; border-radius:4px;
+      cursor:pointer; z-index:1100;
+    }
+    #sidebarClose {
+      display:none; position:absolute; top:1rem; right:1rem;
+      background:transparent; border:none; font-size:1.2rem;
+      color:var(--white); cursor:pointer;
+    }
 
-    .sidebar .sign-in-btn {
-      margin-top:auto; margin-bottom:1rem;
-      width:50px; height:50px; background:var(--gold);
-      border-radius:50%; display:flex; align-items:center; justify-content:center;
-      cursor:pointer; box-shadow:0 0 10px var(--gold);
-      transition:transform .2s;
-    }
-    .sidebar .sign-in-btn:hover { transform:scale(1.1); }
-
-    /* ─── MAIN AREA ─────────────────────────────── */
-    .main {
-      margin-left:80px;
-      flex:1;
-      display:flex; flex-direction:column;
-    }
+    /* MAIN AREA */
+    .main { margin-left:80px; flex:1; display:flex; flex-direction:column; }
     header {
       position:sticky; top:0; z-index:500;
-      background: linear-gradient(90deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9));
+      display:flex; flex-wrap:wrap; align-items:center; gap:1rem;
+      padding:1.5rem; background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
-      padding:1.5rem; display:flex; flex-wrap:wrap; align-items:center; gap:1rem;
-      animation:fadeIn 0.8s ease;
     }
-    header h1 {
-      flex:1 1 100%; font-size:1.8rem;
-      letter-spacing:1px;
-    }
-    header p {
-      flex:1 1 100%; font-size:.9rem; opacity:.7;
-    }
+    header h1 { flex:1 1 100%; font-size:1.8rem; }
+    header p { flex:1 1 100%; font-size:.9rem; opacity:.7; }
     #filters {
-      display:flex; gap:1rem; flex-wrap:wrap; flex:1 1 100%;
+      display:flex; gap:1rem; flex-wrap:wrap; width:100%;
     }
     #filters select {
-      padding:.5rem .75rem;
-      background:rgba(255,255,255,0.05);
+      padding:.5rem .75rem; background:rgba(255,255,255,0.05);
       border:1px solid rgba(255,255,255,0.3);
-      border-radius:6px;
-      color:var(--white);
-      cursor:pointer;
-      transition:background .2s, transform .2s;
+      border-radius:6px; color:var(--white);
+      cursor:pointer; transition:background .2s, transform .2s;
     }
     #filters select:hover { background:rgba(255,255,255,0.1); transform:scale(1.02); }
 
+    section { margin:1.5rem; animation:fadeIn .8s ease; }
+
     @keyframes fadeIn {
-      from { opacity:0; transform: translateY(-10px); }
-      to { opacity:1; transform: translateY(0); }
+      from { opacity:0; transform:translateY(-10px); }
+      to   { opacity:1; transform:translateY(0); }
     }
 
-    /* ─── LEADERBOARD TABLE ─────────────────────── */
-    .leaderboard {
-      background:rgba(255,255,255,0.05);
-      border-radius:12px; padding:1rem;
-      margin:1.5rem;
-      overflow-x:auto;
-      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    /* LIVE NOW */
+    .live-now { background:rgba(255,255,255,0.05); border-radius:12px;
+                padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+    .live-now h2 { color:var(--gold); margin-bottom:.75rem; }
+    .live-grid {
+      display:grid; gap:1rem;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
     }
-    table {
+    .live-card {
+      background:rgba(255,255,255,0.05); border-radius:8px;
+      padding:1rem; text-align:center;
+      transition:transform var(--transition),box-shadow var(--transition);
+    }
+    .live-card:hover {
+      transform:translateY(-4px); box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    .live-card img {
+      width:60px; height:60px; border-radius:50%; object-fit:cover;
+      margin-bottom:.5rem;
+    }
+    .live-card .host { font-weight:600; margin-bottom:.25rem; }
+    .live-card .detail { font-size:.85rem; opacity:.8; }
+
+    /* LEADERBOARD TABLE */
+    .leaderboard table {
       width:100%; border-collapse:collapse;
-      font-family:var(--font);
-      animation:fadeIn 1s ease;
+      background:rgba(255,255,255,0.05);
+      border-radius:8px;
+      overflow:hidden;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
     }
     th, td {
       padding:.75rem 1rem; text-align:left;
       border-bottom:1px solid rgba(255,255,255,0.1);
     }
     th { color:var(--gold); }
+    tbody tr:hover { background:rgba(255,255,255,0.1); }
 
-    /* ─── YOUR RANK CARD ───────────────────────── */
+    /* YOUR RANK */
     #yourRank {
-      background:rgba(255,255,255,0.05);
-      border-radius:12px; padding:1rem;
       display:flex; align-items:center; gap:1rem;
-      margin:0 1.5rem 1.5rem;
-      box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      animation:fadeIn 1.2s ease;
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.5);
     }
-    #yourRank img {
-      width:60px; height:60px; border-radius:50%; object-fit:cover;
-    }
-    #yourRank div strong { font-size:1.1rem; }
+    #yourRank img { width:60px; height:60px; border-radius:50%; object-fit:cover; }
+    #yourRank .info strong { font-size:1.1rem; display:block; }
 
-    /* ─── HIGHLIGHTS ───────────────────────────── */
+    /* HIGHLIGHTS */
     #highlights {
-      display:grid;
+      display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-      gap:1rem; margin:0 1.5rem 1.5rem;
-      animation:fadeIn 1.4s ease;
     }
     .highlight-card {
-      background:rgba(255,255,255,0.05);
-      border-radius:12px; padding:1rem;
-      display:flex; flex-direction:column; align-items:center;
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:1rem; text-align:center;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      transition:transform .2s;
+      transition:transform var(--transition);
     }
     .highlight-card:hover { transform:translateY(-4px); }
     .highlight-card img {
-      width:48px; height:48px; border-radius:50%; margin-bottom:.5rem;
+      width:48px; height:48px; border-radius:50%; object-fit:cover;
+      margin-bottom:.5rem;
     }
 
-    /* ─── ACHIEVEMENTS ─────────────────────────── */
-    .achievements {
-      margin:0 1.5rem 1.5rem;
-      animation:fadeIn 1.6s ease;
-    }
+    /* ACHIEVEMENTS */
     .achievements h2 { color:var(--gold); margin-bottom:.75rem; }
-    .badge-list { display:flex; flex-wrap:wrap; gap:1rem; }
+    .badge-list {
+      display:flex; flex-wrap:wrap; gap:1rem;
+    }
     .badge {
-      background:rgba(255,255,255,0.05);
-      width:80px; height:80px; border-radius:12px;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background:rgba(255,255,255,0.05); width:80px; height:80px;
+      border-radius:12px; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      transition:transform .2s;
+      transition:transform var(--transition);
     }
     .badge:hover { transform:scale(1.05); }
     .badge i { font-size:1.5rem; color:var(--gold); }
     .badge span { font-size:.75rem; text-align:center; }
 
-    /* ─── COMMUNITY CHALLENGES ─────────────────── */
-    .community {
-      margin:0 1.5rem 2rem;
-      animation:fadeIn 1.8s ease;
-    }
+    /* COMMUNITY CHALLENGES */
     .community h2 { color:var(--gold); margin-bottom:.75rem; }
     .challenge-list {
-      display:grid;
+      display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:1rem;
     }
     .challenge-card {
-      background:rgba(255,255,255,0.05);
-      border-radius:12px; padding:1rem;
-      display:flex; flex-direction:column; justify-content:space-between;
+      background:rgba(255,255,255,0.05); border-radius:12px;
+      padding:1rem; display:flex; flex-direction:column;
+      justify-content:space-between;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
-      transition:transform .2s;
+      transition:transform var(--transition);
     }
     .challenge-card:hover { transform:translateY(-4px); }
-    .challenge-card h3 { margin-bottom:.5rem; }
+    .challenge-card h3 { margin-bottom:.5rem; font-size:1rem; }
     .challenge-card p { flex:1; font-size:.9rem; opacity:.8; }
     .challenge-card button {
       margin-top:1rem; padding:.5rem .75rem;
-      background:var(--gold); color:var(--accent);
-      border:none; border-radius:6px; cursor:pointer;
-      transition:background .2s, transform .2s;
+      background:var(--gold); color:var(--bg);
+      border:none; border-radius:6px;
+      cursor:pointer; transition:background .2s,transform .2s;
     }
-    .challenge-card button:hover { background:#e68a00; transform:scale(1.05); }
+    .challenge-card button:hover {
+      background:#e68a00; transform:scale(1.05);
+    }
 
-    @media(max-width:900px){
+    /* MOBILE */
+    @media(max-width:900px) {
       .main { margin-left:80px; }
     }
-    @media(max-width:600px){
+    @media(max-width:600px) {
+      #sidebarToggle { display:block; }
+      .sidebar { right:-80px; }
+      .sidebar.open { right:0; }
+      #sidebarClose { display:block; }
+      .main { margin:0; }
       header { flex-direction:column; align-items:flex-start; }
+      #filters { flex-direction:column; }
     }
-    /* ─── PHONE ONLY (≤414px) ───────────────────────────────────────── */
-
-/* ─── PHONE ONLY (≤414px) ───────────────────────────────────────── */
-@media only screen and (max-width: 414px) {
-  /* —— Sidebar off-canvas on the right —— */
-  .sidebar {
-    position: fixed;
-    top: 0;
-    right: -80px;            /* hide offscreen */
-    width: 0;
-    height: 100vh;
-    background: var(--bg);
-    border-left: 2px solid var(--gold);
-    border-right: none;
-    overflow: hidden;
-    transition: right .3s ease, width .3s ease;
-    z-index: 1100;
-  }
-  .sidebar.open {
-    right: 0;               /* slide in */
-    width: 200px;
-  }
-
-  /* —— Toggle & close buttons —— */
-  #sidebarToggle {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1200;
-    background: var(--gold);
-    color: var(--bg);
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem;
-    font-size: 1.2rem;
-    display: block;
-  }
-  #sidebarClose {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: transparent;
-    border: none;
-    color: var(--white);
-    font-size: 1.2rem;
-    display: block;
-  }
-
-  /* —— Main content full width —— */
-  .main {
-    margin: 0 !important;
-  }
-
-  /* —— Header stacks & shrinks —— */
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 1rem;
-  }
-  header h1 {
-    font-size: 1.4rem;
-  }
-  header p {
-    font-size: 0.8rem;
-  }
-
-  /* —— Filters full-width —— */
-  #filters {
-    flex-direction: column;
-    gap: 0.5rem;
-    width: 100%;
-  }
-  #filters select {
-    width: 100%;
-  }
-
-  /* —— Leaderboard table scrollable —— */
-  .leaderboard {
-    margin: 1rem;
-    padding: 0.75rem;
-  }
-  .leaderboard table {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    font-size: 0.85rem;
-  }
-  th, td {
-    padding: 0.5rem;
-    min-width: 80px;
-  }
-
-  /* —— “Your Rank” card stacks —— */
-  #yourRank {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    margin: 1rem;
-    padding: 0.75rem;
-  }
-  #yourRank img {
-    width: 48px;
-    height: 48px;
-  }
-
-  /* —— Highlights to one column —— */
-  #highlights {
-    grid-template-columns: 1fr !important;
-    margin: 1rem;
-  }
-  .highlight-card {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  /* —— Achievements & badges —— */
-  .achievements, .community {
-    margin: 1rem;
-  }
-  .badge-list {
-    gap: 0.75rem;
-  }
-  .badge {
-    width: 60px;
-    height: 60px;
-  }
-  .badge i {
-    font-size: 1.2rem;
-  }
-  .badge span {
-    font-size: 0.65rem;
-  }
-
-  /* —— Community challenges stack —— */
-  .challenge-list {
-    grid-template-columns: 1fr !important;
-    gap: 1rem;
-    margin: 1rem;
-  }
-  .challenge-card {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  /* —— Footer tweak —— */
-  footer {
-    font-size: 0.9rem;
-    padding: 0.75rem;
-  }
-}
-
   </style>
 </head>
 <body>
-  <button id="sidebarToggle" aria-label="Open menu">
-  <i class="fas fa-bars"></i>
-</button>
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar" role="navigation">
-    <button id="sidebarClose" aria-label="Close menu">
-  &times;
-</button>
-
+  <!-- mobile toggle -->
+  <button id="sidebarToggle"><i class="fas fa-bars"></i></button>
+  <aside class="sidebar">
+    <button id="sidebarClose">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
     <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
-    <div class="menu-item"><a href="workouts.html"><i class="fas fa-tasks"></i><span>Workouts</span></a></div>
+    <div class="menu-item"><a href="workouts.html"><i class="fas fa-dumbbell"></i><span>Workouts</span></a></div>
     <div class="menu-item active"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
-   <div class="menu-item profile">
-  <a href="profile.html">
-    <img id="sidebarAvatar"
-         src="https://i.pravatar.cc/150?u=default"
-         alt="Profile"
-         style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
-    <span>Profile</span>
-  </a>
-</div>
-
-
-    <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
+    <div class="menu-item profile"><a href="profile.html"><i class="fas fa-user-circle"></i><span>Profile</span></a></div>
+    <div class="menu-item"><a href="home.html"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a></div>
   </aside>
 
   <div class="main">
     <header>
       <h1 id="headerGreeting">Leaderboard</h1>
-      <p>See who’s crushing it today, this week, and all-time.</p>
+      <p>See who’s crushing it live, this week, and all-time.</p>
       <div id="filters">
         <select id="timeframe" aria-label="Filter by timeframe">
           <option value="daily">Daily</option>
@@ -417,8 +245,19 @@
       </div>
     </header>
 
-    <!-- Leaderboard Table -->
-    <section class="leaderboard" aria-label="Leaderboard">
+    <!-- Live Now -->
+    <section class="live-now">
+      <h2><i class="fas fa-circle-notch"></i> Live Now</h2>
+      <div class="live-grid" id="liveNowGrid"></div>
+      <button id="toggleLiveBtn" style="margin-top:1rem;
+         background:var(--gold);border:none;padding:.5rem 1rem;
+         border-radius:6px;color:var(--bg);cursor:pointer;">
+        Start Live Workout
+      </button>
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="leaderboard">
       <table>
         <thead>
           <tr><th>Rank</th><th>User</th><th>Type</th><th>Score</th></tr>
@@ -428,178 +267,192 @@
     </section>
 
     <!-- Your Rank -->
-    <section id="yourRank" aria-label="Your rank"></section>
+    <section id="yourRank"></section>
 
-    <!-- Highlights -->
-    <section id="highlights" aria-label="Top performers"></section>
+    <!-- Top Highlights -->
+    <section id="highlights"></section>
 
     <!-- Achievements -->
-    <section class="achievements" aria-label="Achievements">
+    <section class="achievements">
       <h2><i class="fas fa-award"></i> Achievements</h2>
       <div class="badge-list" id="badges"></div>
     </section>
 
     <!-- Community Challenges -->
-    <section class="community" aria-label="Community Challenges">
+    <section class="community">
       <h2><i class="fas fa-globe"></i> Community Challenges</h2>
       <div class="challenge-list" id="challenges"></div>
     </section>
   </div>
 
-  <!-- shared storage & helpers -->
   <script src="storage.js"></script>
   <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // → Redirect if not signed in
+    const curJSON = localStorage.getItem('ft_current');
+    if (!curJSON) return location.href='home.html';
+    const cur = JSON.parse(curJSON);
+    if (!cur.name) return location.href='home.html';
+
+    // → Greeting
+    document.getElementById('headerGreeting').textContent = 'Welcome back, ' + cur.name;
+
+    // → Avatar swap in sidebar
     FT.updateSidebarAvatar();
-    document.addEventListener('DOMContentLoaded', () => {
-      // apply theme + greeting
-      FT.applyTheme();
-      FT.renderGreeting(document.getElementById('headerGreeting'));
 
-      // load all registered users
-      const allUsers = FT.load('ft_users', []);
-      if (!allUsers.length) {
-        document.getElementById('leaderboardBody')
-          .innerHTML = '<tr><td colspan="4">No users yet!</td></tr>';
-        return;
-      }
+    // → Sidebar toggle
+    const sidebar = document.querySelector('.sidebar'),
+          openBtn = document.getElementById('sidebarToggle'),
+          closeBtn= document.getElementById('sidebarClose');
+    openBtn.onclick  = ()=> sidebar.classList.add('open');
+    closeBtn.onclick = ()=> sidebar.classList.remove('open');
 
-      // compute score & avatar
-      const users = allUsers.map(u => {
-        const s = u.stats || { workouts:0, distanceKm:0 };
-        const score = s.workouts*10 + Math.round(s.distanceKm);
-        return {
-          name: u.name,
-          email: u.email,
-          avatar: u.avatarDataUrl || `https://i.pravatar.cc/150?u=${u.email}`,
-          lastType: u.lastType || '—',
-          score
-        };
-      });
-
-      // sample achievements & challenges
-      const achievements = [
-        { icon:'fa-fire', name:'Streak Master' },
-        { icon:'fa-medal', name:'Century Club' },
-        { icon:'fa-heart', name:'Community Favorite' }
-      ];
-      const communityChallenges = [
-        { id:1, title:'Weekend 5K', desc:'Run 5 km every Saturday.' },
-        { id:2, title:'Push-Up Power', desc:'Do 100 push-ups daily.' },
-        { id:3, title:'Yoga Stretch', desc:'15 min yoga each morning.' },
-        { id:4, title:'Cycling Sprint', desc:'Cycle 10 km three times a week.' }
-      ];
-
-      // track joined
-      const joined = new Set(FT.load('ft_joined', []));
-
-      // DOM refs
-      const lbBody    = document.getElementById('leaderboardBody');
-      const tf        = document.getElementById('timeframe');
-      const cat       = document.getElementById('category');
-      const yourRank  = document.getElementById('yourRank');
-      const hlEl      = document.getElementById('highlights');
-      const bdEl      = document.getElementById('badges');
-      const chEl      = document.getElementById('challenges');
-
-      function render() {
-        // filter & sort
-        let list = users
-          .filter(u=> !cat.value || u.lastType===cat.value)
-          .sort((a,b)=> b.score - a.score);
-
-        // leaderboard table
-        lbBody.innerHTML = list.map((u,i)=>`
-          <tr>
-            <td>${i+1}</td>
-            <td>
-              <img src="${u.avatar}" width="24" height="24"
-                    style="border-radius:50%;vertical-align:middle;margin-right:.5rem">
-              ${u.name}
-            </td>
-            <td>${u.lastType}</td>
-            <td>${u.score}</td>
-          </tr>
-        `).join('');
-
-        // your rank
-        const me = FT.cur.email;
-        const idx= list.findIndex(u=> u.email===me);
-        if (idx>=0) {
-          const self = list[idx];
-          yourRank.innerHTML = `
-            <div id="yourRank">
-              <img src="${self.avatar}" alt="${self.name}"/>
-              <div>
-                <strong>${self.name}</strong>, you’re #${idx+1}<br>
-                Score: ${self.score}
-              </div>
-            </div>
-          `;
-        } else {
-          yourRank.textContent = `You’re not on the board yet.`;
-        }
-
-        // top 3 highlights
-        hlEl.innerHTML = list.slice(0,3).map(u=>`
-          <div class="highlight-card">
-            <img src="${u.avatar}" alt="${u.name}"/>
-            <div><strong>${u.name}</strong></div>
-            <div>Score: ${u.score}</div>
-          </div>
-        `).join('');
-
-        // achievements
-        bdEl.innerHTML = achievements.map(b=>`
-          <div class="badge">
-            <i class="fas ${b.icon}"></i>
-            <span>${b.name}</span>
-          </div>
-        `).join('');
-
-        // community challenges
-        chEl.innerHTML = communityChallenges.map(c=>`
-          <div class="challenge-card" data-id="${c.id}">
-            <h3>${c.title}</h3>
-            <p>${c.desc}</p>
-            <button>
-              ${joined.has(c.id)? 'Joined ✓' : 'Join'}
-            </button>
-          </div>
-        `).join('');
-      }
-
-      // join handlers
-      chEl.addEventListener('click', e=>{
-        if (e.target.tagName==='BUTTON') {
-          const card = e.target.closest('.challenge-card');
-          const id = Number(card.dataset.id);
-          if (!joined.has(id)) {
-            joined.add(id);
-            FT.save('ft_joined', [...joined]);
-            alert('You’ve joined: ' + communityChallenges.find(c=>c.id===id).title);
-            render();
-          }
-        }
-      });
-
-      // filters
-      tf.addEventListener('change', render);
-      cat.addEventListener('change', render);
-
-      // initial paint
-      render();
+    // → Load users & compute scores
+    const allUsers = FT.load('ft_users', []);
+    const users = allUsers.map(u => {
+      const s = u.stats||{workouts:0,distanceKm:0};
+      return {
+        name: u.name,
+        email:u.email,
+        avatar:u.avatarDataUrl||`https://i.pravatar.cc/150?u=${u.email}`,
+        lastType:u.lastType||'—',
+        score:s.workouts*10 + Math.round(s.distanceKm)
+      };
     });
-    const sidebar      = document.querySelector('.sidebar');
-const toggleBtn    = document.getElementById('sidebarToggle');
-const closeBtn     = document.getElementById('sidebarClose');
 
-toggleBtn.addEventListener('click', () => {
-  sidebar.classList.add('open');
-});
-closeBtn.addEventListener('click', () => {
-  sidebar.classList.remove('open');
-});
+    // → Live workouts storage
+    let live = JSON.parse(localStorage.getItem('ft_liveWorkouts')||'[]');
+    const liveGrid = document.getElementById('liveNowGrid'),
+          toggleLiveBtn = document.getElementById('toggleLiveBtn');
 
+    function renderLive() {
+      liveGrid.innerHTML = live.length
+        ? live.map(ls=>`
+            <div class="live-card">
+              <img src="${ls.avatar}" alt="${ls.name}">
+              <div class="host">${ls.name}</div>
+              <div class="detail">${ls.type} • ${ls.start}</div>
+            </div>
+          `).join('')
+        : '<p style="opacity:.7;">No one’s live right now.</p>';
+      // toggle button text
+      const meLive = live.find(ls=>ls.email===cur.email);
+      toggleLiveBtn.textContent = meLive
+        ? 'End Live Workout'
+        : 'Start Live Workout';
+    }
+    toggleLiveBtn.onclick = () => {
+      const idx = live.findIndex(ls=>ls.email===cur.email);
+      if (idx>=0) {
+        live.splice(idx,1);
+      } else {
+        live.unshift({
+          email:cur.email,
+          name:cur.name,
+          avatar:cur.avatarDataUrl||`https://i.pravatar.cc/150?u=${cur.email}`,
+          type: cur.lastType||'Mixed',
+          start: new Date().toLocaleTimeString()
+        });
+      }
+      localStorage.setItem('ft_liveWorkouts', JSON.stringify(live));
+      renderLive();
+    };
+    renderLive();
+
+    // → Filters & Leaderboard render
+    const lbBody = document.getElementById('leaderboardBody'),
+          tf     = document.getElementById('timeframe'),
+          cat    = document.getElementById('category'),
+          yourR  = document.getElementById('yourRank'),
+          hlEl   = document.getElementById('highlights');
+
+    function renderBoard() {
+      // (ignore timeframe for demo)
+      let list = users
+        .filter(u=>!cat.value||u.lastType===cat.value)
+        .sort((a,b)=>b.score-a.score);
+      // table
+      lbBody.innerHTML = list.map((u,i)=>`
+        <tr>
+          <td>${i+1}</td>
+          <td><img src="${u.avatar}" width="24" height="24"
+              style="border-radius:50%;
+                     vertical-align:middle;margin-right:.5rem">
+              ${u.name}
+          </td>
+          <td>${u.lastType}</td>
+          <td>${u.score}</td>
+        </tr>
+      `).join('');
+      // your rank
+      const meIdx = list.findIndex(u=>u.email===cur.email);
+      yourR.innerHTML = meIdx>=0
+        ? `<div id="yourRank">
+             <img src="${list[meIdx].avatar}" alt="${cur.name}">
+             <div class="info">
+               <strong>${cur.name}</strong><br>
+               You’re #${meIdx+1} — ${list[meIdx].score} pts
+             </div>
+           </div>`
+        : `<p style="opacity:.7;">You’re not on the board yet.</p>`;
+      // highlights top 3
+      hlEl.innerHTML = list.slice(0,3).map(u=>`
+        <div class="highlight-card">
+          <img src="${u.avatar}" alt="${u.name}">
+          <div><strong>${u.name}</strong></div>
+          <div style="opacity:.8;">${u.score} pts</div>
+        </div>
+      `).join('');
+    }
+    tf.onchange  = renderBoard;
+    cat.onchange = renderBoard;
+    renderBoard();
+
+    // → Achievements badges
+    const badges = [
+      { icon:'fa-fire',  name:'Streak Master' },
+      { icon:'fa-medal', name:'Century Club' },
+      { icon:'fa-heart', name:'Community Favorite' }
+    ];
+    document.getElementById('badges').innerHTML = badges.map(b=>`
+      <div class="badge">
+        <i class="fas ${b.icon}"></i>
+        <span>${b.name}</span>
+      </div>
+    `).join('');
+
+    // → Community challenges
+    const challenges = [
+      { id:1, title:'Weekend 5K', desc:'Run 5 km every Saturday.' },
+      { id:2, title:'Push-Up Power', desc:'Do 100 push-ups daily.' },
+      { id:3, title:'Yoga Stretch', desc:'15 min yoga each morning.' },
+      { id:4, title:'Cycling Sprint', desc:'Cycle 10 km thrice a week.' },
+      { id:5, title:'Plank Champ', desc:'Hold plank 2 min.' },
+      { id:6, title:'Step Count', desc:'10,000 steps daily.' }
+    ];
+    const joined = new Set(FT.load('ft_joined', []));
+    const chEl = document.getElementById('challenges');
+    function renderChallenges() {
+      chEl.innerHTML = challenges.map(c=>`
+        <div class="challenge-card" data-id="${c.id}">
+          <h3>${c.title}</h3>
+          <p>${c.desc}</p>
+          <button>${joined.has(c.id)? 'Joined ✓':'Join'}</button>
+        </div>
+      `).join('');
+    }
+    chEl.addEventListener('click', e=>{
+      if(e.target.tagName==='BUTTON'){
+        const card = e.target.closest('.challenge-card');
+        const id = +card.dataset.id;
+        if(joined.has(id)) return;
+        joined.add(id);
+        FT.save('ft_joined', [...joined]);
+        renderChallenges();
+      }
+    });
+    renderChallenges();
+  });
   </script>
 </body>
 </html>
