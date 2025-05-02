@@ -515,9 +515,10 @@
   import { Storage } from './storage.js';
   // … your existing modal logic …
   // On Sign Up:
-  Storage.set('ft_users', users);
-  Storage.set('ft_current', { name, email, isNew: true });
-  window.location = 'dashboard.html';
+  users.push({name,email,password:pwd});
+Storage.set('ft_users', users);
+Storage.set('ft_current',{ name, email, isNew: true });
+  location.href='dashboard.html';
   // On Sign In:
   Storage.set('ft_current', { name, email, isNew: false });
   window.location = 'dashboard.html';
