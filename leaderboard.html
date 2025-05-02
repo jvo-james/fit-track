@@ -37,6 +37,17 @@
   }
   a { color:inherit; text-decoration:none; }
   button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
+ /* in your CSS… */
+ body {
+-   overflow-x:hidden; overflow-y: auto;
++   overflow-x: hidden;
+    /* no overflow-y here */
+ }
+ .container {
+    flex:1;
+    overflow-y: auto;     /* the one and only vertical scrollbar */
+    overflow-x: hidden;
+ }
 
   /* overlay */
   #overlay {
@@ -235,7 +246,7 @@
   .avatar-btn { right: 1.2rem; }
 
     .logo-header { font-size: 1.2rem; }
-    .search { width:100%; max-width:none; }
+    .search { width:50%; max-width:none; }
     #timeframe, #notifBtn { display: none; }
     .hall-of-fame, .leaderboard, .section { margin:.5rem; }
     table { font-size:.85rem; }
@@ -518,11 +529,14 @@ document.addEventListener('DOMContentLoaded', () => {
           .reduce((sum,a)=>sum+(+a.duration||0),0)
     );
   }
-  const gold = getComputedStyle(document.documentElement)
-                 .getPropertyValue('--gold').trim();
-  new Chart(ctx, {
-    type: 'bar',
-    data: { labels, datasets: [{ label:'Minutes', data, backgroundColor: gold }] },
+ const gold = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim();
+const barColors = data.map(() => gold);
+
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{ label: 'Minutes', data, backgroundColor: barColors }] },
     options: {
       plugins:{ legend:{ display:false }},
       scales:{
