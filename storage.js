@@ -1,14 +1,32 @@
 // storage.js
 // At top of storage.js
-export const Storage = {
-  get(key, def = null)   { return JSON.parse(localStorage.getItem(key) || JSON.stringify(def)); },
-  set(key, v)            { localStorage.setItem(key, JSON.stringify(v)); },
-  onChange(key, cb) {
-    window.addEventListener('storage', e => {
-      if (e.key === key) cb(Storage.get(key));
-    });
-  }
-};
+// storage.js
+export const Storage = (() => {
+  const listeners = {};
+  window.addEventListener('storage', e => {
+    if (listeners[e.key]) listeners[e.key].forEach(fn => fn(e.newValue, e.oldValue));
+  });
+  return {
+    get(key, def) {
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : def;
+    },
+    set(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+      // manually fire for same‑tab listeners
+      if (listeners[key]) listeners[key].forEach(fn=>fn(JSON.stringify(value),null));
+    },
+    onChange(key, fn) {
+      listeners[key] = listeners[key]||[];
+      listeners[key].push((newV,oldV)=> fn(newV,oldV));
+    }
+  };
+})();
+
+import { Storage } from './storage.js';
+Storage.get(key, defaultVal)
+Storage.set(key, value)
+Storage.onChange(key, callback)
 
 (function(global){
   // 1) Helpers
