@@ -32,7 +32,7 @@
     display:flex; min-height:100vh;
     background:var(--bg); color:var(--fg);
     font-family:var(--font-base);
-    overflow:hidden;
+    
   }
   a { color:inherit; text-decoration:none; }
 
@@ -81,7 +81,7 @@
   .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
 
   /* Main + Header */
-  .main { flex:1; display:flex; flex-direction:column; }
+  .main { flex:1; display:flex; flex-direction:column; height: 100%; }
   header {
     position:sticky; top:0; background:rgba(0,0,0,0.9);
     border-bottom:2px solid var(--gold);
