@@ -459,6 +459,7 @@
     // localStorage helpers
     const load = k=>JSON.parse(localStorage.getItem(k)||'[]'),
           save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
+localStorage.setItem('ft_activities', JSON.stringify(all));
 
     // ───── STOPWATCH ─────
     let seconds=0, timerInterval=null;
