@@ -1,4 +1,15 @@
 // storage.js
+// At top of storage.js
+export const Storage = {
+  get(key, def = null)   { return JSON.parse(localStorage.getItem(key) || JSON.stringify(def)); },
+  set(key, v)            { localStorage.setItem(key, JSON.stringify(v)); },
+  onChange(key, cb) {
+    window.addEventListener('storage', e => {
+      if (e.key === key) cb(Storage.get(key));
+    });
+  }
+};
+
 (function(global){
   // 1) Helpers
   function load(key, def = null) {
