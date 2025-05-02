@@ -486,32 +486,18 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  function updateDashboard() {
-  updateStats();
-  updateCharts();
-  updateRecentActivities();
-  updateMiniLeaderboard();
-  updateLiveSessions();
-  updateProfileSummary();
-}
-function updateProfileSummary(){
-  const cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
-  const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
-  document.getElementById('dash-name').textContent = cur.name;
-  const img = prof.avatar||cur.avatarDataUrl||'https://i.pravatar.cc/150?u='+cur.email;
-  document.getElementById('dash-avatar').src = img;
-}
-window.addEventListener('storage',e=>{
-  if (e.key==='ft_profile') updateProfileSummary();
-});
+  // ─── Utility: generate random IDs ───────────────────────────────
+  function randomId() {
+    return Math.random().toString(36).substr(2, 9);
+  }
 
-  // ─── 1) Redirect if not signed up/in ─────────────────
+  // ─── 1) Redirect if not signed in ───────────────────────────────
   const curJSON = localStorage.getItem('ft_current');
   if (!curJSON) return location.href = 'home.html';
   const cur = JSON.parse(curJSON);
   if (!cur.name) return location.href = 'home.html';
 
-  // ─── 2) Greeting ───────────────────────────────────────
+  // ─── 2) Greeting & clear isNew flag ─────────────────────────────
   const greetingEl = document.getElementById('greeting');
   if (cur.isNew) {
     greetingEl.textContent = `Hello ${cur.name}!`;
@@ -521,361 +507,268 @@ window.addEventListener('storage',e=>{
     greetingEl.textContent = `Welcome back, ${cur.name}!`;
   }
 
-  // ─── 3) Swap in uploaded avatar ────────────────────────
-  const prof = JSON.parse(localStorage.getItem('ft_profile') || '{}');
-  ['top-avatar','side-avatar'].forEach(id => {
-    const ico = document.getElementById(id);
-    if (ico && prof.avatar) {
-      const img = document.createElement('img');
-      img.src = prof.avatar;
-      img.className = 'avatar';
-      ico.replaceWith(img);
-    }
-  });
-
-  // ─── 4) Sidebar toggle ─────────────────────────────────
+  // ─── 3) Sidebar toggle ──────────────────────────────────────────
   const sidebar = document.getElementById('sidebar'),
         overlay = document.getElementById('overlay'),
         btnOpen = document.getElementById('hamburger'),
-        btnClose = document.getElementById('sidebar-close');
-  btnOpen.onclick = () => { sidebar.classList.add('open'); overlay.classList.add('active'); };
-  btnClose.onclick = overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+        btnClose= document.getElementById('sidebar-close');
+  btnOpen.addEventListener('click', ()=> {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  });
+  btnClose.addEventListener('click', ()=> {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  });
+  overlay.addEventListener('click', ()=> {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  });
 
-  // ─── 5) Profile nav ────────────────────────────────────
-  document.getElementById('profile-btn').onclick =
-    document.querySelector('.profile-menu').onclick =
-      () => location.href = 'profile.html';
+  // ─── 4) Profile nav buttons ──────────────────────────────────────
+  document.getElementById('profile-btn').addEventListener('click', ()=> location.href='profile.html');
+  document.querySelector('.profile-menu').addEventListener('click', ()=> location.href='profile.html');
 
-  // ─── 6) New‐workout modal ───────────────────────────────
-  const modal   = document.getElementById('workout-modal'),
-        openM   = document.querySelector('.new-workout'),
-        closeM  = document.getElementById('workout-close'),
-        saveM   = document.getElementById('w-save');
-  openM.onclick  = () => modal.classList.add('active');
-  closeM.onclick = () => modal.classList.remove('active');
-  modal.onclick  = e => { if (e.target === modal) modal.classList.remove('active'); };
-  saveM.onclick  = () => {
-    const date = document.getElementById('w-date').value;
-    const dur  = document.getElementById('w-duration').value;
+  // ─── 5) New‑workout modal ────────────────────────────────────────
+  const modal = document.getElementById('workout-modal'),
+        openM = document.querySelector('.new-workout'),
+        closeM= document.getElementById('workout-close'),
+        saveM = document.getElementById('w-save');
+  openM.addEventListener('click', ()=> modal.classList.add('active'));
+  closeM.addEventListener('click', ()=> modal.classList.remove('active'));
+  modal.addEventListener('click', e=> { if (e.target===modal) modal.classList.remove('active'); });
+  saveM.addEventListener('click', () => {
+    const date = document.getElementById('w-date').value,
+          dur  = document.getElementById('w-duration').value;
     if (!date || !dur) return alert('Date & duration required');
-    const all = JSON.parse(localStorage.getItem('ft_activities') || '[]');
-    all.unshift({ date, duration: dur });
+    const all = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+    all.unshift({ id: randomId(), date, duration: +dur });
     localStorage.setItem('ft_activities', JSON.stringify(all));
-    location.reload();
-  };
-
-  // ─── 7) Recent activities & fast stats ─────────────────
-  const activities = JSON.parse(localStorage.getItem('ft_activities') || '[]');
-  const recent5 = activities.slice(0,5);
-  const tbody   = document.getElementById('recent-acts');
-  recent5.forEach(a => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${a.date}</td><td>${a.type}</td><td>${a.duration}</td><td>${a.distance||'-'}</td>`;
-    tbody.appendChild(tr);
+    updateDashboard();
+    modal.classList.remove('active');
   });
-  const avgDur = activities.length
-    ? Math.round(activities.reduce((sum,x)=>sum+Number(x.duration),0)/activities.length)
-    : 0;
-  const totDist = activities.reduce((sum,x)=>sum+ (parseFloat(x.distance)||0),0).toFixed(1);
-  const totCal  = activities.reduce((sum,x)=>sum+ (parseFloat(x.calories)||0),0);
-  document.getElementById('avg-dur').textContent = avgDur;
-  document.getElementById('tot-dist').textContent = totDist;
-  document.getElementById('tot-cal').textContent = totCal;
 
-  // ─── 8) Tip of the Day ─────────────────────────────────
-  const tips = [
-    "Stay hydrated—drink 250 ml of water before each session.",
-    "Warm up for 5 min to activate your muscles.",
-    "Focus on form; quality reps build strength safer.",
-    "Cool down & stretch for 3–5 min after every workout.",
-    "Try one fun activity (dance, sports) weekly to stay motivated."
-  ];
-  document.getElementById('tip-of-day').textContent = tips[Math.floor(Math.random()*tips.length)];
-
-  function runTour(steps) {
-  let idx=0;
-  const ov = document.getElementById('tour-overlay'),
-        tip= document.getElementById('tour-tooltip');
-  ov.style.display=tip.style.display='block';
-  function show() {
-    const {sel,msg} = steps[idx],
-          el = document.querySelector(sel),
-          r  = el.getBoundingClientRect();
-    tip.innerHTML = `<p>${msg}</p>
-                     <button class="next">${idx===steps.length-1?'Done':'Next'}</button>`;
-    tip.style.top = `${r.bottom+8}px`;
-    tip.style.left= `${r.left}px`;
-    tip.querySelector('.next').onclick=()=>{
-      idx++;
-      if (idx<steps.length) show();
-      else {
-        ov.style.display=tip.style.display='none';
-        const cur=JSON.parse(localStorage.getItem('ft_current'));
-        cur.isNew=false;
-        localStorage.setItem('ft_current',JSON.stringify(cur));
-      }
-    };
+  // ─── 6) Profile summary (avatar + name) ─────────────────────────
+  function updateProfileSummary(){
+    const prof     = JSON.parse(localStorage.getItem('ft_profile')||'{}'),
+          nameEl   = document.getElementById('dash-name'),
+          avatarEl = document.getElementById('dash-avatar');
+    nameEl.textContent = cur.name;
+    avatarEl.src = prof.avatar ||
+                   cur.avatarDataUrl ||
+                   `https://i.pravatar.cc/150?u=${cur.email}`;
   }
-  show();
-}
 
-if (cur.isNew) {
-  const tourSteps = [
-    { sel: '.stats',         msg: 'Here are your monthly stats and progress.' },
-    { sel: '.live-sessions', msg: 'Schedule or join live workouts here.' },
-    { sel: '.charts',        msg: 'Visualize your activity over time.' },
-    { sel: '.mini-board',    msg: 'See the top 5 on your leaderboard.' },
-  ];
-  runTour(tourSteps);
-}
-
-  // ─── 9) Live sessions grid ─────────────────────────────
-  const sessions = JSON.parse(localStorage.getItem('ft_liveSessions') || '[]');
-  const liveGrid = document.getElementById('liveSessionsGrid');
-  (sessions.length ? sessions : [
-    { img:'alice.jpg',title:'Sunrise Yoga',host:'Alice',time:'6 AM UTC' },
-    { img:'bob.jpg',  title:'HIIT Blast',  host:'Bob',  time:'7 PM UTC' },
-    { img:'cara.jpg', title:'Cardio Dance',host:'Cara', time:'5 PM UTC' }
-  ]).forEach(s => {
-    const d = document.createElement('div');
-    d.className = 'live-card';
-    d.innerHTML = `
-      <img src="${s.img}" alt="${s.title}">
-      <h3>${s.title}</h3>
-      <p>${s.host} • ${s.time}</p>
-    `;
-    liveGrid.appendChild(d);
-  });
-let sessions = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]');
-sessions.push({ id: randomId(), host: cur.name, start: new Date(startIso), title, img: cur.avatar });
-localStorage.setItem('ft_liveSessions', JSON.stringify(sessions));
-let mySched = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]');
-// push session.id
-localStorage.setItem('ft_mySchedules', JSON.stringify(mySched));
-
-  function updateLiveSessions(){
-  const grid = document.getElementById('liveSessionsGrid');
-  const sessions = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]');
-  const mySched = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]');
-  grid.innerHTML='';
-  sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
-          .forEach(s=>{
-    const start = new Date(s.start), now = new Date();
-    let btnText, cls;
-    if (start > now) {
-      btnText = mySched.includes(s.id) ? '✔️ Scheduled' : 'Schedule';
-      cls = 'schedule-btn';
-    } else {
-      btnText = 'Join Now'; cls = 'join-btn';
-    }
-    grid.insertAdjacentHTML('beforeend',`
-      <div class="live-card">
-        <img src="${s.img}" alt="">
-        <h3>${s.title}</h3>
-        <p>${s.host} • ${start.toLocaleString()}</p>
-        <button data-id="${s.id}" class="${cls}">${btnText}</button>
-      </div>`);
-  });
-}
-document.getElementById('liveSessionsGrid')
-  .addEventListener('click', e=>{
-    if (e.target.matches('.schedule-btn')) {
-      const id = e.target.dataset.id;
-      let sched = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]');
-      if (!sched.includes(id)) {
-        sched.push(id);
-        localStorage.setItem('ft_mySchedules', JSON.stringify(sched));
-        updateLiveSessions();
-        scheduleNotification(id);
-      }
-    }
-    if (e.target.matches('.join-btn')) {
-      const id = e.target.dataset.id;
-      window.location.href = `live.html?session=${id}`;
-    }
-  });
-
-// schedule a browser notification
-function scheduleNotification(id) {
-  if (Notification.permission!=='granted') 
-    Notification.requestPermission();
-  const sessions = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]');
-  const s = sessions.find(x=>x.id===id);
-  const delay = new Date(s.start) - Date.now() - (5*60*1000); // 5 min before
-  if (delay>0) setTimeout(()=>{
-    new Notification(`"${s.title}" starts in 5 minutes!`,{body:`Host: ${s.host}`});
-  }, delay);
-}
-window.addEventListener('storage',e=>{
-  if(e.key==='ft_liveSessions' || e.key==='ft_mySchedules')
-    updateLiveSessions();
-});
-function updateRecentActivities(){
-  const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-  const tbody = document.getElementById('recent-acts');
-  tbody.innerHTML = '';
-  acts.slice(0,5).forEach(a=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${a.date}</td><td>${a.type||'-'}</td>
-                    <td>${a.duration}</td><td>${a.distance||'-'}</td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-  // ─── 10) Top achievements ───────────────────────────────
-  const thresholds = [
-    { n:1,  icon:'fas fa-star',   text:'First Workout' },
-    { n:5,  icon:'fas fa-medal',  text:'5 Workouts' },
-    { n:10, icon:'fas fa-trophy', text:'10 Workouts' },
-    { n:30, icon:'fas fa-award',  text:'30 Workouts' }
-  ];
-  const yourAch = document.getElementById('yourAchievements');
-  thresholds.forEach(t => {
-    const el = document.createElement('div');
-    el.className = 'achievement-badge' + (activities.length>=t.n ? ' unlocked' : '');
-    el.innerHTML = `<i class="${t.icon}"></i><p>${t.text}</p>`;
-    yourAch.appendChild(el);
-  });
-
-  // ─── 11) Mini panels: challenges, leaderboard & feed ────
-  const panels = [
-    { key: 'ft_challenges',   container:'action-challenges',  format: c => c.text },
-    { key: 'ft_leaderboard',  container:'action-leaderboard', li:true,  format: u => `${u.name}: ${u.score}` },
-    { key: 'ft_feed',         container:'action-feed',       format: f => f }
-  ];
-  panels.forEach(p => {
-    const data = JSON.parse(localStorage.getItem(p.key) || '[]');
-    const cont = document.getElementById(p.container);
-    data.slice(0,5).forEach(item => {
-      if (p.li) {
-        const li = document.createElement('li');
-        li.textContent = p.format(item);
-        cont.appendChild(li);
-      } else {
-        const d = document.createElement('div');
-        d.textContent = p.format(item);
-        cont.appendChild(d);
-      }
+  // ─── 7) Stats panel ─────────────────────────────────────────────
+  function updateStats(){
+    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
+          now  = new Date(),
+          todayKey = now.toISOString().slice(0,10);
+    // monthly workouts
+    const thisMonth = acts.filter(a=>{
+      const d=new Date(a.date);
+      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
     });
-  });
-function updateStats() {
-  const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-  // recompute your totals…
-  const workoutsThisMonth = acts.filter(a=>{
-    const d=new Date(a.date), n=new Date();
-    return d.getMonth()===n.getMonth() && d.getFullYear()===n.getFullYear();
-  }).length;
-  document.getElementById('workoutsCount').textContent = workoutsThisMonth;
-  // …similarly for distanceCount, caloriesCount, activeDaysCount, todayTime, avgCalories
-}
-
-function updateCharts() {
-  const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-  const labels = [], data = [];
-  for(let d=6; d>=0; d--){
-    const day = new Date(); day.setDate(day.getDate()-d);
-    const key = day.toISOString().slice(0,10);
-    labels.push(day.toLocaleDateString(undefined,{weekday:'short'}));
-    data.push(acts.filter(a=>a.date===key).reduce((s,a)=>s+(+a.duration||0),0));
+    document.getElementById('workoutsCount').textContent = thisMonth.length;
+    // monthly distance & calories
+    const dist = thisMonth.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1)+' km';
+    const cal  = thisMonth.reduce((s,a)=>s+(+a.calories||0),0);
+    document.getElementById('distanceCount').textContent = dist;
+    document.getElementById('caloriesCount').textContent = cal;
+    // active days this month
+    const days = [...new Set(thisMonth.map(a=>a.date))].length;
+    document.getElementById('activeDaysCount').textContent = days;
+    // today’s time
+    const todayTotal = acts.filter(a=>a.date===todayKey)
+                           .reduce((s,a)=>s+(+a.duration||0),0);
+    document.getElementById('todayTime').textContent = todayTotal+' min';
+    // avg calories per workout
+    document.getElementById('avgCalories').textContent = thisMonth.length
+      ? Math.round(cal/thisMonth.length) : 0;
+    // progress bars
+    const weekCount = acts.filter(a=>{
+      const d=new Date(a.date);
+      return (now - d)/(1000*60*60*24) <= 7;
+    }).length;
+    document.getElementById('progressBar').style.width = Math.min(100,Math.round(weekCount/5*100))+'%';
+    document.getElementById('goalDaily').style.width    = Math.min(100,Math.round(todayTotal/30*100))+'%';
+    document.getElementById('goalWeekly').style.width   = Math.min(100,Math.round(weekCount/5*100))+'%';
+    document.getElementById('goalMonthly').style.width  = Math.min(100,Math.round(thisMonth.length/20*100))+'%';
   }
-  activityChart.data.labels = labels;
-  activityChart.data.datasets[0].data = data;
-  activityChart.update();
-}
-function updateMiniLeaderboard(){
-  const list = JSON.parse(localStorage.getItem('ft_leaderboard')||'[]')
-                   .sort((a,b)=>b.score-a.score)
-                   .slice(0,5);
-  const ol = document.getElementById('miniLeaderboard');
-  ol.innerHTML = '';
-  list.forEach(u=>{
-    const li=document.createElement('li');
-    li.textContent = `${u.name}: ${u.score}`;
-    ol.appendChild(li);
+
+  // ─── 8) Charts ────────────────────────────────────────────────
+  const activityCtx     = document.getElementById('activityChart').getContext('2d'),
+        distributionCtx = document.getElementById('distributionChart').getContext('2d');
+  const activityChart = new Chart(activityCtx, {
+    type:'line',
+    data:{ labels: [], datasets:[{
+      label:'Minutes', data:[], borderColor:'#ff9800',
+      backgroundColor:'rgba(255,152,0,0.2)', fill:true, tension:.3
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom' }} }
   });
-}
+  const distributionChart = new Chart(distributionCtx, {
+    type:'pie',
+    data:{ labels:['Cardio','Strength','Flexibility','Other'], datasets:[{
+      data:[], backgroundColor:[
+        'rgba(255,152,0,0.8)','rgba(255,87,34,0.8)',
+        'rgba(76,175,80,0.8)','rgba(3,169,244,0.8)'
+      ]
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom' }} }
+  });
+  function updateCharts(){
+    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
+          labels=[], data=[]; 
+    for(let d=6; d>=0; d--){
+      const day = new Date(); day.setDate(day.getDate()-d);
+      const key = day.toISOString().slice(0,10);
+      labels.push(day.toLocaleDateString(undefined,{ weekday:'short' }));
+      data.push(acts.filter(a=>a.date===key)
+                    .reduce((s,a)=>s+(+a.duration||0),0));
+    }
+    activityChart.data.labels          = labels;
+    activityChart.data.datasets[0].data= data;
+    activityChart.update();
 
- // ————————— STATS, PROGRESS, GOALS —————————
-      const stats = cur.stats || {};
-      document.getElementById('workoutsCount').textContent = stats.workouts || 0;
-      document.getElementById('distanceCount').textContent = (stats.distanceKm||0).toFixed(2) + ' km';
-      document.getElementById('caloriesCount').textContent = stats.calories || 0;
-      document.getElementById('activeDaysCount').textContent = (stats.daysSet||[]).length;
-      const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
-            today = new Date().toISOString().slice(0,10),
-            todayTotal = acts.filter(a => a.date===today).reduce((s,a)=>s+(+a.duration||0),0);
-      document.getElementById('todayTime').textContent = todayTotal + ' min';
-      document.getElementById('avgCalories').textContent = stats.workouts
-        ? Math.round((stats.calories||0)/stats.workouts) : 0;
-      const weekCount = acts.filter(a=>{
-        const d=new Date(a.date), n=new Date();
-        return (n-d)/(1000*60*60*24) <= 7;
-      }).length;
-      document.getElementById('progressBar').style.width =
-        Math.min(100,Math.round(weekCount/5*100))+'%';
-      document.getElementById('goalDaily').style.width =
-        Math.min(100,Math.round(todayTotal/30*100))+'%';
-      document.getElementById('goalWeekly').style.width =
-        Math.min(100,Math.round(weekCount/5*100))+'%';
-      document.getElementById('goalMonthly').style.width =
-        Math.min(100,Math.round((stats.workouts||0)/20*100))+'%';
+    // you can recalc distribution here if you store types
+    // distributionChart.data.datasets[0].data = [...]
+    // distributionChart.update();
+  }
 
-      // ————————— CHARTS —————————
-      const cd = cur.chartData||{labels:[],activity:[],distribution:[]};
-      new Chart(document.getElementById('activityChart'),{
-        type:'line',
-        data:{labels:cd.labels,datasets:[{
-          label:'Minutes',data:cd.activity,
-          borderColor:'#ff9800',
-          backgroundColor:'rgba(255,152,0,0.2)',
-          fill:true,tension:.3
-        }]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
-      });
-      new Chart(document.getElementById('distributionChart'),{
-        type:'pie',
-        data:{labels:['Cardio','Strength','Flexibility','Other'],
-              datasets:[{data:cd.distribution,
-                backgroundColor:[
-                  'rgba(255,152,0,0.8)',
-                  'rgba(255,87,34,0.8)',
-                  'rgba(76,175,80,0.8)',
-                  'rgba(3,169,244,0.8)'
-                ]
-              }]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
-      });
-// Challenges as pills
-chs.forEach(c => {
-  const d = document.createElement('div');
-  d.textContent = c.text;
-  d.classList.toggle('completed', !!c.done);
-  document.getElementById('action-challenges').appendChild(d);
-});
-// Leaderboard top 5
-lb.slice(0,5).forEach(u => {
-  const li = document.createElement('li');
-  li.textContent = `${u.name}: ${u.score}`;
-  document.getElementById('action-leaderboard').appendChild(li);
-});
-// Feed entries
-fd.slice(0,5).forEach(item => {
-  const d = document.createElement('div');
-  d.textContent = item;
-  document.getElementById('action-feed').appendChild(d);
-});
-// initial draw
-updateDashboard();
+  // ─── 9) Recent activities table ──────────────────────────────
+  function updateRecentActivities(){
+    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
+          tbody= document.getElementById('recent-acts');
+    tbody.innerHTML = '';
+    acts.slice(0,5).forEach(a => {
+      const tr = document.createElement('tr');
+      tr.innerHTML=`
+        <td>${a.date}</td>
+        <td>${a.type||'–'}</td>
+        <td>${a.duration}</td>
+        <td>${a.distance||'–'}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
 
-});
-  window.addEventListener('storage', e => {
-  if (e.key==='ft_activities') {
+  // ───10) Mini‑leaderboard (Top 5) ─────────────────────────────
+  function updateMiniLeaderboard(){
+    const list = JSON.parse(localStorage.getItem('ft_leaderboard')||'[]')
+                   .sort((a,b)=>b.score-a.score)
+                   .slice(0,5),
+          ol   = document.getElementById('miniLeaderboard');
+    ol.innerHTML = '';
+    list.forEach(u => {
+      const li = document.createElement('li');
+      li.textContent = `${u.name}: ${u.score}`;
+      ol.appendChild(li);
+    });
+  }
+
+  // ───11) Live sessions grid ──────────────────────────────────
+  function updateLiveSessions(){
+    const sessions   = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]'),
+          mySched    = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]'),
+          grid       = document.getElementById('liveSessionsGrid');
+    grid.innerHTML = '';
+    sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
+            .forEach(s => {
+      const start = new Date(s.start),
+            now   = new Date(),
+            isFuture = start > now,
+            btnText = isFuture
+              ? (mySched.includes(s.id) ? '✔ Scheduled' : 'Schedule')
+              : 'Join Now',
+            btnClass= isFuture ? 'schedule-btn' : 'join-btn';
+      grid.insertAdjacentHTML('beforeend',`
+        <div class="live-card">
+          <img src="${s.img}" alt="">
+          <h3>${s.title}</h3>
+          <p>${s.host} • ${start.toLocaleString()}</p>
+          <button data-id="${s.id}" class="${btnClass}">${btnText}</button>
+        </div>`);
+    });
+  }
+
+  // Handle schedule/join clicks
+  document.getElementById('liveSessionsGrid').addEventListener('click', e => {
+    const btn = e.target;
+    if (btn.classList.contains('schedule-btn')) {
+      const id = btn.dataset.id;
+      let sched = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]');
+      if (!sched.includes(id)) { sched.push(id); localStorage.setItem('ft_mySchedules', JSON.stringify(sched)); }
+      updateLiveSessions();
+      // schedule browser notification 5 min before
+      const sess = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]')
+                     .find(x=>x.id===id);
+      const delay = new Date(sess.start) - Date.now() - 5*60*1000;
+      if (Notification.permission==='granted' && delay>0) {
+        setTimeout(()=>{
+          new Notification(`"${sess.title}" starts in 5 min`, { body: `Host: ${sess.host}` });
+        }, delay);
+      }
+    }
+    if (btn.classList.contains('join-btn')) {
+      const id = btn.dataset.id;
+      location.href = `live.html?session=${id}`;
+    }
+  });
+
+  // ───12) New‑user tour ─────────────────────────────────────────
+  function runTour(steps) {
+    let idx = 0;
+    const ov = document.getElementById('tour-overlay'),
+          tt = document.getElementById('tour-tooltip');
+    ov.style.display = tt.style.display = 'block';
+    function showStep() {
+      const { sel, msg } = steps[idx],
+            el = document.querySelector(sel),
+            r  = el.getBoundingClientRect();
+      tt.innerHTML = `
+        <p>${msg}</p>
+        <button class="tour-next">${idx===steps.length-1 ? 'Done' : 'Next'}</button>`;
+      tt.style.top  = `${r.bottom + 8}px`;
+      tt.style.left = `${r.left}px`;
+      tt.querySelector('.tour-next').onclick = () => {
+        idx++;
+        if (idx < steps.length) showStep();
+        else {
+          ov.style.display = tt.style.display = 'none';
+        }
+      };
+    }
+    showStep();
+  }
+  if (cur.isNew) {
+    runTour([
+      { sel: '.stats',         msg: 'Your monthly stats live here.' },
+      { sel: '.live-sessions', msg: 'Schedule or join live workouts.' },
+      { sel: '.charts',        msg: 'Visualize your weekly activity.' },
+      { sel: '.mini-board',    msg: 'Check your top‑5 leaderboard.' }
+    ]);
+  }
+
+  // ───13) One‐stop update & storage listener ────────────────────
+  function updateDashboard() {
+    updateProfileSummary();
     updateStats();
     updateCharts();
     updateRecentActivities();
+    updateMiniLeaderboard();
+    updateLiveSessions();
   }
-});
+  updateDashboard();
 
+  window.addEventListener('storage', e => {
+    // whenever any relevant key changes, re‑draw
+    if (['ft_activities','ft_profile','ft_leaderboard','ft_liveSessions','ft_mySchedules'].includes(e.key)) {
+      updateDashboard();
+    }
+  });
+});
 </script>
 
 
