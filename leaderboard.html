@@ -23,33 +23,29 @@
     --font-head: 'Poppins', sans-serif;
     --transition: .3s ease;
     --sidebar-w: 80px;
+    --mobile-sidebar-w: 200px;
     --overlay-z: 90;
     --sidebar-z: 100;
     --header-z: 200;
-      --mobile-sidebar-w: 200px;
-      --break-mobile: 900px;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   body {
     display:flex; min-height:100vh;
     background:var(--bg); color:var(--white);
-    font-family:var(--font-base); overflow-x:hidden;  overflow-y: auto; 
+    font-family:var(--font-base);
+    overflow-x:hidden; /* no body scroll */
   }
   a { color:inherit; text-decoration:none; }
-  button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
- /* in your CSS… */
- body {
--   overflow-x:hidden; overflow-y: auto;
-+   overflow-x: hidden;
-    /* no overflow-y here */
- }
- .container {
-    flex:1;
-    overflow-y: auto;     /* the one and only vertical scrollbar */
-    overflow-x: hidden;
- }
+  button { font-family:var(--font-head); border:none; background:none; cursor:pointer; transition:var(--transition); }
 
-  /* overlay */
+  /* only this scrolls */
+  .container {
+    flex:1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Overlay */
   #overlay {
     position:fixed; inset:0; background:rgba(0,0,0,0.5);
     opacity:0; visibility:hidden; transition:opacity var(--transition);
@@ -57,58 +53,59 @@
   }
   #overlay.active { opacity:1; visibility:visible; }
 
-/* ─── SIDEBAR ───────────────── */
-    .sidebar {
-      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
-      border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
-      transform: translateX(0);
-      transition:transform var(--transition);
-      z-index:var(--sidebar-z);
-    }
-    .sidebar.open { transform:translateX(0); }
-    .sidebar-close {
-      display:none; font-size:1.5rem;
-      position:absolute; top:1rem; right:1rem;
-      background:transparent; border:none; color:var(--white);
-    }
-    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-    .sidebar a.menu-item,
-    .sidebar button.profile-menu {
-      width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      color:var(--white);
-      transition:background var(--transition);
-    }
-    .sidebar a.menu-item:hover,
-    .sidebar a.menu-item.active,
-    .sidebar button.profile-menu:hover {
-      background:rgba(255,152,0,0.2);
-    }
-    .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.2rem; }
-    .sidebar a.menu-item span,
-    .sidebar button.profile-menu span { font-size:.75rem; }
-    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
+  /* Sidebar */
+  .sidebar {
+    width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+    border-right:2px solid var(--gold);
+    display:flex; flex-direction:column; align-items:center;
+    padding-top:1rem; position:sticky; top:0; height:100vh;
+    z-index:var(--sidebar-z);
+  }
+  .sidebar-close {
+    display:none; position:absolute; top:0.5rem; right:0.5rem;
+    font-size:1.5rem; color:var(--white); background:none;
+  }
+  .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
+  .sidebar a.menu-item,
+  .sidebar button.profile-menu {
+    width:100%; padding:.8rem 0;
+    display:flex; flex-direction:column; align-items:center; gap:.3rem;
+    color:var(--white); background:none;
+    transition:background var(--transition);
+  }
+  .sidebar a.menu-item:hover,
+  .sidebar a.menu-item.active,
+  .sidebar button.profile-menu:hover {
+    background:var(--accent);
+  }
+  .sidebar a.menu-item i,
+  .sidebar button.profile-menu i {
+    font-size:1.2rem;
+  }
+  .sidebar button.profile-menu i {
+    color:var(--gold);
+    padding:4px;
+    border:1px solid var(--gold);
+    border-radius:50%;
+  }
+  .sidebar a.menu-item span,
+  .sidebar button.profile-menu span { font-size:.75rem; }
+  .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
 
-
-  /* header */
+  /* Header */
   header {
     display:flex; align-items:center; justify-content:space-between;
     padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
     border-bottom:2px solid var(--gold);
     position:sticky; top:0; width:100%; z-index:var(--header-z);
   }
-  .hamburger, .avatar-btn { display:none; }
   .logo-header {
     flex:1; text-align:center;
     font-family:var(--font-head); font-size:1.4rem;
     color:var(--gold);
   }
-  .search {
-    flex:2; max-width:300px;
-  }
+  .hamburger, .avatar-btn { display:none; }
+  .search { flex:2; max-width:300px; }
   .search input {
     width:100%; padding:.4rem .6rem;
     background:var(--accent); border:1px solid var(--accent);
@@ -131,16 +128,7 @@
   }
   .avatar-btn img { width:100%; height:100%; object-fit:cover; }
 
-  /* main area */
- .main {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  /* no width */
-  overflow:hidden;             /* prevent x-scroll */
-}
-
-
+  /* Hall of Fame */
   .hall-of-fame {
     display:flex; justify-content:center; gap:1rem;
     padding:.75rem; background:rgba(0,0,0,0.85);
@@ -152,11 +140,12 @@
     width:60px; height:60px; border-radius:50%; object-fit:cover;
     border:2px solid var(--gold);
   }
+  .hall-card i {
+    font-size:60px; color:var(--white);
+  }
   .hall-card span { display:block; margin-top:.25rem; font-size:.75rem; }
 
-  .container { flex:1; overflow-y:auto; padding-bottom:1rem; }
-
-  /* leaderboard */
+  /* Leaderboard */
   .leaderboard {
     margin:1rem; background:var(--accent); border-radius:8px;
     box-shadow:0 4px 12px rgba(0,0,0,0.6); overflow-x:auto;
@@ -174,14 +163,10 @@
   tbody tr:hover { background:var(--accent); }
   tbody tr.me { background:rgba(255,152,0,0.2); }
   .rank { width:3rem; color:var(--gold); font-weight:700; }
-  .user-cell {
-    display:flex; align-items:center; gap:.5rem;
-  }
-  .user-cell img {
-    width:24px; height:24px; border-radius:50%;
-  }
+  .user-cell { display:flex; align-items:center; gap:.5rem; }
+  .user-cell img { width:24px; height:24px; border-radius:50%; }
 
-  /* reusable section style */
+  /* Sections */
   .section {
     margin:1rem; padding:1rem;
     background:var(--accent); border-radius:8px;
@@ -189,7 +174,7 @@
   }
   .section h2 { color:var(--gold); margin-bottom:.75rem; font-size:1.2rem; }
 
-  /* live sessions */
+  /* Live */
   .live-grid {
     display:grid; gap:1rem;
     grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
@@ -209,12 +194,10 @@
     width:100%; max-width:320px; margin-top:1rem; border-radius:8px; background:#111;
   }
 
-  /* chart */
-  .chart-container {
-    position:relative; margin:1rem; height:200px;
-  }
+  /* Chart */
+  .chart-container { position:relative; margin:1rem; height:200px; }
 
-  /* monthly champion */
+  /* Champion */
   .champion {
     margin:1rem; padding:1rem; display:flex; align-items:center; gap:1rem;
     background:var(--accent); border-radius:8px;
@@ -226,46 +209,23 @@
   }
   .champion div { font-size:.9rem; }
 
-  /* responsive */
+  /* Mobile */
   @media (max-width:600px) {
-      .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--mobile-sidebar-w);
-        transform:translateX(-100%); }
-      .sidebar.open { transform:translateX(0); }
-      .sidebar-close { display:block; }
+    .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--mobile-sidebar-w);
+      transform:translateX(-100%);
+    }
+    .sidebar.open { transform:translateX(0); }
+    .sidebar-close { display:block; }
 
-      header { padding:0.75rem 1rem; }
-     header h1 { margin: 0 auto; font-size: 1.2rem; }
-  .hamburger,
-  .avatar-btn {
-    display: block;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  .hamburger { left: 1.2rem; }
-  .avatar-btn { right: 1.2rem; }
+    header { padding:.75rem 1rem; }
+    .logo-header { font-size:1.2rem; }
+    .search, .controls select, #notifBtn { display:none;}
+    .hamburger, .avatar-btn { display:block; }
+    .search { width:50%; }
 
-    .logo-header { font-size: 1.2rem; }
-    .search { width:50%; max-width:none; }
-    #timeframe, #notifBtn { display: none; }
     .hall-of-fame, .leaderboard, .section { margin:.5rem; }
     table { font-size:.85rem; }
   }
-    /* account for the iPhone “home bar” and notch */
-body {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* larger touch targets / fonts on small screens */
-@media (max-width: 414px) {
-  header, .section, .leaderboard {
-    padding: 0.75rem 1rem;
-  }
-  .search input { font-size: 1rem; padding: 0.5rem; }
-  table th, table td { padding: 0.6rem 0.8rem; font-size: 0.9rem; }
-  .controls select, .controls button { padding: 0.5rem; }
-}
-
   </style>
 </head>
 <body>
@@ -274,12 +234,12 @@ body {
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
+    <button id="sidebar-close" class="sidebar-close">&times;</button>
     <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
-    <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="log.html" class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html" class="menu-item"><i class="fas fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="menu-item profile-menu"><i id="sideAvatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
+    <button class="menu-item profile-menu"><i id="sideAvatar" class="fas fa-user-circle"></i><span>Profile</span></button>
     <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a>
   </aside>
 
@@ -289,36 +249,25 @@ body {
     <header>
       <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
       <div class="logo-header"><i class="fas fa-trophy"></i> Leaderboard</div>
-      <div class="search">
-        <input id="searchInput" type="text" placeholder="Search user…">
-      </div>
+      <div class="search"><input id="searchInput" type="text" placeholder="Search user…"></div>
       <div class="controls">
         <select id="timeframe">
           <option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option>
         </select>
         <button id="notifBtn"><i class="fas fa-bell"></i></button>
-        <button class="avatar-btn" id="hdrAvatarBtn">
-  <i id="hdrAvatarIcon" class="fas fa-user-circle"></i>
-</button>
+        <button class="avatar-btn" id="hdrAvatarBtn"><i id="hdrAvatarIcon" class="fas fa-user-circle"></i></button>
       </div>
     </header>
 
-    
-
     <div class="container">
       <!-- Hall of Fame -->
-    <div class="hall-of-fame" id="hallOfFame"></div>
-      <!-- Leaderboard Table -->
+      <div class="hall-of-fame" id="hallOfFame"></div>
+
+      <!-- Leaderboard -->
       <div class="leaderboard">
         <table>
           <thead>
-            <tr>
-              <th class="rank">#</th>
-              <th>User</th>
-              <th>Workouts</th>
-              <th>Km</th>
-              <th>Score</th>
-            </tr>
+            <tr><th class="rank">#</th><th>User</th><th>Workouts</th><th>Km</th><th>Score</th></tr>
           </thead>
           <tbody id="leaderboardBody"></tbody>
         </table>
@@ -351,207 +300,143 @@ body {
     </div>
   </div>
 
- <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // ─── Sidebar toggle ─────────────────
-  const overlay  = document.getElementById('overlay'),
-        sidebar  = document.getElementById('sidebar'),
-        openBtn  = document.getElementById('hamburger'),
-        closeBtn = document.getElementById('sidebar-close');
-  openBtn.onclick   = () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); };
-  closeBtn.onclick  =
-  overlay.onclick   = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Sidebar toggle
+    const overlay = document.getElementById('overlay'),
+          sidebar = document.getElementById('sidebar'),
+          openBtn = document.getElementById('hamburger'),
+          closeBtn= document.getElementById('sidebar-close');
+    openBtn.onclick  = () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); };
+    closeBtn.onclick = overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
 
-  // ─── Auth & Avatars ─────────────────
-  const curJSON = localStorage.getItem('ft_current');
-  if (!curJSON) return location.href = 'home.html';
-  const cur = JSON.parse(curJSON);
-  if (!cur.name) return location.href = 'home.html';
+    // Auth & avatar swap
+    const curJSON = localStorage.getItem('ft_current');
+    if (!curJSON) return location.href='home.html';
+    const cur = JSON.parse(curJSON);
+    if (!cur.name) return location.href='home.html';
+    const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}'),
+          sideIcon = document.getElementById('sideAvatar'),
+          hdrIcon  = document.getElementById('hdrAvatarIcon');
+    if (prof.avatar) {
+      sideIcon.outerHTML = `<img id="sideAvatar" src="${prof.avatar}" style="width:32px;height:32px;border-radius:50%">`;
+      hdrIcon.outerHTML  = `<img id="hdrAvatarIcon" src="${prof.avatar}" style="width:36px;height:36px;border-radius:50%">`;
+    }
 
-  // If user uploaded an avatar, swap the icons
-  const prof       = JSON.parse(localStorage.getItem('ft_profile')||'{}'),
-        sideIcon   = document.getElementById('sideAvatar'),
-        hdrIcon    = document.getElementById('hdrAvatarIcon');
-  if (prof.avatar) {
-    sideIcon.outerHTML = `
-      <img id="sideAvatar"
-           src="${prof.avatar}"
-           class="avatar"
-           style="width:32px;height:32px;border-radius:50%">
-    `;
-    hdrIcon.outerHTML  = `
-      <img id="hdrAvatarIcon"
-           src="${prof.avatar}"
-           class="avatar-btn"
-           style="width:36px;height:36px;border-radius:50%">
-    `;
-  }
-  // else: leave the <i class="fas fa-user-circle"> in place
+    // Helpers
+    const load = k=>JSON.parse(localStorage.getItem(k)||'[]'),
+          save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
-  // ─── Helpers ───────────────────────
-  const load = key => JSON.parse(localStorage.getItem(key) || '[]'),
-        save = (key, v) => localStorage.setItem(key, JSON.stringify(v));
+    // Build leaderboard data
+    const pseudo = [
+      {name:'Alice',workouts:25,distance:120,avatar:'alice.jpg'},
+      {name:'Bob',  workouts:20,distance:95, avatar:'bob.jpg'},
+      {name:'Cara', workouts:18,distance:80, avatar:'cara.jpg'},
+      {name:'Dana', workouts:15,distance:70, avatar:'https://i.pravatar.cc/150?u=dana'},
+      {name:'Evan', workouts:12,distance:55, avatar:'https://i.pravatar.cc/150?u=evan'}
+    ];
+    const stats = cur.stats||{workouts:0,distanceKm:0},
+          me = { name:cur.name, workouts:stats.workouts, distance:stats.distanceKm, avatar:prof.avatar||null },
+          scoreOf = u=>u.workouts*10+Math.round(u.distance*5);
+    const all = [...pseudo,me].map(u=>({...u,score:scoreOf(u)})).sort((a,b)=>b.score-a.score);
 
-  // ─── Build user list (pseudo + you) ─
-  const pseudo = [
-    {name:'Alice',workouts:25,distance:120,avatar:'alice.jpg'},
-    {name:'Bob',  workouts:20,distance:95, avatar:'bob.jpg'},
-    {name:'Cara', workouts:18,distance:80, avatar:'cara.jpg'},
-    {name:'Dana', workouts:15,distance:70, avatar:'https://i.pravatar.cc/150?u=dana'},
-    {name:'Evan', workouts:12,distance:55, avatar:'https://i.pravatar.cc/150?u=evan'}
-  ];
-  const stats = cur.stats||{workouts:0,distanceKm:0},
-        me = {
-          name:     cur.name,
-          workouts: stats.workouts||0,
-          distance: parseFloat((stats.distanceKm||0).toFixed(1)),
-          avatar:   prof.avatar||null
-        },
-        scoreOf = u => u.workouts*10 + Math.round(u.distance*5);
-
-  const all = [...pseudo, me]
-    .map(u => ({ ...u, score: scoreOf(u) }))
-    .sort((a,b) => b.score - a.score);
-
-  // ─── Hall of Fame ───────────────────
-  const hof = document.getElementById('hallOfFame');
-  all.slice(0,3).forEach((u,i) => {
-    const div = document.createElement('div');
-    div.className = 'hall-card';
-    div.innerHTML = `
-      ${u.avatar
+    // Hall of Fame
+    const hof = document.getElementById('hallOfFame');
+    all.slice(0,3).forEach((u,i)=>{
+      const div=document.createElement('div'); div.className='hall-card';
+      div.innerHTML = u.avatar
         ? `<img src="${u.avatar}" alt="${u.name}">`
-        : `<i class="fas fa-user-circle" style="font-size:60px;color:var(--white);"></i>`
-      }
-      <span>#${i+1} ${u.name}</span>`;
-    hof.appendChild(div);
-  });
-
-  // ─── Leaderboard Table ─────────────
-  const lbBody = document.getElementById('leaderboardBody');
-  all.forEach((u,i) => {
-    const tr = document.createElement('tr');
-    if (u.name === me.name) tr.classList.add('me');
-    tr.innerHTML = `
-      <td class="rank">${i+1}</td>
-      <td class="user-cell">
-        ${u.avatar
-          ? `<img src="${u.avatar}" width="24" height="24" style="border-radius:50%;">`
-          : `<i class="fas fa-user-circle" style="font-size:24px;color:var(--white);"></i>`
-        }
-        <span>${u.name}</span>
-      </td>
-      <td>${u.workouts}</td>
-      <td>${u.distance}</td>
-      <td>${u.score}</td>`;
-    lbBody.appendChild(tr);
-  });
-
-  // ─── Search Filter ──────────────────
-  document.getElementById('searchInput').addEventListener('input', e => {
-    const q = e.target.value.toLowerCase();
-    document.querySelectorAll('#leaderboardBody tr').forEach(row => {
-      const name = row.querySelector('td:nth-child(2) span').textContent.toLowerCase();
-      row.style.display = name.includes(q) ? '' : 'none';
+        : `<i class="fas fa-user-circle"></i>`;
+      div.innerHTML += `<span>#${i+1} ${u.name}</span>`;
+      hof.appendChild(div);
     });
-  });
 
-  // ─── Live Sessions ──────────────────
-  let live = load('ft_liveWorkouts'),
-      past = load('ft_pastStreams');
-  const liveGrid = document.getElementById('liveNowGrid'),
-        pastDiv  = document.getElementById('pastStreams'),
-        btn      = document.getElementById('toggleLiveBtn'),
-        vid      = document.getElementById('liveVideo');
+    // Leaderboard table
+    const lbBody=document.getElementById('leaderboardBody');
+    all.forEach((u,i)=>{
+      const tr=document.createElement('tr');
+      if(u.name===me.name) tr.classList.add('me');
+      tr.innerHTML=`
+        <td class="rank">${i+1}</td>
+        <td class="user-cell">
+          ${u.avatar
+            ? `<img src="${u.avatar}" width="24" height="24" style="border-radius:50%;">`
+            : `<i class="fas fa-user-circle"></i>`
+          }
+          <span>${u.name}</span>
+        </td>
+        <td>${u.workouts}</td>
+        <td>${u.distance}</td>
+        <td>${u.score}</td>`;
+      lbBody.appendChild(tr);
+    });
 
-  function renderLive() {
-    liveGrid.innerHTML = live.length
-      ? live.map(u => `
-          <div class="live-card">
-            <img src="${u.avatar||''}" alt="">
-            <div>${u.name}</div>
-            <div style="opacity:.8">${u.type} • ${u.start}</div>
-          </div>`).join('')
-      : `<p style="opacity:.7;">No active streams.</p>`;
-
-    pastDiv.innerHTML = past.length
-      ? past.map(s => `
-          <p style="opacity:.8;font-size:.85rem;">
-            ${s.name} • ${s.type} • ${s.start}–${s.end}
-          </p>`).join('')
-      : `<p style="opacity:.7;font-size:.85rem;">No past streams.</p>`;
-
-    const idx = live.findIndex(u => u.email === cur.email);
-    btn.textContent = idx >= 0 ? 'End Live' : 'Go Live';
-    vid.hidden      = idx < 0;
-    if (idx >= 0) startCam(); else stopCam();
-  }
-  async function startCam() {
-    if (!navigator.mediaDevices) return;
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video:true });
-      vid.srcObject = stream;
-    } catch {}
-  }
-  function stopCam() {
-    if (vid.srcObject) vid.srcObject.getTracks().forEach(t => t.stop());
-    vid.srcObject = null;
-  }
-  btn.onclick = () => {
-    const i = live.findIndex(u => u.email === cur.email);
-    if (i >= 0) {
-      past.unshift({ ...live[i], end: new Date().toLocaleTimeString() });
-      live.splice(i,1);
-      save('ft_pastStreams', past);
-    } else {
-      live.unshift({
-        email: cur.email, name: cur.name,
-        avatar: prof.avatar||null,
-        type: 'Mixed',
-        start: new Date().toLocaleTimeString()
+    // Search filter
+    document.getElementById('searchInput').addEventListener('input',e=>{
+      const q=e.target.value.toLowerCase();
+      document.querySelectorAll('#leaderboardBody tr').forEach(r=>{
+        const name=r.querySelector('td:nth-child(2) span').textContent.toLowerCase();
+        r.style.display=name.includes(q)?'':'none';
       });
+    });
+
+    // Live sessions
+    let live=load('ft_liveWorkouts'), past=load('ft_pastStreams');
+    const liveGrid=document.getElementById('liveNowGrid'),
+          pastDiv =document.getElementById('pastStreams'),
+          btn     =document.getElementById('toggleLiveBtn'),
+          vid     =document.getElementById('liveVideo');
+    function renderLive(){
+      liveGrid.innerHTML = live.length
+        ? live.map(u=>`
+            <div class="live-card">
+              <img src="${u.avatar||''}"><div>${u.name}</div>
+              <div style="opacity:.8">${u.type} • ${u.start}</div>
+            </div>`).join('')
+        : `<p style="opacity:.7">No active streams.</p>`;
+      pastDiv.innerHTML = past.length
+        ? past.map(s=>`<p style="opacity:.8;font-size:.85rem">${s.name} • ${s.type} • ${s.start}–${s.end}</p>`).join('')
+        : `<p style="opacity:.7;font-size:.85rem">No past streams.</p>`;
+      const idx=live.findIndex(u=>u.email===cur.email);
+      btn.textContent= idx>=0?'End Live':'Go Live';
+      vid.hidden = idx<0;
+      if(idx>=0) startCam(); else stopCam();
     }
-    save('ft_liveWorkouts', live);
+    async function startCam(){
+      if(!navigator.mediaDevices) return;
+      try{const s=await navigator.mediaDevices.getUserMedia({video:true});vid.srcObject=s;}catch{}
+    }
+    function stopCam(){ if(vid.srcObject) vid.srcObject.getTracks().forEach(t=>t.stop()); vid.srcObject=null; }
+    btn.onclick=()=>{
+      const i=live.findIndex(u=>u.email===cur.email);
+      if(i>=0){ past.unshift({...live[i],end:new Date().toLocaleTimeString()}); live.splice(i,1); save('ft_pastStreams',past); }
+      else live.unshift({email:cur.email,name:cur.name,avatar:prof.avatar||null,type:'Mixed',start:new Date().toLocaleTimeString()});
+      save('ft_liveWorkouts',live); renderLive();
+    };
     renderLive();
-  };
-  renderLive();
 
-  // ─── Trends Chart ───────────────────
-  const ctx   = document.getElementById('trendChart').getContext('2d'),
-        acts  = load('ft_activities'),
-        labels= [], data = [];
-  for (let d=6; d>=0; d--) {
-    const day = new Date(); day.setDate(day.getDate()-d);
-    const key = day.toISOString().slice(0,10);
-    labels.push(day.toLocaleDateString(undefined,{weekday:'short'}));
-    data.push(
-      acts.filter(a=>a.date===key)
-          .reduce((sum,a)=>sum+(+a.duration||0),0)
-    );
-  }
- const gold = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim();
-const barColors = data.map(() => gold);
-
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels,
-    datasets: [{ label: 'Minutes', data, backgroundColor: barColors }] },
-    options: {
-      plugins:{ legend:{ display:false }},
-      scales:{
-        y:{ beginAtZero:true, title:{ display:true, text:'Minutes' }},
-        x:{ title:{ display:true, text:'Day' }}
-      }
+    // Trends chart
+    const ctx=document.getElementById('trendChart').getContext('2d'),
+          acts=load('ft_activities'), labels=[], data=[];
+    for(let d=6;d>=0;d--){
+      const day=new Date(); day.setDate(day.getDate()-d);
+      const key=day.toISOString().slice(0,10);
+      labels.push(day.toLocaleDateString(undefined,{weekday:'short'}));
+      data.push(acts.filter(a=>a.date===key).reduce((s,a)=>s+(+a.duration||0),0));
     }
+    const gold=getComputedStyle(document.documentElement).getPropertyValue('--gold').trim(),
+          colors=data.map(()=>gold);
+    new Chart(ctx,{
+      type:'bar',
+      data:{labels,datasets:[{label:'Minutes',data,backgroundColor:colors}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,title:{display:true,text:'Minutes'}},x:{title:{display:true,text:'Day'}}}}
+    });
+
+    // Monthly champion
+    const champ=all[0];
+    document.getElementById('champAvatar').src=champ.avatar||'';
+    document.getElementById('champName').textContent=champ.name;
   });
-
-  // ─── Monthly Champion ──────────────
-  const champ = all[0];
-  document.getElementById('champAvatar').src      = champ.avatar||'';
-  document.getElementById('champName').textContent = champ.name;
-});
-</script>
-
+  </script>
 </body>
 </html>
