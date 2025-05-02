@@ -379,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ─── Helpers ───────────────────────
   const load = key => JSON.parse(localStorage.getItem(key) || '[]'),
         save = (key, v) => localStorage.setItem(key, JSON.stringify(v));
+localStorage.setItem('ft_leaderboard', JSON.stringify(board));
 
   // ─── Build user list (pseudo + you) ─
   const pseudo = [
