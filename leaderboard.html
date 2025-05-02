@@ -26,6 +26,8 @@
     --overlay-z: 90;
     --sidebar-z: 100;
     --header-z: 200;
+      --mobile-sidebar-w: 200px;
+      --break-mobile: 900px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -44,28 +46,41 @@
   }
   #overlay.active { opacity:1; visibility:visible; }
 
-  /* sidebar */
-  .sidebar {
-    width:var(--sidebar-w); background:rgba(0,0,0,0.9);
-    border-right:2px solid var(--gold);
-    display:flex; flex-direction:column; align-items:center;
-    padding-top:1rem; position:sticky; top:0; height:100vh;
-    z-index:var(--sidebar-z);
-  }
-  .sidebar a, .sidebar button.profile-menu {
-    width:100%; padding:.8rem 0;
-    display:flex; flex-direction:column; align-items:center; gap:.3rem;
-    color:var(--white); background:transparent; border:none;
-    transition:background var(--transition);
-  }
-  .sidebar a:hover, .sidebar a.active,
-  .sidebar button.profile-menu:hover {
-    background:var(--accent);
-  }
-  .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-  .sidebar i { font-size:1.2rem; }
-  .sidebar span { font-size:.75rem; }
-  .sidebar .sign-out { margin-top:auto; margin-bottom:1rem; }
+/* ─── SIDEBAR ───────────────── */
+    .sidebar {
+      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding-top:1rem; position:sticky; top:0; height:100vh;
+      transform: translateX(0);
+      transition:transform var(--transition);
+      z-index:var(--sidebar-z);
+    }
+    .sidebar.open { transform:translateX(0); }
+    .sidebar-close {
+      display:none; font-size:1.5rem;
+      position:absolute; top:1rem; right:1rem;
+      background:transparent; border:none; color:var(--white);
+    }
+    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
+    .sidebar a.menu-item,
+    .sidebar button.profile-menu {
+      width:100%; padding:.8rem 0;
+      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      color:var(--white);
+      transition:background var(--transition);
+    }
+    .sidebar a.menu-item:hover,
+    .sidebar a.menu-item.active,
+    .sidebar button.profile-menu:hover {
+      background:rgba(255,152,0,0.2);
+    }
+    .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar { font-size:1.2rem; }
+    .sidebar a.menu-item span,
+    .sidebar button.profile-menu span { font-size:.75rem; }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
+
 
   /* header */
   header {
@@ -74,7 +89,7 @@
     border-bottom:2px solid var(--gold);
     position:sticky; top:0; width:100%; z-index:var(--header-z);
   }
-  .hamburger, .profile-btn { display:none; }
+  .hamburger, .avatar-btn { display:none; }
   .logo-header {
     flex:1; text-align:center;
     font-family:var(--font-head); font-size:1.4rem;
@@ -202,13 +217,26 @@
 
   /* responsive */
   @media (max-width:600px) {
-    .sidebar { position:fixed; top:0; bottom:0; left:0; transform:translateX(-100%); }
-    .sidebar.open { transform:translateX(0); }
-    header { padding:.75rem 1rem; flex-wrap:wrap; }
-    .hamburger { display:block; position:absolute; top:50%; left:1rem; transform:translateY(-50%); }
-    .profile-btn { display:block; position:absolute; top:50%; right:1rem; transform:translateY(-50%); }
-    .logo-header { font-size:1.2rem; }
+      .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--mobile-sidebar-w);
+        transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+      .sidebar-close { display:block; }
+
+      header { padding:0.75rem 1rem; }
+     header h1 { margin: 0 auto; font-size: 1.2rem; }
+  .hamburger,
+  .avatar-btn {
+    display: block;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .hamburger { left: 1.2rem; }
+  .avatar-btn { right: 1.2rem; }
+
+    .logo-header { font-size: 1.2rem; }
     .search { width:100%; max-width:none; }
+    #timeframe, #notifBtn { display: none; }
     .hall-of-fame, .leaderboard, .section { margin:.5rem; }
     table { font-size:.85rem; }
   }
