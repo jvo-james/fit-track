@@ -382,6 +382,8 @@
       alert('Profile saved!');
       init();
     });
+Storage.set('ft_profile', { name: profName, avatar: avatarDataUrl });
+localStorage.setItem('ft_profile', JSON.stringify({ name: profName, avatar: avatarDataUrl }));
 
     // logout
     fld.logout.addEventListener('click', ()=> location.href='home.html');
