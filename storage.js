@@ -193,3 +193,4 @@ FT.updateSidebarAvatar = function() {
 document.addEventListener('DOMContentLoaded', () => {
   FT.updateSidebarAvatar();
 });
+export const Storage = { get, set, onChange };
