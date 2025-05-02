@@ -526,6 +526,13 @@ localStorage.setItem('ft_leaderboard', JSON.stringify(board));
   const champ = all[0];
   document.getElementById('champAvatar').src      = champ.avatar||'';
   document.getElementById('champName').textContent = champ.name;
+
+  // Example in log.html when you push a new activity:
+const all = Storage.get('ft_activities', []);
+all.unshift(newAct);
+Storage.set('ft_activities', all);
+// No need to reload—other pages will hear the storage event.
+
 });
 </script>
 
