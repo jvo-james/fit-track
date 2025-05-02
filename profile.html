@@ -1,525 +1,393 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Profile</title>
 
- <!-- Google Fonts & FontAwesome -->
+  <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
-    :root {
-      --bg: #0d0d0d;
-      --fg: #fff;
-      --card-bg: rgba(255,255,255,0.05);
-      --input-bg: rgba(255,255,255,0.1);
-      --gold: #ff9800;
-      --font: 'Poppins', sans-serif;
-      --font-alt: 'Raleway', sans-serif;
-      --white: #fff;
-      --font-base: 'Raleway', sans-serif;
-      --font-head: 'Poppins', sans-serif;
-      --transition: .3s ease;
-      --sidebar-w: 80px;
-      --mobile-sidebar-w: 200px;
-      --break-mobile: 900px;
-      --overlay-z: 90;
-      --sidebar-z: 100;
-      --header-z: 200;
-    }
-    body.light-theme {
-      --bg: #fafafa; --fg: #111; --card-bg: rgba(0,0,0,0.05); --input-bg: #fff;
-    }
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      display:flex; min-height:100vh; background:var(--bg); color:var(--fg);
-      font-family:var(--font); overflow-y:auto;
-    }
-    a { color:inherit; text-decoration:none; }
-
-       /* ─── OVERLAY ───────────────── */
-    #overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.5);
-      opacity:0; visibility:hidden; transition:opacity var(--transition);
-      z-index:var(--overlay-z);
-    }
-    #overlay.active { opacity:1; visibility:visible; }
-
-    /* ─── SIDEBAR ───────────────── */
-    .sidebar {
-      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
-      border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
-      transform: translateX(0);
-      transition:transform var(--transition);
-      z-index:var(--sidebar-z);
-    }
-    .sidebar.open { transform:translateX(0); }
-    .sidebar-close {
-      display:none; font-size:1.5rem;
-      position:absolute; top:1rem; right:1rem;
-      background:transparent; border:none; color:var(--white);
-    }
-    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-    .sidebar a.menu-item,
-    .sidebar button.profile-menu {
-      width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      color:var(--white);
-      transition:background var(--transition);
-    }
-    .sidebar a.menu-item:hover,
-    .sidebar a.menu-item.active,
-    .sidebar button.profile-menu:hover {
-      background:rgba(255,152,0,0.2);
-    }
-    .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.2rem; }
-    .sidebar a.menu-item span,
-    .sidebar button.profile-menu span { font-size:.75rem; }
-    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
-
-    /* ─── MAIN AREA ───────────────── */
-    .main { flex:1; display:flex; flex-direction:column; }
-    header {
-      position:sticky; top:0; background:rgba(0,0,0,0.9);
-      border-bottom:2px solid var(--gold); padding:1.5rem;
-      display:flex; align-items:center; justify-content:space-between; z-index:500;
-    }
-    header h1 { font-size:1.8rem; font-family:var(--font-alt); }
-    header button {
-      background:var(--gold); color:var(--bg); border:none;
-      padding:.5rem 1rem; border-radius:30px; cursor:pointer;
-      font-weight:600; transition:transform .2s;
-    }
-    header button:hover { transform:scale(1.05); }
-
-    .content { padding:2rem; flex:1; overflow-y:auto; }
-
-    /* ─── PROFILE FORM ─────────────── */
-    #profileForm {
-      max-width:900px; margin:0 auto;
-      background:var(--card-bg); border-radius:12px;
-      padding:2rem; display:grid;
-      grid-template-columns: 1fr 2fr; gap:2rem;
-      align-items:start;
-    }
-
-    /* Avatar */
-    .avatar-section {
-      display:flex; flex-direction:column; align-items:center; gap:1rem;
-    }
-    #avatarPreview {
-      width:180px; height:180px; border-radius:50%;
-      background:var(--input-bg);
-      display:flex; align-items:center; justify-content:center;
-      font-size:4rem; color:rgba(255,255,255,0.5);
-      overflow:hidden;
-    }
-    .avatar-buttons {
-      display:flex; gap:0.5rem;
-    }
-    .avatar-buttons button {
-      padding:.4rem .8rem; border:none; border-radius:6px;
-      background:var(--gold); color:var(--bg); cursor:pointer;
-      font-size:.9rem; transition:transform .2s;
-    }
-    .avatar-buttons button:hover { transform:scale(1.05); }
-
-    /* Fields */
-    .fields {
-      display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;
-    }
-    .field { display:flex; flex-direction:column; }
-    .field label {
-      font-weight:600; margin-bottom:.3rem;
-      display:flex; align-items:center; gap:.5rem;
-      font-family:var(--font-alt);
-    }
-    .field input,
-    .field select,
-    .field textarea {
-      padding:.6rem; border-radius:6px;
-      border:1px solid rgba(255,255,255,0.3);
-      background:var(--input-bg); color:var(--fg);
-      font-family:var(--font); font-size:1rem;
-    }
-    .field textarea { resize:vertical; grid-column:span 2; min-height:80px; }
-
-    /* Actions */
-    .actions {
-      grid-column: span 2; display:flex; justify-content:flex-end;
-    }
-    .actions button {
-      padding:.75rem 1.5rem; border:none;
-      background:var(--gold); color:var(--bg);
-      border-radius:30px; cursor:pointer;
-      font-weight:600; transition:transform .2s;
-    }
-    .actions button:hover { transform:scale(1.05); }
-
-    /* ─── RESPONSIVE ─────────────────── */
-    @media(max-width:900px) {
-      .sidebar { position:fixed; }
-      .main { margin-left:80px; }
-      #profileForm { grid-template-columns:1fr; }
-      .fields { grid-template-columns:1fr; }
-      .field textarea { grid-column:span 1; }
-    }
-    /* ─── PHONE ONLY (≤414px) ───────────────────────────────────────── */
-@media only screen and (max-width: 414px) {
-  /* —— Off-canvas sidebar on the right —— */
-  .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--mobile-sidebar-w);
-        transform:translateX(-100%); }
-      .sidebar.open { transform:translateX(0); }
-      .sidebar-close { display:block; }
-
-      header { padding:0.75rem 1rem; }
-     header h1 { margin: 0 auto; font-size: 1.2rem; }
-  .hamburger,
-  .profile-btn {
-    display: block;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+  :root {
+    --bg: #0d0d0d;
+    --fg: #fff;
+    --accent: rgba(255,255,255,0.05);
+    --input-bg: rgba(255,255,255,0.1);
+    --gold: #ff9800;
+    --font-base: 'Raleway', sans-serif;
+    --font-head: 'Poppins', sans-serif;
+    --transition: .3s ease;
+    --sidebar-w: 80px;
+    --mobile-sidebar-w: 200px;
+    --overlay-z: 90;
+    --sidebar-z: 100;
+    --header-z: 200;
   }
-  .hamburger { left: 1rem; }
-  .profile-btn { right: 1rem; }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    display:flex; min-height:100vh;
+    background:var(--bg); color:var(--fg);
+    font-family:var(--font-base);
+    overflow:hidden;
+  }
+  a { color:inherit; text-decoration:none; }
 
+  /* Only .container scrolls */
+  .container { flex:1; overflow-y:auto; overflow-x:hidden; }
 
-  /* —— Profile form to single column —— */
+  /* Overlay */
+  #overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.5);
+    opacity:0; visibility:hidden; transition:opacity var(--transition);
+    z-index:var(--overlay-z);
+  }
+  #overlay.active { opacity:1; visibility:visible; }
+
+  /* Sidebar */
+  .sidebar {
+    width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+    border-right:2px solid var(--gold);
+    display:flex; flex-direction:column; align-items:center;
+    padding-top:1rem; position:sticky; top:0; height:100vh;
+    z-index:var(--sidebar-z);
+  }
+  .sidebar-close {
+    display:none; position:absolute; top:0.5rem; right:0.5rem;
+    font-size:1.5rem; background:none; color:var(--fg);
+  }
+  .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
+  .sidebar a.menu-item,
+  .sidebar button.profile-menu {
+    width:100%; padding:.8rem 0;
+    display:flex; flex-direction:column; align-items:center; gap:.3rem;
+    color:var(--fg); background:none; border:none;
+    transition:background var(--transition);
+  }
+  .sidebar a.menu-item:hover,
+  .sidebar a.menu-item.active,
+  .sidebar button.profile-menu:hover {
+    background:var(--accent);
+  }
+  .sidebar a.menu-item i,
+  .sidebar button.profile-menu i {
+    font-size:1.2rem; color:var(--gold);
+  }
+  .sidebar a.menu-item span,
+  .sidebar button.profile-menu span { font-size:.75rem; }
+  .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
+
+  /* Main + Header */
+  .main { flex:1; display:flex; flex-direction:column; }
+  header {
+    position:sticky; top:0; background:rgba(0,0,0,0.9);
+    border-bottom:2px solid var(--gold);
+    padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between;
+    z-index:var(--header-z);
+  }
+  header h1 { color:var(--gold); font-family:var(--font-head); font-size:1.6rem; }
+  .header-controls { display:flex; align-items:center; gap:1rem; }
+  .header-controls button {
+    background:none; border:none; color:var(--fg); cursor:pointer; font-size:1.2rem;
+  }
+  .avatar-btn {
+    width:36px; height:36px; border:2px solid var(--gold); border-radius:50%;
+    overflow:hidden; display:flex; align-items:center; justify-content:center;
+  }
+  .avatar-btn img { width:100%; height:100%; object-fit:cover; }
+
+  /* Profile form */
+  .content { padding:2rem; }
   #profileForm {
-    grid-template-columns: 1fr !important;
-    padding: 1rem !important;
-    gap: 1rem;
+    max-width:900px; margin:0 auto; background:var(--accent);
+    border-radius:12px; padding:2rem;
+    display:grid; grid-template-columns:1fr 2fr; gap:2rem;
   }
-  .fields {
-    grid-template-columns: 1fr !important;
+  .avatar-section {
+    display:flex; flex-direction:column; align-items:center; gap:1rem;
   }
-  .field textarea {
-    grid-column: span 1 !important;
-  }
-
-  /* —— Avatar preview smaller —— */
   #avatarPreview {
-    width: 140px;
-    height: 140px;
-    font-size: 3rem;
+    width:160px; height:160px; border-radius:50%;
+    background:var(--input-bg); display:flex; align-items:center; justify-content:center;
+    font-size:4rem; color:rgba(255,255,255,0.5); overflow:hidden;
   }
+  .avatar-buttons { display:flex; gap:.5rem; }
   .avatar-buttons button {
-    flex: 1;
-    padding: 0.4rem;
-    font-size: 0.85rem;
+    background:var(--gold); color:var(--bg); border:none;
+    padding:.4rem .8rem; border-radius:6px; cursor:pointer;
   }
 
-  /* —— Inputs and buttons full-width —— */
-  .field input,
-  .field select,
-  .field textarea {
-    font-size: 0.9rem;
+  .fields { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  .field { display:flex; flex-direction:column; }
+  .field label {
+    margin-bottom:.3rem; font-weight:600; font-family:var(--font-head);
   }
+  .field input, .field select, .field textarea {
+    padding:.6rem; border-radius:6px; border:1px solid rgba(255,255,255,0.3);
+    background:var(--input-bg); color:var(--fg); font-size:1rem;
+  }
+  .field textarea { resize:vertical; min-height:80px; grid-column:span 2; }
+
   .actions {
-    justify-content: center !important;
+    grid-column:span 2; display:flex; justify-content:flex-end;
   }
   .actions button {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
+    background:var(--gold); color:var(--bg); border:none;
+    padding:.75rem 1.5rem; border-radius:30px; cursor:pointer;
+    font-weight:600;
   }
 
-  /* —— Footer tweak —— */
-  footer {
-    font-size: 0.85rem;
-    padding: 0.75rem;
-  }
-}
+  /* Responsive */
+  @media(max-width:900px) {
+    .sidebar { position:fixed; transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); }
+    .sidebar-close { display:block; }
 
+    #profileForm { grid-template-columns:1fr; }
+    .fields { grid-template-columns:1fr; }
+    .field textarea { grid-column:span 1; }
+  }
   </style>
-
-  <!-- shared storage & helpers -->
-  <script src="storage.js"></script>
 </head>
 <body>
-  <button id="sidebarToggle" aria-label="Open menu">
-  <i class="fas fa-bars"></i>
-</button>
+  <div id="overlay"></div>
 
- <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+    <button class="sidebar-close" id="sidebar-close">&times;</button>
+    <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
     <a href="log.html"         class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="menu-item profile-menu"><i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
+    <button class="menu-item profile-menu"><i id="sideAvatar" class="fas fa-user-circle"></i><span>Profile</span></button>
     <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
-
+  <!-- Main -->
   <div class="main">
     <header>
       <h1>My Profile</h1>
-      <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      <div class="header-controls">
+        <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+        <button class="avatar-btn" id="hdrAvatarBtn">
+          <i id="hdrAvatarIcon" class="fas fa-user-circle"></i>
+        </button>
+      </div>
     </header>
 
-    <div class="content">
-      <form id="profileForm" aria-label="Edit profile">
-        <!-- Avatar -->
-        <div class="avatar-section">
-          <div id="avatarPreview">
-            <i class="fas fa-user"></i>
+    <div class="container">
+      <div class="content">
+        <form id="profileForm">
+          <!-- Avatar -->
+          <div class="avatar-section">
+            <div id="avatarPreview"><i class="fas fa-user"></i></div>
+            <div class="avatar-buttons">
+              <button type="button" id="changeAvatarBtn">Change</button>
+              <button type="button" id="removeAvatarBtn">Remove</button>
+            </div>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none;">
           </div>
-          <div class="avatar-buttons">
-            <button type="button" id="changeAvatarBtn">Change</button>
-            <button type="button" id="removeAvatarBtn">Remove</button>
-          </div>
-          <input type="file" id="avatarInput" accept="image/*" style="display:none;">
-        </div>
 
-        <!-- Fields -->
-        <div class="fields">
-          <div class="field">
-            <label for="fullName"><i class="fas fa-user"></i> Full Name *</label>
-            <input id="fullName" type="text" required>
-          </div>
-          <div class="field">
-            <label for="email"><i class="fas fa-envelope"></i> Email</label>
-            <input id="email" type="email" disabled>
-          </div>
-          <div class="field">
-            <label for="bio"><i class="fas fa-pen-alt"></i> Bio</label>
-            <textarea id="bio" placeholder="Tell us about yourself"></textarea>
-          </div>
-          <div class="field">
-            <label for="location"><i class="fas fa-map-marker-alt"></i> Location</label>
-            <input id="location" type="text" placeholder="City, Country">
-          </div>
-          <div class="field">
-            <label for="age"><i class="fas fa-birthday-cake"></i> Age</label>
-            <input id="age" type="number" min="0">
-          </div>
-          <div class="field">
-            <label for="gender"><i class="fas fa-venus-mars"></i> Gender</label>
-            <select id="gender">
-              <option value="">Prefer not to say</option>
-              <option>Female</option>
-              <option>Male</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="height"><i class="fas fa-ruler-vertical"></i> Height (cm)</label>
-            <input id="height" type="number" min="0">
-          </div>
-          <div class="field">
-            <label for="weight"><i class="fas fa-weight"></i> Weight (kg)</label>
-            <input id="weight" type="number" min="0">
-          </div>
-          <div class="field">
-            <label for="favorite"><i class="fas fa-dumbbell"></i> Favorite Workout</label>
-            <select id="favorite">
-              <option>Running</option>
-              <option>Cycling</option>
-              <option>Swimming</option>
-              <option>HIIT</option>
-              <option>Yoga</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="goals"><i class="fas fa-bullseye"></i> Fitness Goals</label>
-            <textarea id="goals" placeholder="E.g. Run a marathon, build muscle"></textarea>
-          </div>
-          <div class="field">
-            <label for="theme"><i class="fas fa-adjust"></i> Theme</label>
-            <select id="theme">
-              <option value="dark">Dark Mode</option>
-              <option value="light">Light Mode</option>
-            </select>
-          </div>
-          <div class="field">
-            <label><i class="fas fa-bell"></i> Notifications</label>
-            <div>
+          <!-- Fields -->
+          <div class="fields">
+            <div class="field">
+              <label for="fullName">Full Name *</label>
+              <input id="fullName" type="text" required>
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" disabled>
+            </div>
+            <div class="field">
+              <label for="bio">Bio</label>
+              <textarea id="bio"></textarea>
+            </div>
+            <div class="field">
+              <label for="location">Location</label>
+              <input id="location" type="text">
+            </div>
+            <div class="field">
+              <label for="age">Age</label>
+              <input id="age" type="number" min="0">
+            </div>
+            <div class="field">
+              <label for="gender">Gender</label>
+              <select id="gender">
+                <option value="">Prefer not to say</option>
+                <option>Female</option>
+                <option>Male</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="height">Height (cm)</label>
+              <input id="height" type="number" min="0">
+            </div>
+            <div class="field">
+              <label for="weight">Weight (kg)</label>
+              <input id="weight" type="number" min="0">
+            </div>
+            <div class="field">
+              <label for="favorite">Favorite Workout</label>
+              <select id="favorite">
+                <option>Running</option>
+                <option>Cycling</option>
+                <option>Swimming</option>
+                <option>HIIT</option>
+                <option>Yoga</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="goals">Fitness Goals</label>
+              <textarea id="goals"></textarea>
+            </div>
+            <div class="field">
+              <label for="theme">Theme</label>
+              <select id="theme">
+                <option value="dark">Dark Mode</option>
+                <option value="light">Light Mode</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Notifications</label>
               <label><input type="checkbox" id="notifEmail"> Email</label><br>
               <label><input type="checkbox" id="notifPush"> Push</label>
             </div>
           </div>
-        </div>
 
-        <!-- Save -->
-        <div class="actions">
-          <button type="button" id="saveBtn"><i class="fas fa-save"></i> Save Changes</button>
-        </div>
-      </form>
+          <div class="actions">
+            <button type="button" id="saveBtn">Save Changes</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
   <script>
-  // Assumes storage.js defines FT.updateSidebarAvatar() but we’ll also
-  // directly update #sidebarAvatar here to be 100% certain.
   document.addEventListener('DOMContentLoaded', () => {
-    const cur   = JSON.parse(localStorage.getItem('ft_current') || '{}');
-    const users = JSON.parse(localStorage.getItem('ft_users')   || '[]');
+    // Sidebar toggle
+    const overlay   = document.getElementById('overlay'),
+          sidebar   = document.getElementById('sidebar'),
+          openBtn   = document.getElementById('sidebar-close'),  // reuse close as toggle on small
+          closeBtn  = document.getElementById('sidebar-close');
+    document.getElementById('hdrAvatarBtn').addEventListener('click', ()=> sidebar.classList.toggle('open'));
+    closeBtn.onclick = overlay.onclick = ()=> sidebar.classList.remove('open');
 
-    const overlay    = document.getElementById('overlay'),
-          sidebar    = document.getElementById('sidebar'),
-          openBtn    = document.getElementById('hamburger'),
-          closeBtn   = document.getElementById('sidebar-close'),
-          profileBtn = document.getElementById('profile-btn');
+    // Load current user
+    let cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
+    const profileStore = JSON.parse(localStorage.getItem('ft_profile')||'{}');
 
-    // OPEN / CLOSE SIDEBAR
-    openBtn.onclick = () => {
-      sidebar.classList.add('open');
-      overlay.classList.add('active');
-    };
-    closeBtn.onclick = overlay.onclick = () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('active');
-    };
-    profileBtn.onclick = () => location.href = 'profile.html';
-
-    // grab all our form controls
+    // Form refs
     const fld = {
-      avatarPreview: document.getElementById('avatarPreview'),
-      avatarInput:   document.getElementById('avatarInput'),
-      changeBtn:     document.getElementById('changeAvatarBtn'),
-      removeBtn:     document.getElementById('removeAvatarBtn'),
-      sidebarAvatar: document.getElementById('sidebarAvatar'),
-      fullName:      document.getElementById('fullName'),
-      email:         document.getElementById('email'),
-      bio:           document.getElementById('bio'),
-      location:      document.getElementById('location'),
-      age:           document.getElementById('age'),
-      gender:        document.getElementById('gender'),
-      height:        document.getElementById('height'),
-      weight:        document.getElementById('weight'),
-      favorite:      document.getElementById('favorite'),
-      goals:         document.getElementById('goals'),
-      theme:         document.getElementById('theme'),
-      notifEmail:    document.getElementById('notifEmail'),
-      notifPush:     document.getElementById('notifPush'),
-      saveBtn:       document.getElementById('saveBtn'),
-      logoutBtn:     document.getElementById('logoutBtn')
+      preview: document.getElementById('avatarPreview'),
+      input:   document.getElementById('avatarInput'),
+      chBtn:   document.getElementById('changeAvatarBtn'),
+      rmBtn:   document.getElementById('removeAvatarBtn'),
+      sideAv:  document.getElementById('sideAvatar'),
+      hdrAv:   document.getElementById('hdrAvatarIcon'),
+      name:    document.getElementById('fullName'),
+      email:   document.getElementById('email'),
+      bio:     document.getElementById('bio'),
+      loc:     document.getElementById('location'),
+      age:     document.getElementById('age'),
+      gen:     document.getElementById('gender'),
+      ht:      document.getElementById('height'),
+      wt:      document.getElementById('weight'),
+      fav:     document.getElementById('favorite'),
+      goals:   document.getElementById('goals'),
+      theme:   document.getElementById('theme'),
+      eNotif:  document.getElementById('notifEmail'),
+      pNotif:  document.getElementById('notifPush'),
+      save:    document.getElementById('saveBtn'),
+      logout:  document.getElementById('logoutBtn')
     };
 
-    // Fill form fields & avatars from cur
-    function initForm() {
-      // text fields
-      fld.fullName.value     = cur.name      || '';
-      fld.email.value        = cur.email     || '';
-      fld.bio.value          = cur.bio       || '';
-      fld.location.value     = cur.location  || '';
-      fld.age.value          = cur.age       || '';
-      fld.gender.value       = cur.gender    || '';
-      fld.height.value       = cur.height    || '';
-      fld.weight.value       = cur.weight    || '';
-      fld.favorite.value     = cur.favorite  || 'Running';
-      fld.goals.value        = cur.goals     || '';
-      fld.theme.value        = cur.theme     || 'dark';
-      fld.notifEmail.checked = !!cur.notifEmail;
-      fld.notifPush.checked  = !!cur.notifPush;
+    // Initialize form & avatars
+    function init() {
+      // fill text fields
+      fld.name.value  = cur.name||'';
+      fld.email.value = cur.email||'';
+      fld.bio.value   = cur.bio||'';
+      fld.loc.value   = cur.location||'';
+      fld.age.value   = cur.age||'';
+      fld.gen.value   = cur.gender||'';
+      fld.ht.value    = cur.height||'';
+      fld.wt.value    = cur.weight||'';
+      fld.fav.value   = cur.favorite||'Running';
+      fld.goals.value = cur.goals||'';
+      fld.theme.value = cur.theme||'dark';
+      fld.eNotif.checked = !!cur.notifEmail;
+      fld.pNotif.checked = !!cur.notifPush;
 
-      // preview panel
-      if (cur.avatarDataUrl) {
-        fld.avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
-        fld.avatarPreview.innerHTML = '';
+      // avatar preview
+      const avatarData = cur.avatarDataUrl || profileStore.avatar || null;
+      if (avatarData) {
+        fld.preview.style.backgroundImage = `url(${avatarData})`;
+        fld.preview.innerHTML = '';
+        fld.sideAv.src = fld.hdrAv.src = avatarData;
       } else {
-        fld.avatarPreview.style.backgroundImage = '';
-        fld.avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
+        fld.preview.style.backgroundImage = '';
+        fld.preview.innerHTML = '<i class="fas fa-user"></i>';
+        fld.sideAv.outerHTML = `<i id="sideAvatar" class="fas fa-user-circle"></i>`;
+        fld.hdrAv.outerHTML = `<i id="hdrAvatarIcon" class="fas fa-user-circle"></i>`;
       }
 
-      // sidebar icon
-      if (cur.avatarDataUrl) {
-        fld.sidebarAvatar.src = cur.avatarDataUrl;
-      } else {
-        // fallback to a generic gravatar
-        fld.sidebarAvatar.src = `https://i.pravatar.cc/150?u=${cur.email||'default'}`;
-      }
-
-      // theme class
-      document.body.classList.toggle('light-theme', fld.theme.value === 'light');
+      // theme switch
+      document.body.classList.toggle('light-theme', fld.theme.value==='light');
     }
 
-    // click “Change” → open file picker
-    fld.changeBtn.addEventListener('click', () => fld.avatarInput.click());
-
-    // when user picks file
-    fld.avatarInput.addEventListener('change', e => {
+    // change avatar
+    fld.chBtn.addEventListener('click', ()=> fld.input.click());
+    fld.input.addEventListener('change', e=>{
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = ()=>{
         cur.avatarDataUrl = reader.result;
-        initForm();
+        localStorage.setItem('ft_profile', JSON.stringify({ avatar: reader.result }));
+        init();
       };
       reader.readAsDataURL(file);
     });
 
     // remove avatar
-    fld.removeBtn.addEventListener('click', () => {
+    fld.rmBtn.addEventListener('click', ()=>{
       delete cur.avatarDataUrl;
-      initForm();
+      localStorage.removeItem('ft_profile');
+      init();
     });
 
-    // Save button
-    fld.saveBtn.addEventListener('click', () => {
-      if (!fld.fullName.value.trim()) {
-        return alert('Full Name is required.');
-      }
-      // collect all fields
-      cur.name       = fld.fullName.value.trim();
-      cur.bio        = fld.bio.value.trim();
-      cur.location   = fld.location.value.trim();
-      cur.age        = fld.age.value;
-      cur.gender     = fld.gender.value;
-      cur.height     = fld.height.value;
-      cur.weight     = fld.weight.value;
-      cur.favorite   = fld.favorite.value;
-      cur.goals      = fld.goals.value.trim();
-      cur.theme      = fld.theme.value;
-      cur.notifEmail = fld.notifEmail.checked;
-      cur.notifPush  = fld.notifPush.checked;
-      // persist cur
+    // save
+    fld.save.addEventListener('click', ()=>{
+      if (!fld.name.value.trim()) return alert('Name is required');
+      // collect
+      cur.name      = fld.name.value;
+      cur.bio       = fld.bio.value;
+      cur.location  = fld.loc.value;
+      cur.age       = fld.age.value;
+      cur.gender    = fld.gen.value;
+      cur.height    = fld.ht.value;
+      cur.weight    = fld.wt.value;
+      cur.favorite  = fld.fav.value;
+      cur.goals     = fld.goals.value;
+      cur.theme     = fld.theme.value;
+      cur.notifEmail= fld.eNotif.checked;
+      cur.notifPush = fld.pNotif.checked;
+      // persist
       localStorage.setItem('ft_current', JSON.stringify(cur));
-
-      // update it in the users array
-      const idx = users.findIndex(u => u.email === cur.email);
-      if (idx >= 0) {
-        users[idx] = { ...users[idx], ...cur };
-        localStorage.setItem('ft_users', JSON.stringify(users));
-      }
-
-      // re-render
-      initForm();
-
-      // final single popup
-      alert('Saved successfully');
+      alert('Profile saved!');
+      init();
     });
 
     // logout
-    fld.logoutBtn.addEventListener('click', () => {
-      window.location.href = 'home.html';
-    });
+    fld.logout.addEventListener('click', ()=> location.href='home.html');
 
-    // initial render
-    initForm();
+    init();
   });
-    document.addEventListener('DOMContentLoaded', () => {
-  const sidebar   = document.querySelector('.sidebar');
-  const openBtn   = document.getElementById('sidebarToggle');
-  const closeBtn  = document.getElementById('sidebarClose');
-
-  openBtn.addEventListener('click',  ()=> sidebar.classList.add('open'));
-  closeBtn.addEventListener('click', ()=> sidebar.classList.remove('open'));
-});
-
-</script>
-
-
+  </script>
 </body>
 </html>
