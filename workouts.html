@@ -1076,6 +1076,11 @@ document.getElementById('clearChat').addEventListener('click', () => {
   chat.style.display       = 'none';
   chatToggle.style.display = 'flex';
 });
+// Example in log.html when you push a new activity:
+const all = Storage.get('ft_activities', []);
+all.unshift(newAct);
+Storage.set('ft_activities', all);
+// No need to reload—other pages will hear the storage event.
 
     });
   </script>
