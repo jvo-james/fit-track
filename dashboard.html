@@ -398,6 +398,10 @@
         <i class="fas fa-plus"></i><span>New Workout</span>
       </button>
     </header>
+<div class="profile-summary">
+  <img id="dash-avatar" class="avatar" src="" alt="You">
+  <span id="dash-name"></span>
+</div>
 
     <div class="content">
        <!-- Stats, Progress, Goals, Charts, etc. (identical to your original) -->
@@ -448,6 +452,11 @@
   <h2><i class="fas fa-video"></i> Upcoming Live Sessions</h2>
   <div class="live-grid" id="liveSessionsGrid"></div>
 </section>
+      <!-- add under your live‑sessions: -->
+<section class="mini-board">
+  <h2>Top 5</h2><ol id="miniLeaderboard"></ol>
+</section>
+
 <section class="top-achievements">
   <h2><i class="fas fa-medal"></i> Your Achievements</h2>
   <div class="achievements-grid" id="yourAchievements"></div>
@@ -469,9 +478,33 @@
       <button id="w-save" class="primary">Save Workout</button>
     </div>
   </div>
+<div id="tour-overlay" style="display:none;
+     position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;"></div>
+<div id="tour-tooltip" style="display:none;position:absolute;
+     padding:1rem;background:#fff;color:#000;border-radius:5px;z-index:3001;">
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  function updateDashboard() {
+  updateStats();
+  updateCharts();
+  updateRecentActivities();
+  updateMiniLeaderboard();
+  updateLiveSessions();
+  updateProfileSummary();
+}
+function updateProfileSummary(){
+  const cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
+  const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+  document.getElementById('dash-name').textContent = cur.name;
+  const img = prof.avatar||cur.avatarDataUrl||'https://i.pravatar.cc/150?u='+cur.email;
+  document.getElementById('dash-avatar').src = img;
+}
+window.addEventListener('storage',e=>{
+  if (e.key==='ft_profile') updateProfileSummary();
+});
+
   // ─── 1) Redirect if not signed up/in ─────────────────
   const curJSON = localStorage.getItem('ft_current');
   if (!curJSON) return location.href = 'home.html';
@@ -559,6 +592,43 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
   document.getElementById('tip-of-day').textContent = tips[Math.floor(Math.random()*tips.length)];
 
+  function runTour(steps) {
+  let idx=0;
+  const ov = document.getElementById('tour-overlay'),
+        tip= document.getElementById('tour-tooltip');
+  ov.style.display=tip.style.display='block';
+  function show() {
+    const {sel,msg} = steps[idx],
+          el = document.querySelector(sel),
+          r  = el.getBoundingClientRect();
+    tip.innerHTML = `<p>${msg}</p>
+                     <button class="next">${idx===steps.length-1?'Done':'Next'}</button>`;
+    tip.style.top = `${r.bottom+8}px`;
+    tip.style.left= `${r.left}px`;
+    tip.querySelector('.next').onclick=()=>{
+      idx++;
+      if (idx<steps.length) show();
+      else {
+        ov.style.display=tip.style.display='none';
+        const cur=JSON.parse(localStorage.getItem('ft_current'));
+        cur.isNew=false;
+        localStorage.setItem('ft_current',JSON.stringify(cur));
+      }
+    };
+  }
+  show();
+}
+
+if (cur.isNew) {
+  const tourSteps = [
+    { sel: '.stats',         msg: 'Here are your monthly stats and progress.' },
+    { sel: '.live-sessions', msg: 'Schedule or join live workouts here.' },
+    { sel: '.charts',        msg: 'Visualize your activity over time.' },
+    { sel: '.mini-board',    msg: 'See the top 5 on your leaderboard.' },
+  ];
+  runTour(tourSteps);
+}
+
   // ─── 9) Live sessions grid ─────────────────────────────
   const sessions = JSON.parse(localStorage.getItem('ft_liveSessions') || '[]');
   const liveGrid = document.getElementById('liveSessionsGrid');
@@ -576,6 +646,81 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     liveGrid.appendChild(d);
   });
+let sessions = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]');
+sessions.push({ id: randomId(), host: cur.name, start: new Date(startIso), title, img: cur.avatar });
+localStorage.setItem('ft_liveSessions', JSON.stringify(sessions));
+let mySched = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]');
+// push session.id
+localStorage.setItem('ft_mySchedules', JSON.stringify(mySched));
+
+  function updateLiveSessions(){
+  const grid = document.getElementById('liveSessionsGrid');
+  const sessions = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]');
+  const mySched = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]');
+  grid.innerHTML='';
+  sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
+          .forEach(s=>{
+    const start = new Date(s.start), now = new Date();
+    let btnText, cls;
+    if (start > now) {
+      btnText = mySched.includes(s.id) ? '✔️ Scheduled' : 'Schedule';
+      cls = 'schedule-btn';
+    } else {
+      btnText = 'Join Now'; cls = 'join-btn';
+    }
+    grid.insertAdjacentHTML('beforeend',`
+      <div class="live-card">
+        <img src="${s.img}" alt="">
+        <h3>${s.title}</h3>
+        <p>${s.host} • ${start.toLocaleString()}</p>
+        <button data-id="${s.id}" class="${cls}">${btnText}</button>
+      </div>`);
+  });
+}
+document.getElementById('liveSessionsGrid')
+  .addEventListener('click', e=>{
+    if (e.target.matches('.schedule-btn')) {
+      const id = e.target.dataset.id;
+      let sched = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]');
+      if (!sched.includes(id)) {
+        sched.push(id);
+        localStorage.setItem('ft_mySchedules', JSON.stringify(sched));
+        updateLiveSessions();
+        scheduleNotification(id);
+      }
+    }
+    if (e.target.matches('.join-btn')) {
+      const id = e.target.dataset.id;
+      window.location.href = `live.html?session=${id}`;
+    }
+  });
+
+// schedule a browser notification
+function scheduleNotification(id) {
+  if (Notification.permission!=='granted') 
+    Notification.requestPermission();
+  const sessions = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]');
+  const s = sessions.find(x=>x.id===id);
+  const delay = new Date(s.start) - Date.now() - (5*60*1000); // 5 min before
+  if (delay>0) setTimeout(()=>{
+    new Notification(`"${s.title}" starts in 5 minutes!`,{body:`Host: ${s.host}`});
+  }, delay);
+}
+window.addEventListener('storage',e=>{
+  if(e.key==='ft_liveSessions' || e.key==='ft_mySchedules')
+    updateLiveSessions();
+});
+function updateRecentActivities(){
+  const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+  const tbody = document.getElementById('recent-acts');
+  tbody.innerHTML = '';
+  acts.slice(0,5).forEach(a=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${a.date}</td><td>${a.type||'-'}</td>
+                    <td>${a.duration}</td><td>${a.distance||'-'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
 
   // ─── 10) Top achievements ───────────────────────────────
   const thresholds = [
@@ -613,6 +758,42 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+function updateStats() {
+  const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+  // recompute your totals…
+  const workoutsThisMonth = acts.filter(a=>{
+    const d=new Date(a.date), n=new Date();
+    return d.getMonth()===n.getMonth() && d.getFullYear()===n.getFullYear();
+  }).length;
+  document.getElementById('workoutsCount').textContent = workoutsThisMonth;
+  // …similarly for distanceCount, caloriesCount, activeDaysCount, todayTime, avgCalories
+}
+
+function updateCharts() {
+  const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
+  const labels = [], data = [];
+  for(let d=6; d>=0; d--){
+    const day = new Date(); day.setDate(day.getDate()-d);
+    const key = day.toISOString().slice(0,10);
+    labels.push(day.toLocaleDateString(undefined,{weekday:'short'}));
+    data.push(acts.filter(a=>a.date===key).reduce((s,a)=>s+(+a.duration||0),0));
+  }
+  activityChart.data.labels = labels;
+  activityChart.data.datasets[0].data = data;
+  activityChart.update();
+}
+function updateMiniLeaderboard(){
+  const list = JSON.parse(localStorage.getItem('ft_leaderboard')||'[]')
+                   .sort((a,b)=>b.score-a.score)
+                   .slice(0,5);
+  const ol = document.getElementById('miniLeaderboard');
+  ol.innerHTML = '';
+  list.forEach(u=>{
+    const li=document.createElement('li');
+    li.textContent = `${u.name}: ${u.score}`;
+    ol.appendChild(li);
+  });
+}
 
  // ————————— STATS, PROGRESS, GOALS —————————
       const stats = cur.stats || {};
@@ -683,8 +864,18 @@ fd.slice(0,5).forEach(item => {
   d.textContent = item;
   document.getElementById('action-feed').appendChild(d);
 });
+// initial draw
+updateDashboard();
 
 });
+  window.addEventListener('storage', e => {
+  if (e.key==='ft_activities') {
+    updateStats();
+    updateCharts();
+    updateRecentActivities();
+  }
+});
+
 </script>
 
 
