@@ -272,6 +272,13 @@
   font-size: .8rem;
   opacity: .7;
 }
+.notif-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  margin: 0 auto;
+  max-width: 600px;
+  z-index: 150;
+}
 
     .top-achievements {
   margin: 1.5rem 0;
@@ -486,6 +493,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const cur = Storage.get('ft_current', null);
+if (!cur || !cur.name) return location.replace('home.html');
+
   // ─── Utility: generate random IDs ───────────────────────────────
   function randomId() {
     return Math.random().toString(36).substr(2, 9);
@@ -515,6 +525,11 @@ if (!prof.name || !prof.avatar) {
   } else {
     greetingEl.textContent = `Welcome back, ${cur.name}!`;
   }
+const prof = Storage.get('ft_profile', {});
+const banner = document.getElementById('notif-bar');
+if (!prof.name || !prof.avatar) banner.classList.remove('hidden');
+document.getElementById('notif-close')
+        .onclick = () => banner.classList.add('hidden');
 
   // ─── 3) Sidebar toggle ──────────────────────────────────────────
   const sidebar = document.getElementById('sidebar'),
@@ -723,40 +738,82 @@ if (!prof.name || !prof.avatar) {
       location.href = `live.html?session=${id}`;
     }
   });
+function updateLiveSessions(){
+  const sessions = Storage.get('ft_liveSessions', []);
+  const sched    = Storage.get('ft_mySchedules', []);
+  const grid     = document.getElementById('liveSessionsGrid');
+  grid.innerHTML = '';
+  sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
+          .forEach(s=>{
+    const start = new Date(s.start),
+          now   = new Date(),
+          future= start>now,
+          text  = future
+                  ? (sched.includes(s.id)?'✔ Scheduled':'Schedule')
+                  : 'Join Now',
+          cls   = future?'schedule-btn':'join-btn';
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="live-card">
+        <img src="${s.img}" />
+        <h3>${s.title}</h3>
+        <p>${s.host} • ${start.toLocaleString()}</p>
+        <button data-id="${s.id}" class="${cls}">${text}</button>
+      </div>`);
+  });
+}
+document.getElementById('liveSessionsGrid')
+  .addEventListener('click', e => {
+    const btn = e.target;
+    if (btn.matches('.schedule-btn')) {
+      let sched = Storage.get('ft_mySchedules', []);
+      if (!sched.includes(btn.dataset.id)) {
+        sched.push(btn.dataset.id);
+        Storage.set('ft_mySchedules', sched);
+      }
+    }
+    if (btn.matches('.join-btn')) {
+      location.href = `live.html?session=${btn.dataset.id}`;
+    }
+  });
+// re‐draw on any liveSessions / mySchedules change:
+Storage.onChange('ft_liveSessions', updateLiveSessions);
+Storage.onChange('ft_mySchedules', updateLiveSessions);
 
   // ───12) New‑user tour ─────────────────────────────────────────
   function runTour(steps) {
-    let idx = 0;
-    const ov = document.getElementById('tour-overlay'),
-          tt = document.getElementById('tour-tooltip');
-    ov.style.display = tt.style.display = 'block';
-    function showStep() {
-      const { sel, msg } = steps[idx],
-            el = document.querySelector(sel),
-            r  = el.getBoundingClientRect();
-      tt.innerHTML = `
-        <p>${msg}</p>
-        <button class="tour-next">${idx===steps.length-1 ? 'Done' : 'Next'}</button>`;
-      tt.style.top  = `${r.bottom + 8}px`;
-      tt.style.left = `${r.left}px`;
-      tt.querySelector('.tour-next').onclick = () => {
-        idx++;
-        if (idx < steps.length) showStep();
-        else {
-          ov.style.display = tt.style.display = 'none';
-        }
-      };
-    }
-    showStep();
+  let idx = 0;
+  const ov = document.getElementById('tour-overlay'),
+        tt = document.getElementById('tour-tooltip');
+  ov.style.display = tt.style.display = 'block';
+  function showStep() {
+    const { sel, msg } = steps[idx],
+          el = document.querySelector(sel),
+          r  = el.getBoundingClientRect();
+    tt.innerHTML = `
+      <div style="max-width:200px">${msg}</div>
+      <button>${idx===steps.length-1?'Done':'Next'}</button>`;
+    tt.style.top  = `${r.bottom + 8 + window.scrollY}px`;
+    tt.style.left = `${r.left + window.scrollX}px`;
+    tt.querySelector('button').onclick = () =>{
+      idx++;
+      if (idx<steps.length) showStep();
+      else ov.style.display = tt.style.display = 'none';
+    };
   }
-  if (cur.isNew) {
-    runTour([
-      { sel: '.stats',         msg: 'Your monthly stats live here.' },
-      { sel: '.live-sessions', msg: 'Schedule or join live workouts.' },
-      { sel: '.charts',        msg: 'Visualize your weekly activity.' },
-      { sel: '.mini-board',    msg: 'Check your top‑5 leaderboard.' }
-    ]);
-  }
+  showStep();
+}
+// invoke right after greeting:
+if (cur.isNew) {
+  runTour([
+    { sel: '.stats',         msg: 'Here are your monthly stats.' },
+    { sel: '.live-sessions', msg: 'Schedule or join live sessions.' },
+    { sel: '.charts',        msg: 'Your activity over time.' },
+    { sel: '.mini-board',    msg: 'Top‑5 leaderboard snapshot.' }
+  ]);
+  cur.isNew = false;
+  Storage.set('ft_current', cur);
+}
+
 
   // ───13) One‐stop update & storage listener ────────────────────
   function updateDashboard() {
