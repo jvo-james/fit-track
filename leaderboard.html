@@ -31,7 +31,7 @@
   body {
     display:flex; min-height:100vh;
     background:var(--bg); color:var(--white);
-    font-family:var(--font-base); overflow-x:hidden;
+    font-family:var(--font-base); overflow-x:hidden;  overflow-y: auto; 
   }
   a { color:inherit; text-decoration:none; }
   button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
@@ -113,11 +113,7 @@
   /* no width */
   overflow:hidden;             /* prevent x-scroll */
 }
-.container {
-  flex:1;
-  overflow-y:auto;            /* only this scrolls vertically */
-  overflow-x:hidden;
-}
+
 
   .hall-of-fame {
     display:flex; justify-content:center; gap:1rem;
@@ -262,8 +258,8 @@ body {
         </select>
         <button id="notifBtn"><i class="fas fa-bell"></i></button>
         <button class="avatar-btn" id="hdrAvatarBtn">
-          <img id="hdrAvatar" src="">
-        </button>
+  <i id="hdrAvatarIcon" class="fas fa-user-circle"></i>
+</button>
       </div>
     </header>
 
@@ -329,13 +325,28 @@ body {
     const cur = JSON.parse(curJSON);
     if(!cur.name) return location.href='home.html';
 
-    const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}'),
-          defaultAv = 'https://www.instagram.com/static/images/anonymousUser.jpg',
-          avatarUrl = prof.avatar || defaultAv;
+   const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
 
-    document.getElementById('hdrAvatar').src = avatarUrl;
-    document.getElementById('sideAvatar').outerHTML =
-      `<img id="sideAvatar" src="${avatarUrl}" style="width:32px;height:32px;border-radius:50%">`;
+// If the user uploaded an avatar, swap the <i> for an <img>.
+if (prof.avatar) {
+  const side = document.getElementById('sideAvatar');
+  side.outerHTML = `
+    <img id="sideAvatar"
+         src="${prof.avatar}"
+         class="avatar"
+         style="width:32px;height:32px;border-radius:50%">
+  `;
+
+  const hdrIcon = document.getElementById('hdrAvatarIcon');
+  hdrIcon.outerHTML = `
+    <img id="hdrAvatar"
+         src="${prof.avatar}"
+         class="avatar-btn"
+         style="width:36px;height:36px;border-radius:50%">
+  `;
+}
+// Otherwise leave the <i class="fas fa-user-circle"> in place.
+
 
     // Helpers
     const load = k=>JSON.parse(localStorage.getItem(k)||'[]'),
