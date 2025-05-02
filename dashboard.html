@@ -155,6 +155,8 @@
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:2000; }
     .modal-overlay.active { display:flex; }
     .modal { background:var(--bg); border:2px solid var(--gold); border-radius:8px; padding:1.5rem; width:90%; max-width:320px; position:relative; }
+     .modal h2 { margin-bottom:1rem; color:var(--gold); }
+    .modal label { display:block; margin:.6rem 0 .2rem; font-size:.9rem; }
     .modal .close { position:absolute; top:.6rem; right:.6rem; font-size:1.2rem; cursor:pointer; }
     .modal input { width:100%; padding:.6rem; margin-bottom:.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.05); color:var(--white); }
     .modal button.primary { width:100%; background:var(--gold); color:var(--bg); padding:.5rem 0; border-radius:30px; }
@@ -495,7 +497,7 @@
       <label for="w-notes">Notes</label>
       <textarea id="w-notes" rows="3" placeholder="How did it feel?"></textarea>
       <button class="primary" id="w-save">Save Workout</button>
-      <button class="close" id="w-cancel" style="margin-top:.5rem;">Cancel</button>
+      <button class="close" id="w-cancel" style="margin-top:.5rem;">&times;</button>
     </div>
   </div>
   
