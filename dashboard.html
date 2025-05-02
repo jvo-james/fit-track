@@ -491,278 +491,297 @@
      padding:1rem;background:#fff;color:#000;border-radius:5px;z-index:3001;">
 </div>
 
-<script>
+<script type="module">
+import { Storage } from './storage.js';
+
 document.addEventListener('DOMContentLoaded', () => {
+  // ─── Guard: redirect if not signed in ──────────────────────
   const cur = Storage.get('ft_current', null);
-if (!cur || !cur.name) return location.replace('home.html');
+  if (!cur || !cur.name) return location.replace('home.html');
 
-  // ─── Utility: generate random IDs ───────────────────────────────
-  function randomId() {
-    return Math.random().toString(36).substr(2, 9);
-  }
+  // ─── Elements ─────────────────────────────────────────────
+  const greetEl        = document.getElementById('greeting');
+  const notifBar       = document.getElementById('notif-bar');
+  const notifCloseBtn  = document.getElementById('notif-close');
+  const hamburgerBtn   = document.getElementById('hamburger');
+  const sidebar        = document.getElementById('sidebar');
+  const overlay        = document.getElementById('overlay');
+  const sidebarClose   = document.getElementById('sidebar-close');
+  const profileBtn     = document.getElementById('profile-btn');
+  const profileMenuBtn = document.querySelector('.profile-menu');
+  const newWorkoutBtn  = document.querySelector('.new-workout');
+  const workoutModal   = document.getElementById('workout-modal');
+  const workoutClose   = document.getElementById('workout-close');
+  const workoutSave    = document.getElementById('w-save');
+  const tourOverlay    = document.getElementById('tour-overlay');
+  const tourTooltip    = document.getElementById('tour-tooltip');
 
-  // ─── 1) Redirect if not signed in ───────────────────────────────
-  const curJSON = localStorage.getItem('ft_current');
-  if (!curJSON) return location.href = 'home.html';
-  const cur = JSON.parse(curJSON);
-  if (!cur.name) return location.href = 'home.html';
+  // ─── “Complete your profile” banner ───────────────────────
+  const prof = Storage.get('ft_profile', {});
+  if (!prof.name || !prof.avatar) notifBar.classList.remove('hidden');
+  notifCloseBtn.addEventListener('click', () => notifBar.classList.add('hidden'));
 
-  // ─── Prompt to finish profile ───────────────────────────
-const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
-const notif = document.getElementById('notif-bar');
-if (!prof.name || !prof.avatar) {
-  // user hasn’t filled name/avatar → show banner
-  notif.classList.remove('hidden');
-}
-
-  
-  // ─── 2) Greeting & clear isNew flag ─────────────────────────────
-  const greetingEl = document.getElementById('greeting');
+  // ─── Greeting & New‑user tour ─────────────────────────────
   if (cur.isNew) {
-    greetingEl.textContent = `Hello ${cur.name}!`;
+    greetEl.textContent = `Hello ${cur.name}!`;
+    runTour([
+      { sel: '.stats',         msg: 'Here are your monthly stats.' },
+      { sel: '.live-sessions', msg: 'Schedule or join live sessions.' },
+      { sel: '.charts',        msg: 'Track your activity over time.' },
+      { sel: '.mini-board',    msg: 'Snapshot of the top‑5 leaderboard.' }
+    ]);
     cur.isNew = false;
-    localStorage.setItem('ft_current', JSON.stringify(cur));
+    Storage.set('ft_current', cur);
   } else {
-    greetingEl.textContent = `Welcome back, ${cur.name}!`;
+    greetEl.textContent = `Welcome back, ${cur.name}!`;
   }
-const prof = Storage.get('ft_profile', {});
-const banner = document.getElementById('notif-bar');
-if (!prof.name || !prof.avatar) banner.classList.remove('hidden');
-document.getElementById('notif-close')
-        .onclick = () => banner.classList.add('hidden');
 
-  // ─── 3) Sidebar toggle ──────────────────────────────────────────
-  const sidebar = document.getElementById('sidebar'),
-        overlay = document.getElementById('overlay'),
-        btnOpen = document.getElementById('hamburger'),
-        btnClose= document.getElementById('sidebar-close');
-  btnOpen.addEventListener('click', ()=> {
+  // ─── Sidebar toggle ────────────────────────────────────────
+  hamburgerBtn.addEventListener('click', () => {
     sidebar.classList.add('open');
     overlay.classList.add('active');
   });
-  btnClose.addEventListener('click', ()=> {
+  sidebarClose.addEventListener('click', () => {
     sidebar.classList.remove('open');
     overlay.classList.remove('active');
   });
-  overlay.addEventListener('click', ()=> {
+  overlay.addEventListener('click', () => {
     sidebar.classList.remove('open');
     overlay.classList.remove('active');
   });
 
-  // ─── 4) Profile nav buttons ──────────────────────────────────────
-  document.getElementById('profile-btn').addEventListener('click', ()=> location.href='profile.html');
-  document.querySelector('.profile-menu').addEventListener('click', ()=> location.href='profile.html');
+  // ─── Profile navigation ────────────────────────────────────
+  profileBtn.addEventListener('click',     () => location.replace('profile.html'));
+  profileMenuBtn.addEventListener('click', () => location.replace('profile.html'));
 
-  // ─── 5) New‑workout modal ────────────────────────────────────────
-  const modal = document.getElementById('workout-modal'),
-        openM = document.querySelector('.new-workout'),
-        closeM= document.getElementById('workout-close'),
-        saveM = document.getElementById('w-save');
-  openM.addEventListener('click', ()=> modal.classList.add('active'));
-  closeM.addEventListener('click', ()=> modal.classList.remove('active'));
-  modal.addEventListener('click', e=> { if (e.target===modal) modal.classList.remove('active'); });
-  saveM.addEventListener('click', () => {
-    const date = document.getElementById('w-date').value,
-          dur  = document.getElementById('w-duration').value;
+  // ─── New‑Workout Modal ─────────────────────────────────────
+  newWorkoutBtn.addEventListener('click',  () => workoutModal.classList.add('active'));
+  workoutClose.addEventListener('click',    () => workoutModal.classList.remove('active'));
+  workoutModal.addEventListener('click',    e => { if (e.target === workoutModal) workoutModal.classList.remove('active'); });
+  workoutSave.addEventListener('click',    () => {
+    const date = document.getElementById('w-date').value;
+    const dur  = +document.getElementById('w-duration').value;
     if (!date || !dur) return alert('Date & duration required');
-    const all = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-    all.unshift({ id: randomId(), date, duration: +dur });
-    localStorage.setItem('ft_activities', JSON.stringify(all));
+    const all = Storage.get('ft_activities', []);
+    all.unshift({ id: Math.random().toString(36).substr(2,9), date, duration: dur });
+    Storage.set('ft_activities', all);
     updateDashboard();
-    modal.classList.remove('active');
+    workoutModal.classList.remove('active');
   });
 
-  // ─── 6) Profile summary (avatar + name) ─────────────────────────
-  function updateProfileSummary(){
-    const prof     = JSON.parse(localStorage.getItem('ft_profile')||'{}'),
-          nameEl   = document.getElementById('dash-name'),
-          avatarEl = document.getElementById('dash-avatar');
-    nameEl.textContent = cur.name;
-    avatarEl.src = prof.avatar ||
-                   cur.avatarDataUrl ||
-                   `https://i.pravatar.cc/150?u=${cur.email}`;
-  }
-
-  // ─── 7) Stats panel ─────────────────────────────────────────────
-  function updateStats(){
-    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
-          now  = new Date(),
-          todayKey = now.toISOString().slice(0,10);
-    // monthly workouts
-    const thisMonth = acts.filter(a=>{
-      const d=new Date(a.date);
-      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
-    });
-    document.getElementById('workoutsCount').textContent = thisMonth.length;
-    // monthly distance & calories
-    const dist = thisMonth.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1)+' km';
-    const cal  = thisMonth.reduce((s,a)=>s+(+a.calories||0),0);
-    document.getElementById('distanceCount').textContent = dist;
-    document.getElementById('caloriesCount').textContent = cal;
-    // active days this month
-    const days = [...new Set(thisMonth.map(a=>a.date))].length;
-    document.getElementById('activeDaysCount').textContent = days;
-    // today’s time
-    const todayTotal = acts.filter(a=>a.date===todayKey)
-                           .reduce((s,a)=>s+(+a.duration||0),0);
-    document.getElementById('todayTime').textContent = todayTotal+' min';
-    // avg calories per workout
-    document.getElementById('avgCalories').textContent = thisMonth.length
-      ? Math.round(cal/thisMonth.length) : 0;
-    // progress bars
-    const weekCount = acts.filter(a=>{
-      const d=new Date(a.date);
-      return (now - d)/(1000*60*60*24) <= 7;
-    }).length;
-    document.getElementById('progressBar').style.width = Math.min(100,Math.round(weekCount/5*100))+'%';
-    document.getElementById('goalDaily').style.width    = Math.min(100,Math.round(todayTotal/30*100))+'%';
-    document.getElementById('goalWeekly').style.width   = Math.min(100,Math.round(weekCount/5*100))+'%';
-    document.getElementById('goalMonthly').style.width  = Math.min(100,Math.round(thisMonth.length/20*100))+'%';
-  }
-
-  // ─── 8) Charts ────────────────────────────────────────────────
-  const activityCtx     = document.getElementById('activityChart').getContext('2d'),
-        distributionCtx = document.getElementById('distributionChart').getContext('2d');
+  // ─── Charts setup ─────────────────────────────────────────
+  const activityCtx     = document.getElementById('activityChart').getContext('2d');
+  const distributionCtx = document.getElementById('distributionChart').getContext('2d');
   const activityChart = new Chart(activityCtx, {
-    type:'line',
-    data:{ labels: [], datasets:[{
-      label:'Minutes', data:[], borderColor:'#ff9800',
-      backgroundColor:'rgba(255,152,0,0.2)', fill:true, tension:.3
+    type: 'line',
+    data: { labels: [], datasets: [{
+      label: 'Minutes',
+      data: [],
+      borderColor: '#ff9800',
+      backgroundColor: 'rgba(255,152,0,0.2)',
+      fill: true,
+      tension: .3
     }]},
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ position:'bottom' }} }
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
   });
   const distributionChart = new Chart(distributionCtx, {
-    type:'pie',
-    data:{ labels:['Cardio','Strength','Flexibility','Other'], datasets:[{
-      data:[], backgroundColor:[
-        'rgba(255,152,0,0.8)','rgba(255,87,34,0.8)',
-        'rgba(76,175,80,0.8)','rgba(3,169,244,0.8)'
-      ]
-    }]},
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ position:'bottom' }} }
+    type: 'pie',
+    data: {
+      labels: ['Cardio','Strength','Flexibility','Other'],
+      datasets: [{ data: [], backgroundColor: [
+        'rgba(255,152,0,0.8)',
+        'rgba(255,87,34,0.8)',
+        'rgba(76,175,80,0.8)',
+        'rgba(3,169,244,0.8)'
+      ]}]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
   });
-  function updateCharts(){
-    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
-          labels=[], data=[]; 
-    for(let d=6; d>=0; d--){
-      const day = new Date(); day.setDate(day.getDate()-d);
-      const key = day.toISOString().slice(0,10);
-      labels.push(day.toLocaleDateString(undefined,{ weekday:'short' }));
-      data.push(acts.filter(a=>a.date===key)
-                    .reduce((s,a)=>s+(+a.duration||0),0));
+
+  // ─── Helper: Tour ───────────────────────────────────────────
+  function runTour(steps) {
+    let idx = 0;
+    tourOverlay.style.display = tourTooltip.style.display = 'block';
+    function showStep() {
+      const { sel, msg } = steps[idx],
+            el           = document.querySelector(sel),
+            r            = el.getBoundingClientRect();
+      tourTooltip.innerHTML = `
+        <div style="max-width:200px">${msg}</div>
+        <button>${idx === steps.length-1 ? 'Done' : 'Next'}</button>`;
+      tourTooltip.style.top  = (r.bottom + window.scrollY + 8) + 'px';
+      tourTooltip.style.left = (r.left   + window.scrollX)   + 'px';
+      tourTooltip.querySelector('button').onclick = () => {
+        idx++;
+        if (idx < steps.length) showStep();
+        else tourOverlay.style.display = tourTooltip.style.display = 'none';
+      };
+    }
+    showStep();
+  }
+
+  // ─── Update Routines ───────────────────────────────────────
+  function updateProfileSummary() {
+    const p = Storage.get('ft_profile', {});
+    document.getElementById('dash-name').textContent = cur.name;
+    document.getElementById('dash-avatar').src =
+      p.avatar || `https://i.pravatar.cc/150?u=${cur.email}`;
+  }
+
+  function updateStats() {
+    const acts     = Storage.get('ft_activities', []);
+    const now      = new Date();
+    const todayKey = now.toISOString().slice(0,10);
+
+    // Monthly filter
+    const thisMonth = acts.filter(a => {
+      const d = new Date(a.date);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    });
+    document.getElementById('workoutsCount').textContent = thisMonth.length;
+    const totalDist  = thisMonth.reduce((s,a) => s + (+a.distance||0),0).toFixed(1) + ' km';
+    const totalCal   = thisMonth.reduce((s,a) => s + (+a.calories||0),0);
+    document.getElementById('distanceCount').textContent = totalDist;
+    document.getElementById('caloriesCount').textContent = totalCal;
+
+    // Active days
+    const days = new Set(thisMonth.map(a => a.date)).size;
+    document.getElementById('activeDaysCount').textContent = days;
+
+    // Today’s time & Avg calories
+    const todayTotal = acts.filter(a => a.date === todayKey)
+                           .reduce((s,a) => s + (+a.duration||0),0);
+    document.getElementById('todayTime').textContent = todayTotal + ' min';
+    document.getElementById('avgCalories').textContent =
+      thisMonth.length ? Math.round(totalCal / thisMonth.length) : 0;
+
+    // Progress bars
+    const weekCount = acts.filter(a => {
+      const d = new Date(a.date);
+      return (now - d)/(1000*60*60*24) <= 7;
+    }).length;
+    document.getElementById('progressBar').style.width  = Math.min(100, Math.round(weekCount/5*100)) + '%';
+    document.getElementById('goalDaily').style.width     = Math.min(100, Math.round(todayTotal/30*100)) + '%';
+    document.getElementById('goalWeekly').style.width    = Math.min(100, Math.round(weekCount/5*100)) + '%';
+    document.getElementById('goalMonthly').style.width   = Math.min(100, Math.round(thisMonth.length/20*100)) + '%';
+  }
+
+  function updateCharts() {
+    const acts   = Storage.get('ft_activities', []);
+    const now    = new Date();
+    const labels = [], data = [];
+
+    // Past 7 days line data
+    for (let i=6; i>=0; i--) {
+      const d   = new Date(); d.setDate(d.getDate()-i);
+      const key = d.toISOString().slice(0,10);
+      labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
+      data.push(acts.filter(a => a.date===key)
+                   .reduce((s,a)=>s + (+a.duration||0),0));
     }
     activityChart.data.labels          = labels;
-    activityChart.data.datasets[0].data= data;
+    activityChart.data.datasets[0].data = data;
     activityChart.update();
 
- 
-  }
-
-  // ─── 9) Recent activities table ──────────────────────────────
-  function updateRecentActivities(){
-    const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
-          tbody= document.getElementById('recent-acts');
-    tbody.innerHTML = '';
-    acts.slice(0,5).forEach(a => {
-      const tr = document.createElement('tr');
-      tr.innerHTML=`
-        <td>${a.date}</td>
-        <td>${a.type||'–'}</td>
-        <td>${a.duration}</td>
-        <td>${a.distance||'–'}</td>`;
-      tbody.appendChild(tr);
+    // Pie distribution (this month by type)
+    const thisMonth = acts.filter(a => {
+      const d = new Date(a.date);
+      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
     });
+    const counts = { Cardio:0, Strength:0, Flexibility:0, Other:0 };
+    thisMonth.forEach(a => {
+      if (a.type==='Cardio')      counts.Cardio++;
+      else if (a.type==='Strength')counts.Strength++;
+      else if (a.type==='Flexibility')counts.Flexibility++;
+      else counts.Other++;
+    });
+    distributionChart.data.datasets[0].data = [
+      counts.Cardio,
+      counts.Strength,
+      counts.Flexibility,
+      counts.Other
+    ];
+    distributionChart.update();
   }
 
-  // ───10) Mini‑leaderboard (Top 5) ─────────────────────────────
-  function updateMiniLeaderboard(){
-    const list = JSON.parse(localStorage.getItem('ft_leaderboard')||'[]')
-                   .sort((a,b)=>b.score-a.score)
-                   .slice(0,5),
-          ol   = document.getElementById('miniLeaderboard');
+  function updateRecentActivities() {
+    const acts = Storage.get('ft_activities', []);
+    const tb   = document.getElementById('recent-acts');
+    tb.innerHTML = '';
+    acts.slice(0,5).forEach(a => {
+      tb.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td>${a.date}</td>
+          <td>${a.type||'-'}</td>
+          <td>${a.duration}</td>
+          <td>${a.distance||'-'}</td>
+        </tr>`);
+    });
+    // fast‐stats
+    const avgDur = acts.length
+      ? Math.round(acts.reduce((s,a)=>s+(+a.duration||0),0)/acts.length)
+      : 0;
+    const totDist = acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+    const totCal  = acts.reduce((s,a)=>s+(+a.calories||0),0);
+    document.getElementById('avg-dur').textContent = avgDur;
+    document.getElementById('tot-dist').textContent = totDist;
+    document.getElementById('tot-cal').textContent  = totCal;
+  }
+
+  function updateMiniLeaderboard() {
+    const list = Storage.get('ft_leaderboard', [])
+                  .sort((a,b)=>b.score-a.score)
+                  .slice(0,5);
+    const ol = document.getElementById('miniLeaderboard');
     ol.innerHTML = '';
     list.forEach(u => {
-      const li = document.createElement('li');
-      li.textContent = `${u.name}: ${u.score}`;
-      ol.appendChild(li);
+      ol.insertAdjacentHTML('beforeend', `<li>${u.name}: ${u.score}</li>`);
     });
   }
 
-  // ───11) Live sessions grid ──────────────────────────────────
-  function updateLiveSessions(){
-    const sessions   = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]'),
-          mySched    = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]'),
-          grid       = document.getElementById('liveSessionsGrid');
+  function updateAchievements() {
+    const total = Storage.get('ft_activities', []).length;
+    const thresholds = [
+      { n:1,  icon:'fas fa-star',   text:'First Workout' },
+      { n:5,  icon:'fas fa-medal',  text:'5 Workouts'    },
+      { n:10, icon:'fas fa-trophy', text:'10 Workouts'   },
+      { n:30, icon:'fas fa-award',  text:'30 Workouts'   }
+    ];
+    const container = document.getElementById('yourAchievements');
+    container.innerHTML = '';
+    thresholds.forEach(t => {
+      const div = document.createElement('div');
+      div.className = 'achievement-badge' + (total>=t.n ? ' unlocked' : '');
+      div.innerHTML = `<i class="${t.icon}"></i><p>${t.text}</p>`;
+      container.appendChild(div);
+    });
+  }
+
+  function updateLiveSessions() {
+    const sessions = Storage.get('ft_liveSessions', []);
+    const sched    = Storage.get('ft_mySchedules', []);
+    const grid     = document.getElementById('liveSessionsGrid');
     grid.innerHTML = '';
     sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
             .forEach(s => {
-      const start = new Date(s.start),
-            now   = new Date(),
-            isFuture = start > now,
-            btnText = isFuture
-              ? (mySched.includes(s.id) ? '✔ Scheduled' : 'Schedule')
-              : 'Join Now',
-            btnClass= isFuture ? 'schedule-btn' : 'join-btn';
-      grid.insertAdjacentHTML('beforeend',`
+      const start   = new Date(s.start);
+      const future  = start > new Date();
+      const btnText = future
+        ? (sched.includes(s.id) ? '✔ Scheduled' : 'Schedule')
+        : 'Join Now';
+      const cls     = future ? 'schedule-btn' : 'join-btn';
+      grid.insertAdjacentHTML('beforeend', `
         <div class="live-card">
-          <img src="${s.img}" alt="">
+          <img src="${s.img}" alt="${s.title}"/>
           <h3>${s.title}</h3>
           <p>${s.host} • ${start.toLocaleString()}</p>
-          <button data-id="${s.id}" class="${btnClass}">${btnText}</button>
+          <button data-id="${s.id}" class="${cls}">${btnText}</button>
         </div>`);
     });
   }
 
-  // Handle schedule/join clicks
+  // Handle schedule/join
   document.getElementById('liveSessionsGrid').addEventListener('click', e => {
-    const btn = e.target;
-    if (btn.classList.contains('schedule-btn')) {
-      const id = btn.dataset.id;
-      let sched = JSON.parse(localStorage.getItem('ft_mySchedules')||'[]');
-      if (!sched.includes(id)) { sched.push(id); localStorage.setItem('ft_mySchedules', JSON.stringify(sched)); }
-      updateLiveSessions();
-      // schedule browser notification 5 min before
-      const sess = JSON.parse(localStorage.getItem('ft_liveSessions')||'[]')
-                     .find(x=>x.id===id);
-      const delay = new Date(sess.start) - Date.now() - 5*60*1000;
-      if (Notification.permission==='granted' && delay>0) {
-        setTimeout(()=>{
-          new Notification(`"${sess.title}" starts in 5 min`, { body: `Host: ${sess.host}` });
-        }, delay);
-      }
-    }
-    if (btn.classList.contains('join-btn')) {
-      const id = btn.dataset.id;
-      location.href = `live.html?session=${id}`;
-    }
-  });
-function updateLiveSessions(){
-  const sessions = Storage.get('ft_liveSessions', []);
-  const sched    = Storage.get('ft_mySchedules', []);
-  const grid     = document.getElementById('liveSessionsGrid');
-  grid.innerHTML = '';
-  sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
-          .forEach(s=>{
-    const start = new Date(s.start),
-          now   = new Date(),
-          future= start>now,
-          text  = future
-                  ? (sched.includes(s.id)?'✔ Scheduled':'Schedule')
-                  : 'Join Now',
-          cls   = future?'schedule-btn':'join-btn';
-    grid.insertAdjacentHTML('beforeend', `
-      <div class="live-card">
-        <img src="${s.img}" />
-        <h3>${s.title}</h3>
-        <p>${s.host} • ${start.toLocaleString()}</p>
-        <button data-id="${s.id}" class="${cls}">${text}</button>
-      </div>`);
-  });
-}
-document.getElementById('liveSessionsGrid')
-  .addEventListener('click', e => {
     const btn = e.target;
     if (btn.matches('.schedule-btn')) {
       let sched = Storage.get('ft_mySchedules', []);
@@ -770,72 +789,42 @@ document.getElementById('liveSessionsGrid')
         sched.push(btn.dataset.id);
         Storage.set('ft_mySchedules', sched);
       }
+      updateLiveSessions();
     }
     if (btn.matches('.join-btn')) {
-      location.href = `live.html?session=${btn.dataset.id}`;
+      location.replace(`live.html?session=${btn.dataset.id}`);
     }
   });
-// re‐draw on any liveSessions / mySchedules change:
-Storage.onChange('ft_liveSessions', updateLiveSessions);
-Storage.onChange('ft_mySchedules', updateLiveSessions);
 
-  // ───12) New‑user tour ─────────────────────────────────────────
-  function runTour(steps) {
-  let idx = 0;
-  const ov = document.getElementById('tour-overlay'),
-        tt = document.getElementById('tour-tooltip');
-  ov.style.display = tt.style.display = 'block';
-  function showStep() {
-    const { sel, msg } = steps[idx],
-          el = document.querySelector(sel),
-          r  = el.getBoundingClientRect();
-    tt.innerHTML = `
-      <div style="max-width:200px">${msg}</div>
-      <button>${idx===steps.length-1?'Done':'Next'}</button>`;
-    tt.style.top  = `${r.bottom + 8 + window.scrollY}px`;
-    tt.style.left = `${r.left + window.scrollX}px`;
-    tt.querySelector('button').onclick = () =>{
-      idx++;
-      if (idx<steps.length) showStep();
-      else ov.style.display = tt.style.display = 'none';
-    };
-  }
-  showStep();
-}
-// invoke right after greeting:
-if (cur.isNew) {
-  runTour([
-    { sel: '.stats',         msg: 'Here are your monthly stats.' },
-    { sel: '.live-sessions', msg: 'Schedule or join live sessions.' },
-    { sel: '.charts',        msg: 'Your activity over time.' },
-    { sel: '.mini-board',    msg: 'Top‑5 leaderboard snapshot.' }
-  ]);
-  cur.isNew = false;
-  Storage.set('ft_current', cur);
-}
-
-
-  // ───13) One‐stop update & storage listener ────────────────────
+  // ─── Master redraw + listeners ─────────────────────────────
   function updateDashboard() {
     updateProfileSummary();
     updateStats();
     updateCharts();
     updateRecentActivities();
     updateMiniLeaderboard();
+    updateAchievements();
     updateLiveSessions();
+    // Tip of the Day
+    const tips = [
+      "Stay hydrated—drink 250 ml of water before each session.",
+      "Warm up for 5 min to activate your muscles.",
+      "Focus on form; quality reps build strength safer.",
+      "Cool down & stretch for 3–5 min after every workout.",
+      "Try one fun activity (dance, sports) weekly to stay motivated."
+    ];
+    document.getElementById('tip-of-day').textContent =
+      tips[Math.floor(Math.random()*tips.length)];
   }
-  updateDashboard();
-// in signup.js, after creating user
-localStorage.setItem('ft_current', JSON.stringify(newUser));
 
-  window.addEventListener('storage', e => {
-    // whenever any relevant key changes, re‑draw
-    if (['ft_activities','ft_profile','ft_leaderboard','ft_liveSessions','ft_mySchedules'].includes(e.key)) {
-      updateDashboard();
-    }
-  });
+  updateDashboard();
+
+  // Re‑draw whenever data changes anywhere
+  ['ft_current','ft_profile','ft_activities','ft_leaderboard','ft_liveSessions','ft_mySchedules']
+    .forEach(key => Storage.onChange(key, updateDashboard));
 });
 </script>
+
 
 
 </body>
