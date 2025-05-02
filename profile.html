@@ -20,6 +20,16 @@
       --gold: #ff9800;
       --font: 'Poppins', sans-serif;
       --font-alt: 'Raleway', sans-serif;
+      --white: #fff;
+      --font-base: 'Raleway', sans-serif;
+      --font-head: 'Poppins', sans-serif;
+      --transition: .3s ease;
+      --sidebar-w: 80px;
+      --mobile-sidebar-w: 200px;
+      --break-mobile: 900px;
+      --overlay-z: 90;
+      --sidebar-z: 100;
+      --header-z: 200;
     }
     body.light-theme {
       --bg: #fafafa; --fg: #111; --card-bg: rgba(0,0,0,0.05); --input-bg: #fff;
@@ -31,26 +41,48 @@
     }
     a { color:inherit; text-decoration:none; }
 
+       /* ─── OVERLAY ───────────────── */
+    #overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      opacity:0; visibility:hidden; transition:opacity var(--transition);
+      z-index:var(--overlay-z);
+    }
+    #overlay.active { opacity:1; visibility:visible; }
+
     /* ─── SIDEBAR ───────────────── */
     .sidebar {
-      position:sticky; top:0; height:100vh; width:80px;
-      background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center; padding:1rem 0;
+      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding-top:1rem; position:sticky; top:0; height:100vh;
+      transform: translateX(0);
+      transition:transform var(--transition);
+      z-index:var(--sidebar-z);
     }
-    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:2rem; }
-    .sidebar .menu-item { width:100%; text-align:center; padding:1rem 0; transition:background .2s; }
-    .sidebar .menu-item:hover,
-    .sidebar .menu-item.active { background:rgba(255,152,0,0.2); }
-    .sidebar .menu-item a { display:flex; flex-direction:column; align-items:center; }
-    .sidebar .menu-item i { font-size:1.4rem; }
-    .sidebar .menu-item span { font-size:.6rem; margin-top:.2rem; }
-    .sidebar .sign-in-btn {
-      margin-top:auto; margin-bottom:1rem;
-      width:50px; height:50px; background:var(--gold);
-      border-radius:50%; display:flex; align-items:center; justify-content:center;
-      cursor:pointer; box-shadow:0 0 10px var(--gold); transition:transform .2s;
+    .sidebar.open { transform:translateX(0); }
+    .sidebar-close {
+      display:none; font-size:1.5rem;
+      position:absolute; top:1rem; right:1rem;
+      background:transparent; border:none; color:var(--white);
     }
-    .sidebar .sign-in-btn:hover { transform:scale(1.1); }
+    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
+    .sidebar a.menu-item,
+    .sidebar button.profile-menu {
+      width:100%; padding:.8rem 0;
+      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      color:var(--white);
+      transition:background var(--transition);
+    }
+    .sidebar a.menu-item:hover,
+    .sidebar a.menu-item.active,
+    .sidebar button.profile-menu:hover {
+      background:rgba(255,152,0,0.2);
+    }
+    .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar { font-size:1.2rem; }
+    .sidebar a.menu-item span,
+    .sidebar button.profile-menu span { font-size:.75rem; }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
 
     /* ─── MAIN AREA ───────────────── */
     .main { flex:1; display:flex; flex-direction:column; }
@@ -142,72 +174,23 @@
     /* ─── PHONE ONLY (≤414px) ───────────────────────────────────────── */
 @media only screen and (max-width: 414px) {
   /* —— Off-canvas sidebar on the right —— */
-  .sidebar {
-    position: fixed;
-    top: 0;
-    right: -80px;             /* hidden offscreen */
-    width: 0;
-    height: 100vh;
-    background: var(--bg);
-    border-left: 2px solid var(--gold);
-    border-right: none;
-    overflow: hidden;
-    transition: right .3s ease, width .3s ease;
-    z-index: 1100;
-  }
-  .sidebar.open {
-    right: 0;                /* slide in */
-    width: 200px;
-  }
+  .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--mobile-sidebar-w);
+        transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+      .sidebar-close { display:block; }
 
-  /* —— Sidebar toggle button (☰) —— */
-  #sidebarToggle {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1200;
-    background: var(--gold);
-    color: var(--bg);
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem;
-    font-size: 1.2rem;
+      header { padding:0.75rem 1rem; }
+     header h1 { margin: 0 auto; font-size: 1.2rem; }
+  .hamburger,
+  .profile-btn {
     display: block;
-  }
-
-  /* —— Sidebar close button (×) —— */
-  #sidebarClose {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: transparent;
-    border: none;
-    color: var(--fg);
-    font-size: 1.2rem;
-    display: block;
+    top: 50%;
+    transform: translateY(-50%);
   }
+  .hamburger { left: 1rem; }
+  .profile-btn { right: 1rem; }
 
-  /* —— Main content full width —— */
-  .main {
-    margin: 0 !important;
-  }
-
-  /* —— Header stacks & shrinks —— */
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 1rem;
-  }
-  header h1 {
-    font-size: 1.4rem;
-  }
-  header button {
-    width: 100%;
-    margin-top: 0.5rem;
-    padding: 0.6rem;
-    font-size: 0.9rem;
-  }
 
   /* —— Profile form to single column —— */
   #profileForm {
@@ -266,29 +249,18 @@
   <i class="fas fa-bars"></i>
 </button>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar" role="navigation">
-    <button id="sidebarClose" aria-label="Close menu">&times;</button>
-
+ <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar">
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <div class="menu-item"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a></div>
-    <div class="menu-item"><a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a></div>
-    <div class="menu-item"><a href="workouts.html"><i class="fas fa-tasks"></i><span>Workouts</span></a></div>
-    <div class="menu-item"><a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a></div>
-   <div class="menu-item">
-  <a href="profile.html">
-    <img
-      id="sidebarAvatar"
-      src="https://i.pravatar.cc/150?u=default"
-      alt="Profile"
-      style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
-    />
-    <span>Profile</span>
-  </a>
-</div>
-
-    <div class="sign-in-btn"><a href="home.html"><i class="fas fa-sign-out-alt"></i></a></div>
+    <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+    <a href="log.html"         class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <button class="menu-item profile-menu"><i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
+    <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
+
 
   <div class="main">
     <header>
@@ -393,6 +365,23 @@
   document.addEventListener('DOMContentLoaded', () => {
     const cur   = JSON.parse(localStorage.getItem('ft_current') || '{}');
     const users = JSON.parse(localStorage.getItem('ft_users')   || '[]');
+
+    const overlay    = document.getElementById('overlay'),
+          sidebar    = document.getElementById('sidebar'),
+          openBtn    = document.getElementById('hamburger'),
+          closeBtn   = document.getElementById('sidebar-close'),
+          profileBtn = document.getElementById('profile-btn');
+
+    // OPEN / CLOSE SIDEBAR
+    openBtn.onclick = () => {
+      sidebar.classList.add('open');
+      overlay.classList.add('active');
+    };
+    closeBtn.onclick = overlay.onclick = () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    };
+    profileBtn.onclick = () => location.href = 'profile.html';
 
     // grab all our form controls
     const fld = {
