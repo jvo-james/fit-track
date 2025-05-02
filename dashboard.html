@@ -17,8 +17,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="storage.js"></script>
 
-<link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
-<script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
 
   <style>
     :root {
@@ -474,30 +472,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // 1) All activities
-const activities = JSON.parse(localStorage.getItem('ft_activities') || '[]');
-// 2) All logged workouts (if you have a separate key)
-const workouts   = JSON.parse(localStorage.getItem('ft_workouts')   || '[]');
-// 3) All live sessions
-const liveNow    = JSON.parse(localStorage.getItem('ft_liveWorkouts')|| '[]');
-
-// Now feed those into your stats cards:
-document.getElementById('workoutsCount').textContent = workouts.length;
-const totalKm = activities.reduce((sum,a) => sum + (parseFloat(a.distance)||0), 0);
-document.getElementById('distanceCount').textContent = totalKm.toFixed(1) + ' km';
-// …and so on for calories, days active, etc.
-
-// And if you want to list upcoming live streams:
-const liveGrid = document.getElementById('liveSessionsGrid');
-liveNow.forEach(s => {
-  const card = document.createElement('div');
-  card.className = 'live-card';
-  card.innerHTML = `
-    <h3>${s.name}</h3>
-    <p>${s.type} • ${s.start}</p>`;
-  liveGrid.appendChild(card);
-});
-
   // ─── 1) Redirect if not signed up/in ─────────────────
   const curJSON = localStorage.getItem('ft_current');
   if (!curJSON) return location.href = 'home.html';
@@ -709,23 +683,10 @@ fd.slice(0,5).forEach(item => {
   d.textContent = item;
   document.getElementById('action-feed').appendChild(d);
 });
-// find your notif-bar element
-const notifBar = document.getElementById('notif-bar');
-const notifClose = document.getElementById('notif-close');
-
-// when page loads, if profile incomplete:
-if (!cur.bio || !cur.height /* etc */) {
-  notifBar.classList.remove('hidden');
-}
-
-// allow the user to close it
-notifClose.addEventListener('click', () => {
-  notifBar.classList.add('hidden');
-});
 
 });
 </script>
 
 
 </body>
-</html>
+</html> 
