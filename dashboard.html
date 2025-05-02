@@ -55,14 +55,14 @@
     .overlay.active { display:block; }
 
     /* Notification */
-    .notif-bar {
+   .notif-bar {
+      position:fixed; top:1rem; left:50%; transform:translateX(-50%);
+      max-width:600px; width:90%; background:rgba(255,152,0,0.1);
+      border-left:4px solid var(--gold); padding:.8rem 1.5rem;
       display:flex; align-items:center; justify-content:space-between;
-      background:rgba(255,152,0,0.1); border-left:4px solid var(--gold);
-      padding:.8rem 1.5rem; font-size:.95rem;
-      position:sticky; top:0; z-index:var(--header-z);
+      font-size:.95rem; z-index:2000;
     }
     .notif-bar.hidden { display:none; }
-    .notif-bar button { font-size:1.2rem; margin-left:1rem; }
 
     /* Sidebar */
     .sidebar {
@@ -399,10 +399,11 @@
         <i class="fas fa-plus"></i><span>New Workout</span>
       </button>
     </header>
-<div class="profile-summary">
-  <img id="dash-avatar" class="avatar" src="" alt="You">
-  <span id="dash-name"></span>
-</div>
+<!-- Profile summary -->
+      <div class="profile-summary" style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+        <img id="dash-avatar" class="avatar" src="" alt="You" style="width:48px;height:48px;border-radius:50%;"/>
+        <span id="dash-name" style="font-size:1.1rem;"></span>
+      </div>
 
     <div class="content">
        <!-- Stats, Progress, Goals, Charts, etc. (identical to your original) -->
@@ -462,23 +463,42 @@
   <h2><i class="fas fa-medal"></i> Your Achievements</h2>
   <div class="achievements-grid" id="yourAchievements"></div>
 </section>
-
+  <section class="community">
+        <h2><i class="fas fa-users"></i> Community Feed</h2>
+        <ul class="feed-list" id="communityFeed"></ul>
+      </section>
  </div>
     <footer>
       <p>&copy; 2025 FitTrack. All rights reserved.</p>
     </footer>
   </div>
 
-  <!-- New Workout Modal -->
+   <!-- New Workout Modal -->
   <div id="workout-modal" class="modal-overlay">
     <div class="modal">
-      <button id="workout-close" class="close" aria-label="Close">&times;</button>
       <h2>Log New Workout</h2>
+      <label for="w-date">Date</label>
       <input type="date" id="w-date" />
-      <input type="number" id="w-duration" placeholder="Duration (mins)" />
-      <button id="w-save" class="primary">Save Workout</button>
+      <label for="w-type">Type</label>
+      <select id="w-type">
+        <option value="Cardio">Cardio</option>
+        <option value="Strength">Strength</option>
+        <option value="Flexibility">Flexibility</option>
+        <option value="Other">Other</option>
+      </select>
+      <label for="w-duration">Duration (mins)</label>
+      <input type="number" id="w-duration" placeholder="e.g. 30" />
+      <label for="w-distance">Distance (km)</label>
+      <input type="number" id="w-distance" placeholder="optional" step="0.1" />
+      <label for="w-calories">Calories</label>
+      <input type="number" id="w-calories" placeholder="optional" />
+      <label for="w-notes">Notes</label>
+      <textarea id="w-notes" rows="3" placeholder="How did it feel?"></textarea>
+      <button class="primary" id="w-save">Save Workout</button>
+      <button class="close" id="w-cancel" style="margin-top:.5rem;">Cancel</button>
     </div>
   </div>
+  
 <div id="tour-overlay" style="display:none;
      position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;"></div>
 <div id="tour-tooltip" style="display:none;position:absolute;
@@ -510,7 +530,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const workoutSave    = document.getElementById('w-save');
   const tourOverlay    = document.getElementById('tour-overlay');
   const tourTooltip    = document.getElementById('tour-tooltip');
-
+  const wCancel        = document.getElementById('w-cancel');
+  
   // ─── “Complete your profile” banner ───────────────────────
   const prof = Storage.get('ft_profile', {});
   if (!prof.name || !prof.avatar) notifBar.classList.remove('hidden');
@@ -549,20 +570,29 @@ document.addEventListener('DOMContentLoaded', () => {
   profileBtn.addEventListener('click',     () => location.replace('profile.html'));
   profileMenuBtn.addEventListener('click', () => location.replace('profile.html'));
 
-  // ─── New‑Workout Modal ─────────────────────────────────────
-  newWorkoutBtn.addEventListener('click',  () => workoutModal.classList.add('active'));
-  workoutClose.addEventListener('click',    () => workoutModal.classList.remove('active'));
-  workoutModal.addEventListener('click',    e => { if (e.target === workoutModal) workoutModal.classList.remove('active'); });
-  workoutSave.addEventListener('click',    () => {
-    const date = document.getElementById('w-date').value;
-    const dur  = +document.getElementById('w-duration').value;
-    if (!date || !dur) return alert('Date & duration required');
-    const all = Storage.get('ft_activities', []);
-    all.unshift({ id: Math.random().toString(36).substr(2,9), date, duration: dur });
-    Storage.set('ft_activities', all);
-    updateDashboard();
-    workoutModal.classList.remove('active');
-  });
+ // New‑Workout modal open/close
+      newWorkoutBtn.onclick  = () => workoutModal.classList.add('active');
+      wCancel.onclick        = () => workoutModal.classList.remove('active');
+
+      // Save workout
+      wSave.onclick = () => {
+        const date     = document.getElementById('w-date').value;
+        const type     = document.getElementById('w-type').value;
+        const duration = +document.getElementById('w-duration').value;
+        const distance = +document.getElementById('w-distance').value;
+        const calories = +document.getElementById('w-calories').value;
+        const notes    = document.getElementById('w-notes').value.trim();
+        if (!date || !duration) return alert('Date & duration required');
+        const all = Storage.get('ft_activities', []);
+        all.unshift({ 
+          id: Math.random().toString(36).substr(2,9),
+          date, type, duration, distance, calories, notes 
+        });
+        Storage.set('ft_activities', all);
+        updateDashboard();
+        workoutModal.classList.remove('active');
+      };
+
 
   // ─── Charts setup ─────────────────────────────────────────
   const activityCtx     = document.getElementById('activityChart').getContext('2d');
@@ -593,27 +623,29 @@ document.addEventListener('DOMContentLoaded', () => {
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
   });
 
-  // ─── Helper: Tour ───────────────────────────────────────────
-  function runTour(steps) {
-    let idx = 0;
-    tourOverlay.style.display = tourTooltip.style.display = 'block';
-    function showStep() {
-      const { sel, msg } = steps[idx],
-            el           = document.querySelector(sel),
-            r            = el.getBoundingClientRect();
-      tourTooltip.innerHTML = `
-        <div style="max-width:200px">${msg}</div>
-        <button>${idx === steps.length-1 ? 'Done' : 'Next'}</button>`;
-      tourTooltip.style.top  = (r.bottom + window.scrollY + 8) + 'px';
-      tourTooltip.style.left = (r.left   + window.scrollX)   + 'px';
-      tourTooltip.querySelector('button').onclick = () => {
-        idx++;
-        if (idx < steps.length) showStep();
-        else tourOverlay.style.display = tourTooltip.style.display = 'none';
-      };
-    }
-    showStep();
-  }
+   // Tour helper
+      const tourOv = document.getElementById('tour-overlay');
+      const tourTp = document.getElementById('tour-tooltip');
+      function runTour(steps) {
+        let idx = 0;
+        tourOv.style.display = tourTp.style.display = 'block';
+        function show() {
+          const {sel,msg} = steps[idx];
+          const el = document.querySelector(sel);
+          const r  = el.getBoundingClientRect();
+          tourTp.innerHTML = `<div style="max-width:200px">${msg}</div>
+                              <button>${idx===steps.length-1?'Done':'Next'}</button>`;
+          tourTp.style.top  = (r.bottom + window.scrollY + 8)+'px';
+          tourTp.style.left = (r.left   + window.scrollX)+'px';
+          tourTp.querySelector('button').onclick = () => {
+            idx++;
+            if (idx<steps.length) show();
+            else tourOv.style.display = tourTp.style.display = 'none';
+          };
+        }
+        show();
+      }
+
 
   // ─── Update Routines ───────────────────────────────────────
   function updateProfileSummary() {
@@ -790,6 +822,18 @@ document.addEventListener('DOMContentLoaded', () => {
       location.replace(`live.html?session=${btn.dataset.id}`);
     }
   });
+
+   // Community feed (pseudo)
+      function updateFeed(){
+        const feed = Storage.get('ft_feed',[
+          "Alice completed a 5km run!",
+          "Bob joined HIIT Blast live session.",
+          "Cara logged 10 workouts this month!"
+        ]);
+        const ul = document.getElementById('communityFeed');
+        ul.innerHTML='';
+        feed.slice(0,5).forEach(item=> ul.insertAdjacentHTML('beforeend', `<li>${item}</li>`));
+      }
 
   // ─── Master redraw + listeners ─────────────────────────────
   function updateDashboard() {
