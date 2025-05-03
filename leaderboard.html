@@ -6,10 +6,7 @@
   <title>FitTrack | Leaderboard</title>
 
   <!-- Google Fonts & FontAwesome -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
     rel="stylesheet"
@@ -318,215 +315,219 @@
     </div>
   </div>
 
-  <!-- storage.js must export {Storage} -->
-  <script type="module">
-    import { Storage } from './storage.js';
+<script type="module">
+import { Storage } from './storage.js';
 
-    // Sidebar toggle
-    const sidebar = document.getElementById('sidebar'),
-          overlay = document.getElementById('overlay');
-    window.toggleSidebar = () => {
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('active');
-    };
+// Sidebar toggle (if used)
+const sidebar = document.getElementById('sidebar'),
+      overlay = document.getElementById('overlay');
+window.toggleSidebar = () => {
+  if (sidebar && overlay) {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+  }
+};
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // 1) Redirect if not signed in
-      const cur = Storage.get('ft_current', null);
-      if (!cur || !cur.name) return location.replace('home.html');
-      document.getElementById('welcomeBanner').textContent = `Welcome back, ${cur.name}!`;
+document.addEventListener('DOMContentLoaded', () => {
+  // Redirect if not signed in
+  const cur = Storage.get('ft_current', null);
+  if (!cur || !cur.name) return location.replace('home.html');
 
-      // 2) Seed pseudo-users exactly once
-      if (!Storage.get('ft_leaderboard', []).length) {
-        Storage.set('ft_leaderboard', [
-          { name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg' },
-          { name:'Bob',   workouts:20, distanceKm:95,  avatar:'bob.jpg'   },
-          { name:'Cara',  workouts:18, distanceKm:80,  avatar:'cara.jpg'  },
-          { name:'Dana',  workouts:15, distanceKm:70,  avatar:'https://i.pravatar.cc/150?u=dana' },
-          { name:'Evan',  workouts:12, distanceKm:55,  avatar:'https://i.pravatar.cc/150?u=evan' }
-        ]);
+  // Welcome banner
+  document.getElementById('welcomeBanner').textContent = `Welcome back, ${cur.name}!`;
+
+  // Seed leaderboard pseudo‐users once
+  if (!Storage.get('ft_leaderboard', []).length) {
+    Storage.set('ft_leaderboard', [
+      { name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg' },
+      { name:'Bob',   workouts:20, distanceKm:95,  avatar:'bob.jpg'   },
+      { name:'Cara',  workouts:18, distanceKm:80,  avatar:'cara.jpg'  },
+      { name:'Dana',  workouts:15, distanceKm:70,  avatar:'https://i.pravatar.cc/150?u=dana' },
+      { name:'Evan',  workouts:12, distanceKm:55,  avatar:'https://i.pravatar.cc/150?u=evan' }
+    ]);
+  }
+
+  // Profile navigation & avatar sync
+  document.getElementById('profileBtn').onclick    = () => location.replace('profile.html');
+  document.getElementById('hdrAvatarBtn').onclick = () => location.replace('profile.html');
+  function syncAvatar() {
+    const p = Storage.get('ft_profile', {});
+    ['sideAvatar','hdrAvatarIcon'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && p.avatar) {
+        el.outerHTML = `<img id="${id}" class="avatar" src="${p.avatar}"/>`;
       }
-
-      // 3) Profile nav
-      document.getElementById('profileBtn').onclick = () => location.replace('profile.html');
-      document.getElementById('hdrAvatarBtn').onclick = () => location.replace('profile.html');
-
-      // 4) Sync avatars
-      function syncAvatar() {
-        const p = Storage.get('ft_profile', {});
-        ['sideAvatar','hdrAvatarIcon'].forEach(id => {
-          const el = document.getElementById(id);
-          if (p.avatar) {
-            el.outerHTML = `<img id="${id}" class="avatar" src="${p.avatar}"/>`;
-          }
-        });
-      }
-      syncAvatar();
-      Storage.onChange('ft_profile', syncAvatar);
-
-      // Score formula
-      function computeScore(u) {
-        return u.workouts*10 + Math.round(u.distanceKm*2);
-      }
-
-      // Ensure current user is in leaderboard
-      function syncCurrentUser() {
-        const acts = Storage.get('ft_activities', []).filter(a => a.user===cur.name);
-        const me = {
-          name:cur.name,
-          workouts: acts.length,
-          distanceKm:+acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1),
-          avatar:Storage.get('ft_profile',{}).avatar||''
-        };
-        const lb = Storage.get('ft_leaderboard', []);
-        const idx = lb.findIndex(u=>u.name===cur.name);
-        if (idx<0) lb.push(me);
-        else lb[idx]=me;
-        Storage.set('ft_leaderboard', lb);
-      }
-
-      // Main render
-      let chart7, chartT;
-      function renderAll() {
-        syncCurrentUser();
-
-        const acts = Storage.get('ft_activities', []);
-        const lb = Storage.get('ft_leaderboard', [])
-          .map(u=>({ ...u, score: computeScore(u) }))
-          .sort((a,b)=>b.score - a.score);
-
-        // Quick stats
-        document.getElementById('statMembers').textContent = lb.length;
-        const yourIdx = lb.findIndex(u=>u.name===cur.name);
-        document.getElementById('statYourRank').textContent = `#${yourIdx+1}`;
-        document.getElementById('statYourScore').textContent = lb[yourIdx].score;
-
-        // Hall of Fame
-        const hallEl = document.getElementById('hallOfFame');
-        hallEl.innerHTML = '';
-        lb.slice(0,3).forEach((u,i)=>{
-          const d=document.createElement('div');
-          d.className='hall-card';
-          d.innerHTML = u.avatar
-            ? `<img src="${u.avatar}"/>`
-            : `<i class="fas fa-user-circle" style="font-size:60px;color:var(--white)"></i>`;
-          d.innerHTML += `<span>#${i+1} ${u.name}</span>`;
-          hallEl.append(d);
-        });
-
-        // Hall of Fame Stories
-        const stories = [
-          `🥇 ${lb[0].name} smashed ${lb[0].workouts} workouts!`,
-          `🥈 ${lb[1].name} ran ${lb[1].distanceKm.toFixed(1)} km!`,
-          `🥉 ${lb[2].name} scored ${lb[2].score} points!`
-        ];
-        document.getElementById('hofStories').innerHTML =
-          stories.map(s=>`<li>${s}</li>`).join('');
-
-        // Leaderboard table
-        const body = document.getElementById('leaderboardBody');
-        body.innerHTML = '';
-        lb.forEach((u,i)=>{
-          const tr = document.createElement('tr');
-          if (i===yourIdx) tr.classList.add('me');
-          tr.innerHTML = `
-            <td class="rank">${i+1}</td>
-            <td class="user-cell">
-              ${u.avatar
-                ? `<img src="${u.avatar}" width="24" height="24"/>`
-                : `<i class="fas fa-user-circle" style="font-size:24px;color:var(--white)"></i>`}
-              <span>${u.name}</span>
-            </td>
-            <td>${u.workouts}</td>
-            <td>${u.distanceKm.toFixed(1)}</td>
-            <td>${u.score}</td>`;
-          body.append(tr);
-        });
-
-        // Last 7 days & trend
-        const labels = [], data7 = [], trend = [];
-        for (let d=6; d>=0; d--) {
-          const D=new Date(); D.setDate(D.getDate()-d);
-          const key = D.toISOString().slice(0,10);
-          labels.push(D.toLocaleDateString(undefined,{weekday:'short'}));
-          const day = acts.filter(a => a.user===cur.name && a.date===key);
-          data7.push(day.reduce((s,a)=>s+(+a.duration||0),0));
-          trend.push(day.length);
-        }
-        if (chart7) chart7.destroy();
-        chart7 = new Chart(
-          document.getElementById('last7Chart'),
-          {
-            type:'bar',
-            data:{ labels, datasets:[{ data:data7, backgroundColor: labels.map(()=>getComputedStyle(document.documentElement).getPropertyValue('--gold').trim()) }] },
-            options:{ responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true } } }
-          }
-        );
-        if (chartT) chartT.destroy();
-        chartT = new Chart(
-          document.getElementById('trendChart'),
-          {
-            type:'line',
-            data:{ labels, datasets:[{ label:'# Sessions', data:trend, fill:false, tension:0.4 }] },
-            options:{ responsive:true }
-          }
-        );
-
-        // Badges
-        const bc = document.getElementById('badgeContainer');
-        bc.innerHTML = '';
-        [ {n:1,icon:'star',txt:'First Workout'},
-          {n:5,icon:'medal',txt:'5 Workouts'},
-          {n:10,icon:'trophy',txt:'10 Workouts'},
-          {n:30,icon:'award',txt:'30 Workouts'} ]
-        .forEach(b=>{
-          const div=document.createElement('div');
-          const unlocked = acts.filter(a=>a.user===cur.name).length >= b.n;
-          div.className = 'achievement-badge' + (unlocked?' unlocked':'');
-          div.title = unlocked
-            ? `Unlocked: ${b.txt}`
-            : `Unlock at ${b.n} workouts`;
-          div.innerHTML = `<i class="fas fa-${b.icon}"></i><div class="badge-text">${b.txt}</div>`;
-          bc.append(div);
-        });
-
-        // Rival Spotlight
-        const rivals = lb.filter((_,i)=>i!==yourIdx);
-        const spot = document.getElementById('rivalSpotlight');
-        spot.innerHTML = '';
-        if (rivals.length) {
-          const r = rivals[Math.floor(Math.random()*rivals.length)];
-          spot.innerHTML = `
-            <div class="user-cell">
-              ${r.avatar
-                ? `<img src="${r.avatar}" width="48" height="48"/>`
-                : `<i class="fas fa-user-circle" style="font-size:48px;color:var(--white)"></i>`}
-              <div style="margin-left:.8rem">
-                <strong>${r.name}</strong><br>
-                Workouts: ${r.workouts}<br>
-                Km: ${r.distanceKm.toFixed(1)}<br>
-                Score: ${r.score}
-              </div>
-            </div>`;
-        }
-      }
-
-      // Search & listeners
- const searchInput = document.getElementById('searchInput');
- searchInput.addEventListener('input', e => {
-   renderAll();
-   const q = e.target.value.toLowerCase();
-   document.querySelectorAll('#leaderboardBody tr').forEach(tr => {
-     tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
-   });
- });
-      ['ft_leaderboard','ft_activities'].forEach(key=>
-        Storage.onChange(key, renderAll)
-      );
-
-      // First draw
-      renderAll();
     });
-  </script>
+  }
+  syncAvatar();
+  Storage.onChange('ft_profile', syncAvatar);
+
+  // Score formula
+  function computeScore(u) {
+    return u.workouts * 10 + Math.round(u.distanceKm * 2);
+  }
+
+  // Ensure current user appears in leaderboard
+  function syncCurrentUser() {
+    const acts = Storage.get('ft_activities', []) || [];
+    const me = {
+      name: cur.name,
+      workouts: acts.length,
+      distanceKm: +acts.reduce((s,a) => s + (+a.distance||0), 0).toFixed(1),
+      avatar: (Storage.get('ft_profile', {}) || {}).avatar || ''
+    };
+    const lb = Storage.get('ft_leaderboard', []) || [];
+    const idx = lb.findIndex(u => u.name === cur.name);
+    if (idx < 0) lb.push(me);
+    else lb[idx] = me;
+    Storage.set('ft_leaderboard', lb);
+  }
+
+  // Main render
+  let chart7, chartT;
+  function renderAll() {
+    syncCurrentUser();
+
+    const acts = Storage.get('ft_activities', []) || [];
+    const lbRaw = Storage.get('ft_leaderboard', []) || [];
+    const lb = lbRaw
+      .map(u => ({ ...u, score: computeScore(u) }))
+      .sort((a,b) => b.score - a.score);
+
+    // Quick stats
+    document.getElementById('statMembers').textContent  = lb.length;
+    document.getElementById('statWorkouts').textContent = acts.length;
+    document.getElementById('statHours').textContent    = (acts.reduce((s,a)=>s+(+a.duration||0),0)/60).toFixed(1);
+    const myIdx = lb.findIndex(u => u.name === cur.name);
+    document.getElementById('statRank').textContent     = myIdx >= 0 ? `#${myIdx+1}` : 'N/A';
+
+    // Hall of Fame
+    const hallEl = document.getElementById('hallOfFame');
+    hallEl.innerHTML = '';
+    lb.slice(0,3).forEach((u,i) => {
+      const d = document.createElement('div');
+      d.className = 'hall-card';
+      d.innerHTML = u.avatar
+        ? `<img src="${u.avatar}"/>`
+        : `<i class="fas fa-user-circle fa-3x text-white"></i>`;
+      d.innerHTML += `<span>#${i+1} ${u.name}</span>`;
+      hallEl.append(d);
+    });
+
+    // Hall of Fame Stories
+    const stories = [
+      `🥇 ${lb[0].name} smashed ${lb[0].workouts} workouts!`,
+      `🥈 ${lb[1].name} ran ${lb[1].distanceKm.toFixed(1)} km!`,
+      `🥉 ${lb[2].name} scored ${lb[2].score} points!`
+    ];
+    document.getElementById('hofStories').innerHTML =
+      stories.map(s => `<li>${s}</li>`).join('');
+
+    // Leaderboard table
+    const body = document.getElementById('leaderboardBody');
+    body.innerHTML = '';
+    lb.forEach((u,i) => {
+      const tr = document.createElement('tr');
+      if (u.name === cur.name) tr.classList.add('me');
+      tr.innerHTML = `
+        <td class="rank">${i+1}</td>
+        <td class="user-cell">
+          ${u.avatar
+            ? `<img src="${u.avatar}" width="24" height="24"/>`
+            : `<i class="fas fa-user-circle fa-2x text-white"></i>`}
+          <span>${u.name}</span>
+        </td>
+        <td>${u.workouts}</td>
+        <td>${u.distanceKm.toFixed(1)}</td>
+        <td>${u.score}</td>`;
+      body.append(tr);
+    });
+
+    // Prepare chart data
+    const labels = [], data7 = [], trend = [];
+    for (let d=6; d>=0; d--) {
+      const D = new Date(); D.setDate(D.getDate()-d);
+      const key = D.toISOString().slice(0,10);
+      labels.push(D.toLocaleDateString(undefined,{weekday:'short'}));
+      const dayActs = acts.filter(a=>a.date===key);
+      data7.push(dayActs.reduce((s,a)=>s+(+a.duration||0),0));
+      trend.push(dayActs.length);
+    }
+
+    // Last 7 Days chart
+    const c7 = document.getElementById('last7Chart');
+    if (chart7) chart7.destroy();
+    chart7 = new Chart(c7, {
+      type: 'bar',
+      data: { labels, datasets: [{ data: data7 }] },
+      options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{beginAtZero:true} } }
+    });
+
+    // Session Trend chart
+    const cT = document.getElementById('trendChart');
+    if (chartT) chartT.destroy();
+    chartT = new Chart(cT, {
+      type: 'line',
+      data: { labels, datasets: [{ label:'# Sessions', data: trend, fill:false, tension:0.4 }] },
+      options: { responsive:true, plugins:{ legend:{display:false} } }
+    });
+
+    // Badges
+    const bc = document.getElementById('badgeContainer');
+    bc.innerHTML = '';
+    [
+      {n:1,  icon:'star',  txt:'First Workout'},
+      {n:5,  icon:'medal', txt:'5 Workouts'},
+      {n:10, icon:'trophy',txt:'10 Workouts'},
+      {n:30, icon:'award', txt:'30 Workouts'}
+    ].forEach(b=>{
+      const div = document.createElement('div');
+      const unlocked = acts.length >= b.n;
+      div.className = `achievement-badge${unlocked?' unlocked':''}`;
+      div.title = unlocked ? `Unlocked: ${b.txt}` : `Unlock at ${b.n} workouts`;
+      div.innerHTML = `<i class="fas fa-${b.icon}"></i><div class="badge-text">${b.txt}</div>`;
+      bc.append(div);
+    });
+
+    // Rival Spotlight
+    const spot = document.getElementById('rivalSpotlight');
+    spot.innerHTML = '';
+    const rivals = lb.filter(u=>u.name!==cur.name);
+    if (rivals.length) {
+      const r = rivals[Math.floor(Math.random()*rivals.length)];
+      spot.innerHTML = `
+        <div class="user-cell">
+          ${r.avatar
+            ? `<img src="${r.avatar}" width="48" height="48"/>`
+            : `<i class="fas fa-user-circle fa-3x text-white"></i>`}
+          <div style="margin-left:.8rem">
+            <strong>${r.name}</strong><br>
+            Workouts: ${r.workouts}<br>
+            Km: ${r.distanceKm.toFixed(1)}<br>
+            Score: ${r.score}
+          </div>
+        </div>`;
+    }
+  }
+
+  // Search filter
+  document.getElementById('searchInput').addEventListener('input', e=>{
+    renderAll();
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('#leaderboardBody tr').forEach(tr=>{
+      tr.style.display = tr.textContent.toLowerCase().includes(q)?'':'none';
+    });
+  });
+
+  // React to storage changes
+  ['ft_leaderboard','ft_activities','ft_profile'].forEach(key=>
+    Storage.onChange(key, renderAll)
+  );
+
+  // First render
+  renderAll();
+});
+</script>
+
 </body>
 </html>
