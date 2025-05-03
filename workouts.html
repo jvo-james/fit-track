@@ -781,12 +781,13 @@ plansList.addEventListener('click', e => {
           plansList.appendChild(li);
         });
       }
-      plansList.addEventListener('click', e=>{
-        if (e.target.dataset.remove!=null){
-          const idx = +e.target.dataset.remove,
-                arr = Storage.get('ft_plans', []);
-          arr.splice(idx,1);
+     plansList.addEventListener('click', e => {
+       if (e.target.dataset.remove != null) {
+          const idx = +e.target.dataset.remove;
+          const arr = Storage.get('ft_plans', []);
+          arr.splice(idx, 1);
           Storage.set('ft_plans', arr);
+          renderPlans();        // refresh immediately
         }
       });
 
