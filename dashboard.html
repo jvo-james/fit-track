@@ -14,8 +14,15 @@
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
  
+  <!-- 1) Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<!-- 2) Shared init + pseudo-user seeding -->
+<script src="js/firebase-init.js"></script>
+<!-- 3) Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+
 
 
   <style>
@@ -511,367 +518,222 @@
      padding:1rem;background:#fff;color:#000;border-radius:5px;z-index:3001;">
 </div>
 
-<script type="module">
-import { Storage } from './storage.js';
-console.log('✅ dashboard module loaded');
-
-document.addEventListener('DOMContentLoaded', () => {
-  // ─── Guard: redirect if not signed in ──────────────────────
-  const cur = Storage.get('ft_current', null);
-  if (!cur || !cur.name) return location.replace('home.html');
-
-  // ─── Elements ─────────────────────────────────────────────
-  const greetEl        = document.getElementById('greeting');
-  const notifBar       = document.getElementById('notif-bar');
-  const notifCloseBtn  = document.getElementById('notif-close');
-  const hamburgerBtn   = document.getElementById('hamburger');
-  const sidebar        = document.getElementById('sidebar');
-  const overlay        = document.getElementById('overlay');
-  const sidebarClose   = document.getElementById('sidebar-close');
-  const profileBtn     = document.getElementById('profile-btn');
-  const profileMenuBtn = document.querySelector('.profile-menu');
-  const newWorkoutBtn  = document.querySelector('.new-workout');
-  const workoutModal   = document.getElementById('workout-modal');
-  const workoutClose   = document.getElementById('workout-close');
-  const wSave          = document.getElementById('w-save');
-  const tourOverlay    = document.getElementById('tour-overlay');
-  const tourTooltip    = document.getElementById('tour-tooltip');
-  const wCancel        = document.getElementById('w-cancel');
-  
-  // ─── “Complete your profile” banner ───────────────────────
-  const prof = Storage.get('ft_profile', {});
-  if (!prof.name || !prof.avatar) notifBar.classList.remove('hidden');
-  notifCloseBtn.addEventListener('click', () => notifBar.classList.add('hidden'));
-
-  // ─── Greeting & New‑user tour ─────────────────────────────
-  if (cur.isNew) {
-    greetEl.textContent = `Hello ${cur.name}!`;
-    runTour([
-      { sel: '.stats',         msg: 'Here are your monthly stats.' },
-      { sel: '.live-sessions', msg: 'Schedule or join live sessions.' },
-      { sel: '.charts',        msg: 'Track your activity over time.' },
-      { sel: '.mini-board',    msg: 'Snapshot of the top‑5 leaderboard.' }
-    ]);
-    cur.isNew = false;
-    Storage.set('ft_current', cur);
-  } else {
-    greetEl.textContent = `Welcome back, ${cur.name}!`;
-  }
-
-  
-
-  // ─── Sidebar toggle ────────────────────────────────────────
-  hamburgerBtn.addEventListener('click', () => {
-    sidebar.classList.add('open');
-    overlay.classList.add('active');
-  });
-  sidebarClose.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
-  });
-  overlay.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
-  });
-
-  // ─── Profile navigation ────────────────────────────────────
-  profileBtn.addEventListener('click',     () => location.replace('profile.html'));
-  profileMenuBtn.addEventListener('click', () => location.replace('profile.html'));
-
- // New‑Workout modal open/close
-      newWorkoutBtn.onclick  = () => workoutModal.classList.add('active');
-      wCancel.onclick        = () => workoutModal.classList.remove('active');
-
-      // Save workout
-      wSave.onclick = () => {
-        const date     = document.getElementById('w-date').value;
-        const type     = document.getElementById('w-type').value;
-        const duration = +document.getElementById('w-duration').value;
-        const distance = +document.getElementById('w-distance').value;
-        const calories = +document.getElementById('w-calories').value;
-        const notes    = document.getElementById('w-notes').value.trim();
-        if (!date || !duration) return alert('Date & duration required');
-        const all = Storage.get('ft_activities', []);
-        all.unshift({ 
-          id: Math.random().toString(36).substr(2,9),
-          date, type, duration, distance, calories, notes 
-        });
-        Storage.set('ft_activities', all);
-        updateDashboard();
-        workoutModal.classList.remove('active');
-      };
-
-
-  // ─── Charts setup ─────────────────────────────────────────
+<script>
+  // ── DOM Refs ─────────────────────────────────────────────
+  const greetEl         = document.getElementById('greeting');
+  const dashNameEl      = document.getElementById('dash-name');
+  const dashAvatarEl    = document.getElementById('dash-avatar');
+  const workoutsCountEl = document.getElementById('workoutsCount');
+  const distanceCountEl = document.getElementById('distanceCount');
+  const caloriesCountEl = document.getElementById('caloriesCount');
+  const activeDaysEl    = document.getElementById('activeDaysCount');
+  const todayTimeEl     = document.getElementById('todayTime');
+  const avgCaloriesEl   = document.getElementById('avgCalories');
+  const progressBarEl   = document.getElementById('progressBar');
+  const goalDailyEl     = document.getElementById('goalDaily');
+  const goalWeeklyEl    = document.getElementById('goalWeekly');
+  const goalMonthlyEl   = document.getElementById('goalMonthly');
   const activityCtx     = document.getElementById('activityChart').getContext('2d');
   const distributionCtx = document.getElementById('distributionChart').getContext('2d');
-  const activityChart = new Chart(activityCtx, {
+  const recentActsTbody = document.getElementById('recent-acts');
+  const avgDurEl        = document.getElementById('avg-dur');
+  const totDistEl       = document.getElementById('tot-dist');
+  const totCalEl        = document.getElementById('tot-cal');
+  const miniBoardEl     = document.getElementById('miniLeaderboard');
+  const achievementsEl  = document.getElementById('yourAchievements');
+  const tipOfDayEl      = document.getElementById('tip-of-day');
+  const liveGridEl      = document.getElementById('liveSessionsGrid');
+  const feedEl          = document.getElementById('communityFeed');
+
+  let curProfile = {}, lbData = {}, actData = {}, activityChart, distributionChart;
+
+  // ── Initialize Charts ─────────────────────────────────────
+  activityChart = new Chart(activityCtx, {
     type: 'line',
-    data: { labels: [], datasets: [{
-      label: 'Minutes',
-      data: [],
-      borderColor: '#ff9800',
-      backgroundColor: 'rgba(255,152,0,0.2)',
-      fill: true,
-      tension: .3
-    }]},
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    data: { labels: [], datasets: [{ label:'Minutes', data: [], fill:true, tension:0.3 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
   });
-  const distributionChart = new Chart(distributionCtx, {
+  distributionChart = new Chart(distributionCtx, {
     type: 'pie',
-    data: {
-      labels: ['Cardio','Strength','Flexibility','Other'],
-      datasets: [{ data: [], backgroundColor: [
-        'rgba(255,152,0,0.8)',
-        'rgba(255,87,34,0.8)',
-        'rgba(76,175,80,0.8)',
-        'rgba(3,169,244,0.8)'
-      ]}]
-    },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    data: { labels:['Cardio','Strength','Flexibility','Other'], datasets:[{ data:[], backgroundColor:['#ff9800','#ff5722','#4caf50','#03a9f4'] }]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
   });
 
-   // Tour helper
-      const tourOv = document.getElementById('tour-overlay');
-      const tourTp = document.getElementById('tour-tooltip');
-      function runTour(steps) {
-        let idx = 0;
-        tourOv.style.display = tourTp.style.display = 'block';
-        function show() {
-          const {sel,msg} = steps[idx];
-          const el = document.querySelector(sel);
-          const r  = el.getBoundingClientRect();
-          tourTp.innerHTML = `<div style="max-width:200px">${msg}</div>
-                              <button>${idx===steps.length-1?'Done':'Next'}</button>`;
-          tourTp.style.top  = (r.bottom + window.scrollY + 8)+'px';
-          tourTp.style.left = (r.left   + window.scrollX)+'px';
-          tourTp.querySelector('button').onclick = () => {
-            idx++;
-            if (idx<steps.length) show();
-            else tourOv.style.display = tourTp.style.display = 'none';
-          };
-        }
-        show();
-      }
-
-
-  // ─── Update Routines ───────────────────────────────────────
-  function updateProfileSummary() {
-    const p = Storage.get('ft_profile', {});
-    document.getElementById('dash-name').textContent = cur.name;
-    document.getElementById('dash-avatar').src =
-      p.avatar || `https://i.pravatar.cc/150?u=${cur.email}`;
+  // ── Helpers ───────────────────────────────────────────────
+  function computeScore(u){ return (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2); }
+  function randomTip(){
+    const tips = [
+      "Stay hydrated—drink water before each session.",
+      "Warm up 5 min to activate muscles.",
+      "Focus on form over speed.",
+      "Cool down and stretch after workouts.",
+      "Try a new activity weekly to stay motivated."
+    ];
+    tipOfDayEl.textContent = tips[Math.floor(Math.random()*tips.length)];
   }
 
-  function updateStats() {
-    const acts     = Storage.get('ft_activities', []);
-    const now      = new Date();
-    const todayKey = now.toISOString().slice(0,10);
+  // ── Real-time Listeners ───────────────────────────────────
+  db.ref('ft_profile').on('value', snap => {
+    curProfile = snap.val() || {};
+    dashNameEl.textContent   = curProfile.name || '';
+    dashAvatarEl.src         = curProfile.avatar || `https://i.pravatar.cc/150?u=default`;
+    greetEl.textContent      = curProfile.name ? `Welcome back, ${curProfile.name}!` : 'Welcome!';
+  });
 
-    // Monthly filter
-    const thisMonth = acts.filter(a => {
-      const d = new Date(a.date);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  db.ref('ft_leaderboard').on('value', snap => {
+    lbData = snap.val() || {};
+    updateMiniLeaderboard();
+  });
+
+  db.ref('ft_activities').on('value', snap => {
+    actData = snap.val() || {};
+    updateStats();
+    updateCharts();
+    updateRecentActivities();
+    updateAchievements();
+    updateLiveSessions();
+    randomTip();
+  });
+
+  // ── Update Functions ──────────────────────────────────────
+  function updateStats(){
+    const allActs = Object.values(actData);
+    const now = new Date();
+    const monthActs = allActs.filter(a=>{
+      const d=new Date(a.date);
+      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
     });
-    document.getElementById('workoutsCount').textContent = thisMonth.length;
-    const totalDist  = thisMonth.reduce((s,a) => s + (+a.distance||0),0).toFixed(1) + ' km';
-    const totalCal   = thisMonth.reduce((s,a) => s + (+a.calories||0),0);
-    document.getElementById('distanceCount').textContent = totalDist;
-    document.getElementById('caloriesCount').textContent = totalCal;
-    
-    // Active days
-    const days = new Set(thisMonth.map(a => a.date)).size;
-    document.getElementById('activeDaysCount').textContent = days;
+    workoutsCountEl.textContent = monthActs.length;
+    const totalDist = monthActs.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+    distanceCountEl.textContent = `${totalDist} km`;
+    const totalCal = monthActs.reduce((s,a)=>s+(+a.calories||0),0);
+    caloriesCountEl.textContent = totalCal;
+    const activeDays = new Set(monthActs.map(a=>a.date)).size;
+    activeDaysEl.textContent = activeDays;
+    const todayKey = now.toISOString().slice(0,10);
+    const todayActs = allActs.filter(a=>a.date===todayKey);
+    const todayTime = todayActs.reduce((s,a)=>s+(+a.duration||0),0);
+    todayTimeEl.textContent = `${todayTime} min`;
+    avgCaloriesEl.textContent = monthActs.length ? Math.round(totalCal/monthActs.length) : 0;
 
-    // Today’s time & Avg calories
-    const todayTotal = acts.filter(a => a.date === todayKey)
-                           .reduce((s,a) => s + (+a.duration||0),0);
-    document.getElementById('todayTime').textContent = todayTotal + ' min';
-    document.getElementById('avgCalories').textContent =
-      thisMonth.length ? Math.round(totalCal / thisMonth.length) : 0;
-
-    // Progress bars
-    const weekCount = acts.filter(a => {
-      const d = new Date(a.date);
-      return (now - d)/(1000*60*60*24) <= 7;
+    // progress bars
+    const weekCount = allActs.filter(a=>{
+      const d=new Date(a.date);
+      return (now - d)/(1000*60*60*24) < 7;
     }).length;
-    document.getElementById('progressBar').style.width  = Math.min(100, Math.round(weekCount/5*100)) + '%';
-    document.getElementById('goalDaily').style.width     = Math.min(100, Math.round(todayTotal/30*100)) + '%';
-    document.getElementById('goalWeekly').style.width    = Math.min(100, Math.round(weekCount/5*100)) + '%';
-    document.getElementById('goalMonthly').style.width   = Math.min(100, Math.round(thisMonth.length/20*100)) + '%';
+    progressBarEl.style.width   = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    goalDailyEl.style.width     = `${Math.min(100,Math.round(todayTime/30*100))}%`;
+    goalWeeklyEl.style.width    = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    goalMonthlyEl.style.width   = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
   }
 
-  function updateCharts() {
-    const acts   = Storage.get('ft_activities', []);
-    const now    = new Date();
-    const labels = [], data = [];
-
-    // Past 7 days line data
-    for (let i=6; i>=0; i--) {
-      const d   = new Date(); d.setDate(d.getDate()-i);
-      const key = d.toISOString().slice(0,10);
-      labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
-      data.push(acts.filter(a => a.date===key)
-                   .reduce((s,a)=>s + (+a.duration||0),0));
+  function updateCharts(){
+    const allActs = Object.values(actData);
+    const now = new Date();
+    // 7-day line
+    const labels=[], dataLine=[];
+    for(let i=6;i>=0;i--){
+      const dt=new Date(); dt.setDate(dt.getDate()-i);
+      const key=dt.toISOString().slice(0,10);
+      labels.push(dt.toLocaleDateString(undefined,{weekday:'short'}));
+      const sum = allActs.filter(a=>a.date===key)
+                         .reduce((s,a)=>s+(+a.duration||0),0);
+      dataLine.push(sum);
     }
-    activityChart.data.labels          = labels;
-    activityChart.data.datasets[0].data = data;
+    activityChart.data.labels = labels;
+    activityChart.data.datasets[0].data = dataLine;
     activityChart.update();
 
-    // Pie distribution (this month by type)
-    const thisMonth = acts.filter(a => {
-      const d = new Date(a.date);
+    // distribution pie (this month)
+    const monthActs = allActs.filter(a=>{
+      const d=new Date(a.date);
       return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
     });
     const counts = { Cardio:0, Strength:0, Flexibility:0, Other:0 };
-    thisMonth.forEach(a => {
-      if (a.type==='Cardio')      counts.Cardio++;
-      else if (a.type==='Strength')counts.Strength++;
-      else if (a.type==='Flexibility')counts.Flexibility++;
-      else counts.Other++;
-    });
+    monthActs.forEach(a=>{ counts[a.type] = (counts[a.type]||0)+1; });
     distributionChart.data.datasets[0].data = [
-      counts.Cardio,
-      counts.Strength,
-      counts.Flexibility,
-      counts.Other
+      counts.Cardio, counts.Strength, counts.Flexibility, counts.Other
     ];
     distributionChart.update();
   }
 
-  function updateRecentActivities() {
-    const acts = Storage.get('ft_activities', []);
-    const tb   = document.getElementById('recent-acts');
-    tb.innerHTML = '';
-    acts.slice(0,5).forEach(a => {
-      tb.insertAdjacentHTML('beforeend', `
+  function updateRecentActivities(){
+    const allActs = Object.values(actData).sort((a,b)=>b.date.localeCompare(a.date));
+    recentActsTbody.innerHTML = '';
+    allActs.slice(0,5).forEach(a=>{
+      recentActsTbody.insertAdjacentHTML('beforeend',`
         <tr>
           <td>${a.date}</td>
-          <td>${a.type||'-'}</td>
+          <td>${a.type || '-'}</td>
           <td>${a.duration}</td>
-          <td>${a.distance||'-'}</td>
+          <td>${a.distance|| '-'}</td>
         </tr>`);
     });
-    // fast‐stats
-    const avgDur = acts.length
-      ? Math.round(acts.reduce((s,a)=>s+(+a.duration||0),0)/acts.length)
+    const avgDur = allActs.length
+      ? Math.round(allActs.reduce((s,a)=>s+(+a.duration||0),0)/allActs.length)
       : 0;
-    const totDist = acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
-    const totCal  = acts.reduce((s,a)=>s+(+a.calories||0),0);
-    document.getElementById('avg-dur').textContent = avgDur;
-    document.getElementById('tot-dist').textContent = totDist;
-    document.getElementById('tot-cal').textContent  = totCal;
+    const totDist = allActs.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+    const totCal  = allActs.reduce((s,a)=>s+(+a.calories||0),0);
+    avgDurEl.textContent = avgDur;
+    totDistEl.textContent = totDist;
+    totCalEl.textContent  = totCal;
   }
 
-  function updateMiniLeaderboard() {
-    const list = Storage.get('ft_leaderboard', [])
-                  .sort((a,b)=>b.score-a.score)
-                  .slice(0,5);
-    const ol = document.getElementById('miniLeaderboard');
-    ol.innerHTML = '';
-    list.forEach(u => {
-      ol.insertAdjacentHTML('beforeend', `<li>${u.name}: ${u.score}</li>`);
+  function updateMiniLeaderboard(){
+    const entries = Object.values(lbData)
+      .map(u=>({...u,score:computeScore(u)}))
+      .sort((a,b)=>b.score-a.score)
+      .slice(0,5);
+    miniBoardEl.innerHTML = '';
+    entries.forEach(u=>{
+      miniBoardEl.insertAdjacentHTML('beforeend',`<li>${u.name}: ${u.score}</li>`);
     });
   }
 
-  function updateAchievements() {
-    const total = Storage.get('ft_activities', []).length;
-    const thresholds = [
-      { n:1,  icon:'fas fa-star',   text:'First Workout' },
-      { n:5,  icon:'fas fa-medal',  text:'5 Workouts'    },
-      { n:10, icon:'fas fa-trophy', text:'10 Workouts'   },
-      { n:30, icon:'fas fa-award',  text:'30 Workouts'   }
-    ];
-    const container = document.getElementById('yourAchievements');
-    container.innerHTML = '';
-    thresholds.forEach(t => {
-      const div = document.createElement('div');
-      div.className = 'achievement-badge' + (total>=t.n ? ' unlocked' : '');
-      div.innerHTML = `<i class="${t.icon}"></i><p>${t.text}</p>`;
-      container.appendChild(div);
+  function updateAchievements(){
+    const total = Object.values(actData).filter(a=>a.user===curProfile.name).length;
+    achievementsEl.innerHTML = '';
+    [
+      {n:1,  icon:'fas fa-star',   txt:'First Workout'},
+      {n:5,  icon:'fas fa-medal',  txt:'5 Workouts'},
+      {n:10, icon:'fas fa-trophy', txt:'10 Workouts'},
+      {n:30, icon:'fas fa-award',  txt:'30 Workouts'}
+    ].forEach(b=>{
+      const div=document.createElement('div');
+      div.className = 'achievement-badge' + (total>=b.n?' unlocked':'');
+      div.innerHTML= `<i class="${b.icon}"></i><p>${b.txt}</p>`;
+      achievementsEl.append(div);
     });
   }
 
-  function updateLiveSessions() {
-    const sessions = Storage.get('ft_liveSessions', []);
-    const sched    = Storage.get('ft_mySchedules', []);
-    const grid     = document.getElementById('liveSessionsGrid');
-    grid.innerHTML = '';
-    sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
-            .forEach(s => {
-      const start   = new Date(s.start);
-      const future  = start > new Date();
-      const btnText = future
-        ? (sched.includes(s.id) ? '✔ Scheduled' : 'Schedule')
-        : 'Join Now';
-      const cls     = future ? 'schedule-btn' : 'join-btn';
-      grid.insertAdjacentHTML('beforeend', `
+  function updateLiveSessions(){
+    const sessions = Object.values(db.ref('ft_liveSessions').get().then(s=>s.val()||{}));
+    // fallback or pseudo data if needed...
+    liveGridEl.innerHTML='';
+    sessions.forEach(s=>{
+      const date = new Date(s.start).toLocaleString();
+      liveGridEl.insertAdjacentHTML('beforeend',`
         <div class="live-card">
           <img src="${s.img}" alt="${s.title}"/>
           <h3>${s.title}</h3>
-          <p>${s.host} • ${start.toLocaleString()}</p>
-          <button data-id="${s.id}" class="${cls}">${btnText}</button>
+          <p>${s.host} • ${date}</p>
+          <button>${new Date(s.start)>new Date()?'Schedule':'Join Now'}</button>
         </div>`);
     });
   }
 
-  // Handle schedule/join
-  document.getElementById('liveSessionsGrid').addEventListener('click', e => {
-    const btn = e.target;
-    if (btn.matches('.schedule-btn')) {
-      let sched = Storage.get('ft_mySchedules', []);
-      if (!sched.includes(btn.dataset.id)) {
-        sched.push(btn.dataset.id);
-        Storage.set('ft_mySchedules', sched);
-      }
-      updateLiveSessions();
-    }
-    if (btn.matches('.join-btn')) {
-      location.replace(`live.html?session=${btn.dataset.id}`);
-    }
-  });
-
-   // Community feed (pseudo)
-      function updateFeed(){
-        const feed = Storage.get('ft_feed',[
-          "Alice completed a 5km run!",
-          "Bob joined HIIT Blast live session.",
-          "Cara logged 10 workouts this month!"
-        ]);
-        const ul = document.getElementById('communityFeed');
-        ul.innerHTML='';
-        feed.slice(0,5).forEach(item=> ul.insertAdjacentHTML('beforeend', `<li>${item}</li>`));
-      }
-
-  // ─── Master redraw + listeners ─────────────────────────────
-  function updateDashboard() {
-    updateProfileSummary();
-    updateStats();
-    updateCharts();
-    updateRecentActivities();
-    updateMiniLeaderboard();
-    updateAchievements();
-    updateLiveSessions();
-    // Tip of the Day
-    const tips = [
-      "Stay hydrated—drink 250 ml of water before each session.",
-      "Warm up for 5 min to activate your muscles.",
-      "Focus on form; quality reps build strength safer.",
-      "Cool down & stretch for 3–5 min after every workout.",
-      "Try one fun activity (dance, sports) weekly to stay motivated."
-    ];
-    document.getElementById('tip-of-day').textContent =
-      tips[Math.floor(Math.random()*tips.length)];
+  function updateFeed(){
+    const feed = Object.values(db.ref('ft_feed').get().then(s=>s.val()||[]));
+    feedEl.innerHTML = '';
+    feed.slice(0,5).forEach(item=>{
+      feedEl.insertAdjacentHTML('beforeend',`<li>${item}</li>`);
+    });
   }
 
-  updateDashboard();
-
-  // Re‑draw whenever data changes anywhere
-  ['ft_current','ft_profile','ft_activities','ft_leaderboard','ft_liveSessions','ft_mySchedules']
-    .forEach(key => Storage.onChange(key, updateDashboard));
-});
+  // ── Initial Draw ──────────────────────────────────────────
+  randomTip();
+  // Everything else will draw via the realtime listeners
 </script>
-
 
 
 </body>
