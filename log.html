@@ -105,6 +105,14 @@
     a.menu-item i, button.profile-menu i.avatar { font-size:1.2rem; }
     a.menu-item span, button.profile-menu span { font-size:.75rem; }
     .sign-out { margin-top:auto; margin-bottom:1rem; }
+/* constrain the loaded avatar so it never overflows */
+.sidebar img.avatar {
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid var(--white);
+}
 
     /* HEADER */
     header {
