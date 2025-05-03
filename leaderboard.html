@@ -224,49 +224,33 @@
   </div>
 
 
- <!-- ─── SCRIPTS ─────────────────────────── -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script src="js/firebase-init.js"></script>
+<script type="module">
+import { Storage } from './storage.js';
+import Chart       from 'https://cdn.jsdelivr.net/npm/chart.js/auto';
 
-<!-- Chart.js (umd for compatibility) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ─── A) Guard: redirect if not signed in ───────────────
+  const cur = Storage.get('ft_current', null);
+  if (!cur || !cur.name) return location.replace('home.html');
 
-<script>
-  // 1) Initialize Firebase + Realtime Database (compat)
-  firebase.initializeApp({
-    apiKey: "AIzaSyDO-IrBAGaZ8-LFbW_6wbkSBOh_2DPGRaw",
-    authDomain: "workout-4cb4d.firebaseapp.com",
-    databaseURL: "https://workout-4cb4d-default-rtdb.firebaseio.com",
-    projectId: "workout-4cb4d",
-    storageBucket: "workout-4cb4d.appspot.com",
-    messagingSenderId: "114995917937",
-    appId: "1:114995917937:web:d6416c087915ebd50f57d0"
-  });
-  const db = firebase.database();
+  // ─── B) Seed pseudo-users exactly once ──────────────────
+  if (!Storage.get('ft_leaderboard', []).length) {
+    Storage.set('ft_leaderboard', [
+      { name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg' },
+      { name:'Bob',   workouts:20, distanceKm:95,  avatar:'bob.jpg'   },
+      { name:'Cara',  workouts:18, distanceKm:80,  avatar:'cara.jpg'  },
+      { name:'Dana',  workouts:15, distanceKm:70,  avatar:'https://i.pravatar.cc/150?u=dana' },
+      { name:'Evan',  workouts:12, distanceKm:55,  avatar:'https://i.pravatar.cc/150?u=evan' }
+    ]);
+  }
 
-  // 2) One‑time seed: if ft_leaderboard empty, populate 5 pseudo‑users
-  db.ref('ft_leaderboard').once('value').then(snap => {
-    if (!snap.exists()) {
-      db.ref('ft_leaderboard').set({
-        Alice: { name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg' },
-        Bob:   { name:'Bob',   workouts:20, distanceKm:95,  avatar:'bob.jpg'   },
-        Cara:  { name:'Cara',  workouts:18, distanceKm:80,  avatar:'cara.jpg'  },
-        Dana:  { name:'Dana',  workouts:15, distanceKm:70,  avatar:'https://i.pravatar.cc/150?u=dana' },
-        Evan:  { name:'Evan',  workouts:12, distanceKm:55,  avatar:'https://i.pravatar.cc/150?u=evan' }
-      });
-    }
-  });
-
-  // 3) Sidebar toggle & Profile navigation
-  const sidebar = document.getElementById('sidebar'),
-        overlay = document.getElementById('overlay'),
-        btnOpen = document.getElementById('hamburger'),
-        profileBtns = [
-          document.getElementById('profileBtn'),
-          document.getElementById('hdrAvatarBtn')
-        ];
-  btnOpen.addEventListener('click', () => {
+  // ─── C) Sidebar & profile nav ───────────────────────────
+  const sidebar     = document.getElementById('sidebar'),
+        overlay     = document.getElementById('overlay'),
+        btnHamburger= document.getElementById('hamburger'),
+        btnProfile1 = document.getElementById('profileBtn'),
+        btnProfile2 = document.getElementById('hdrAvatarBtn');
+  btnHamburger.addEventListener('click', () => {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
   });
@@ -274,85 +258,80 @@
     sidebar.classList.remove('open');
     overlay.classList.remove('active');
   });
-  profileBtns.forEach(b => b && b.addEventListener('click', () => {
-    location.replace('profile.html');
-  }));
+  [btnProfile1, btnProfile2].forEach(b => {
+    if (b) b.addEventListener('click', () => location.replace('profile.html'));
+  });
 
-  // 4) DOM refs & globals
-  const hallEl      = document.getElementById('hallOfFame'),
-        bodyEl      = document.getElementById('leaderboardBody'),
-        badgeEl     = document.getElementById('badgeContainer'),
-        rivalEl     = document.getElementById('rivalSpotlight'),
-        champAv     = document.getElementById('champAvatar'),
-        champNm     = document.getElementById('champName'),
-        sideAvatar  = document.getElementById('sideAvatar'),
-        hdrAvatar   = document.getElementById('hdrAvatarIcon'),
-        ctx7        = document.getElementById('last7Chart').getContext('2d'),
-        ctxT        = document.getElementById('trendChart').getContext('2d'),
-        searchIn    = document.getElementById('searchInput'),
-        timeframe   = document.getElementById('timeframe');
+  // ─── D) DOM refs ────────────────────────────────────────
+  const hallEl    = document.getElementById('hallOfFame'),
+        bodyEl    = document.getElementById('leaderboardBody'),
+        badgeEl   = document.getElementById('badgeContainer'),
+        rivalEl   = document.getElementById('rivalSpotlight'),
+        champAv   = document.getElementById('champAvatar'),
+        champNm   = document.getElementById('champName'),
+        sideAv    = document.getElementById('sideAvatar'),
+        hdrAv     = document.getElementById('hdrAvatarIcon'),
+        ctx7      = document.getElementById('last7Chart').getContext('2d'),
+        ctxT      = document.getElementById('trendChart').getContext('2d'),
+        searchIn  = document.getElementById('searchInput');
 
-  let cur = null, chart7, chartT, lbData = {}, actData = {};
-
-  // 5) Helper: compute  scores
-  function computeScore(u){
+  // ─── E) Score formula ────────────────────────────────────
+  function computeScore(u) {
     return (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2);
   }
 
-  // 6) Listen for profile, leaderboard & activities in realtime
-  db.ref('ft_profile').on('value', snap => {
-    cur = snap.val() || { name:'You', avatar:'https://i.pravatar.cc/150?u=default' };
-    sideAvatar.src = hdrAvatar.src = cur.avatar;
-    renderAll();
-  });
-  db.ref('ft_leaderboard').on('value', snap => {
-    lbData = snap.val() || {};
-    renderAll();
-  });
-  db.ref('ft_activities').on('value', snap => {
-    actData = snap.val() || {};
-    renderAll();
-  });
-
-  // 7) Ensure “me” is always up‑to‑date in leaderboard
-  function syncCurrentUser(){
-    const acts = Object.values(actData).filter(a=>a.user===cur.name);
+  // ─── F) Keep ft_leaderboard in sync with current user’s log ─
+  function syncCurrentUser() {
+    const acts = Storage.get('ft_activities', []).filter(a => a.user===cur.name);
     const me = {
       name:       cur.name,
       workouts:   acts.length,
       distanceKm: +acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1),
-      avatar:     cur.avatar
+      avatar:     Storage.get('ft_profile', {}).avatar || cur.avatar || ''
     };
-    db.ref('ft_leaderboard/' + cur.name).set(me);
+    const lb = Storage.get('ft_leaderboard', []);
+    const idx = lb.findIndex(u=>u.name===cur.name);
+    if (idx<0) lb.push(me);
+    else       lb[idx] = me;
+    Storage.set('ft_leaderboard', lb);
   }
 
-  // 8) Main render loop
-  function renderAll(){
-    if(!cur || !lbData) return;
+  // ─── G) Render everything ─────────────────────────────────
+  let chart7, chartT;
+  function renderAll() {
+    // 1) sync user
     syncCurrentUser();
 
-    // build sorted array
-    const entries = Object.values(lbData)
+    // 2) gather & sort
+    const acts    = Storage.get('ft_activities', []);
+    const entries = Storage.get('ft_leaderboard', [])
       .map(u=>({ ...u, score: computeScore(u) }))
       .sort((a,b)=>b.score - a.score);
 
-    // Hall of Fame (top 3)
+    // ─ Hall of Fame ─
     hallEl.innerHTML = '';
-    entries.slice(0,3).forEach((u,i)=>{
-      const d = document.createElement('div'); d.className='hall-card';
-      d.innerHTML = `<img src="${u.avatar}"><span>#${i+1} ${u.name}</span>`;
+    entries.slice(0,3).forEach((u,i) => {
+      const d = document.createElement('div');
+      d.className = 'hall-card';
+      d.innerHTML = u.avatar
+        ? `<img src="${u.avatar}" alt="${u.name}"><span>#${i+1} ${u.name}</span>`
+        : `<i class="fas fa-user-circle" style="font-size:60px;color:var(--white)"></i>
+           <span>#${i+1} ${u.name}</span>`;
       hallEl.append(d);
     });
 
-    // Leaderboard table body
+    // ─ Leaderboard Table ─
     bodyEl.innerHTML = '';
-    entries.forEach((u,i)=>{
+    entries.forEach((u,i) => {
       const tr = document.createElement('tr');
-      if(u.name===cur.name) tr.classList.add('me');
-      tr.innerHTML=`
+      if (u.name===cur.name) tr.classList.add('me');
+      tr.innerHTML = `
         <td class="rank">${i+1}</td>
         <td class="user-cell">
-          <img src="${u.avatar}" width="24" height="24"><span>${u.name}</span>
+          ${u.avatar
+            ? `<img src="${u.avatar}" width="24" height="24" style="border-radius:50%">`
+            : `<i class="fas fa-user-circle" style="font-size:24px;color:var(--white)"></i>`}
+          <span>${u.name}</span>
         </td>
         <td>${u.workouts}</td>
         <td>${u.distanceKm.toFixed(1)}</td>
@@ -360,43 +339,45 @@
       bodyEl.append(tr);
     });
 
-    // Monthly Champion
-    if(entries[0]){
-      champAv.src = entries[0].avatar;
+    // ─ Monthly Champion ─
+    if (entries[0]) {
+      champAv.src         = entries[0].avatar || '';
       champNm.textContent = entries[0].name;
     }
 
-    // Prepare last‑7‑days and trend data
-    const acts = Object.values(actData).filter(a=>a.user===cur.name),
-          labels = [], data7 = [], dataTrend = [];
-    for(let d=6; d>=0; d--){
+    // ─ Last 7 Days & Trend Data ─
+    const last7Labels = [], data7 = [], dataTrend = [];
+    for (let d=6; d>=0; d--) {
       const D = new Date(); D.setDate(D.getDate()-d);
       const key = D.toISOString().slice(0,10);
-      labels.push(D.toLocaleDateString(undefined,{weekday:'short'}));
-      const today = acts.filter(a=>a.date===key);
+      last7Labels.push(D.toLocaleDateString(undefined,{weekday:'short'}));
+      const today = acts.filter(a=>a.date===key && a.user===cur.name);
       data7.push(today.reduce((s,a)=>s+(+a.duration||0),0));
       dataTrend.push(today.length);
     }
 
-    // 7‑day bar chart
-    if(chart7) chart7.destroy();
+    // ─ Bar Chart ─
+    if (chart7) chart7.destroy();
     chart7 = new Chart(ctx7, {
       type:'bar',
-      data:{labels,datasets:[{data:data7,backgroundColor:labels.map(()=>getComputedStyle(document.documentElement).getPropertyValue('--gold').trim())}]},
+      data:{ labels:last7Labels, datasets:[{
+        data:data7,
+        backgroundColor: last7Labels.map(()=>getComputedStyle(document.documentElement).getPropertyValue('--gold').trim())
+      }]},
       options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
     });
 
-    // Session‐count trend line
-    if(chartT) chartT.destroy();
+    // ─ Line Chart ─
+    if (chartT) chartT.destroy();
     chartT = new Chart(ctxT, {
       type:'line',
-      data:{labels,datasets:[{label:'# Sessions',data:dataTrend,fill:false,tension:0.4}]},
+      data:{ labels:last7Labels, datasets:[{ label:'# Sessions', data:dataTrend, fill:false, tension:0.4 }]},
       options:{responsive:true}
     });
 
-    // Badges (engaging hover & titles)
+    // ─ Badges ─
     badgeEl.innerHTML = '';
-    const total = acts.length;
+    const total = acts.filter(a=>a.user===cur.name).length;
     [
       {n:1,  icon:'fas fa-star',  text:'First Workout'},
       {n:5,  icon:'fas fa-medal', text:'5 Workouts'},
@@ -406,42 +387,47 @@
       const div = document.createElement('div');
       const unlocked = total>=b.n;
       div.className = 'achievement-badge' + (unlocked?' unlocked':'');
-      div.title = unlocked ? `Unlocked: ${b.text}` : `Unlock at ${b.n} workouts`;
+      div.title     = unlocked ? `Unlocked: ${b.text}` : `Unlock at ${b.n} workouts`;
       div.innerHTML = `<i class="${b.icon}"></i><div class="badge-text">${b.text}</div>`;
       badgeEl.append(div);
     });
 
-    // Rival Spotlight
+    // ─ Rival Spotlight ─
     rivalEl.innerHTML = '';
     const rivals = entries.filter(u=>u.name!==cur.name);
-    if(rivals.length){
+    if (rivals.length) {
       const r = rivals[Math.floor(Math.random()*rivals.length)];
-      rivalEl.innerHTML=`
+      rivalEl.innerHTML = `
         <div class="rival">
-          <img src="${r.avatar}">
+          ${r.avatar
+            ? `<img src="${r.avatar}" width="48" height="48">`
+            : `<i class="fas fa-user-circle" style="font-size:48px;color:var(--white)"></i>`}
           <div class="rival-info">
             <strong>${r.name}</strong><br>
-            Workouts: ${r.workouts}<br>
-            Distance: ${r.distanceKm.toFixed(1)} km<br>
-            Score: ${r.score}
+            🏋️ ${r.workouts} • 🚴 ${r.distanceKm.toFixed(1)} km<br>
+            ⭐ ${r.score}
           </div>
         </div>`;
     }
   }
 
-  // 9) Wire up live updates & search filter
-  ['ft_leaderboard','ft_activities'].forEach(k=>{/* already realtime */});
-  searchIn.addEventListener('input', e=>{
+  // ─── H) Listen for changes & search filter ────────────────
+  ['ft_leaderboard','ft_activities'].forEach(key =>
+    Storage.onChange(key, renderAll)
+  );
+  searchIn.addEventListener('input', e => {
     const q = e.target.value.toLowerCase();
-    bodyEl.querySelectorAll('tr').forEach(tr=>{
+    bodyEl.querySelectorAll('tr').forEach(tr => {
       const name = tr.querySelector('td:nth-child(2) span').textContent.toLowerCase();
       tr.style.display = name.includes(q) ? '' : 'none';
     });
   });
 
-  // 10) Initial paint
+  // ─── I) First draw ────────────────────────────────────────
   renderAll();
+});
 </script>
+
 
 
 </body>
