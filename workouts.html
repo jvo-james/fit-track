@@ -756,18 +756,7 @@
       });
 
       
-plansList.addEventListener('click', e => {
-  if (e.target.dataset.remove != null) {
-    const idx = +e.target.dataset.remove;
-    const arr = Storage.get('ft_plans', []);
-    arr.splice(idx, 1);
-    Storage.set('ft_plans', arr);
-    // ← Add one of these:
-    renderPlans();
-    // or, to refresh *everything*:
-    // syncAll();
-  }
-});
+
 
       /** My Plans **/
       const plansList = document.getElementById('plansList');
@@ -781,15 +770,18 @@ plansList.addEventListener('click', e => {
           plansList.appendChild(li);
         });
       }
-     plansList.addEventListener('click', e => {
-       if (e.target.dataset.remove != null) {
-          const idx = +e.target.dataset.remove;
-          const arr = Storage.get('ft_plans', []);
-          arr.splice(idx, 1);
-          Storage.set('ft_plans', arr);
-          renderPlans();        // refresh immediately
-        }
-      });
+    plansList.addEventListener('click', e => {
+  if (e.target.dataset.remove != null) {
+    const idx = +e.target.dataset.remove;
+    const arr = Storage.get('ft_plans', []);
+    arr.splice(idx, 1);
+    Storage.set('ft_plans', arr);
+    // ← Add one of these:
+    renderPlans();
+    // or, to refresh *everything*:
+    // syncAll();
+  }
+});
 
       /** Progress Chart **/
       const ctx = document.getElementById('progressChart').getContext('2d');
