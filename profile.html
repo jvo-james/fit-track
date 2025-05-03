@@ -267,139 +267,123 @@
     </div>
   </div>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Sidebar toggle
-    const overlay   = document.getElementById('overlay'),
-          sidebar   = document.getElementById('sidebar'),
-          openBtn   = document.getElementById('sidebar-close'),  // reuse close as toggle on small
-          closeBtn  = document.getElementById('sidebar-close');
-    document.getElementById('hdrAvatarBtn').addEventListener('click', ()=> sidebar.classList.toggle('open'));
-    closeBtn.onclick = overlay.onclick = ()=> sidebar.classList.remove('open');
 
-    // Load current user
-    let cur = JSON.parse(localStorage.getItem('ft_current')||'{}');
-    const profileStore = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+    <!-- at the very bottom of profile.html, just before </body> -->
+  <!-- 1️⃣ Load your storage helper -->
+  <script type="module" src="storage.js"></script>
 
-    // Form refs
-    const fld = {
-      preview: document.getElementById('avatarPreview'),
-      input:   document.getElementById('avatarInput'),
-      chBtn:   document.getElementById('changeAvatarBtn'),
-      rmBtn:   document.getElementById('removeAvatarBtn'),
-      sideAv:  document.getElementById('sideAvatar'),
-      hdrAv:   document.getElementById('hdrAvatarIcon'),
-      name:    document.getElementById('fullName'),
-      email:   document.getElementById('email'),
-      bio:     document.getElementById('bio'),
-      loc:     document.getElementById('location'),
-      age:     document.getElementById('age'),
-      gen:     document.getElementById('gender'),
-      ht:      document.getElementById('height'),
-      wt:      document.getElementById('weight'),
-      fav:     document.getElementById('favorite'),
-      goals:   document.getElementById('goals'),
-      theme:   document.getElementById('theme'),
-      eNotif:  document.getElementById('notifEmail'),
-      pNotif:  document.getElementById('notifPush'),
-      save:    document.getElementById('saveBtn'),
-      logout:  document.getElementById('logoutBtn')
-    };
+  <!-- 2️⃣ Then wire up your form & UI -->
+  <script type="module">
+    import { Storage } from '.storage.js';
 
-    // Initialize form & avatars
-    function init() {
-      // fill text fields
-      fld.name.value  = cur.name||'';
-      fld.email.value = cur.email||'';
-      fld.bio.value   = cur.bio||'';
-      fld.loc.value   = cur.location||'';
-      fld.age.value   = cur.age||'';
-      fld.gen.value   = cur.gender||'';
-      fld.ht.value    = cur.height||'';
-      fld.wt.value    = cur.weight||'';
-      fld.fav.value   = cur.favorite||'Running';
-      fld.goals.value = cur.goals||'';
-      fld.theme.value = cur.theme||'dark';
-      fld.eNotif.checked = !!cur.notifEmail;
-      fld.pNotif.checked = !!cur.notifPush;
-
-      // avatar preview
-      const avatarData = cur.avatarDataUrl || profileStore.avatar || null;
-      if (avatarData) {
-        fld.preview.style.backgroundImage = `url(${avatarData})`;
-        fld.preview.innerHTML = '';
-        fld.sideAv.src = fld.hdrAv.src = avatarData;
-      } else {
-        fld.preview.style.backgroundImage = '';
-        fld.preview.innerHTML = '<i class="fas fa-user"></i>';
-        fld.sideAv.outerHTML = `<i id="sideAvatar" class="fas fa-user-circle"></i>`;
-        fld.hdrAv.outerHTML = `<i id="hdrAvatarIcon" class="fas fa-user-circle"></i>`;
-      }
-
-      // theme switch
-      document.body.classList.toggle('light-theme', fld.theme.value==='light');
+    // Utility to update sidebar & header avatars
+    function updateAvatars(url) {
+      document.querySelectorAll('#sideAvatar, .sidebar .profile-menu i, .sidebar .profile-menu img')
+        .forEach(el => {
+          if (!url) return;
+          if (el.tagName === 'IMG') el.src = url;
+          else el.outerHTML = `<img id="sideAvatar" src="${url}" class="avatar-small" />`;
+        });
+      document.querySelectorAll('#hdrAvatarIcon, .avatar-btn i, .avatar-btn img')
+        .forEach(el => {
+          if (!url) return;
+          if (el.tagName === 'IMG') el.src = url;
+          else el.outerHTML = `<img id="hdrAvatarIcon" src="${url}" class="avatar-small" />`;
+        });
     }
 
-    // change avatar
-    fld.chBtn.addEventListener('click', ()=> fld.input.click());
-    fld.input.addEventListener('change', e=>{
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ()=>{
-        cur.avatarDataUrl = reader.result;
-        localStorage.setItem('ft_profile', JSON.stringify({ avatar: reader.result }));
-        init();
-      };
-      reader.readAsDataURL(file);
+    // Populate form fields from storage
+    function populateForm(p) {
+      document.getElementById('fullName').value    = p.name  || '';
+      document.getElementById('email').value       = p.email || '';
+      document.getElementById('bio').value         = p.bio    || '';
+      document.getElementById('location').value    = p.location || '';
+      document.getElementById('age').value         = p.age    || '';
+      document.getElementById('gender').value      = p.gender || '';
+      document.getElementById('height').value      = p.height || '';
+      document.getElementById('weight').value      = p.weight || '';
+      document.getElementById('favorite').value    = p.favorite || 'Running';
+      document.getElementById('goals').value       = p.goals  || '';
+      document.getElementById('theme').value       = p.theme  || 'dark';
+      document.getElementById('notifEmail').checked = !!p.notifEmail;
+      document.getElementById('notifPush').checked  = !!p.notifPush;
+    }
+
+    // Populate avatar preview
+    function populateAvatar(p) {
+      const prev = document.getElementById('avatarPreview');
+      if (p.avatarDataUrl) {
+        prev.style.backgroundImage = `url(${p.avatarDataUrl})`;
+        prev.innerHTML = '';
+      } else {
+        prev.style.backgroundImage = '';
+        prev.innerHTML = '<i class="fas fa-user"></i>';
+      }
+    }
+
+    // Save form + avatar into storage
+    function bindSave() {
+      document.getElementById('saveBtn').addEventListener('click', () => {
+        const p = Storage.get('ft_current', {});
+        p.name  = document.getElementById('fullName').value.trim();
+        if (!p.name) return alert('Name is required');
+        p.bio      = document.getElementById('bio').value;
+        p.location = document.getElementById('location').value;
+        p.age      = document.getElementById('age').value;
+        p.gender   = document.getElementById('gender').value;
+        p.height   = document.getElementById('height').value;
+        p.weight   = document.getElementById('weight').value;
+        p.favorite = document.getElementById('favorite').value;
+        p.goals    = document.getElementById('goals').value;
+        p.theme    = document.getElementById('theme').value;
+        p.notifEmail = document.getElementById('notifEmail').checked;
+        p.notifPush  = document.getElementById('notifPush').checked;
+        Storage.set('ft_current', p);
+        alert('Profile saved!');
+      });
+    }
+
+    // Bind avatar‐input change
+    function bindAvatarInput() {
+      const inp = document.getElementById('avatarInput');
+      document.getElementById('changeAvatarBtn').addEventListener('click', () => inp.click());
+      document.getElementById('removeAvatarBtn').addEventListener('click', () => {
+        const p = Storage.get('ft_current', {});
+        delete p.avatarDataUrl;
+        Storage.set('ft_current', p);
+      });
+      inp.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const p = Storage.get('ft_current', {});
+          p.avatarDataUrl = reader.result;
+          Storage.set('ft_current', p);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // React to storage changes (same‑tab + other‑tabs)
+    Storage.onChange('ft_current', () => {
+      const p = Storage.get('ft_current', {});
+      populateForm(p);
+      populateAvatar(p);
+      updateAvatars(p.avatarDataUrl);
     });
 
-    // remove avatar
-    fld.rmBtn.addEventListener('click', ()=>{
-      delete cur.avatarDataUrl;
-      localStorage.removeItem('ft_profile');
-      init();
+    // Initial load
+    document.addEventListener('DOMContentLoaded', () => {
+      const p = Storage.get('ft_current', {});
+      populateForm(p);
+      populateAvatar(p);
+      updateAvatars(p.avatarDataUrl);
+      bindSave();
+      bindAvatarInput();
     });
-
-    // save
-    fld.save.addEventListener('click', ()=>{
-      if (!fld.name.value.trim()) return alert('Name is required');
-      // collect
-      cur.name      = fld.name.value;
-      cur.bio       = fld.bio.value;
-      cur.location  = fld.loc.value;
-      cur.age       = fld.age.value;
-      cur.gender    = fld.gen.value;
-      cur.height    = fld.ht.value;
-      cur.weight    = fld.wt.value;
-      cur.favorite  = fld.fav.value;
-      cur.goals     = fld.goals.value;
-      cur.theme     = fld.theme.value;
-      cur.notifEmail= fld.eNotif.checked;
-      cur.notifPush = fld.pNotif.checked;
-      // persist
-      localStorage.setItem('ft_current', JSON.stringify(cur));
-      alert('Profile saved!');
-      init();
-    });
-Storage.set('ft_profile', { name: profName, avatar: avatarDataUrl });
-localStorage.setItem('ft_profile', JSON.stringify({ name: profName, avatar: avatarDataUrl }));
-
-    // after profile submit:
-db.ref('ft_profile').set({
-  name: newName,
-  avatar: newAvatarUrl
-});
-
-    // logout
-    fld.logout.addEventListener('click', ()=> location.href='home.html');
-
-    init();
-  });
   </script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script src="js/firebase-init.js"></script>
+
 
 </body>
 </html>
