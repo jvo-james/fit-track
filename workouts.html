@@ -846,7 +846,7 @@ plansList.addEventListener('click', e => {
 }
       /** Challenge Modes **/
       const chList = document.getElementById('challengesList');
-            challenges = [
+       const challenges = [
               {id:1,title:'7‑Day Abs',desc:'Daily core sculpting.',target:7},
               {id:2,title:'30‑Day Push‑Up',desc:'+2 reps/day.',target:30},
               {id:3,title:'14‑Day Yoga',desc:'Morning flow.',target:14},
@@ -884,7 +884,7 @@ plansList.addEventListener('click', e => {
 
       /** Live Sessions **/
       const sessList = document.getElementById('sessionsList');
-            liveSessions = [
+      const liveSessions = [
               {id:1,img:'https://via.placeholder.com/300x200?text=Yoga',title:'Sunrise Yoga',host:'Alice',start:Date.now()+3600000,desc:'Vinyasa flow.'},
               {id:2,img:'https://via.placeholder.com/300x200?text=HIIT',title:'HIIT Blast',host:'Bob',start:Date.now()+7200000,desc:'Intervals.'},
               {id:3,img:'https://via.placeholder.com/300x200?text=Dance',title:'Cardio Dance',host:'Cara',start:Date.now()-1800000,desc:'Dance cardio.'},
