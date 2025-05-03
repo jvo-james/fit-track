@@ -11,178 +11,90 @@
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-
   <style>
-  :root {
-    --bg: #000;
-    --gold: #ff9800;
-    --white: #fff;
-    --accent: rgba(255,255,255,0.05);
-    --font-base: 'Raleway', sans-serif;
-    --font-head: 'Poppins', sans-serif;
-    --transition: .3s ease;
-    --sidebar-w: 80px;
-    --overlay-z: 90;
-    --sidebar-z: 100;
-    --header-z: 200;
-      --mobile-sidebar-w: 200px;
-      --break-mobile: 900px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    display:flex; min-height:100vh;
-    background:var(--bg); color:var(--white);
-    font-family:var(--font-base); overflow-x:hidden;  overflow-y: auto; 
-  }
-  a { color:inherit; text-decoration:none; }
-  button { font-family:var(--font-head); cursor:pointer; border:none; background:none; transition:var(--transition); }
+    :root {
+      --bg: #000; --gold: #ff9800; --white: #fff; --accent: rgba(255,255,255,0.05);
+      --font-base: 'Raleway', sans-serif; --font-head: 'Poppins', sans-serif;
+      --transition: .3s ease; --sidebar-w: 80px; --overlay-z: 90; --sidebar-z: 100; --header-z: 200;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      display:flex; min-height:100vh;
+      background:var(--bg); color:var(--white);
+      font-family:var(--font-base); overflow-x:hidden;
+    }
+    a { color:inherit; text-decoration:none; }
+    button { font-family:var(--font-head); cursor:pointer; border:none; background:none; transition:var(--transition); }
 
- .main {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  
-}
-  /* overlay */
-  #overlay {
-    position:fixed; inset:0; background:rgba(0,0,0,0.5);
-    opacity:0; visibility:hidden; transition:opacity var(--transition);
-    z-index:var(--overlay-z);
-  }
-  #overlay.active { opacity:1; visibility:visible; }
-
-/* ─── SIDEBAR ───────────────── */
     .sidebar {
       width:var(--sidebar-w); background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
       padding-top:1rem; position:sticky; top:0; height:100vh;
-      transform: translateX(0);
-      transition:transform var(--transition);
       z-index:var(--sidebar-z);
     }
-    .sidebar.open { transform:translateX(0); }
-    .sidebar-close {
-      display:none; font-size:1.5rem;
-      position:absolute; top:1rem; right:1rem;
-      background:transparent; border:none; color:var(--white);
-    }
     .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-    .sidebar a.menu-item,
-    .sidebar button.profile-menu {
-      width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      color:var(--white);
-      transition:background var(--transition);
-    }
-    .sidebar a.menu-item:hover,
-    .sidebar a.menu-item.active,
-    .sidebar button.profile-menu:hover {
-      background:rgba(255,152,0,0.2);
-    }
-    .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.2rem; }
-    .sidebar a.menu-item span,
-    .sidebar button.profile-menu span { font-size:.75rem; }
+    .sidebar a.menu-item { width:100%; padding:.8rem 0; display:flex; flex-direction:column; align-items:center; gap:.3rem; color:var(--white);}
+    .sidebar a.menu-item:hover, .sidebar a.menu-item.active { background:rgba(255,152,0,0.2); }
+    .sidebar a.menu-item i { font-size:1.2rem; }
+    .sidebar a.menu-item span { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
 
+    .main { flex:1; display:flex; flex-direction:column; }
+    header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.5rem; background:rgba(0,0,0,0.9); border-bottom:2px solid var(--gold);
+      position:sticky; top:0; z-index:var(--header-z); width:100%;
+    }
+    .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); flex:1; text-align:center; }
+    .search { flex:2; max-width:300px; }
+    .search input {
+      width:100%; padding:.4rem .6rem; background:var(--accent);
+      border:1px solid var(--accent); border-radius:6px; color:var(--white);
+    }
+    .controls { display:flex; align-items:center; gap:.75rem; }
+    .controls select, .controls button {
+      background:var(--accent); color:var(--white);
+      border:1px solid var(--accent); border-radius:6px; padding:.4rem .6rem;
+    }
+    .controls select:hover, .controls button:hover { background:var(--gold); color:var(--bg); }
 
-  /* header */
-  header {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
-    border-bottom:2px solid var(--gold);
-    position:sticky; top:0; width:100%; z-index:var(--header-z);
-  }
-  .hamburger, .avatar-btn { display:none; }
-  .logo-header {
-    flex:1; text-align:center;
-    font-family:var(--font-head); font-size:1.4rem;
-    color:var(--gold);
-  }
-  .search {
-    flex:2; max-width:300px;
-  }
-  .search input {
-    width:100%; padding:.4rem .6rem;
-    background:var(--accent); border:1px solid var(--accent);
-    border-radius:6px; color:var(--white);
-  }
-  .controls {
-    display:flex; align-items:center; gap:.75rem;
-  }
-  .controls select, .controls button {
-    background:var(--accent); color:var(--white);
-    border:1px solid var(--accent); border-radius:6px;
-    padding:.4rem .6rem;
-  }
-  .controls select:hover, .controls button:hover {
-    background:var(--gold); color:var(--bg);
-  }
-  .avatar-btn {
-    width:36px; height:36px; border:2px solid var(--gold); border-radius:50%;
-    overflow:hidden;
-  }
-  .avatar-btn img { width:100%; height:100%; object-fit:cover; }
+    .hall-of-fame { display:flex; justify-content:center; gap:1rem; padding:.75rem; background:rgba(0,0,0,0.85); }
+    .hall-card { text-align:center; color:var(--white); }
+    .hall-card img {
+      width:60px; height:60px; border-radius:50%; object-fit:cover;
+      border:2px solid var(--gold);
+    }
+    .hall-card span { display:block; margin-top:.25rem; font-size:.75rem; }
 
+    .container { flex:1; overflow-y:auto; padding-bottom:1rem; }
 
+    .leaderboard {
+      margin:1rem; background:var(--accent); border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.6); overflow-x:auto;
+    }
+    table { width:100%; border-collapse:collapse; min-width:600px; }
+    th, td {
+      padding:.75rem 1rem; text-align:left; border-bottom:1px solid var(--accent);
+    }
+    th {
+      background:var(--gold); color:var(--bg);
+      font-size:.85rem; text-transform:uppercase;
+    }
+    tbody tr:hover { background:var(--accent); }
+    tbody tr.me { background:rgba(255,152,0,0.2); }
+    .rank { width:3rem; color:var(--gold); font-weight:700; }
+    .user-cell { display:flex; align-items:center; gap:.5rem; }
+    .user-cell img { width:24px; height:24px; border-radius:50%; }
 
+    .section {
+      margin:1rem; padding:1rem; background:var(--accent);
+      border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.6);
+    }
+    .section h2 { color:var(--gold); margin-bottom:.75rem; font-size:1.2rem; }
 
-  .hall-of-fame {
-    display:flex; justify-content:center; gap:1rem;
-    padding:.75rem; background:rgba(0,0,0,0.85);
-  }
-  .hall-card {
-    text-align:center; color:var(--white);
-  }
-  .hall-card img {
-    width:60px; height:60px; border-radius:50%; object-fit:cover;
-    border:2px solid var(--gold);
-  }
-  .hall-card span { display:block; margin-top:.25rem; font-size:.75rem; }
+    .chart-container { position:relative; margin:1rem; height:200px; }
 
-  .container { flex:1; overflow-y:auto; padding-bottom:1rem; }
-
-  /* leaderboard */
-  .leaderboard {
-    margin:1rem; background:var(--accent); border-radius:8px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.6); overflow-x:auto;
-  }
-  table {
-    width:100%; border-collapse:collapse; min-width:600px;
-  }
-  th, td {
-    padding:.75rem 1rem; text-align:left; border-bottom:1px solid var(--accent);
-  }
-  th {
-    background:var(--gold); color:var(--bg);
-    font-size:.85rem; text-transform:uppercase;
-  }
-  tbody tr:hover { background:var(--accent); }
-  tbody tr.me { background:rgba(255,152,0,0.2); }
-  .rank { width:3rem; color:var(--gold); font-weight:700; }
-  .user-cell {
-    display:flex; align-items:center; gap:.5rem;
-  }
-  .user-cell img {
-    width:24px; height:24px; border-radius:50%;
-  }
-
-  /* reusable section style */
-  .section {
-    margin:1rem; padding:1rem;
-    background:var(--accent); border-radius:8px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.6);
-  }
-  .section h2 { color:var(--gold); margin-bottom:.75rem; font-size:1.2rem; }
-
-
-
-  /* chart */
-  .chart-container {
-    position:relative; margin:1rem; height:200px;
-  }
- /* Badges */
     .achievement-badge {
       text-align:center; opacity:.4; transition:opacity .3s, transform .3s;
     }
@@ -190,148 +102,73 @@
     .achievement-badge:hover { transform:scale(1.2); }
     .achievement-badge i { font-size:1.5rem; }
 
-    /* Rival */
     .rival { display:flex; align-items:center; gap:1rem; }
     .rival img { border-radius:50%; }
 
-  /* monthly champion */
-  .champion {
-    margin:1rem; padding:1rem; display:flex; align-items:center; gap:1rem;
-    background:var(--accent); border-radius:8px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.6);
-  }
-  .champion img {
-    width:80px; height:80px; border-radius:50%; object-fit:cover;
-    border:3px solid var(--gold);
-  }
-  .champion div { font-size:.9rem; }
-
-  /* responsive */
-  @media (max-width:600px) {
-      .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--mobile-sidebar-w);
-        transform:translateX(-100%); }
-      .sidebar.open { transform:translateX(0); }
-      .sidebar-close { display:block; }
-
-      header { padding:0.75rem 1rem; }
-     header h1 { margin: 0 auto; font-size: 1.2rem; }
-  .hamburger,
-  .avatar-btn {
-    display: block;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  .hamburger { left: 1.2rem; }
-  .avatar-btn { right: 1.2rem; }
-
-    .logo-header { font-size: 1.2rem; }
-    .search { width:50%; max-width:none; }
-    #timeframe, #notifBtn { display: none; }
-    .hall-of-fame, .leaderboard, .section { margin:.5rem; }
-    table { font-size:.85rem; }
-  }
-    /* account for the iPhone “home bar” and notch */
-body {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* larger touch targets / fonts on small screens */
-@media (max-width: 414px) {
-  header, .section, .leaderboard {
-    padding: 0.75rem 1rem;
-  }
-  .search input { font-size: 1rem; padding: 0.5rem; }
-  table th, table td { padding: 0.6rem 0.8rem; font-size: 0.9rem; }
-  .controls select, .controls button { padding: 0.5rem; }
-}
-
+    .champion {
+      margin:1rem; padding:1rem; display:flex; align-items:center; gap:1rem;
+      background:var(--accent); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.6);
+    }
+    .champion img {
+      width:80px; height:80px; border-radius:50%; object-fit:cover;
+      border:3px solid var(--gold);
+    }
+    .champion div { font-size:.9rem; }
   </style>
 </head>
 <body>
-  <div id="overlay"></div>
-
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
-    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
-    <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="menu-item profile-menu"><i id="sideAvatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
-    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a>
+    <a href="#" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <a href="#" class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="#" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
+    <a href="#" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a>
   </aside>
 
-  <!-- Main -->
   <div class="main">
-    <!-- Header -->
     <header>
-      <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
       <div class="logo-header"><i class="fas fa-trophy"></i> Leaderboard</div>
       <div class="search">
         <input id="searchInput" type="text" placeholder="Search user…">
       </div>
       <div class="controls">
-        <select id="timeframe">
-          <option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option>
-        </select>
-        <button id="notifBtn"><i class="fas fa-bell"></i></button>
-        <button class="avatar-btn" id="hdrAvatarBtn">
-  <i id="hdrAvatarIcon" class="fas fa-user-circle"></i>
-</button>
+        <select id="timeframe"><option>Overall</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select>
+        <button><i class="fas fa-bell"></i></button>
       </div>
     </header>
 
-    
-
     <div class="container">
-      <!-- Hall of Fame -->
-    <div class="hall-of-fame" id="hallOfFame"></div>
-      <!-- Leaderboard Table -->
+      <div class="hall-of-fame" id="hallOfFame"></div>
+
       <div class="leaderboard">
         <table>
           <thead>
-            <tr>
-              <th class="rank">#</th>
-              <th>User</th>
-              <th>Workouts</th>
-              <th>Km</th>
-              <th>Score</th>
-            </tr>
+            <tr><th class="rank">#</th><th>User</th><th>Workouts</th><th>Km</th><th>Score</th></tr>
           </thead>
           <tbody id="leaderboardBody"></tbody>
         </table>
       </div>
 
-    <!-- ─── 7‑Day Activity Snapshot ───────────────────── -->
-<section class="section seven-day">
-  <h2><i class="fas fa-calendar-week"></i> Your Last 7 Days</h2>
-  <canvas id="last7Chart"></canvas>
-</section>
-
-<!-- ─── Badge Showcase ────────────────────────────── -->
-<section class="section achievements">
-  <h2><i class="fas fa-award"></i> Your Badges</h2>
-  <div id="badgeContainer" style="display:flex;gap:1rem;"></div>
-</section>
-
-<!-- ─── Rival Spotlight ───────────────────────────── -->
-<section class="section spotlight">
-  <h2><i class="fas fa-user-friends"></i> Rival Spotlight</h2>
-  <div id="rivalSpotlight"></div>
-</section>
-
-
-      <!-- Trends Chart -->
-      <section class="section trends">
-        <h2><i class="fas fa-chart-bar"></i> Last 7 Days Activity</h2>
-        <div class="chart-container">
-          <canvas id="trendChart"></canvas>
-        </div>
+      <section class="section seven-day">
+        <h2><i class="fas fa-calendar-week"></i> Your Last 7 Days</h2>
+        <canvas id="last7Chart"></canvas>
       </section>
 
-      <!-- Monthly Champion -->
+      <section class="section achievements">
+        <h2><i class="fas fa-award"></i> Your Badges</h2>
+        <div id="badgeContainer" style="display:flex;gap:1rem;"></div>
+      </section>
+
+      <section class="section spotlight">
+        <h2><i class="fas fa-user-friends"></i> Rival Spotlight</h2>
+        <div id="rivalSpotlight"></div>
+      </section>
+
+      <section class="section trends">
+        <h2><i class="fas fa-chart-bar"></i> Last 7 Days Activity</h2>
+        <div class="chart-container"><canvas id="trendChart"></canvas></div>
+      </section>
+
       <section class="champion">
         <img id="champAvatar" src="" alt="Champion">
         <div><strong id="champName"></strong><br>Top this month</div>
@@ -339,194 +176,163 @@ body {
     </div>
   </div>
 
-<script type="module">
-  import { Storage } from './storage.js';
-  import Chart       from 'https://cdn.jsdelivr.net/npm/chart.js/auto';
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
 
-document.addEventListener('DOMContentLoaded', () => {
-  // ─── 1) Guard: redirect if not signed in ───────────────────────
-  const cur = Storage.get('ft_current', null);
-  if (!cur || !cur.name) return location.replace('home.html');
-    
-     // ─── 2) Sidebar toggle & profile nav ──────────────────────────
-  const sidebar      = document.getElementById('sidebar'),
-        overlay      = document.getElementById('overlay'),
-        btnOpen      = document.getElementById('hamburger'),
-        btnClose     = document.getElementById('sidebar-close'),
-        profileBtns  = [ document.getElementById('profile-btn'),
-                          document.querySelector('.profile-menu') ];
-
-  btnOpen.addEventListener ('click', ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); });
-  btnClose.addEventListener('click', ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
-  overlay.addEventListener ('click', ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
-  profileBtns.forEach(b=> b && b.addEventListener('click', ()=> location.replace('profile.html')));
-  
-    // ── C) Seed 5 pseudo‑users once ──────────────────────
-    if (!Storage.get('ft_leaderboard', []).length) {
-      Storage.set('ft_leaderboard', [
-        { name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg' },
-        { name:'Bob',   workouts:20, distanceKm:95,  avatar:'bob.jpg'   },
-        { name:'Cara',  workouts:18, distanceKm:80,  avatar:'cara.jpg'  },
-        { name:'Dana',  workouts:15, distanceKm:70,  avatar:'https://i.pravatar.cc/150?u=dana' },
-        { name:'Evan',  workouts:12, distanceKm:55,  avatar:'https://i.pravatar.cc/150?u=evan' }
-      ]);
-    }
-
-    // ── D) Grab all the DOM refs ─────────────────────────
-    const hallEl   = document.getElementById('hallOfFame'),
-          bodyEl   = document.getElementById('leaderboardBody'),
-          badgeEl  = document.getElementById('badgeContainer'),
-          rivalEl  = document.getElementById('rivalSpotlight'),
-          champAv  = document.getElementById('champAvatar'),
-          champNm  = document.getElementById('champName'),
-          ctx7     = document.getElementById('last7Chart').getContext('2d'),
-          ctxT     = document.getElementById('trendChart').getContext('2d'),
-          searchIn = document.getElementById('searchInput');
-
-    function computeScore(u) {
-      return (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2);
-    }
-
-    function syncCurrentUser() {
-      const acts = Storage.get('ft_activities', []);
-      const me = {
-        name:       cur.name,
-        workouts:   acts.length,
-        distanceKm: +acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1),
-        avatar:     Storage.get('ft_profile', {}).avatar || null
-      };
-      const lb = Storage.get('ft_leaderboard', []);
-      const idx = lb.findIndex(u=>u.name===me.name);
-      if (idx<0) lb.push(me);
-      else       lb[idx] = me;
-      Storage.set('ft_leaderboard', lb);
-    }
-
-    let chart7, chartT;
-    function renderAll() {
-      syncCurrentUser();
-      const acts    = Storage.get('ft_activities', []),
-            entries = Storage.get('ft_leaderboard', [])
-              .map(u=>({ ...u, score: computeScore(u) }))
-              .sort((a,b)=>b.score - a.score);
-
-      // ─ Hall of Fame ─
-      hallEl.innerHTML = '';
-      entries.slice(0,3).forEach((u,i) => {
-        const d = document.createElement('div');
-        d.className = 'hall-card';
-        d.innerHTML = u.avatar
-          ? `<img src="${u.avatar}" alt="${u.name}"><span>#${i+1} ${u.name}</span>`
-          : `<i class="fas fa-user-circle" style="font-size:60px;color:var(--white)"></i>
-             <span>#${i+1} ${u.name}</span>`;
-        hallEl.append(d);
-      });
-
-      // ─ Leaderboard Table ─
-      bodyEl.innerHTML = '';
-      entries.forEach((u,i) => {
-        const tr = document.createElement('tr');
-        if (u.name===cur.name) tr.classList.add('me');
-        tr.innerHTML = `
-          <td class="rank">${i+1}</td>
-          <td class="user-cell">
-            ${u.avatar
-              ? `<img src="${u.avatar}" width="24" height="24" style="border-radius:50%">`
-              : `<i class="fas fa-user-circle" style="font-size:24px;color:var(--white)"></i>`}
-            <span>${u.name}</span>
-          </td>
-          <td>${u.workouts}</td>
-          <td>${u.distanceKm.toFixed(1)}</td>
-          <td>${u.score}</td>`;
-        bodyEl.append(tr);
-      });
-
-      // ─ Monthly Champion ─
-      if (entries[0]) {
-        champAv.src        = entries[0].avatar||'';
-        champNm.textContent = entries[0].name;
+  <script>
+    // Simple localStorage-based Storage wrapper
+    class Storage {
+      static get(key, fallback=null) {
+        const v = localStorage.getItem(key);
+        return v ? JSON.parse(v) : fallback;
       }
-
-      // ─ Last 7 Days & Trend Data ─
-      const labels = [], data7 = [], dataTrend = [];
-      for (let d=6; d>=0; d--) {
-        const D   = new Date(); D.setDate(D.getDate()-d);
-        const key = D.toISOString().slice(0,10);
-        labels.push(D.toLocaleDateString(undefined,{weekday:'short'}));
-        const today = acts.filter(a=>a.date===key);
-        data7.push(today.reduce((s,a)=>s+(+a.duration||0),0));
-        dataTrend.push(today.length);
+      static set(key, val) {
+        localStorage.setItem(key, JSON.stringify(val));
       }
-
-      // Bar Chart
-      if (chart7) chart7.destroy();
-      chart7 = new Chart(ctx7, {
-        type:'bar',
-        data:{ labels, datasets:[{ data:data7,
-          backgroundColor: labels.map(()=>getComputedStyle(document.documentElement).getPropertyValue('--gold').trim())
-        }]},
-        options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
-      });
-
-      // Line Chart
-      if (chartT) chartT.destroy();
-      chartT = new Chart(ctxT, {
-        type:'line',
-        data:{ labels, datasets:[{ label:'# Sessions', data:dataTrend, fill:false, tension:0.4 }]},
-        options:{responsive:true}
-      });
-
-      // ─ Badges ─
-      badgeEl.innerHTML = '';
-      const total = acts.length;
-      [
-        {n:1, icon:'fas fa-star'},
-        {n:5, icon:'fas fa-medal'},
-        {n:10,icon:'fas fa-trophy'},
-        {n:30,icon:'fas fa-award'}
-      ].forEach(b => {
-        const div = document.createElement('div');
-        div.className = 'achievement-badge' + (total>=b.n ? ' unlocked':'');
-        div.title = `${b.n} Workout${b.n>1?'s':''}` + (total>=b.n?' (unlocked!)':'');
-        div.innerHTML = `<i class="${b.icon}"></i>`;
-        badgeEl.append(div);
-      });
-
-      // ─ Rival Spotlight ─
-      rivalEl.innerHTML = '';
-      const rivals = entries.filter(u=>u.name!==cur.name);
-      if (rivals.length) {
-        const r = rivals[Math.floor(Math.random()*rivals.length)];
-        rivalEl.innerHTML = `
-          <div class="rival">
-            ${r.avatar
-              ? `<img src="${r.avatar}" width="48" height="48">`
-              : `<i class="fas fa-user-circle" style="font-size:48px;color:var(--white)"></i>`}
-            <div>
-              <strong>${r.name}</strong><br>
-              🏋️ ${r.workouts} • 🚴 ${r.distanceKm.toFixed(1)} km<br>
-              ⭐ ${r.score}
-            </div>
-          </div>`;
+      static onChange(key, cb) {
+        window.addEventListener('storage', e => {
+          if (e.key === key) cb();
+        });
       }
     }
 
-    // ─ Listen for data changes & search ─
-    ['ft_leaderboard','ft_activities'].forEach(k => Storage.onChange(k, renderAll));
-    searchIn.addEventListener('input', e => {
-      const q = e.target.value.toLowerCase();
-      bodyEl.querySelectorAll('tr').forEach(tr => {
-        const name = tr.querySelector('td:nth-child(2) span').textContent.toLowerCase();
-        tr.style.display = name.includes(q) ? '' : 'none';
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1) Seed dummy user
+      let cur = Storage.get('ft_current');
+      if (!cur || !cur.name) {
+        cur = { name:'Alice', avatar:'https://i.pravatar.cc/150?u=alice' };
+        Storage.set('ft_current', cur);
+      }
+
+      // 2) Seed pseudo-users
+      if (!Storage.get('ft_leaderboard', []).length) {
+        Storage.set('ft_leaderboard', [
+          { name:'Alice', workouts:25, distanceKm:120, avatar:cur.avatar },
+          { name:'Bob',   workouts:20, distanceKm:95,  avatar:'https://i.pravatar.cc/150?u=bob'   },
+          { name:'Cara',  workouts:18, distanceKm:80,  avatar:'https://i.pravatar.cc/150?u=cara'  },
+          { name:'Dana',  workouts:15, distanceKm:70,  avatar:'https://i.pravatar.cc/150?u=dana'  },
+          { name:'Evan',  workouts:12, distanceKm:55,  avatar:'https://i.pravatar.cc/150?u=evan'  }
+        ]);
+      }
+
+      // DOM refs
+      const hallEl   = document.getElementById('hallOfFame'),
+            bodyEl   = document.getElementById('leaderboardBody'),
+            badgeEl  = document.getElementById('badgeContainer'),
+            rivalEl  = document.getElementById('rivalSpotlight'),
+            champAv  = document.getElementById('champAvatar'),
+            champNm  = document.getElementById('champName'),
+            ctx7     = document.getElementById('last7Chart').getContext('2d'),
+            ctxT     = document.getElementById('trendChart').getContext('2d'),
+            searchIn = document.getElementById('searchInput');
+
+      function computeScore(u) {
+        return u.workouts * 10 + Math.round(u.distanceKm*2);
+      }
+
+      function syncCurrentUser() {
+        const acts = Storage.get('ft_activities', []);
+        const me = {
+          name: cur.name,
+          workouts: acts.length,
+          distanceKm: +acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1),
+          avatar: cur.avatar
+        };
+        const lb = Storage.get('ft_leaderboard', []);
+        const idx = lb.findIndex(u=>u.name===me.name);
+        if (idx<0) lb.push(me);
+        else lb[idx] = me;
+        Storage.set('ft_leaderboard', lb);
+      }
+
+      let chart7, chartT;
+      function renderAll() {
+        syncCurrentUser();
+        const acts = Storage.get('ft_activities', []);
+        const entries = Storage.get('ft_leaderboard', [])
+          .map(u=>({ ...u, score: computeScore(u) }))
+          .sort((a,b)=>b.score-b.score?b.score-b.score:0);
+
+        // Hall of Fame
+        hallEl.innerHTML = '';
+        entries.slice(0,3).forEach((u,i)=>{
+          const d = document.createElement('div');
+          d.className='hall-card';
+          d.innerHTML = `<img src="${u.avatar}" alt=""><span>#${i+1} ${u.name}</span>`;
+          hallEl.append(d);
+        });
+
+        // Table
+        bodyEl.innerHTML = '';
+        entries.forEach((u,i)=>{
+          const tr = document.createElement('tr');
+          if (u.name===cur.name) tr.classList.add('me');
+          tr.innerHTML=`
+            <td class="rank">${i+1}</td>
+            <td class="user-cell"><img src="${u.avatar}" width="24"><span>${u.name}</span></td>
+            <td>${u.workouts}</td><td>${u.distanceKm.toFixed(1)}</td><td>${u.score}</td>`;
+          bodyEl.append(tr);
+        });
+
+        // Champion
+        if (entries[0]) {
+          champAv.src = entries[0].avatar;
+          champNm.textContent = entries[0].name;
+        }
+
+        // Charts
+        const labels=[], data7=[], dataTrend=[];
+        for(let d=6;d>=0;d--){
+          const D=new Date(); D.setDate(D.getDate()-d);
+          const key=D.toISOString().slice(0,10);
+          labels.push(D.toLocaleDateString(undefined,{weekday:'short'}));
+          const today=acts.filter(a=>a.date===key);
+          data7.push(today.reduce((s,a)=>s+(+a.duration||0),0));
+          dataTrend.push(today.length);
+        }
+
+        if(chart7) chart7.destroy();
+        chart7=new Chart(ctx7,{type:'bar',data:{labels,datasets:[{data:data7,backgroundColor:labels.map(()=>getComputedStyle(document.documentElement).getPropertyValue('--gold').trim())}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+        if(chartT) chartT.destroy();
+        chartT=new Chart(ctxT,{type:'line',data:{labels,datasets:[{label:'# Sessions',data:dataTrend,fill:false,tension:.4}]},options:{responsive:true}});
+
+        // Badges
+        badgeEl.innerHTML='';
+        const total=acts.length;
+        [1,5,10,30].forEach(n=>{
+          const div=document.createElement('div');
+          div.className='achievement-badge'+(total>=n?' unlocked':'');
+          div.title=`${n} Workout${n>1?'s':''}${total>=n?' (unlocked!)':''}`;
+          const icon=n===1?'fa-star':n===5?'fa-medal':n===10?'fa-trophy':'fa-award';
+          div.innerHTML=`<i class="fas ${icon}"></i>`;
+          badgeEl.append(div);
+        });
+
+        // Rival
+        rivalEl.innerHTML='';
+        const rivals=entries.filter(u=>u.name!==cur.name);
+        if(rivals.length){
+          const r=rivals[Math.floor(Math.random()*rivals.length)];
+          rivalEl.innerHTML=`
+            <div class="rival">
+              <img src="${r.avatar}" width="48">
+              <div><strong>${r.name}</strong><br>🏋️ ${r.workouts} • 🚴 ${r.distanceKm.toFixed(1)} km<br>⭐ ${r.score}</div>
+            </div>`;
+        }
+      }
+
+      // Listeners
+      ['ft_leaderboard','ft_activities'].forEach(k=>Storage.onChange(k,renderAll));
+      searchIn.addEventListener('input',e=>{
+        const q=e.target.value.toLowerCase();
+        bodyEl.querySelectorAll('tr').forEach(tr=>{
+          tr.style.display=tr.querySelector('span').textContent.toLowerCase().includes(q)?'':'none';
+        });
       });
+
+      renderAll();
     });
-
-    // ─ First draw ─
-    renderAll();
-  });
-</script>
-
-
-
+  </script>
 </body>
 </html>
