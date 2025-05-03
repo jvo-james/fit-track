@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="storage.js"></script>
 
 
   <style>
@@ -329,40 +331,34 @@ body {
   </div>
 
 
-
-  <!-- …everything above… -->
-
-  <!-- REMOVE any classic <script src="storage.js"> or <script src="chart.js"> -->
-  <!-- INSTEAD, add this at the very end of <body>: -->
-  <script type="module">
-    import { Storage } from './storage.js';
-    import Chart from 'chart.js/auto';
-
+  <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // ─── 0) MOCK A CURRENT USER (remove once you have real login) ───────
-      if (!localStorage.getItem('ft_current')) {
-        localStorage.setItem('ft_current',
-          JSON.stringify({ name: 'Test User', email: 'test@you.com' })
-        );
-      }
+      // 1) guard
       const cur = Storage.get('ft_current', {});
+      if (!cur.name) return location.replace('home.html');
 
-      // ─── 1) SIGN‑IN GUARD (uncomment when login flow is live) ──────────
-      // if (!cur.name) return location.replace('home.html');
+      // 2) sidebar toggle
+      const sidebar = document.getElementById('sidebar'),
+            overlay = document.getElementById('overlay'),
+            btnOpen = document.getElementById('hamburger'),
+            btnClose= document.getElementById('sidebar-close'),
+            profBtn = document.querySelector('.profile-menu');
 
-      // ─── 2) SIDEBAR TOGGLE & PROFILE NAV ──────────────────────────────
-      const sidebar  = document.getElementById('sidebar'),
-            overlay  = document.getElementById('overlay'),
-            btnOpen  = document.getElementById('hamburger'),
-            btnClose = document.getElementById('sidebar-close'),
-            profBtn  = document.querySelector('.profile-menu');
+      btnOpen.addEventListener('click',  ()=> {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+      });
+      btnClose.addEventListener('click', ()=> {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      });
+      overlay.addEventListener('click', ()=> {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      });
+      profBtn.addEventListener('click', ()=> location.replace('profile.html'));
 
-      btnOpen.addEventListener ('click',  ()=> { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
-      btnClose.addEventListener('click', ()=> { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
-      overlay.addEventListener ('click', ()=> { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
-      profBtn?.addEventListener('click', ()=> location.replace('profile.html'));
-
-      // ─── 3) SEED PSEUDO‑USERS (once) ──────────────────────────────────
+      // 3) seed leaderboard if empty
       if (!Storage.get('ft_leaderboard', []).length) {
         Storage.set('ft_leaderboard', [
           { name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg' },
@@ -373,112 +369,98 @@ body {
         ]);
       }
 
-      // ─── 4) DOM REFS & HELPERS ────────────────────────────────────────
-      const hall        = document.getElementById('hallOfFame'),
-            tbody       = document.getElementById('leaderboardBody'),
-            champAv     = document.getElementById('champAvatar'),
-            champName   = document.getElementById('champName'),
-            last7Ctx    = document.getElementById('last7Chart').getContext('2d'),
-            badgeWrap   = document.getElementById('badgeContainer'),
-            rivalWrap   = document.getElementById('rivalSpotlight'),
-            searchInput = document.getElementById('searchInput');
-
-      const loadLB = () => Storage.get('ft_leaderboard', []);
-      const saveLB = arr => Storage.set('ft_leaderboard', arr);
-
+      // helper to compute score
       function computeScore(u) {
         return (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2);
       }
 
-      // ─── 5) INJECT / UPDATE CURRENT USER ──────────────────────────────
-      function syncCurrentUser() {
-        const acts = Storage.get('ft_activities', []);
-        const me = {
-          name:       cur.name,
-          workouts:   acts.length,
-          distanceKm: +acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1),
-          avatar:     Storage.get('ft_profile', {}).avatar || null
-        };
-        const lb = loadLB();
-        const idx = lb.findIndex(u=>u.name===me.name);
-        if (idx<0) lb.push(me);
-        else       lb[idx] = me;
-        saveLB(lb);
-      }
-
-      // ─── 6) RENDER EVERYTHING ────────────────────────────────────────
+      // main render function
       let last7Chart = null;
       function renderAll() {
-        syncCurrentUser();
+        // sync “me” into the leaderboard
+        const acts = Storage.get('ft_activities', []);
+        const me = {
+          name: cur.name,
+          workouts: acts.length,
+          distanceKm: +acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1),
+          avatar: Storage.get('ft_profile', {}).avatar || null
+        };
+        let lb = Storage.get('ft_leaderboard', []);
+        const idx = lb.findIndex(u=>u.name===me.name);
+        if (idx < 0) lb.push(me);
+        else         lb[idx] = me;
+        Storage.set('ft_leaderboard', lb);
 
-        // build sorted entries
-        const entries = loadLB()
+        // sort by score
+        const entries = lb
           .map(u=>({ ...u, score: computeScore(u) }))
           .sort((a,b)=>b.score - a.score);
 
-        // Hall‑of‑Fame (top 3)
+        // Hall of Fame (top 3)
+        const hall = document.getElementById('hallOfFame');
         hall.innerHTML = '';
-        entries.slice(0,3).forEach((u,i)=>{
+        entries.slice(0,3).forEach((u,i) => {
           const div = document.createElement('div');
           div.className = 'hall-card';
           div.innerHTML = u.avatar
             ? `<img src="${u.avatar}" alt="${u.name}"><span>#${i+1} ${u.name}</span>`
             : `<i class="fas fa-user-circle" style="font-size:60px;color:#fff"></i>
-               <span>#${i+1} ${u.name}</span>`;
+               <span>#${i+1} ${u.name}</span>`;
           hall.appendChild(div);
         });
 
-        // Table
+        // Table body
+        const tbody = document.getElementById('leaderboardBody');
         tbody.innerHTML = '';
-        entries.forEach((u,i)=>{
+        entries.forEach((u,i) => {
           const tr = document.createElement('tr');
-          if (u.name===cur.name) tr.classList.add('me');
+          if (u.name === cur.name) tr.classList.add('me');
           tr.innerHTML = `
             <td class="rank">${i+1}</td>
             <td class="user-cell">
               ${u.avatar
-                ? `<img src="${u.avatar}" width="24" height="24" style="border-radius:50%">`
+                ? `<img src="${u.avatar}" width="24" height="24">`
                 : `<i class="fas fa-user-circle" style="font-size:24px;color:#fff"></i>`
               }
               <span>${u.name}</span>
             </td>
             <td>${u.workouts}</td>
             <td>${u.distanceKm.toFixed(1)}</td>
-            <td>${u.score}</td>`;
+            <td>${u.score}</td>
+          `;
           tbody.appendChild(tr);
         });
 
-        // Monthly Champion
+        // Monthly champion
         if (entries[0]) {
-          champAv.src         = entries[0].avatar || '';
-          champName.textContent = entries[0].name;
+          document.getElementById('champAvatar').src = entries[0].avatar || '';
+          document.getElementById('champName').textContent = entries[0].name;
         }
 
-        // 7‑Day Chart
-        const acts   = Storage.get('ft_activities', []),
-              labels = [],
-              data   = [];
+        // 7‑day bar chart
+        const labels = [], data = [];
         for (let d=6; d>=0; d--) {
-          const day = new Date(); day.setDate(day.getDate()-d);
+          const day = new Date();
+          day.setDate(day.getDate()-d);
           const key = day.toISOString().slice(0,10);
           labels.push(day.toLocaleDateString(undefined,{weekday:'short'}));
           data.push(
-            acts.filter(a=>a.date===key)
-                .reduce((s,a)=>s+(+a.duration||0),0)
+            acts.filter(a=>a.date===key).reduce((s,a)=>s+ (+a.duration||0),0)
           );
         }
         if (last7Chart) last7Chart.destroy();
-        last7Chart = new Chart(last7Ctx, {
-          type:'bar',
-          data:{ labels, datasets:[{
-            data,
-            backgroundColor: labels.map(()=>getComputedStyle(document.documentElement).getPropertyValue('--gold').trim())
-          }]},
-          options:{ responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true } } }
-        });
+        last7Chart = new Chart(
+          document.getElementById('last7Chart').getContext('2d'),
+          {
+            type: 'bar',
+            data: { labels, datasets:[{ data, backgroundColor: 'var(--gold)' }]},
+            options:{ responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true } } }
+          }
+        );
 
-        // Badges
-        const total = acts.length,
+        // badges
+        const badgeWrap = document.getElementById('badgeContainer'),
+              total = acts.length,
               badges = [
                 {n:1,  icon:'fas fa-star',  text:'First Workout'},
                 {n:5,  icon:'fas fa-medal', text:'5 Workouts'},
@@ -486,18 +468,18 @@ body {
                 {n:30, icon:'fas fa-award', text:'30 Workouts'}
               ];
         badgeWrap.innerHTML = '';
-        badges.forEach(b=>{
+        badges.forEach(b => {
           const div = document.createElement('div');
-          div.className = 'achievement-badge'+(total>=b.n?' unlocked':'');
-          div.innerHTML = `<i class="${b.icon}"></i><p style="font-size:.8rem;margin:0">${b.text}</p>`;
+          div.className = 'achievement-badge' + (total >= b.n ? ' unlocked' : '');
+          div.innerHTML = `<i class="${b.icon}"></i><p style="font-size:.8rem">${b.text}</p>`;
           badgeWrap.appendChild(div);
         });
 
-        // Rival Spotlight
-        const rivals = entries.filter(u=>u.name!==cur.name).slice(0,5);
+        // rival spotlight
+        const rivals = entries.filter(u=>u.name!==cur.name);
         if (rivals.length) {
           const r = rivals[Math.floor(Math.random()*rivals.length)];
-          rivalWrap.innerHTML = `
+          document.getElementById('rivalSpotlight').innerHTML = `
             <div style="display:flex;align-items:center;gap:1rem">
               ${r.avatar
                 ? `<img src="${r.avatar}" width="48" height="48" style="border-radius:50%">`
@@ -508,30 +490,31 @@ body {
                 🏋️ ${r.workouts} • 🚴 ${r.distanceKm.toFixed(1)} km<br>
                 ⭐ ${computeScore(r)}
               </div>
-            </div>`;
-        } else {
-          rivalWrap.innerHTML = '';
+            </div>
+          `;
         }
       }
 
-      // ─── 7) SEARCH FILTER ─────────────────────────────────────
-      searchInput?.addEventListener('input', e => {
+      // re‑render when data changes
+      ['ft_leaderboard','ft_activities'].forEach(k =>
+        Storage.onChange(k, renderAll)
+      );
+
+      // initial draw
+      renderAll();
+
+      // search filter
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', e => {
         const q = e.target.value.toLowerCase();
-        tbody.querySelectorAll('tr').forEach(tr => {
+        document.querySelectorAll('#leaderboardBody tr').forEach(tr => {
           const name = tr.querySelector('td:nth-child(2) span').textContent.toLowerCase();
           tr.style.display = name.includes(q) ? '' : 'none';
         });
       });
-
-      // ─── 8) RE‑RENDER ON STORAGE CHANGES ─────────────────────
-      ['ft_leaderboard','ft_activities'].forEach(key =>
-        Storage.onChange(key, renderAll)
-      );
-
-      // ─── 9) INITIAL DRAW ─────────────────────────────────────
-      renderAll();
     });
   </script>
+
 
 
 
