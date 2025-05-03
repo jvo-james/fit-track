@@ -14,8 +14,8 @@ firebase.initializeApp({
 const db = firebase.database();
 
 // Seed pseudo-users if none exist
-db.ref('ft_leaderboard').once('value').then(snapshot => {
-  if (!snapshot.exists()) {
+db.ref('ft_leaderboard').once('value').then(snap => {
+  if (!snap.exists()) {
     db.ref('ft_leaderboard').set({
       Alice: { name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg' },
       Bob:   { name:'Bob',   workouts:20, distanceKm:95,  avatar:'bob.jpg'   },
