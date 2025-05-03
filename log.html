@@ -11,7 +11,9 @@
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="js/firebase-init.js"></script>
 
   <style>
     /* ────────── VARIABLES ────────── */
@@ -420,98 +422,84 @@
     </section>
   </div>
 
- <script type="module">
-import { Storage } from './storage.js';
+<script>
+  // ── DOM REFS ─────────────────────────────────────────────
+  const overlay      = document.getElementById('overlay'),
+        sidebar      = document.getElementById('sidebar'),
+        openBtn      = document.getElementById('hamburger'),
+        closeBtn     = document.getElementById('sidebar-close'),
+        profileBtn   = document.getElementById('profile-btn'),
+        sideAvatarEl = document.getElementById('side-avatar'),
 
-document.addEventListener('DOMContentLoaded', () => {
-  // ─── 1) Redirect if not signed in ───────────────────────
-  const cur = Storage.get('ft_current', null);
-  if (!cur || !cur.name) return location.replace('home.html');
-
-  // ─── 2) Elements ────────────────────────────────────────
-  const overlay    = document.getElementById('overlay'),
-        sidebar    = document.getElementById('sidebar'),
-        openBtn    = document.getElementById('hamburger'),
-        closeBtn   = document.getElementById('sidebar-close'),
-        profileBtn = document.getElementById('profile-btn'),
-        sideAvatar = document.getElementById('side-avatar'),
-
-        // stats
-        statWk     = document.getElementById('stat-workouts'),
-        statDist   = document.getElementById('stat-distance'),
-        statCal    = document.getElementById('stat-calories'),
+        // stats cards
+        statWkEl     = document.getElementById('stat-workouts'),
+        statDistEl   = document.getElementById('stat-distance'),
+        statCalEl    = document.getElementById('stat-calories'),
 
         // timer
-        timerDisp  = document.getElementById('timerDisplay'),
-        startBtn   = document.getElementById('startTimer'),
-        stopBtn    = document.getElementById('stopTimer'),
-        resetBtn   = document.getElementById('resetTimer'),
+        timerDisp    = document.getElementById('timerDisplay'),
+        startBtn     = document.getElementById('startTimer'),
+        stopBtn      = document.getElementById('stopTimer'),
+        resetBtn     = document.getElementById('resetTimer'),
 
         // presets
-        presets    = document.querySelectorAll('.presets button'),
+        presetBtns   = document.querySelectorAll('.presets button'),
 
         // form & lists
-        form       = document.getElementById('logForm'),
+        formEl       = document.getElementById('logForm'),
         activityList = document.getElementById('activityList'),
-        recentSummary= document.getElementById('recentSummary'),
-        recentEdit = document.getElementById('recentEdit'),
+        recentSumEl  = document.getElementById('recentSummary'),
+        recentEdit   = document.getElementById('recentEdit'),
 
-        // achievements & motivation
-        achEls     = document.querySelectorAll('.achievement'),
-        motivation = document.getElementById('motivation');
+        // achievements
+        achEls       = document.querySelectorAll('.achievement'),
 
-  // ─── 3) Sidebar toggle ───────────────────────────────────
+        // motivation
+        motEl        = document.getElementById('motivation');
+
+  let curProfile = {}, actData = {}, timerSec = 0, timerID = null;
+
+  // ── SIDEBAR TOGGLE ───────────────────────────────────────
   openBtn.onclick  = () => { sidebar.classList.add('open'); overlay.classList.add('active'); };
   closeBtn.onclick = overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
   profileBtn.onclick = () => location.replace('profile.html');
 
-  // ─── 4) Sidebar avatar fix ───────────────────────────────
+  // ── UPDATE SIDEBAR AVATAR ───────────────────────────────
   function updateSidebarAvatar(){
-    const prof = Storage.get('ft_profile', {});
+    const prof = curProfile;
+    const icon = document.createElement(prof.avatar?'img':'i');
     if (prof.avatar){
-      const img = document.createElement('img');
-      img.src       = prof.avatar;
-      img.className = 'avatar';
-      sideAvatar.replaceWith(img);
+      icon.src = prof.avatar;
+      icon.className = 'avatar';
     } else {
-      // force icon to 32×32
-      sideAvatar.style.fontSize = '32px';
-      sideAvatar.style.width    = '32px';
-      sideAvatar.style.height   = '32px';
+      icon.className = 'fas fa-user-circle avatar';
     }
+    sideAvatarEl.replaceWith(icon);
   }
-  updateSidebarAvatar();
-  Storage.onChange('ft_profile', updateSidebarAvatar);
 
-  // ─── 5) Stopwatch ────────────────────────────────────────
-  let seconds=0, intervalID=null;
-  function disp(n){ return String(n).padStart(2,'0'); }
+  // ── STOPWATCH ───────────────────────────────────────────
+  function pad(n){ return String(n).padStart(2,'0'); }
   function refreshTimer(){
-    const m = Math.floor(seconds/60), s = seconds%60;
-    timerDisp.textContent = `${disp(m)}:${disp(s)}`;
+    const m = Math.floor(timerSec/60), s = timerSec%60;
+    timerDisp.textContent = `${pad(m)}:${pad(s)}`;
   }
   startBtn.onclick = () => {
-    if (!intervalID) intervalID = setInterval(()=>{
-      seconds++; refreshTimer();
-    },1000);
+    if (!timerID) timerID = setInterval(()=>{ timerSec++; refreshTimer(); },1000);
   };
   stopBtn.onclick = () => {
-    clearInterval(intervalID);
-    intervalID = null;
-    // auto‑write into duration field
-    document.getElementById('duration').value = Math.round(seconds/60);
+    clearInterval(timerID);
+    timerID = null;
+    document.getElementById('duration').value = Math.round(timerSec/60);
   };
   resetBtn.onclick = () => {
-    clearInterval(intervalID);
-    intervalID = null;
-    seconds = 0;
-    refreshTimer();
+    clearInterval(timerID);
+    timerID = null; timerSec = 0; refreshTimer();
     document.getElementById('duration').value = '';
   };
   refreshTimer();
 
-  // ─── 6) Presets ──────────────────────────────────────────
-  presets.forEach(btn=>{
+  // ── PRESETS ──────────────────────────────────────────────
+  presetBtns.forEach(btn => {
     btn.onclick = () => {
       document.getElementById('type').value     = btn.dataset.type;
       document.getElementById('duration').value = btn.dataset.duration;
@@ -519,139 +507,125 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
-  // ─── 7) Voice notes ─────────────────────────────────────
-  if ('webkitSpeechRecognition' in window){
-    const recog = new webkitSpeechRecognition();
-    recog.continuous = false;
-    recog.onresult = e => {
-      const text = e.results[0][0].transcript;
-      const notes= document.getElementById('notes');
-      notes.value += (notes.value?' ':'') + text;
-    };
-    document.getElementById('voiceBtn').onclick = () => recog.start();
+  // ── PROFILE LISTENER ─────────────────────────────────────
+  db.ref('ft_profile').on('value', snap => {
+    curProfile = snap.val() || {};
+    updateSidebarAvatar();
+  });
+
+  // ── ACTIVITIES LISTENER ──────────────────────────────────
+  db.ref('ft_activities').on('value', snap => {
+    actData = snap.val() || {};
+    updateQuickStats();
+    renderActivities();
+    renderRecent();
+    updateAchievements();
+    renderMotivation();
+  });
+
+  // ── UPDATE QUICK STATS ───────────────────────────────────
+  function updateQuickStats(){
+    const all = Object.values(actData).filter(a => a.user === curProfile.name);
+    statWkEl.textContent   = all.length;
+    const dist = all.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+    statDistEl.textContent = dist;
+    const cal = all.reduce((s,a)=>s+(+a.calories||0),0);
+    statCalEl.textContent  = cal;
   }
 
-  // ─── 8) Storage helpers ──────────────────────────────────
-  const loadActs = () => Storage.get('ft_activities', []);
-  const saveActs = arr => Storage.set('ft_activities', arr);
-
-  // ─── 9) Rendering functions ─────────────────────────────
-  function updateOverview(){
-    const a = loadActs();
-    const totW = a.length;
-    const totD = a.reduce((s,x)=>s+(parseFloat(x.distance)||0),0).toFixed(1);
-    const totC = a.reduce((s,x)=>s+(parseFloat(x.calories)||0),0);
-    statWk.textContent   = totW;
-    statDist.textContent = totD;
-    statCal.textContent  = totC;
-    // achievements
-    achEls.forEach(el=>{
-      const th = +el.dataset.threshold;
-      el.classList.toggle('unlocked', totW>=th);
-    });
-  }
-
+  // ── RENDER FULL LIST ─────────────────────────────────────
   function renderActivities(){
-    const a = loadActs();
+    const all = Object.values(actData).filter(a => a.user === curProfile.name)
+                  .sort((a,b)=>b.date.localeCompare(a.date));
     activityList.innerHTML = '';
-    a.forEach((ent,i)=>{
+    all.forEach((ent,i) => {
       const li = document.createElement('li');
       li.className = 'activity-item';
       li.innerHTML = `
         <div>
-          <strong>${ent.type}</strong> on ${ent.date} — ${ent.duration} min
-          ${ent.distance?`, ${ent.distance} km`:''}
-          ${ent.calories?`, ${ent.calories} cal`:''}
+          <strong>${ent.type}</strong> • ${ent.date}<br>
+          ${ent.duration} min ${ent.distance?`• ${ent.distance} km`:''} ${ent.calories?`• ${ent.calories} cal`:''}
           ${ent.notes?`<p>${ent.notes}</p>`:''}
-          <time datetime="${ent.date}">${ent.date}</time>
         </div>
         <button class="delete-btn"><i class="fas fa-trash"></i></button>`;
       li.querySelector('.delete-btn').onclick = () => {
-        a.splice(i,1);
-        saveActs(a);
+        db.ref('ft_activities').child(Object.keys(actData)[i]).remove();
       };
       activityList.appendChild(li);
     });
   }
 
+  // ── RENDER MOST RECENT ───────────────────────────────────
   function renderRecent(){
-    const a = loadActs();
-    if (a.length){
-      const L = a[0];
-      recentSummary.innerHTML = `
-        <p><strong>${L.type}</strong> on ${L.date} — ${L.duration} min
-        ${L.distance?`, ${L.distance} km`:''}
-        ${L.calories?`, ${L.calories} cal`:''}</p>
-        ${L.notes?`<p>“${L.notes}”</p>`:''}`;
-    } else {
-      recentSummary.textContent = 'No activity yet.';
+    const all = Object.values(actData).filter(a => a.user === curProfile.name)
+                  .sort((a,b)=>b.date.localeCompare(a.date));
+    if (!all.length){
+      recentSumEl.textContent = 'No activity yet.';
+      return;
     }
+    const L = all[0];
+    recentSumEl.innerHTML = `
+      <p><strong>${L.type}</strong> on ${L.date} — ${L.duration} min
+         ${L.distance?` • ${L.distance} km`:''}
+         ${L.calories?` • ${L.calories} cal`:''}</p>
+      ${L.notes?`<p>“${L.notes}”</p>`:''}`;
   }
-
   recentEdit.onclick = () => {
-    const a = loadActs();
-    if (!a.length) return;
-    const L = a.shift();
-    saveActs(a);
+    const all = Object.values(actData).filter(a=>a.user===curProfile.name)
+                  .sort((a,b)=>b.date.localeCompare(a.date));
+    if (!all.length) return;
+    const L = all.shift();
     // prefill form
-    form.date.value     = L.date;
-    form.type.value     = L.type;
-    form.duration.value = L.duration;
-    form.distance.value = L.distance;
-    form.calories.value = L.calories;
-    form.notes.value    = L.notes;
+    formEl.date.value     = L.date;
+    formEl.type.value     = L.type;
+    formEl.duration.value = L.duration;
+    formEl.distance.value = L.distance;
+    formEl.calories.value = L.calories;
+    formEl.notes.value    = L.notes;
+    // remove it
+    const key = Object.keys(actData).find(k=>actData[k] === L);
+    db.ref('ft_activities').child(key).remove();
   };
 
-  // ─── 10) Form submit ─────────────────────────────────────
-  form.onsubmit = e => {
+  // ── FORM SUBMIT PUSH ────────────────────────────────────
+  formEl.onsubmit = e => {
     e.preventDefault();
-    const f = e.target;
     const ent = {
-      date:     f.date.value,
-      type:     f.type.value,
-      duration: f.duration.value,
-      distance: f.distance.value,
-      calories: f.calories.value,
-      notes:    f.notes.value.trim()
+      user:     curProfile.name,
+      date:     formEl.date.value,
+      type:     formEl.type.value,
+      duration: +formEl.duration.value,
+      distance: +formEl.distance.value || 0,
+      calories: +formEl.calories.value || 0,
+      notes:    formEl.notes.value.trim()
     };
-    const a = loadActs();
-    a.unshift(ent);
-    saveActs(a);
-    f.reset();
-    seconds = 0; refreshTimer();
+    db.ref('ft_activities').push(ent);
+    formEl.reset();
+    resetBtn.onclick(); // clear timer
   };
-  
-// after user submits a workout form:
-const newActivityRef = db.ref('ft_activities').push();
-newActivityRef.set({
-  user: currentUserName,       // same key you use in /ft_profile
-  date: new Date().toISOString().slice(0,10),
-  duration: minutesLogged,
-  distance: kilometersLogged
-});
 
-  // ─── 11) Motivation quote ────────────────────────────────
-  const quotes = [
-    "“Don’t limit your challenges. Challenge your limits.”",
-    "“Sweat is just fat crying.”",
-    "“The body achieves what the mind believes.”",
-    "“Push yourself because no one else is going to do it for you.”"
-  ];
-  motivation.textContent = quotes[Math.floor(Math.random()*quotes.length)];
-
-  // ─── 12) Master update + sync ─────────────────────────────
-  function updateAll(){
-    updateOverview();
-    renderActivities();
-    renderRecent();
+  // ── ACHIEVEMENTS ────────────────────────────────────────
+  function updateAchievements(){
+    const count = Object.values(actData).filter(a=>a.user===curProfile.name).length;
+    achEls.forEach(el=>{
+      const th = +el.dataset.threshold;
+      el.classList.toggle('unlocked', count >= th);
+    });
   }
-  updateAll();
-  Storage.onChange('ft_activities', updateAll);
-});
+
+  // ── MOTIVATION QUOTE ────────────────────────────────────
+  function renderMotivation(){
+    const quotes = [
+      "Don’t limit your challenges – challenge your limits.",
+      "Sweat is fat crying.",
+      "The body achieves what the mind believes.",
+      "Push yourself because no one else is going to do it for you."
+    ];
+    motEl.textContent = quotes[Math.floor(Math.random()*quotes.length)];
+  }
 </script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script src="js/firebase-init.js"></script>
+
+
 
 </body>
 </html>
