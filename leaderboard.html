@@ -340,25 +340,26 @@ body {
   </div>
 
 <script type="module">
-  // 1) Import your storage wrapper and Chart.js as ESM
   import { Storage } from './storage.js';
   import Chart       from 'https://cdn.jsdelivr.net/npm/chart.js/auto';
 
   document.addEventListener('DOMContentLoaded', () => {
-    // right at the top of DOMContentLoaded
-if (!Storage.get('ft_current')) {
-  Storage.set('ft_current', { name: 'Alice', avatar: 'alice.jpg' });
-}
-const cur = Storage.get('ft_current');
-// …now cur.name exists, so you won’t redirect away
+    // ─── 0) Seed a test user if none is present ─────────────────
+    let cur = Storage.get('ft_current');
+    if (!cur || !cur.name) {
+      cur = { name: 'Alice', avatar: 'alice.jpg' };
+      Storage.set('ft_current', cur);
+    }
 
-    // ── A) Must be signed in ────────────────────────────
-    const cur = Storage.get('ft_current', null);
-    if (!cur || !cur.name) return location.replace('home.html');
-
-    // ── B) Sidebar & profile nav ───────────────────────
+    // ─── A) Must be signed in ────────────────────────────
+    //    (Now cur is guaranteed to have a name, so we won't redirect)
+    //    If you are wiring up real auth later, replace this block by your login flow.
+    //    For now we just trust our dummy user.
+    
+    // ─── B) Sidebar & Profile Nav ───────────────────────
     document.querySelectorAll('.profile-menu')
       .forEach(btn => btn.addEventListener('click', () => location.replace('profile.html')));
+    // …etc
     const sidebar = document.getElementById('sidebar'),
           overlay = document.getElementById('overlay');
     document.getElementById('hamburger')
