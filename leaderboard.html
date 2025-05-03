@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -6,12 +7,14 @@
   <title>FitTrack | Leaderboard</title>
 
   <!-- Google Fonts & FontAwesome -->
+
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <!-- Chart.js -->
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -152,6 +155,7 @@
       table th, table td { font-size:.8rem; padding:.5rem; }
     }
   </style>
+
 </head>
 
 <body>
@@ -182,278 +186,277 @@
       </div>
     </header>
 
-    <div class="container">
-      <div class="banner" id="welcomeBanner">Welcome back!</div>
+```
+<div class="container">
+  <div class="banner" id="welcomeBanner">Welcome back!</div>
 
-      <div class="stats-bar">
-        <div class="stat-card">
-          <h3 id="statMembers">0</h3><p>Total Members</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="statWorkouts">0</h3><p>Total Workouts</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="statHours">0.0</h3><p>Total Hours</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="statRank">#0</h3><p>Your Rank</p>
-        </div>
-      </div>
-
-      <div class="hall-of-fame" id="hallOfFame"></div>
-
-      <div class="leaderboard">
-        <table>
-          <thead>
-            <tr>
-              <th class="rank">#</th>
-              <th>User</th>
-              <th>Workouts</th>
-              <th>Km</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboardBody"></tbody>
-        </table>
-      </div>
-
-      <section class="section">
-        <h2><i class="fas fa-calendar-week"></i> Your Last 7 Days</h2>
-        <div class="chart-container"><canvas id="last7Chart"></canvas></div>
-        <p>Track your daily minutes. Taller bars = more time.</p>
-      </section>
-
-      <section class="section">
-        <h2><i class="fas fa-chart-line"></i> Session Trend</h2>
-        <div class="chart-container"><canvas id="trendChart"></canvas></div>
-        <p>Number of sessions each day this week.</p>
-      </section>
-
-      <section class="section">
-        <h2><i class="fas fa-award"></i> Your Badges</h2>
-        <div id="badgeContainer" style="display:flex;gap:.8rem;flex-wrap:wrap;"></div>
-        <p>Earn new badges as you hit milestones!</p>
-      </section>
-
-      <section class="section">
-        <h2><i class="fas fa-user-friends"></i> Rival Spotlight</h2>
-        <div id="rivalSpotlight"></div>
-        <p>Challenge a peer—see their stats and step up!</p>
-      </section>
-
-      <section class="section">
-        <h2><i class="fas fa-book-open"></i> Hall of Fame Stories</h2>
-        <ul id="hofStories" style="list-style:disc;padding-left:1.5rem;"></ul>
-      </section>
+  <div class="stats-bar">
+    <div class="stat-card">
+      <h3 id="statMembers">0</h3><p>Total Members</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="statWorkouts">0</h3><p>Total Workouts</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="statHours">0.0</h3><p>Total Hours</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="statRank">#0</h3><p>Your Rank</p>
     </div>
   </div>
 
- <script type="module">
-  // 1️⃣ Fix the import path to wherever storage.js really lives:
-  import { Storage } from './js/storage.js';
+  <div class="hall-of-fame" id="hallOfFame"></div>
 
-  // Sidebar toggle (unchanged)
-  const sidebar = document.getElementById('sidebar'),
-        overlay = document.getElementById('overlay');
-  window.toggleSidebar = () => {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-  };
+  <div class="leaderboard">
+    <table>
+      <thead>
+        <tr>
+          <th class="rank">#</th>
+          <th>User</th>
+          <th>Workouts</th>
+          <th>Km</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody"></tbody>
+    </table>
+  </div>
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // ─── 2️⃣ Guard: redirect if not signed in ───────────────────
-    const cur = Storage.get('ft_current', null);
-    if (!cur || !cur.name) return location.replace('home.html');
+  <section class="section">
+    <h2><i class="fas fa-calendar-week"></i> Your Last 7 Days</h2>
+    <div class="chart-container"><canvas id="last7Chart"></canvas></div>
+    <p>Track your daily minutes. Taller bars = more time.</p>
+  </section>
 
-    // ─── Welcome banner ─────────────────────────────────────────
-    document.getElementById('welcomeBanner').textContent = `Welcome back, ${cur.name}!`;
+  <section class="section">
+    <h2><i class="fas fa-chart-line"></i> Session Trend</h2>
+    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+    <p>Number of sessions each day this week.</p>
+  </section>
 
-    // ─── 3️⃣ Seed leaderboard once ───────────────────────────────
-    if (!Storage.get('ft_leaderboard', []).length) {
-      Storage.set('ft_leaderboard', [
-        {name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg'},
-        {name:'Bob',   workouts:20, distanceKm: 95, avatar:'bob.jpg'},
-        {name:'Cara',  workouts:18, distanceKm: 80, avatar:'cara.jpg'},
-        {name:'Dana',  workouts:15, distanceKm: 70, avatar:'https://i.pravatar.cc/150?u=dana'},
-        {name:'Evan',  workouts:12, distanceKm: 55, avatar:'https://i.pravatar.cc/150?u=evan'}
-      ]);
-    }
+  <section class="section">
+    <h2><i class="fas fa-award"></i> Your Badges</h2>
+    <div id="badgeContainer" style="display:flex;gap:.8rem;flex-wrap:wrap;"></div>
+    <p>Earn new badges as you hit milestones!</p>
+  </section>
 
-    // ─── Sync sidebar & header avatars from ft_current.avatarDataUrl ──
-    function syncAvatar() {
-      const p = Storage.get('ft_current', {});
-      ['sideAvatar','hdrAvatarIcon'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (p.avatarDataUrl) {
-          const img = document.createElement('img');
-          img.id = id;
-          img.className = 'avatar';
-          img.src = p.avatarDataUrl;
-          el.replaceWith(img);
-        }
-      });
-    }
-    syncAvatar();
+  <section class="section">
+    <h2><i class="fas fa-user-friends"></i> Rival Spotlight</h2>
+    <div id="rivalSpotlight"></div>
+    <p>Challenge a peer—see their stats and step up!</p>
+  </section>
 
-    // ─── Compute a simple “score” for each user ────────────────
-    function computeScore(u) {
-      return u.workouts * 10 + Math.round(u.distanceKm * 2);
-    }
+  <section class="section">
+    <h2><i class="fas fa-book-open"></i> Hall of Fame Stories</h2>
+    <ul id="hofStories" style="list-style:disc;padding-left:1.5rem;"></ul>
+  </section>
+</div>
+```
 
-    // ─── Ensure current user is in the leaderboard array ────────
-    function syncCurrentUser() {
-      const allActs = Storage.get('ft_activities', []) || [];
-      const acts    = allActs.filter(a => a.user === cur.name);
-      const me = {
-        name: cur.name,
-        workouts: acts.length,
-        distanceKm: +acts.reduce((s,a)=>s + (+a.distance||0),0).toFixed(1),
-        avatar: (Storage.get('ft_current',{})||{}).avatarDataUrl || ''
-      };
-      const lb = Storage.get('ft_leaderboard', []) || [];
-      const idx = lb.findIndex(u=>u.name===cur.name);
-      if (idx<0) lb.push(me);
-      else       lb[idx] = me;
-      Storage.set('ft_leaderboard', lb);
-    }
+  </div>
 
-    // ─── Render everything: stats, hall‑of‑fame, table, charts, badges… ─
-    let chart7, chartT;
-    function renderAll() {
-      syncCurrentUser();
-      const acts = Storage.get('ft_activities',[])||[];
-      const raw  = Storage.get('ft_leaderboard',[])||[];
-      const lb   = raw.map(u=>({ ...u, score: computeScore(u) }))
+  <script type="module">
+    import { Storage } from './storage.js';
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar'),
+          overlay = document.getElementById('overlay');
+    window.toggleSidebar = () => {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Redirect if not signed in
+      const cur = Storage.get('ft_current', null);
+      if (!cur || !cur.name) return location.replace('home.html');
+
+      // Welcome banner
+      document.getElementById('welcomeBanner').textContent = `Welcome back, ${cur.name}!`;
+
+      // Seed leaderboard once
+      if (!Storage.get('ft_leaderboard', []).length) {
+        Storage.set('ft_leaderboard', [
+          {name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg'},
+          {name:'Bob', workouts:20, distanceKm:95, avatar:'bob.jpg'},
+          {name:'Cara', workouts:18, distanceKm:80, avatar:'cara.jpg'},
+          {name:'Dana', workouts:15, distanceKm:70, avatar:'https://i.pravatar.cc/150?u=dana'},
+          {name:'Evan', workouts:12, distanceKm:55, avatar:'https://i.pravatar.cc/150?u=evan'}
+        ]);
+      }
+
+      // Profile nav & avatar sync
+      document.getElementById('profileBtn').onclick = () => location.replace('profile.html');
+      document.getElementById('hdrAvatarBtn').onclick = () => location.replace('profile.html');
+      function syncAvatar() {
+        const p = Storage.get('ft_current', {});
+        ['sideAvatar','hdrAvatarIcon'].forEach(id=>{
+          const el = document.getElementById(id);
+           if (el && p.avatarDataUrl) el.outerHTML = `<img id="${id}" class="avatar" src="${p.avatarDataUrl}"/>`;
+        });
+      }
+      syncAvatar();
+      Storage.onChange('ft_profile', syncAvatar);
+
+      // Score formula
+      function computeScore(u) {
+        return u.workouts * 10 + Math.round(u.distanceKm * 2);
+      }
+
+      // Make sure current user is in leaderboard
+      function syncCurrentUser() {
+       const allActs = Storage.get('ft_activities', []) || [];
+       const acts    = allActs.filter(a => a.user === cur.name);
+
+        const me = {
+          name: cur.name,
+          workouts: acts.length,
+          distanceKm: +acts.reduce((s,a)=>s + (+a.distance||0),0).toFixed(1),
+          avatar: (Storage.get('ft_profile',{})||{}).avatar||''
+        };
+        const lb = Storage.get('ft_leaderboard', []) || [];
+        const idx = lb.findIndex(u=>u.name===cur.name);
+        if (idx < 0) lb.push(me);
+        else lb[idx] = me;
+        Storage.set('ft_leaderboard', lb);
+      }
+
+      // Main render
+      let chart7, chartT;
+      function renderAll() {
+        syncCurrentUser();
+
+        const acts = Storage.get('ft_activities', []) || [];
+        const raw = Storage.get('ft_leaderboard', []) || [];
+        const lb = raw.map(u=>({...u, score: computeScore(u)}))
                       .sort((a,b)=>b.score - a.score);
 
-      // Stats
-      document.getElementById('statMembers').textContent  = lb.length;
-      document.getElementById('statWorkouts').textContent = acts.length;
-      document.getElementById('statHours').textContent    =
-        (acts.reduce((s,a)=>s + (+a.duration||0),0)/60).toFixed(1);
-      const myIdx = lb.findIndex(u=>u.name===cur.name);
-      document.getElementById('statRank').textContent     =
-        myIdx>=0 ? `#${myIdx+1}` : 'N/A';
+        // Stats
+        document.getElementById('statMembers').textContent = lb.length;
+        document.getElementById('statWorkouts').textContent = acts.length;
+        document.getElementById('statHours').textContent = (acts.reduce((s,a)=>s+(+a.duration||0),0)/60).toFixed(1);
+        const myIdx = lb.findIndex(u=>u.name===cur.name);
+        document.getElementById('statRank').textContent = myIdx>=0?`#${myIdx+1}`:'N/A';
 
-      // Hall of Fame (top 3)
-      const hallEl = document.getElementById('hallOfFame');
-      hallEl.innerHTML = '';
-      lb.slice(0,3).forEach((u,i) => {
-        const d = document.createElement('div');
-        d.className = 'hall-card';
-        d.innerHTML = u.avatar
-          ? `<img src="${u.avatar}"/>`
-          : `<i class="fas fa-user-circle fa-3x text-white"></i>`;
-        d.innerHTML += `<span>#${i+1} ${u.name}</span>`;
-        hallEl.append(d);
-      });
+        // Hall of Fame
+        const hallEl = document.getElementById('hallOfFame');
+        hallEl.innerHTML = '';
+        lb.slice(0,3).forEach((u,i)=>{
+          const d = document.createElement('div');
+          d.className = 'hall-card';
+          d.innerHTML = u.avatar
+            ? `<img src="${u.avatar}"/>`
+            : `<i class="fas fa-user-circle fa-3x text-white"></i>`;
+          d.innerHTML += `<span>#${i+1} ${u.name}</span>`;
+          hallEl.append(d);
+        });
 
-      // Table
-      const body = document.getElementById('leaderboardBody');
-      body.innerHTML = '';
-      lb.forEach((u,i) => {
-        const tr = document.createElement('tr');
-        if (u.name===cur.name) tr.classList.add('me');
-        tr.innerHTML = `
-          <td class="rank">${i+1}</td>
-          <td class="user-cell">
-            ${u.avatar
-              ? `<img src="${u.avatar}" width="24" height="24"/>`
-              : `<i class="fas fa-user-circle fa-2x text-white"></i>`}
-            <span>${u.name}</span>
-          </td>
-          <td>${u.workouts}</td>
-          <td>${u.distanceKm.toFixed(1)}</td>
-          <td>${u.score}</td>`;
-        body.append(tr);
-      });
+        // Hall of Fame Stories
+        const stories = [
+          `🥇 ${lb[0].name} smashed ${lb[0].workouts} workouts!`,
+          `🥈 ${lb[1].name} ran ${lb[1].distanceKm.toFixed(1)} km!`,
+          `🥉 ${lb[2].name} scored ${lb[2].score} points!`
+        ];
+        document.getElementById('hofStories').innerHTML =
+          stories.map(s=>`<li>${s}</li>`).join('');
 
-      // Charts: Last 7 days and session‐count trend
-      const labels=[], data7=[], trend=[];
-      for (let d=6; d>=0; d--) {
-        const D = new Date(); D.setDate(D.getDate() - d);
-        const key = D.toISOString().slice(0,10);
-        labels.push(D.toLocaleDateString(undefined,{weekday:'short'}));
-        const dayActs = acts.filter(a=>a.date===key);
-        data7.push(dayActs.reduce((s,a)=>s+(+a.duration||0),0));
-        trend.push(dayActs.length);
+        // Leaderboard table
+        const body = document.getElementById('leaderboardBody');
+        body.innerHTML = '';
+        lb.forEach((u,i)=>{
+          const tr = document.createElement('tr');
+          if (u.name===cur.name) tr.classList.add('me');
+          tr.innerHTML = `
+            <td class="rank">${i+1}</td>
+            <td class="user-cell">
+              ${u.avatar
+                ? `<img src="${u.avatar}" width="24" height="24"/>`
+                : `<i class="fas fa-user-circle fa-2x text-white"></i>`}
+              <span>${u.name}</span>
+            </td>
+            <td>${u.workouts}</td>
+            <td>${u.distanceKm.toFixed(1)}</td>
+            <td>${u.score}</td>`;
+          body.append(tr);
+        });
+
+        // Chart data
+        const labels=[], data7=[], trend=[];
+        for(let d=6; d>=0; d--){
+          const D=new Date(); D.setDate(D.getDate()-d);
+          const key=D.toISOString().slice(0,10);
+          labels.push(D.toLocaleDateString(undefined,{weekday:'short'}));
+          const dayActs=acts.filter(a=>a.date===key);
+          data7.push(dayActs.reduce((s,a)=>s+(+a.duration||0),0));
+          trend.push(dayActs.length);
+        }
+
+        // Last 7 Days
+        const c7=document.getElementById('last7Chart');
+        if(chart7) chart7.destroy();
+        chart7=new Chart(c7,{type:'bar',data:{labels,datasets:[{data:data7}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+        // Trend
+        const cT=document.getElementById('trendChart');
+        if(chartT) chartT.destroy();
+        chartT=new Chart(cT,{type:'line',data:{labels,datasets:[{label:'# Sessions',data:trend,fill:false,tension:0.4}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+
+        // Badges
+        const bc=document.getElementById('badgeContainer');
+        bc.innerHTML='';
+        [
+          {n:1,icon:'star',txt:'First Workout'},
+          {n:5,icon:'medal',txt:'5 Workouts'},
+          {n:10,icon:'trophy',txt:'10 Workouts'},
+          {n:30,icon:'award',txt:'30 Workouts'}
+        ].forEach(b=>{
+          const div=document.createElement('div'),
+                unlocked=acts.length>=b.n;
+          div.className=`achievement-badge${unlocked?' unlocked':''}`;
+          div.title=unlocked?`Unlocked: ${b.txt}`:`Unlock at ${b.n} workouts`;
+          div.innerHTML=`<i class="fas fa-${b.icon}"></i><div class="badge-text">${b.txt}</div>`;
+          bc.append(div);
+        });
+
+        // Rival Spotlight
+        const spot=document.getElementById('rivalSpotlight');
+        spot.innerHTML='';
+        const rivals=lb.filter(u=>u.name!==cur.name);
+        if(rivals.length){
+          const r=rivals[Math.floor(Math.random()*rivals.length)];
+          spot.innerHTML=`
+            <div class="user-cell">
+              ${r.avatar
+                ? `<img src="${r.avatar}" width="48" height="48"/>`
+                : `<i class="fas fa-user-circle fa-3x text-white"></i>`}
+              <div style="margin-left:.8rem">
+                <strong>${r.name}</strong><br>
+                Workouts: ${r.workouts}<br>
+                Km: ${r.distanceKm.toFixed(1)}<br>
+                Score: ${r.score}
+              </div>
+            </div>`;
+        }
       }
-      // Bar
-      const c7 = document.getElementById('last7Chart');
-      if (chart7) chart7.destroy();
-      chart7 = new Chart(c7, {
-        type: 'bar',
-        data: { labels, datasets:[{ data: data7 }] },
-        options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
-      });
-      // Line
-      const cT = document.getElementById('trendChart');
-      if (chartT) chartT.destroy();
-      chartT = new Chart(cT, {
-        type: 'line',
-        data: { labels, datasets:[{ label:'# Sessions', data:trend, fill:false, tension:0.4 }] },
-        options: { responsive:true, plugins:{legend:{display:false}} }
-      });
 
-      // Badges
-      const bc = document.getElementById('badgeContainer');
-      bc.innerHTML = '';
-      [
-        {n:1,  icon:'star',   txt:'First Workout'},
-        {n:5,  icon:'medal',  txt:'5 Workouts'},
-        {n:10, icon:'trophy', txt:'10 Workouts'},
-        {n:30, icon:'award',  txt:'30 Workouts'}
-      ].forEach(b => {
-        const div = document.createElement('div'),
-              unlocked = acts.length >= b.n;
-        div.className = `achievement-badge${unlocked?' unlocked':''}`;
-        div.title     = unlocked ? `Unlocked: ${b.txt}` : `Unlock at ${b.n} workouts`;
-        div.innerHTML = `<i class="fas fa-${b.icon}"></i><div class="badge-text">${b.txt}</div>`;
-        bc.append(div);
-      });
-
-      // Rival spotlight
-      const spot = document.getElementById('rivalSpotlight');
-      spot.innerHTML = '';
-      const rivals = lb.filter(u=>u.name!==cur.name);
-      if (rivals.length) {
-        const r = rivals[Math.floor(Math.random()*rivals.length)];
-        spot.innerHTML = `
-          <div class="user-cell">
-            ${r.avatar
-              ? `<img src="${r.avatar}" width="48" height="48"/>`
-              : `<i class="fas fa-user-circle fa-3x text-white"></i>`}
-            <div style="margin-left:.8rem">
-              <strong>${r.name}</strong><br>
-              Workouts: ${r.workouts}<br>
-              Km: ${r.distanceKm.toFixed(1)}<br>
-              Score: ${r.score}
-            </div>
-          </div>`;
-      }
-    }
-
-    // Search filter
-    document.getElementById('searchInput')
-      .addEventListener('input', e => {
+      // Search filter
+      document.getElementById('searchInput').addEventListener('input', e=>{
         renderAll();
-        const q = e.target.value.toLowerCase();
-        document.querySelectorAll('#leaderboardBody tr')
-          .forEach(tr => {
-            tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
-          });
+        const q=e.target.value.toLowerCase();
+        document.querySelectorAll('#leaderboardBody tr').forEach(tr=>{
+          tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none';
+        });
       });
 
-    // ─── 4️⃣ React to changes in storage ────────────────────────
-    Storage.onChange('ft_current', renderAll);
-    Storage.onChange('ft_leaderboard', renderAll);
-    Storage.onChange('ft_activities', renderAll);
+      // React to storage changes
+      ['ft_leaderboard','ft_activities','ft_profile'].forEach(key=>
+        Storage.onChange(key, renderAll)
+      );
 
-    // ─── Initial draw ─────────────────────────────────────────
-    renderAll();
-  });
-</script>
+      // First draw
+      renderAll();
+    });
+  </script>
 
 </body>
-</html>
+</html> 
