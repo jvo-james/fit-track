@@ -282,10 +282,10 @@
       document.getElementById('profileBtn').onclick = () => location.replace('profile.html');
       document.getElementById('hdrAvatarBtn').onclick = () => location.replace('profile.html');
       function syncAvatar() {
-        const p = Storage.get('ft_profile', {});
+        const p = Storage.get('ft_current', {});
         ['sideAvatar','hdrAvatarIcon'].forEach(id=>{
           const el = document.getElementById(id);
-          if (el && p.avatar) el.outerHTML = `<img id="${id}" class="avatar" src="${p.avatar}"/>`;
+           if (el && p.avatarDataUrl) el.outerHTML = `<img id="${id}" class="avatar" src="${p.avatarDataUrl}"/>`;
         });
       }
       syncAvatar();
