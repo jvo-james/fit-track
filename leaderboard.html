@@ -230,20 +230,22 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
 
-  <script>
-    // 1) Your Firebase config here
-   // Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDO-IrBAGaZ8-LFbW_6wbkSBOh_2DPGRaw",
-  authDomain: "workout-4cb4d.firebaseapp.com",
-  projectId: "workout-4cb4d",
-  storageBucket: "workout-4cb4d.firebasestorage.app",
-  messagingSenderId: "114995917937",
-  appId: "1:114995917937:web:d6416c087915ebd50f57d0"
-};
-   // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+<script>
+  // 1) Initialize (compat) and grab DB
+  firebase.initializeApp({
+    apiKey: "AIzaSyDO-IrBAGaZ8-LFbW_6wbkSBOh_2DPGRaw",
+    authDomain: "workout-4cb4d.firebaseapp.com",
+    databaseURL: "https://workout-4cb4d-default-rtdb.firebaseio.com",
+    projectId: "workout-4cb4d",
+    storageBucket: "workout-4cb4d.appspot.com",
+    messagingSenderId: "114995917937",
+    appId: "1:114995917937:web:d6416c087915ebd50f57d0"
+  });
+  const db = firebase.database();
+  console.log("Firebase initialized:", firebase.apps.length);
+  console.log("Realtime DB:", db);
 
+ 
     // 2) Sidebar toggle
     const sidebar = document.getElementById('sidebar'),
           overlay = document.getElementById('overlay'),
@@ -400,5 +402,6 @@ const app = initializeApp(firebaseConfig);
       }
     }
   </script>
+
 </body>
 </html>
