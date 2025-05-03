@@ -420,199 +420,226 @@
     </section>
   </div>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // ELEMENTS
-    const overlay    = document.getElementById('overlay'),
-          sidebar    = document.getElementById('sidebar'),
-          openBtn    = document.getElementById('hamburger'),
-          closeBtn   = document.getElementById('sidebar-close'),
-          profileBtn = document.getElementById('profile-btn'),
-          statWk     = document.getElementById('stat-workouts'),
-          statDist   = document.getElementById('stat-distance'),
-          statCal    = document.getElementById('stat-calories'),
-          motivation = document.getElementById('motivation');
+ <script type="module">
+import { Storage } from './storage.js';
 
-    // OPEN / CLOSE SIDEBAR
-    openBtn.onclick = () => {
-      sidebar.classList.add('open');
-      overlay.classList.add('active');
-    };
-    closeBtn.onclick = overlay.onclick = () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('active');
-    };
-    profileBtn.onclick = () => location.href = 'profile.html';
+document.addEventListener('DOMContentLoaded', () => {
+  // ─── 1) Redirect if not signed in ───────────────────────
+  const cur = Storage.get('ft_current', null);
+  if (!cur || !cur.name) return location.replace('home.html');
 
-    // AVATAR SWAP
-    const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
-    ['top-avatar','side-avatar'].forEach(id=>{
-      const icon = document.getElementById(id);
-      if(icon && prof.avatar){
-        const img = document.createElement('img');
-        img.src = prof.avatar;
-        img.className = 'avatar';
-        icon.replaceWith(img);
-      }
+  // ─── 2) Elements ────────────────────────────────────────
+  const overlay    = document.getElementById('overlay'),
+        sidebar    = document.getElementById('sidebar'),
+        openBtn    = document.getElementById('hamburger'),
+        closeBtn   = document.getElementById('sidebar-close'),
+        profileBtn = document.getElementById('profile-btn'),
+        sideAvatar = document.getElementById('side-avatar'),
+
+        // stats
+        statWk     = document.getElementById('stat-workouts'),
+        statDist   = document.getElementById('stat-distance'),
+        statCal    = document.getElementById('stat-calories'),
+
+        // timer
+        timerDisp  = document.getElementById('timerDisplay'),
+        startBtn   = document.getElementById('startTimer'),
+        stopBtn    = document.getElementById('stopTimer'),
+        resetBtn   = document.getElementById('resetTimer'),
+
+        // presets
+        presets    = document.querySelectorAll('.presets button'),
+
+        // form & lists
+        form       = document.getElementById('logForm'),
+        activityList = document.getElementById('activityList'),
+        recentSummary= document.getElementById('recentSummary'),
+        recentEdit = document.getElementById('recentEdit'),
+
+        // achievements & motivation
+        achEls     = document.querySelectorAll('.achievement'),
+        motivation = document.getElementById('motivation');
+
+  // ─── 3) Sidebar toggle ───────────────────────────────────
+  openBtn.onclick  = () => { sidebar.classList.add('open'); overlay.classList.add('active'); };
+  closeBtn.onclick = overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+  profileBtn.onclick = () => location.replace('profile.html');
+
+  // ─── 4) Sidebar avatar fix ───────────────────────────────
+  function updateSidebarAvatar(){
+    const prof = Storage.get('ft_profile', {});
+    if (prof.avatar){
+      const img = document.createElement('img');
+      img.src       = prof.avatar;
+      img.className = 'avatar';
+      sideAvatar.replaceWith(img);
+    } else {
+      // force icon to 32×32
+      sideAvatar.style.fontSize = '32px';
+      sideAvatar.style.width    = '32px';
+      sideAvatar.style.height   = '32px';
+    }
+  }
+  updateSidebarAvatar();
+  Storage.onChange('ft_profile', updateSidebarAvatar);
+
+  // ─── 5) Stopwatch ────────────────────────────────────────
+  let seconds=0, intervalID=null;
+  function disp(n){ return String(n).padStart(2,'0'); }
+  function refreshTimer(){
+    const m = Math.floor(seconds/60), s = seconds%60;
+    timerDisp.textContent = `${disp(m)}:${disp(s)}`;
+  }
+  startBtn.onclick = () => {
+    if (!intervalID) intervalID = setInterval(()=>{
+      seconds++; refreshTimer();
+    },1000);
+  };
+  stopBtn.onclick = () => {
+    clearInterval(intervalID);
+    intervalID = null;
+    // auto‑write into duration field
+    document.getElementById('duration').value = Math.round(seconds/60);
+  };
+  resetBtn.onclick = () => {
+    clearInterval(intervalID);
+    intervalID = null;
+    seconds = 0;
+    refreshTimer();
+    document.getElementById('duration').value = '';
+  };
+  refreshTimer();
+
+  // ─── 6) Presets ──────────────────────────────────────────
+  presets.forEach(btn=>{
+    btn.onclick = () => {
+      document.getElementById('type').value     = btn.dataset.type;
+      document.getElementById('duration').value = btn.dataset.duration;
+      document.getElementById('date').valueAsDate = new Date();
+    };
+  });
+
+  // ─── 7) Voice notes ─────────────────────────────────────
+  if ('webkitSpeechRecognition' in window){
+    const recog = new webkitSpeechRecognition();
+    recog.continuous = false;
+    recog.onresult = e => {
+      const text = e.results[0][0].transcript;
+      const notes= document.getElementById('notes');
+      notes.value += (notes.value?' ':'') + text;
+    };
+    document.getElementById('voiceBtn').onclick = () => recog.start();
+  }
+
+  // ─── 8) Storage helpers ──────────────────────────────────
+  const loadActs = () => Storage.get('ft_activities', []);
+  const saveActs = arr => Storage.set('ft_activities', arr);
+
+  // ─── 9) Rendering functions ─────────────────────────────
+  function updateOverview(){
+    const a = loadActs();
+    const totW = a.length;
+    const totD = a.reduce((s,x)=>s+(parseFloat(x.distance)||0),0).toFixed(1);
+    const totC = a.reduce((s,x)=>s+(parseFloat(x.calories)||0),0);
+    statWk.textContent   = totW;
+    statDist.textContent = totD;
+    statCal.textContent  = totC;
+    // achievements
+    achEls.forEach(el=>{
+      const th = +el.dataset.threshold;
+      el.classList.toggle('unlocked', totW>=th);
     });
+  }
 
-    // localStorage helpers
-    const load = k=>JSON.parse(localStorage.getItem(k)||'[]'),
-          save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
-localStorage.setItem('ft_activities', JSON.stringify(all));
-
-    // ───── STOPWATCH ─────
-    let seconds=0, timerInterval=null;
-    function disp(n){return String(n).padStart(2,'0');}
-    function updateDisplay(){
-      const m=Math.floor(seconds/60), s=seconds%60;
-      document.getElementById('timerDisplay').textContent = `${disp(m)}:${disp(s)}`;
-    }
-    document.getElementById('startTimer').onclick = ()=>{
-      if(!timerInterval) timerInterval = setInterval(()=>{
-        seconds++; updateDisplay();
-      },1000);
-    };
-    document.getElementById('stopTimer').onclick = ()=>{
-      clearInterval(timerInterval); timerInterval=null;
-      document.getElementById('duration').value = Math.round(seconds/60);
-    };
-    document.getElementById('resetTimer').onclick = ()=>{
-      clearInterval(timerInterval); timerInterval=null;
-      seconds=0; updateDisplay();
-    };
-
-    // ───── VOICE ─────
-    let recognition=null;
-    if('webkitSpeechRecognition' in window){
-      recognition=new webkitSpeechRecognition();
-      recognition.continuous=false;
-      recognition.onresult=e=>{
-        const text=e.results[0][0].transcript;
-        const notes=document.getElementById('notes');
-        notes.value += (notes.value?' ':'')+text;
+  function renderActivities(){
+    const a = loadActs();
+    activityList.innerHTML = '';
+    a.forEach((ent,i)=>{
+      const li = document.createElement('li');
+      li.className = 'activity-item';
+      li.innerHTML = `
+        <div>
+          <strong>${ent.type}</strong> on ${ent.date} — ${ent.duration} min
+          ${ent.distance?`, ${ent.distance} km`:''}
+          ${ent.calories?`, ${ent.calories} cal`:''}
+          ${ent.notes?`<p>${ent.notes}</p>`:''}
+          <time datetime="${ent.date}">${ent.date}</time>
+        </div>
+        <button class="delete-btn"><i class="fas fa-trash"></i></button>`;
+      li.querySelector('.delete-btn').onclick = () => {
+        a.splice(i,1);
+        saveActs(a);
       };
-      document.getElementById('voiceBtn').onclick = ()=>recognition.start();
-    }
-
-    // ───── PRESETS ─────
-    document.querySelectorAll('.presets button').forEach(btn=>{
-      btn.onclick = ()=>{
-        document.getElementById('type').value     = btn.dataset.type;
-        document.getElementById('duration').value = btn.dataset.duration;
-        document.getElementById('date').valueAsDate = new Date();
-      };
+      activityList.appendChild(li);
     });
+  }
 
-    // ───── FORM & ACTIVITIES ─────
-    const form = document.getElementById('logForm'),
-          listEl = document.getElementById('activityList'),
-          recentEl = document.getElementById('recentSummary'),
-          recentEdit = document.getElementById('recentEdit');
-
-    function updateOverview(){
-      const acts = load('ft_activities'),
-            totalW = acts.length,
-            totalD = acts.reduce((s,a)=>s+(parseFloat(a.distance)||0),0),
-            totalC = acts.reduce((s,a)=>s+(parseFloat(a.calories)||0),0);
-      statWk.textContent   = totalW;
-      statDist.textContent = totalD.toFixed(1);
-      statCal.textContent  = totalC;
-      // achievements
-      document.querySelectorAll('.achievement').forEach(el=>{
-        const th = parseInt(el.dataset.threshold,10);
-        el.classList.toggle('unlocked', totalW>=th);
-      });
+  function renderRecent(){
+    const a = loadActs();
+    if (a.length){
+      const L = a[0];
+      recentSummary.innerHTML = `
+        <p><strong>${L.type}</strong> on ${L.date} — ${L.duration} min
+        ${L.distance?`, ${L.distance} km`:''}
+        ${L.calories?`, ${L.calories} cal`:''}</p>
+        ${L.notes?`<p>“${L.notes}”</p>`:''}`;
+    } else {
+      recentSummary.textContent = 'No activity yet.';
     }
+  }
 
-    function renderActivities(){
-      const acts=load('ft_activities');
-      listEl.innerHTML='';
-      acts.forEach((a,i)=>{
-        const li=document.createElement('li');
-        li.className='activity-item';
-        li.innerHTML=`
-          <div>
-            <strong>${a.type}</strong> on ${a.date} — ${a.duration} min
-            ${a.distance?`, ${a.distance} km`:''}
-            ${a.calories?`, ${a.calories} cal`:''}
-            ${a.notes?`<p>${a.notes}</p>`:''}
-            <time datetime="${a.date}">${a.date}</time>
-          </div>
-          <button class="delete-btn"><i class="fas fa-trash"></i></button>`;
-        li.querySelector('.delete-btn').onclick = ()=>{
-          acts.splice(i,1); save('ft_activities',acts);
-          updateOverview(); renderActivities(); renderRecent();
-        };
-        listEl.appendChild(li);
-      });
-    }
+  recentEdit.onclick = () => {
+    const a = loadActs();
+    if (!a.length) return;
+    const L = a.shift();
+    saveActs(a);
+    // prefill form
+    form.date.value     = L.date;
+    form.type.value     = L.type;
+    form.duration.value = L.duration;
+    form.distance.value = L.distance;
+    form.calories.value = L.calories;
+    form.notes.value    = L.notes;
+  };
 
-    function renderRecent(){
-      const acts=load('ft_activities');
-      if(acts.length){
-        const last=acts[0];
-        recentEl.innerHTML=`
-          <p><strong>${last.type}</strong> on ${last.date} — ${last.duration} min
-          ${last.distance?`, ${last.distance} km`:''}
-          ${last.calories?`, ${last.calories} cal`:''}</p>
-          ${last.notes?`<p>“${last.notes}”</p>`:''}`;
-      } else recentEl.innerHTML='<p>No activity yet.</p>';
-    }
-
-    recentEdit.onclick = ()=>{
-      const acts=load('ft_activities');
-      if(!acts.length) return;
-      const last=acts.shift();
-      save('ft_activities',acts);
-      updateOverview(); renderActivities(); renderRecent();
-      // prefill form
-      form.date.value     = last.date;
-      form.type.value     = last.type;
-      form.duration.value = last.duration;
-      form.distance.value = last.distance;
-      form.calories.value = last.calories;
-      form.notes.value    = last.notes;
+  // ─── 10) Form submit ─────────────────────────────────────
+  form.onsubmit = e => {
+    e.preventDefault();
+    const f = e.target;
+    const ent = {
+      date:     f.date.value,
+      type:     f.type.value,
+      duration: f.duration.value,
+      distance: f.distance.value,
+      calories: f.calories.value,
+      notes:    f.notes.value.trim()
     };
+    const a = loadActs();
+    a.unshift(ent);
+    saveActs(a);
+    f.reset();
+    seconds = 0; refreshTimer();
+  };
 
-    form.onsubmit = e=>{
-      e.preventDefault();
-      const f=e.target;
-      const entry = {
-        date:     f.date.value,
-        type:     f.type.value,
-        duration: f.duration.value,
-        distance: f.distance.value,
-        calories: f.calories.value,
-        notes:    f.notes.value.trim()
-      };
-      const arr=load('ft_activities');
-      arr.unshift(entry);
-      save('ft_activities',arr);
-      f.reset(); seconds=0; updateDisplay();
-      updateOverview(); renderActivities(); renderRecent();
-    };
+  // ─── 11) Motivation quote ────────────────────────────────
+  const quotes = [
+    "“Don’t limit your challenges. Challenge your limits.”",
+    "“Sweat is just fat crying.”",
+    "“The body achieves what the mind believes.”",
+    "“Push yourself because no one else is going to do it for you.”"
+  ];
+  motivation.textContent = quotes[Math.floor(Math.random()*quotes.length)];
 
-    // ───── MOTIVATIONAL QUOTES ─────
-    const quotes = [
-      "“Don’t limit your challenges. Challenge your limits.”",
-      "“Sweat is just fat crying.”",
-      "“The body achieves what the mind believes.”",
-      "“Push yourself because no one else is going to do it for you.”"
-    ];
-    motivation.textContent = quotes[Math.floor(Math.random()*quotes.length)];
-// Example in log.html when you push a new activity:
-const all = Storage.get('ft_activities', []);
-all.unshift(newAct);
-Storage.set('ft_activities', all);
-// No need to reload—other pages will hear the storage event.
-
-    // INITIALIZE
+  // ─── 12) Master update + sync ─────────────────────────────
+  function updateAll(){
     updateOverview();
     renderActivities();
     renderRecent();
-    updateDisplay();
-  });
-  </script>
+  }
+  updateAll();
+  Storage.onChange('ft_activities', updateAll);
+});
+</script>
+
 </body>
 </html>
