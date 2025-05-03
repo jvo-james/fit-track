@@ -620,6 +620,15 @@ document.addEventListener('DOMContentLoaded', () => {
     f.reset();
     seconds = 0; refreshTimer();
   };
+  
+// after user submits a workout form:
+const newActivityRef = db.ref('ft_activities').push();
+newActivityRef.set({
+  user: currentUserName,       // same key you use in /ft_profile
+  date: new Date().toISOString().slice(0,10),
+  duration: minutesLogged,
+  distance: kilometersLogged
+});
 
   // ─── 11) Motivation quote ────────────────────────────────
   const quotes = [
@@ -640,6 +649,9 @@ document.addEventListener('DOMContentLoaded', () => {
   Storage.onChange('ft_activities', updateAll);
 });
 </script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="js/firebase-init.js"></script>
 
 </body>
 </html>
