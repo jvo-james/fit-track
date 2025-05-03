@@ -10,8 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="storage.js"></script>
 
 
   <style>
@@ -184,6 +182,17 @@
   .chart-container {
     position:relative; margin:1rem; height:200px;
   }
+ /* Badges */
+    .achievement-badge {
+      text-align:center; opacity:.4; transition:opacity .3s, transform .3s;
+    }
+    .achievement-badge.unlocked { opacity:1; }
+    .achievement-badge:hover { transform:scale(1.2); }
+    .achievement-badge i { font-size:1.5rem; }
+
+    /* Rival */
+    .rival { display:flex; align-items:center; gap:1rem; }
+    .rival img { border-radius:50%; }
 
   /* monthly champion */
   .champion {
@@ -337,14 +346,11 @@ body {
   import Chart from 'chart.js/auto';
 
   document.addEventListener('DOMContentLoaded', () => {
-    // ── 0) DEV fallback ──────────────────────────────────────────
-    // (remove this once you have a real login flow that writes ft_current)
-    let cur = Storage.get('ft_current', null);
-    if (!cur || !cur.name) {
-      cur = { name: 'Test User', email: 'test@you.com' };
-      Storage.set('ft_current', cur);
-    }
-
+   
+ // —– Sidebar profile nav —–
+      document.querySelectorAll('.menu-item profile-menu')
+        .forEach(btn => btn.onclick = () => location.replace('profile.html'));
+    
     // ── 1) Sidebar toggle & profile nav ─────────────────────────
     const sidebar  = document.getElementById('sidebar'),
           overlay  = document.getElementById('overlay'),
@@ -377,6 +383,7 @@ body {
           last7Ctx  = document.getElementById('last7Chart').getContext('2d'),
           badgeWrap = document.getElementById('badgeContainer'),
           rivalWrap = document.getElementById('rivalSpotlight'),
+          trend  = document.getElementById('trendChart').getContext('2d'),
           searchIn  = document.getElementById('searchInput');
 
     function computeScore(u) {
@@ -473,6 +480,7 @@ body {
       badges.forEach(b => {
         const d = document.createElement('div');
         d.className = `achievement-badge${total >= b.n ? ' unlocked' : ''}`;
+         d.title = `${b.text}` + (total>=b.n ? ` (unlocked!)` : ``);
         d.innerHTML = `<i class="${b.icon}"></i><p style="font-size:.8rem;margin:0">${b.text}</p>`;
         badgeWrap.appendChild(d);
       });
