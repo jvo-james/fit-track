@@ -334,8 +334,8 @@ body {
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 1) guard
-    //  const cur = Storage.get('ft_current', {});
-  //    if (!cur.name) return location.replace('home.html');
+     const cur = Storage.get('ft_current', {});
+     if (!cur.name) return location.replace('home.html');
 
       // 2) sidebar toggle
       const sidebar = document.getElementById('sidebar'),
