@@ -109,6 +109,14 @@
     .sidebar a.menu-item span,
     .sidebar button.profile-menu span { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
+/* Sidebar profile‐menu icon: force 32×32 */
+.sidebar button.profile-menu i.avatar,
+.sidebar button.profile-menu img.avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem; /* if it’s still a Font‑Awesome icon */
+  object-fit: cover; /* if it’s an <img> */
+}
 
 
    /* Main & header */
