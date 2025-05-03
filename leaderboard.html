@@ -343,31 +343,24 @@ body {
   import { Storage } from './storage.js';
   import Chart       from 'https://cdn.jsdelivr.net/npm/chart.js/auto';
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // ─── 0) Seed a test user if none is present ─────────────────
-    let cur = Storage.get('ft_current');
-    if (!cur || !cur.name) {
-      cur = { name: 'Alice', avatar: 'alice.jpg' };
-      Storage.set('ft_current', cur);
-    }
-
-    // ─── A) Must be signed in ────────────────────────────
-    //    (Now cur is guaranteed to have a name, so we won't redirect)
-    //    If you are wiring up real auth later, replace this block by your login flow.
-    //    For now we just trust our dummy user.
+document.addEventListener('DOMContentLoaded', () => {
+  // ─── 1) Guard: redirect if not signed in ───────────────────────
+  const cur = Storage.get('ft_current', null);
+  if (!cur || !cur.name) return location.replace('home.html');
     
-    // ─── B) Sidebar & Profile Nav ───────────────────────
-    document.querySelectorAll('.profile-menu')
-      .forEach(btn => btn.addEventListener('click', () => location.replace('profile.html')));
-    // …etc
-    const sidebar = document.getElementById('sidebar'),
-          overlay = document.getElementById('overlay');
-    document.getElementById('hamburger')
-      .addEventListener('click', () => sidebar.classList.toggle('open') || overlay.classList.toggle('active'));
-    document.getElementById('sidebar-close')
-      .addEventListener('click', () => sidebar.classList.remove('open') || overlay.classList.remove('active'));
-    overlay.addEventListener('click', () => sidebar.classList.remove('open') || overlay.classList.remove('active'));
+     // ─── 2) Sidebar toggle & profile nav ──────────────────────────
+  const sidebar      = document.getElementById('sidebar'),
+        overlay      = document.getElementById('overlay'),
+        btnOpen      = document.getElementById('hamburger'),
+        btnClose     = document.getElementById('sidebar-close'),
+        profileBtns  = [ document.getElementById('profile-btn'),
+                          document.querySelector('.profile-menu') ];
 
+  btnOpen.addEventListener ('click', ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); });
+  btnClose.addEventListener('click', ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+  overlay.addEventListener ('click', ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+  profileBtns.forEach(b=> b && b.addEventListener('click', ()=> location.replace('profile.html')));
+  
     // ── C) Seed 5 pseudo‑users once ──────────────────────
     if (!Storage.get('ft_leaderboard', []).length) {
       Storage.set('ft_leaderboard', [
