@@ -512,14 +512,14 @@
       }
 
       // Search & listeners
-      document.getElementById('searchInput').addEventListener('input',()=>{
-        renderAll();
-        const q = searchInput.value.toLowerCase();
-        document.querySelectorAll('#leaderboardBody tr').forEach(tr=>{
-          tr.style.display = tr.textContent.toLowerCase().includes(q)? '' : 'none';
-        });
-      });
-
+ const searchInput = document.getElementById('searchInput');
+ searchInput.addEventListener('input', e => {
+   renderAll();
+   const q = e.target.value.toLowerCase();
+   document.querySelectorAll('#leaderboardBody tr').forEach(tr => {
+     tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+   });
+ });
       ['ft_leaderboard','ft_activities'].forEach(key=>
         Storage.onChange(key, renderAll)
       );
