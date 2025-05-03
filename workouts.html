@@ -755,6 +755,20 @@
         }
       });
 
+      
+plansList.addEventListener('click', e => {
+  if (e.target.dataset.remove != null) {
+    const idx = +e.target.dataset.remove;
+    const arr = Storage.get('ft_plans', []);
+    arr.splice(idx, 1);
+    Storage.set('ft_plans', arr);
+    // ← Add one of these:
+    renderPlans();
+    // or, to refresh *everything*:
+    // syncAll();
+  }
+});
+
       /** My Plans **/
       const plansList = document.getElementById('plansList');
       function renderPlans(){
@@ -789,25 +803,48 @@
               labels = Object.keys(byCat),
               data   = Object.values(byCat);
         if (chart) chart.destroy();
-        chart = new Chart(ctx,{
-          type:'bar',
-          data:{labels,datasets:[{label:'Sessions',data,backgroundColor:'rgba(255,152,0,0.7)'}]},
-          options:{
-            responsive:true,
-            plugins:{
-              title:{display:true,text:'Sessions by Category',color:'#fff'},
-              legend:{display:false}
-            },
-            scales:{
-              x:{ticks:{color:'#fff'}},
-              y:{beginAtZero:true,ticks:{color:'#fff'}}
-            }
+        chart = new Chart(ctx, {
+  type: 'bar',
+  data: { labels, datasets: [{ label:'Sessions', data }] },
+  options: {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Sessions by Category',
+        color: '#fff',
+        font: {
+          size: 18,
+          weight: 'bold'
+        },
+      },
+      legend: { display: false }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: '#fff',
+          font: {
+            size: 14,
+            weight: 'bold'
           }
-        });
+        }
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: '#fff',
+          font: {
+            size: 14
+          }
+        }
       }
+    }
+  }
+});
 
       /** Challenge Modes **/
-      const chList = document.getElementById('challengesList'),
+      const chList = document.getElementById('challengesList');
             challenges = [
               {id:1,title:'7‑Day Abs',desc:'Daily core sculpting.',target:7},
               {id:2,title:'30‑Day Push‑Up',desc:'+2 reps/day.',target:30},
@@ -845,7 +882,7 @@
       }
 
       /** Live Sessions **/
-      const sessList = document.getElementById('sessionsList'),
+      const sessList = document.getElementById('sessionsList');
             liveSessions = [
               {id:1,img:'https://via.placeholder.com/300x200?text=Yoga',title:'Sunrise Yoga',host:'Alice',start:Date.now()+3600000,desc:'Vinyasa flow.'},
               {id:2,img:'https://via.placeholder.com/300x200?text=HIIT',title:'HIIT Blast',host:'Bob',start:Date.now()+7200000,desc:'Intervals.'},
