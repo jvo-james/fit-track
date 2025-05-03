@@ -745,274 +745,270 @@ header, .sidebar {
     <i class="fas fa-comments"></i>
   </button>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // theme & avatars
-      FT.applyTheme();
-      FT.updateSidebarAvatar();  // swaps both #sidebarAvatar & #topbarAvatar
-      FT.updateStats();
+<script type="module">
+import { Storage } from './storage.js';
 
-      // 4) Sidebar toggle
-      const sidebar = document.getElementById('sidebar'),
-            overlay = document.getElementById('overlay'),
-            openBtn = document.getElementById('hamburger'),
-            closeBtn= document.getElementById('sidebar-close');
-      openBtn.onclick = () => {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
+document.addEventListener('DOMContentLoaded', () => {
+  // ─── 1) Guard: redirect if not signed in ───────────────────────
+  const cur = Storage.get('ft_current', null);
+  if (!cur || !cur.name) return location.replace('home.html');
+
+  // ─── 2) Sidebar toggle & profile nav ──────────────────────────
+  const sidebar      = document.getElementById('sidebar'),
+        overlay      = document.getElementById('overlay'),
+        btnOpen      = document.getElementById('hamburger'),
+        btnClose     = document.getElementById('sidebar-close'),
+        profileBtns  = [ document.getElementById('profile-btn'),
+                          document.querySelector('.profile-menu') ];
+
+  btnOpen.addEventListener ('click', ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); });
+  btnClose.addEventListener('click', ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+  overlay.addEventListener ('click', ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+  profileBtns.forEach(b=> b && b.addEventListener('click', ()=> location.replace('profile.html')));
+
+  // ─── 3) Swap sidebar/top avatars if user uploaded one ───────────
+  const prof = Storage.get('ft_profile', {});
+  ['side-avatar','top-avatar'].forEach(id=>{
+    const icon = document.getElementById(id);
+    if (icon && prof.avatar) {
+      const img = document.createElement('img');
+      img.src       = prof.avatar;
+      img.className = 'avatar';
+      icon.replaceWith(img);
+    }
+  });
+
+  // ─── 4) Sample workouts data ──────────────────────────────────
+  const workouts = [
+    { id:1, title:'Full‑Body HIIT',     category:'Cardio',   duration:20, difficulty:'Intermediate',
+      image:'hiit.jpg',    description:'Fast‑paced full‑body intervals.',
+      exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None',     calories:200 },
+    { id:2, title:'Upper Body Strength',category:'Strength',duration:45, difficulty:'Advanced',
+      image:'upper.jpg',   description:'Build upper‑body power with weights.',
+      exercises:['Push‑Ups','Pull‑Ups','Rows'],                equipment:'Dumbbells',calories:300 },
+    { id:3, title:'Morning Yoga Flow',   category:'Yoga',     duration:30, difficulty:'Beginner',
+      image:'yoga.jpg',    description:'Gentle sequences to wake up your body.',
+      exercises:['Sun Salutation','Tree Pose','Child’s Pose'], equipment:'Mat',      calories:120 }
+  ];
+
+  // ─── 5) Workout of the Day ────────────────────────────────────
+  const wodTitle = document.getElementById('wodTitle'),
+        wodDesc  = document.getElementById('wodDesc'),
+        rndBtn   = document.getElementById('randomizeWOD');
+  function pickWOD(){
+    const w = workouts[Math.floor(Math.random()*workouts.length)];
+    wodTitle.textContent = w.title;
+    wodDesc.textContent  = w.description;
+  }
+  rndBtn.addEventListener('click', pickWOD);
+  pickWOD();
+
+  // ─── 6) Filters & Library ────────────────────────────────────
+  const catSel = document.getElementById('filterCategory'),
+        durSel = document.getElementById('filterDuration'),
+        difSel = document.getElementById('filterDifficulty'),
+        lib    = document.getElementById('library');
+
+  // populate categories dropdown
+  new Set(workouts.map(w=>w.category))
+    .forEach(c=> catSel.add(new Option(c,c)));
+
+  function renderLibrary(){
+    const cat = catSel.value,
+          max = +durSel.value||Infinity,
+          dif = difSel.value;
+    lib.innerHTML = '';
+    workouts.filter(w=>
+      (!cat||w.category===cat) &&
+      w.duration<=max &&
+      (!dif||w.difficulty===dif)
+    ).forEach(w=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${w.image}" alt="${w.title}"/>
+        <div class="card-body">
+          <h3>${w.title}</h3>
+          <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+          <p class="desc">${w.description}</p>
+          <button data-id="${w.id}">Details</button>
+        </div>`;
+      lib.appendChild(card);
+    });
+  }
+  [catSel,durSel,difSel].forEach(sel=> sel.addEventListener('change', renderLibrary));
+  renderLibrary();
+
+  // ─── 7) Detail Modal ────────────────────────────────────────
+  const modal      = document.getElementById('detailModal'),
+        dtClose    = modal.querySelector('.close'),
+        dtTitle    = document.getElementById('detailTitle'),
+        dtDesc     = document.getElementById('detailDesc'),
+        dtList     = document.getElementById('detailList'),
+        dtEquip    = document.getElementById('detailEquip'),
+        dtCal      = document.getElementById('detailCal'),
+        btnLog     = document.getElementById('detailStart'),
+        btnSavePlan= document.getElementById('savePlan');
+
+  lib.addEventListener('click', e=>{
+    if (e.target.tagName==='BUTTON'){
+      const w = workouts.find(x=>x.id==e.target.dataset.id);
+      dtTitle.textContent = w.title;
+      dtDesc.textContent  = w.description;
+      dtList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
+      dtEquip.textContent = w.equipment;
+      dtCal.textContent   = w.calories;
+      modal.style.display = 'flex';
+
+      btnLog.onclick = () => {
+        const acts = Storage.get('ft_activities', []);
+        acts.unshift({
+          date: new Date().toISOString().slice(0,10),
+          type: w.title,
+          duration:w.duration,
+          distance:'',
+          calories:w.calories,
+          notes:''
+        });
+        Storage.set('ft_activities', acts);
+        modal.style.display = 'none';
+        FT.updateStats?.();            // update dashboard
       };
-      const closeSidebar = () => {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
+
+      btnSavePlan.onclick = () => {
+        const plans = Storage.get('ft_plans', []);
+        if (!plans.includes(w.id)) plans.push(w.id);
+        Storage.set('ft_plans', plans);
       };
-      closeBtn.onclick = closeSidebar;
-      overlay.onclick  = closeSidebar;
-      
-        const prof = JSON.parse(localStorage.getItem('ft_profile')||'{}');
+    }
+  });
+  [dtClose, modal].forEach(el =>
+    el.addEventListener('click', e => { if (e.target===el) modal.style.display='none'; })
+  );
 
-      // 2) Maybe replace default icon with uploaded avatar
-      function maybeReplaceIcon(id) {
-        const icon = document.getElementById(id);
-        if (prof.avatar) {
-          const img = document.createElement('img');
-          img.src = prof.avatar;
-          img.className = 'avatar';
-          img.alt = 'Profile';
-          icon.replaceWith(img);
+  // ─── 8) My Plans ───────────────────────────────────────────
+  const plansList = document.getElementById('plansList');
+  function renderPlans(){
+    const out   = plansList,
+          plans = Storage.get('ft_plans', []);
+    out.innerHTML = '';
+    plans.forEach((id,i)=>{
+      const w = workouts.find(x=>x.id===id),
+            li = document.createElement('li');
+      li.innerHTML = `${w.title} <button data-idx="${i}">Remove</button>`;
+      out.appendChild(li);
+    });
+  }
+  plansList.addEventListener('click', e=>{
+    if(e.target.tagName==='BUTTON'){
+      const idx = +e.target.dataset.idx;
+      const arr = Storage.get('ft_plans', []);
+      arr.splice(idx,1);
+      Storage.set('ft_plans', arr);
+    }
+  });
+  renderPlans();
+
+  // ─── 9) Progress Chart ─────────────────────────────────────
+  const ctx = document.getElementById('progressChart').getContext('2d');
+  let progressChart;
+  function renderProgress(){
+    const acts = Storage.get('ft_activities', []),
+          byCat = acts.reduce((o,a)=>{
+            const w = workouts.find(wk=>wk.title===a.type),
+                  c = w? w.category : 'Other';
+            o[c]=(o[c]||0)+1; return o;
+          }, {});
+    if (progressChart) progressChart.destroy();
+    progressChart = new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels: Object.keys(byCat),
+        datasets:[{ label:'Sessions', data:Object.values(byCat), backgroundColor:'rgba(255,152,0,0.6)' }]
+      },
+      options:{
+        responsive:true,
+        scales:{
+          x:{ ticks:{ color:'#fff' } },
+          y:{ beginAtZero:true, ticks:{ color:'#fff' } }
+        },
+        plugins:{ legend:{ display:false } }
+      }
+    });
+  }
+  renderProgress();
+
+  // ───10) Challenge Modes ────────────────────────────────────
+  const challenges = [
+    { id:1, title:'7‑Day Abs',         desc:'Daily core work.',       target:7 },
+    { id:2, title:'30‑Day Push‑Up',    desc:'+2 reps each day.',      target:30 },
+    { id:3, title:'14‑Day Yoga',       desc:'Morning stretches.',     target:14 },
+    { id:4, title:'10K Steps x10',     desc:'10k steps daily.',       target:10 }
+  ];
+  const chList = document.getElementById('challengesList');
+  function renderChallenges(){
+    const joined = Storage.get('ft_joined', []);
+    chList.innerHTML = '';
+    challenges.forEach(ch=>{
+      const actsCount = Storage.get('ft_activities', [])
+                           .filter(a=>a.type.includes(ch.title.split(' ')[1])).length,
+            pct = Math.min(100, Math.round(actsCount/ch.target*100)),
+            done = joined.includes(ch.id);
+      const div=document.createElement('div');
+      div.className='challenge';
+      div.innerHTML=`
+        <h3>${ch.title}</h3>
+        <p>${ch.desc}</p>
+        <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
+        <p style="opacity:.8;">${actsCount}/${ch.target}</p>
+        <button>${done?'Joined ✓':'Join Challenge'}</button>`;
+      div.querySelector('button').onclick = ()=>{
+        if(!done){
+          joined.push(ch.id);
+          Storage.set('ft_joined', joined);
         }
-      }
-      maybeReplaceIcon('top-avatar');
-      maybeReplaceIcon('side-avatar');
+      };
+      chList.appendChild(div);
+    });
+  }
+  renderChallenges();
 
-        // 5) Profile navigation
-      document.getElementById('profile-btn').onclick =
-        document.querySelector('.profile-menu').onclick =
-          () => location.href='profile.html';
-
-      // SAMPLE WORKOUTS DATA
-      const workouts = [
-        { id:1, title:'Full-Body HIIT',    category:'Cardio',   duration:20, difficulty:'Intermediate',
-          image:'hiit.jpg', description:'Fast-paced full-body intervals.',
-          exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None', calories:200 },
-        { id:2, title:'Upper Body Strength',category:'Strength',duration:45, difficulty:'Advanced',
-          image:'upper.jpg', description:'Build upper-body power with weights.',
-          exercises:['Push-Ups','Pull-Ups','Rows'], equipment:'Dumbbells', calories:300 },
-        { id:3, title:'Morning Yoga Flow',  category:'Yoga',     duration:30, difficulty:'Beginner',
-          image:'yoga.jpg', description:'Gentle sequences to wake up your body.',
-          exercises:['Sun Salutation','Tree Pose','Child’s Pose'], equipment:'Mat', calories:120 }
-      ];
-
-      // WOD
-      const wodTitle = document.getElementById('wodTitle'),
-            wodDesc  = document.getElementById('wodDesc');
-      function pickWOD(){
-        const w = workouts[Math.floor(Math.random()*workouts.length)];
-        wodTitle.textContent = w.title;
-        wodDesc.textContent  = w.description;
-      }
-      document.getElementById('randomizeWOD').addEventListener('click', pickWOD);
-      pickWOD();
-
-      // FILTERS & LIBRARY
-      const catSel = document.getElementById('filterCategory'),
-            durSel = document.getElementById('filterDuration'),
-            difSel = document.getElementById('filterDifficulty'),
-            lib    = document.getElementById('library');
-
-      new Set(workouts.map(w=>w.category)).forEach(c=>catSel.append(new Option(c,c)));
-
-      function renderLibrary(){
-        const cat = catSel.value,
-              max = +durSel.value||Infinity,
-              dif = difSel.value;
-        lib.innerHTML = '';
-        workouts.filter(w=>
-          (!cat||w.category===cat) &&
-          w.duration<=max &&
-          (!dif||w.difficulty===dif)
-        ).forEach(w=>{
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML=`
-            <img src="${w.image}" alt="${w.title}"/>
-            <div class="card-body">
-              <h3>${w.title}</h3>
-              <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
-              <p class="desc">${w.description}</p>
-              <button data-id="${w.id}">Details</button>
-            </div>`;
-          lib.append(card);
-        });
-      }
-      [catSel,durSel,difSel].forEach(s=>s.addEventListener('change',renderLibrary));
-      renderLibrary();
-
-      // DETAIL MODAL
-      const modal   = document.getElementById('detailModal'),
-            dtClose = modal.querySelector('.close'),
-            dtTitle = document.getElementById('detailTitle'),
-            dtDesc  = document.getElementById('detailDesc'),
-            dtList  = document.getElementById('detailList'),
-            dtEquip = document.getElementById('detailEquip'),
-            dtCal   = document.getElementById('detailCal'),
-            btnLog  = document.getElementById('detailStart'),
-            btnSave = document.getElementById('savePlan');
-
-      document.body.addEventListener('click', e=>{
-        if(e.target.matches('.card-body button')){
-          const w = workouts.find(x=>x.id==e.target.dataset.id);
-          dtTitle.textContent = w.title;
-          dtDesc.textContent  = w.description;
-          dtList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
-          dtEquip.textContent = w.equipment;
-          dtCal.textContent   = w.calories;
-          modal.style.display = 'flex';
-
-          btnLog.onclick = ()=>{
-            const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]');
-            acts.unshift({
-              date:new Date().toISOString().split('T')[0],
-              type:w.title, duration:w.duration,
-              distance:'', calories:w.calories, notes:''
-            });
-            localStorage.setItem('ft_activities',JSON.stringify(acts));
-            modal.style.display='none';
-            alert('Workout logged!');
-            FT.updateStats();
-          };
-          btnSave.onclick = ()=>{
-            const plans = JSON.parse(localStorage.getItem('ft_plans')||'[]');
-            if(!plans.includes(w.id)) plans.push(w.id);
-            localStorage.setItem('ft_plans',JSON.stringify(plans));
-            alert('Saved to My Plans');
-          };
+  // ───11) Live Sessions ─────────────────────────────────────
+  const sessions = [
+    { id:1, img:'alice.jpg', title:'Sunrise Yoga',   host:'Alice', time:'Today 6 AM GMT',    desc:'Gentle vinyasa flow.' },
+    { id:2, img:'bob.jpg',   title:'HIIT Blast',     host:'Bob',   time:'Tonight 7 PM GMT',   desc:'High‑intensity intervals.' },
+    { id:3, img:'cara.jpg',  title:'Cardio Dance',   host:'Cara',  time:'Tomorrow 5 PM GMT', desc:'Fun dance cardio.' },
+    { id:4, img:'dan.jpg',   title:'Core & Balance', host:'Dan',   time:'Tomorrow 9 AM GMT',  desc:'Stability drills.' }
+  ];
+  const sessList = document.getElementById('sessionsList');
+  function renderSessions(){
+    const joined = Storage.get('ft_sessions', []);
+    sessList.innerHTML = '';
+    sessions.forEach(s=>{
+      const done = joined.includes(s.id),
+            div  = document.createElement('div');
+      div.className = 'session';
+      div.innerHTML=`
+        <img src="${s.img}" alt="${s.host}"/>
+        <div class="session-details">
+          <h3>${s.title}</h3>
+          <p class="info">${s.host} • ${s.time}</p>
+          <p class="desc">${s.desc}</p>
+        </div>
+        <button>${done?'Joined ✓':'Join'}</button>`;
+      div.querySelector('button').onclick = ()=>{
+        if(!done){
+          joined.push(s.id);
+          Storage.set('ft_sessions', joined);
         }
-        if(e.target===dtClose||e.target===modal) modal.style.display='none';
-      });
+      };
+      sessList.appendChild(div);
+    });
+  }
+  renderSessions();
 
-      // MY PLANS
-      function renderPlans(){
-        const out = document.getElementById('plansList'),
-              plans = JSON.parse(localStorage.getItem('ft_plans')||'[]');
-        out.innerHTML='';
-        plans.forEach((id,i)=>{
-          const w = workouts.find(x=>x.id===id),
-                li = document.createElement('li');
-          li.innerHTML = `${w.title} <button data-idx="${i}">Remove</button>`;
-          out.append(li);
-        });
-      }
-      document.getElementById('plansList').addEventListener('click',e=>{
-        if(e.target.matches('button')){
-          const idx = +e.target.dataset.idx;
-          const arr = JSON.parse(localStorage.getItem('ft_plans')||'[]');
-          arr.splice(idx,1);
-          localStorage.setItem('ft_plans',JSON.stringify(arr));
-          renderPlans();
-        }
-      });
-      renderPlans();
-
-      // PROGRESS CHART
-      const ctx = document.getElementById('progressChart').getContext('2d');
-      function renderProgress(){
-        const acts = JSON.parse(localStorage.getItem('ft_activities')||'[]'),
-              byCat = acts.reduce((o,a)=>{
-                const w=workouts.find(wk=>wk.title===a.type),
-                      c=w? w.category:'Other';
-                o[c]=(o[c]||0)+1;
-                return o;
-              },{});
-        new Chart(ctx,{
-          type:'bar',
-          data:{labels:Object.keys(byCat),datasets:[{data:Object.values(byCat),label:'Sessions'}]},
-          options:{
-            responsive:true,
-            scales:{x:{ticks:{color:'#fff'}},y:{beginAtZero:true,ticks:{color:'#fff'}}},
-            plugins:{legend:{display:false}}
-          }
-        });
-      }
-      renderProgress();
-
-      // CHALLENGE MODES
-      const challenges = [
-        { id:1, title:'7-Day Abs',           desc:'Daily core work to sculpt your mid-section.', target:7 },
-        { id:2, title:'30-Day Push-Up',      desc:'Build strength by adding 2 push-ups/day.', target:30 },
-        { id:3, title:'14-Day Yoga Retreat', desc:'Stretch, breathe & unwind each morning.', target:14 },
-        { id:4, title:'10K Steps for 10 Days',desc:'Walk 10,000 steps every day.', target:10 }
-      ];
-      function renderChallenges(){
-        const list = document.getElementById('challengesList'),
-              joined = JSON.parse(localStorage.getItem('ft_joined')||'[]');
-        list.innerHTML='';
-        challenges.forEach(ch=>{
-          const done = joined.includes(ch.id),
-                sessions = JSON.parse(localStorage.getItem('ft_activities')||'[]')
-                  .filter(a=>a.type.includes(ch.title.split('-')[1])).length,
-                pct = Math.min(100,Math.round((sessions/ch.target)*100));
-          const div = document.createElement('div'); div.className='challenge';
-          div.innerHTML = `
-            <h3>${ch.title}</h3>
-            <p>${ch.desc}</p>
-            <div class="prog-bar"><div class="fill"></div></div>
-            <p style="opacity:.8;">${sessions}/${ch.target}</p>
-            <button>${done?'Joined ✓':'Join Challenge'}</button>
-          `;
-          list.append(div);
-          // animate fill
-          const fill = div.querySelector('.fill');
-          requestAnimationFrame(()=>{
-            fill.style.width = pct + '%';
-          });
-          div.querySelector('button').onclick = ()=>{
-            if(!done){
-              joined.push(ch.id);
-              localStorage.setItem('ft_joined',JSON.stringify(joined));
-              renderChallenges();
-            }
-          };
-        });
-      }
-      renderChallenges();
-
-      // LIVE SESSIONS
-      const sessions = [
-        { id:1, img:'alice.jpg', title:'Sunrise Yoga',    host:'Alice', time:'Today 6 AM UTC',      desc:'Gentle vinyasa to start your day.' },
-        { id:2, img:'bob.jpg',   title:'HIIT Blast',      host:'Bob',   time:'Today 7 PM UTC',      desc:'High-intensity intervals to torch calories.' },
-        { id:3, img:'cara.jpg',  title:'Cardio Dance',    host:'Cara',  time:'Tomorrow 5 PM UTC',   desc:'Fun dance to get your heart pumping.' },
-        { id:4, img:'dan.jpg',   title:'Core & Balance',  host:'Dan',   time:'Tomorrow 9 AM UTC',    desc:'Stability drills for core strength.' }
-      ];
-      function renderSessions(){
-        const list   = document.getElementById('sessionsList'),
-              joined = JSON.parse(localStorage.getItem('ft_sessions')||'[]');
-        list.innerHTML='';
-        sessions.forEach(s=>{
-          const done = joined.includes(s.id);
-          const div = document.createElement('div'); div.className='session';
-          div.innerHTML=`
-            <img src="${s.img}" alt="${s.host}"/>
-            <div class="session-details">
-              <h3>${s.title}</h3>
-              <p class="info">${s.host} • ${s.time}</p>
-              <p class="desc">${s.desc}</p>
-            </div>
-            <button>${done?'Joined ✓':'Join'}</button>
-          `;
-          div.querySelector('button').onclick = ()=>{
-            if(!done){
-              joined.push(s.id);
-              localStorage.setItem('ft_sessions',JSON.stringify(joined));
-              renderSessions();
-            }
-          };
-          list.append(div);
-        });
-      }
-      renderSessions();
-
-       // ─── AI Chatbot (choose-from-20) ────────────────────────────────
-    const qaList = [
+  // ───12) AI Chatbot ─────────────────────────────────────────
+ const qaList = [
       {q:'What is the Workout of the Day?',            a:'The Workout of the Day is a randomly selected routine designed to challenge you—hit “Randomize” to see it.'},
       {q:'How do I log a workout?',                    a:'Click “Details” on any workout, then “Log This Workout.” It will appear in your activity log.'},
       {q:'How can I filter workouts?',                 a:'Use the dropdowns above the library to filter by category, duration, or difficulty.'},
@@ -1034,55 +1030,48 @@ header, .sidebar {
       {q:'Who can I contact for support?',             a:'Email support@fittrack.app and we’ll get back to you within 24 hours.'},
       {q:'Where can I give feedback?',                 a:'Use the Chat Coach to send us suggestions—or drop us a line at feedback@fittrack.app.'}
     ];
-    const sel = document.getElementById('questionSelect');
-    qaList.forEach((item, idx) => sel.add(new Option(item.q, idx)));
+  const selQ     = document.getElementById('questionSelect'),
+        chatMsg  = document.getElementById('chatMessages'),
+        askBtn   = document.getElementById('askBtn'),
+        clearBtn = document.getElementById('clearChat'),
+        chatBox  = document.getElementById('chatbot'),
+        chatToggle = document.getElementById('chatToggle');
+  qaList.forEach((x,i)=> selQ.add(new Option(x.q,i)));
+  function appendMsg(txt,who){
+    const d=document.createElement('div');
+    d.className = `msg ${who}`; d.textContent=txt;
+    chatMsg.appendChild(d);
+    chatMsg.scrollTop = chatMsg.scrollHeight;
+  }
+  askBtn.onclick = ()=>{
+    const idx = selQ.value; if(idx===''|| idx==null) return;
+    appendMsg(qaList[idx].q,'user');
+    appendMsg(qaList[idx].a,'bot');
+    selQ.selectedIndex = 0;
+  };
+  clearBtn.onclick = ()=>{
+    chatMsg.innerHTML = `<div class="msg bot">Welcome! Choose a question.</div>`;
+  };
+  chatToggle.onclick = ()=>{
+    chatBox.style.display       = 'flex';
+    chatToggle.style.display    = 'none';
+  };
+  clearBtn.addEventListener('click', ()=> {
+    chatBox.style.display    = 'none';
+    chatToggle.style.display = 'flex';
+  });
 
-    const messagesEl = document.getElementById('chatMessages');
-    function appendMsg(text, who) {
-      const m = document.createElement('div');
-      m.className = `msg ${who}`;
-      m.textContent = text;
-      messagesEl.appendChild(m);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-
-    document.getElementById('clearChat').addEventListener('click', () => {
-      messagesEl.innerHTML = '<div class="msg bot">Welcome! Select a question below.</div>';
-    });
-    document.getElementById('askBtn').addEventListener('click', () => {
-      const idx = sel.value; if (!idx) return;
-      const { q, a } = qaList[idx];
-      appendMsg(q, 'user');
-      appendMsg(a, 'bot');
-      sel.selectedIndex = 0;
-    });
-const chat      = document.getElementById('chatbot');
-const chatToggle= document.getElementById('chatToggle');
-
-// start with chat hidden, icon visible
-chat.style.display       = 'none';
-chatToggle.style.display = 'flex';
-
-// when you click the bubble: show chat, hide bubble
-chatToggle.addEventListener('click', () => {
-  chat.style.display       = 'flex';
-  chatToggle.style.display = 'none';
+  // ───13) Sync on Storage changes ───────────────────────────
+  function syncAll(){
+    FT.updateStats?.();
+    renderProgress();
+  }
+  Storage.onChange('ft_activities', syncAll);
+  Storage.onChange('ft_plans',      renderPlans);
+  Storage.onChange('ft_joined',     renderChallenges);
+  Storage.onChange('ft_sessions',   renderSessions);
 });
+</script>
 
-// when you click the “×” inside chat: hide chat, show bubble
-document.getElementById('clearChat').addEventListener('click', () => {
-  // clear messages if you want:
-  messagesEl.innerHTML = '<div class="msg bot">Welcome! Select a question below.</div>';
-  chat.style.display       = 'none';
-  chatToggle.style.display = 'flex';
-});
-// Example in log.html when you push a new activity:
-const all = Storage.get('ft_activities', []);
-all.unshift(newAct);
-Storage.set('ft_activities', all);
-// No need to reload—other pages will hear the storage event.
-
-    });
-  </script>
 </body>
 </html> 
