@@ -340,26 +340,34 @@ body {
   </div>
 
 <script type="module">
+  // 1) Import your storage wrapper and Chart.js as ESM
   import { Storage } from './storage.js';
   import Chart       from 'https://cdn.jsdelivr.net/npm/chart.js/auto';
 
   document.addEventListener('DOMContentLoaded', () => {
-    // 1) Guard
+    // right at the top of DOMContentLoaded
+if (!Storage.get('ft_current')) {
+  Storage.set('ft_current', { name: 'Alice', avatar: 'alice.jpg' });
+}
+const cur = Storage.get('ft_current');
+// …now cur.name exists, so you won’t redirect away
+
+    // ── A) Must be signed in ────────────────────────────
     const cur = Storage.get('ft_current', null);
     if (!cur || !cur.name) return location.replace('home.html');
 
-    // 2) Sidebar toggle & profile nav
+    // ── B) Sidebar & profile nav ───────────────────────
     document.querySelectorAll('.profile-menu')
-      .forEach(btn => btn.addEventListener('click', ()=> location.replace('profile.html')));
+      .forEach(btn => btn.addEventListener('click', () => location.replace('profile.html')));
     const sidebar = document.getElementById('sidebar'),
           overlay = document.getElementById('overlay');
     document.getElementById('hamburger')
       .addEventListener('click', () => sidebar.classList.toggle('open') || overlay.classList.toggle('active'));
     document.getElementById('sidebar-close')
       .addEventListener('click', () => sidebar.classList.remove('open') || overlay.classList.remove('active'));
-    overlay.addEventListener('click',   () => sidebar.classList.remove('open') || overlay.classList.remove('active'));
+    overlay.addEventListener('click', () => sidebar.classList.remove('open') || overlay.classList.remove('active'));
 
-    // 3) Seed pseudo‑users
+    // ── C) Seed 5 pseudo‑users once ──────────────────────
     if (!Storage.get('ft_leaderboard', []).length) {
       Storage.set('ft_leaderboard', [
         { name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg' },
@@ -370,7 +378,7 @@ body {
       ]);
     }
 
-    // 4) Grab DOM refs & helper
+    // ── D) Grab all the DOM refs ─────────────────────────
     const hallEl   = document.getElementById('hallOfFame'),
           bodyEl   = document.getElementById('leaderboardBody'),
           badgeEl  = document.getElementById('badgeContainer'),
@@ -385,8 +393,7 @@ body {
       return (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2);
     }
 
-    // 5) Sync current user
-    function syncMe() {
+    function syncCurrentUser() {
       const acts = Storage.get('ft_activities', []);
       const me = {
         name:       cur.name,
@@ -395,32 +402,33 @@ body {
         avatar:     Storage.get('ft_profile', {}).avatar || null
       };
       const lb = Storage.get('ft_leaderboard', []);
-      const i  = lb.findIndex(u=>u.name===me.name);
-      if (i<0) lb.push(me); else lb[i]=me;
+      const idx = lb.findIndex(u=>u.name===me.name);
+      if (idx<0) lb.push(me);
+      else       lb[idx] = me;
       Storage.set('ft_leaderboard', lb);
     }
 
-    // 6) Render all
     let chart7, chartT;
     function renderAll() {
-      syncMe();
+      syncCurrentUser();
       const acts    = Storage.get('ft_activities', []),
             entries = Storage.get('ft_leaderboard', [])
               .map(u=>({ ...u, score: computeScore(u) }))
               .sort((a,b)=>b.score - a.score);
 
-      // Hall of Fame
+      // ─ Hall of Fame ─
       hallEl.innerHTML = '';
       entries.slice(0,3).forEach((u,i) => {
         const d = document.createElement('div');
         d.className = 'hall-card';
         d.innerHTML = u.avatar
-          ? `<img src="${u.avatar}"><span>#${i+1} ${u.name}</span>`
-          : `<i class="fas fa-user-circle" style="font-size:60px"></i><span>#${i+1} ${u.name}</span>`;
+          ? `<img src="${u.avatar}" alt="${u.name}"><span>#${i+1} ${u.name}</span>`
+          : `<i class="fas fa-user-circle" style="font-size:60px;color:var(--white)"></i>
+             <span>#${i+1} ${u.name}</span>`;
         hallEl.append(d);
       });
 
-      // Leaderboard table
+      // ─ Leaderboard Table ─
       bodyEl.innerHTML = '';
       entries.forEach((u,i) => {
         const tr = document.createElement('tr');
@@ -429,9 +437,8 @@ body {
           <td class="rank">${i+1}</td>
           <td class="user-cell">
             ${u.avatar
-              ? `<img src="${u.avatar}" width="24" height="24">`
-              : `<i class="fas fa-user-circle" style="font-size:24px"></i>`
-            }
+              ? `<img src="${u.avatar}" width="24" height="24" style="border-radius:50%">`
+              : `<i class="fas fa-user-circle" style="font-size:24px;color:var(--white)"></i>`}
             <span>${u.name}</span>
           </td>
           <td>${u.workouts}</td>
@@ -440,58 +447,67 @@ body {
         bodyEl.append(tr);
       });
 
-      // Monthly champion
+      // ─ Monthly Champion ─
       if (entries[0]) {
         champAv.src        = entries[0].avatar||'';
         champNm.textContent = entries[0].name;
       }
 
-      // 7-day and trend data
-      const labels = [], data7 = [], dataT = [];
+      // ─ Last 7 Days & Trend Data ─
+      const labels = [], data7 = [], dataTrend = [];
       for (let d=6; d>=0; d--) {
         const D   = new Date(); D.setDate(D.getDate()-d);
         const key = D.toISOString().slice(0,10);
         labels.push(D.toLocaleDateString(undefined,{weekday:'short'}));
         const today = acts.filter(a=>a.date===key);
         data7.push(today.reduce((s,a)=>s+(+a.duration||0),0));
-        dataT.push(today.length);
+        dataTrend.push(today.length);
       }
 
+      // Bar Chart
       if (chart7) chart7.destroy();
       chart7 = new Chart(ctx7, {
         type:'bar',
-        data:{labels,datasets:[{data:data7,backgroundColor:labels.map(()=>getComputedStyle(document.documentElement).getPropertyValue('--gold').trim())}]},
+        data:{ labels, datasets:[{ data:data7,
+          backgroundColor: labels.map(()=>getComputedStyle(document.documentElement).getPropertyValue('--gold').trim())
+        }]},
         options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
       });
 
+      // Line Chart
       if (chartT) chartT.destroy();
       chartT = new Chart(ctxT, {
         type:'line',
-        data:{labels,datasets:[{label:'Sessions',data:dataT,fill:false,tension:0.4}]},
+        data:{ labels, datasets:[{ label:'# Sessions', data:dataTrend, fill:false, tension:0.4 }]},
         options:{responsive:true}
       });
 
-      // Badges
+      // ─ Badges ─
       badgeEl.innerHTML = '';
       const total = acts.length;
-      [{n:1,icon:'fas fa-star'},{n:5,icon:'fas fa-medal'},{n:10,icon:'fas fa-trophy'},{n:30,icon:'fas fa-award'}]
-        .forEach(b=>{
-          const div = document.createElement('div');
-          div.className = 'achievement-badge' + (total>=b.n?' unlocked':'');
-          div.title = `${b.n} Workouts` + (total>=b.n?' (unlocked!)':'');
-          div.innerHTML = `<i class="${b.icon}"></i>`;
-          badgeEl.append(div);
-        });
+      [
+        {n:1, icon:'fas fa-star'},
+        {n:5, icon:'fas fa-medal'},
+        {n:10,icon:'fas fa-trophy'},
+        {n:30,icon:'fas fa-award'}
+      ].forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'achievement-badge' + (total>=b.n ? ' unlocked':'');
+        div.title = `${b.n} Workout${b.n>1?'s':''}` + (total>=b.n?' (unlocked!)':'');
+        div.innerHTML = `<i class="${b.icon}"></i>`;
+        badgeEl.append(div);
+      });
 
-      // Rival Spotlight
+      // ─ Rival Spotlight ─
       rivalEl.innerHTML = '';
       const rivals = entries.filter(u=>u.name!==cur.name);
       if (rivals.length) {
         const r = rivals[Math.floor(Math.random()*rivals.length)];
         rivalEl.innerHTML = `
           <div class="rival">
-            ${r.avatar?`<img src="${r.avatar}" width="48" height="48">`
-                      :`<i class="fas fa-user-circle" style="font-size:48px"></i>`}
+            ${r.avatar
+              ? `<img src="${r.avatar}" width="48" height="48">`
+              : `<i class="fas fa-user-circle" style="font-size:48px;color:var(--white)"></i>`}
             <div>
               <strong>${r.name}</strong><br>
               🏋️ ${r.workouts} • 🚴 ${r.distanceKm.toFixed(1)} km<br>
@@ -501,20 +517,21 @@ body {
       }
     }
 
-    // 7) Watch for changes & wire up search
-    ['ft_leaderboard','ft_activities'].forEach(k=>Storage.onChange(k,renderAll));
-    searchIn.addEventListener('input', e=>{
+    // ─ Listen for data changes & search ─
+    ['ft_leaderboard','ft_activities'].forEach(k => Storage.onChange(k, renderAll));
+    searchIn.addEventListener('input', e => {
       const q = e.target.value.toLowerCase();
-      bodyEl.querySelectorAll('tr').forEach(tr=>{
+      bodyEl.querySelectorAll('tr').forEach(tr => {
         const name = tr.querySelector('td:nth-child(2) span').textContent.toLowerCase();
-        tr.style.display = name.includes(q)?'':'none';
+        tr.style.display = name.includes(q) ? '' : 'none';
       });
     });
 
-    // 8) First paint
+    // ─ First draw ─
     renderAll();
   });
 </script>
+
 
 
 </body>
