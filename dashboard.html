@@ -4,13 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FitTrack | Dashboard</title>
-  <!-- Fonts & icons -->
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
+   <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ 
+
 
   <style>
     :root {
@@ -21,6 +27,10 @@
       --font-head: 'Poppins', sans-serif;
       --transition: .3s ease;
       --sidebar-w: 80px;
+      --mobile-break: 600px;
+      --overlay-z: 90;
+      --sidebar-z: 100;
+      --header-z: 200;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -30,10 +40,22 @@
       overflow-x:hidden;
     }
     a { color:inherit; text-decoration:none; }
-    button { font-family:var(--font-head); cursor:pointer; transition:var(--transition); }
+    button {
+      font-family:var(--font-head);
+      transition:var(--transition);
+      cursor:pointer;
+      background:transparent; border:none; color:var(--white);
+    }
 
-    /* notification */
-    .notif-bar {
+    /* Overlay */
+    .overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.5); z-index:var(--overlay-z);
+    }
+    .overlay.active { display:block; }
+
+    /* Notification */
+   .notif-bar {
       position:fixed; top:1rem; left:50%; transform:translateX(-50%);
       max-width:600px; width:90%; background:rgba(255,152,0,0.1);
       border-left:4px solid var(--gold); padding:.8rem 1.5rem;
@@ -42,75 +64,92 @@
     }
     .notif-bar.hidden { display:none; }
 
-    /* sidebar */
+    /* Sidebar */
     .sidebar {
       width:var(--sidebar-w); background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0; position:sticky; top:0; height:100vh;
+      padding-top:1rem; position:sticky; top:0; height:100vh;
+      transition:transform var(--transition);
+      z-index:var(--sidebar-z);
     }
-    .sidebar a, .sidebar button { 
-      width:100%; text-align:center; padding:.8rem 0; color:var(--white);
-      background:transparent; border:none; font-size:.75rem;
+    .sidebar.open { transform:translateX(0); }
+    .sidebar .sidebar-close { display:none; }
+    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar a.menu-item,
+    .sidebar button.profile-menu {
+      width:100%; padding:.8rem 0;
+      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      transition:background var(--transition); color:var(--white);
+      background:transparent; border:none;
     }
-    .sidebar a.active, .sidebar a:hover, .sidebar button:hover {
+    .sidebar a.menu-item:hover,
+    .sidebar a.menu-item.active,
+    .sidebar button.profile-menu:hover {
       background:rgba(255,152,0,0.2);
     }
+    .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar {
+      font-size:1.2rem;
+    }
+    .sidebar a.menu-item span,
+    .sidebar button.profile-menu span { font-size:.75rem; }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
 
-    /* main */
+    /* Avatar default */
+    i.avatar {
+      width:32px; height:32px;
+      border-radius:50%; line-height:32px;
+      text-align:center; font-size:1.5rem;
+      border:2px solid var(--white);
+    }
+    img.avatar {
+      width:32px; height:32px;
+      border-radius:50%; object-fit:cover;
+      border:2px solid var(--white);
+    }
+
+    /* Main & header */
     .main { flex:1; display:flex; flex-direction:column; }
     header {
       display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.5rem; background:rgba(0,0,0,0.8);
-      border-bottom:2px solid var(--gold); position:sticky; top:0; z-index:1000;
+      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
+      border-bottom:2px solid var(--gold);
+      position:sticky; top:0; z-index:var(--header-z);
     }
-    header h1 { font-size:1.4rem; color:var(--white); }
+    header h1 { font-size:1.4rem; text-align:center; flex:1; color:var(--white); }
+    .new-workout {
+      display:flex; align-items:center; gap:.4rem;
+      background:var(--gold); color:var(--bg);
+      border-radius:30px; padding:.5rem 1rem;
+    }
+    .hamburger, .profile-btn { display:none; }
 
-    /* content grid */
+    /* Content */
     .content { padding:1rem 1.5rem; overflow-y:auto; }
-    .stats, .goals, .charts, .actions-grid {
-      display:grid; gap:1rem; margin-bottom:1.5rem;
-    }
-    .stats { grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
-    .stat-card, .goal-card, .chart-card, .action-card {
-      background:rgba(255,255,255,0.05); border-radius:8px; padding:1rem;
-    }
-    .stat-card i, .goal-card p, .action-card h3 { color:var(--gold); }
+    .stats { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
+    .stat-card { background:rgba(255,255,255,0.05); border-radius:8px; padding:1rem; text-align:center; transition:var(--transition); }
+    .stat-card:hover { background:rgba(255,255,255,0.1); }
+    .stat-card i { font-size:1.4rem; color:var(--gold); margin-bottom:.4rem; }
     .stat-card h3 { font-size:1.2rem; }
-    .progress { margin-bottom:1.5rem; }
+    .progress { margin-top:1rem; }
     .bar-container { background:rgba(255,255,255,0.2); border-radius:6px; overflow:hidden; height:10px; }
     .bar-fill { width:0; height:100%; background:var(--gold); transition:width 1s ease; }
-
-    /* quick-log */
-    .quick-log table {
-      width:100%; border-collapse:collapse; margin-bottom:.8rem;
-    }
-    .quick-log th, .quick-log td {
-      padding:.4rem; border-bottom:1px solid rgba(255,255,255,0.2); text-align:left;
-    }
-    .fast-stats { display:flex; gap:1rem; font-size:.9rem; }
-
-    /* live sessions */
-    .live-sessions .live-grid {
-      display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-    }
-    .live-card { background:rgba(255,255,255,0.05); border-radius:8px; padding:.75rem; text-align:center; }
-    .live-card img { width:100%; height:80px; object-fit:cover; border-radius:6px; margin-bottom:.5rem; }
-    .live-card button { margin-top:.5rem; padding:.4rem .8rem; border-radius:20px; }
-
-    /* mini-board & achievements */
-    .mini-board ol { padding-left:1.2rem; margin-bottom:1.5rem; }
-    .achievements-grid {
-      display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(80px,1fr));
-    }
-    .achievement-badge { text-align:center; opacity:.4; }
-    .achievement-badge.unlocked { opacity:1; box-shadow:0 4px 12px rgba(255,152,0,0.4); }
-
-    /* community feed */
-    .community { background:rgba(255,255,255,0.05); padding:1rem; border-radius:8px; }
-    .community h2 { color:var(--gold); margin-bottom:.75rem; }
-    .feed-list { list-style:none; }
-    .feed-list li { margin-bottom:.6rem; }
+    .goals { margin-top:1rem; display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); }
+    .goal-card { background:rgba(255,255,255,0.05); border-radius:8px; padding:.8rem; }
+    .goal-container { background:rgba(255,255,255,0.2); border-radius:6px; overflow:hidden; height:10px; }
+    .goal-fill { width:0; height:100%; background:var(--gold); transition:width 1s ease; }
+    .charts { margin-top:1rem; display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+    .chart-card { background:rgba(255,255,255,0.05); border-radius:8px; padding:1rem; }
+    .chart-card canvas { width:100% !important; height:300px !important; }
+    .challenges, .leaderboard, .community { margin-top:1.5rem; }
+    .challenges ul { list-style:none; padding:0; }
+    .challenges li { display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:.6rem; border-radius:6px; cursor:pointer; }
+    .challenges li.completed { background:rgba(76,175,80,0.2); }
+    .leaderboard ol { padding-left:1.2rem; }
+    .leaderboard li { margin-bottom:.4rem; color:rgba(255,255,255,0.8); }
+    .community .feed-list { display:flex; flex-direction:column; gap:.6rem; }
+    .community .feed-item { background:rgba(255,255,255,0.05); padding:.6rem; border-radius:6px; }
 
     /* modal */
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:2000; }
@@ -126,48 +165,254 @@
     }
     .modal button.primary { width:100%; padding:.6rem; border-radius:30px; background:var(--gold); color:var(--bg); }
 
+    /* Footer */
     footer { text-align:center; padding:1rem 0; border-top:1px solid rgba(255,255,255,0.2); font-size:.9rem; opacity:.7; }
+.quick-log {
+  background: rgba(255,255,255,0.05);
+  padding: 1rem; border-radius: 8px; margin: 1.5rem 0;
+}
+.quick-log table {
+  width:100%; border-collapse: collapse; margin-bottom: .8rem;
+}
+.quick-log th, .quick-log td {
+  padding: .4rem; text-align:left; font-size: .9rem;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.fast-stats { display:flex; gap:1rem; font-size:.9rem; }
 
-    /* mobile tweaks */
-    @media(max-width:600px){
-      header h1 { font-size:1rem; }
+    .actions-grid { 
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1rem; margin:1.5rem 0;
+}
+.action-card {
+  background:rgba(255,255,255,0.05);
+  border-radius:8px; padding:1rem;
+  transition:transform var(--transition),box-shadow var(--transition);
+}
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.5);
+}
+.action-card h3 { margin-bottom:.75rem; color:var(--gold); font-size:1rem; display:flex; align-items:center; gap:.5rem; }
+.card-list { display:flex; flex-direction:column; gap:.6rem; max-height:140px; overflow-y:auto; }
+.card-list div, .card-list li {
+  background:rgba(255,255,255,0.1); padding:.6rem; border-radius:6px;
+}
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap: 1rem;
+}
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  max-height: 200px;   /* optional scroll */
+  overflow-y: auto;
+}
+.card-list div, .card-list li {
+  background: rgba(255,255,255,0.1);
+  padding: .6rem;
+  border-radius: 6px;
+}
+
+    .daily-tip {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+.daily-tip h2 {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--gold);
+  font-size: 1rem;
+  margin-bottom: .75rem;
+}
+.daily-tip p {
+  font-size: .9rem;
+  line-height: 1.4;
+  opacity: .8;
+}
+.live-sessions {
+  margin: 1.5rem 0;
+}
+.live-sessions h2 {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--gold);
+  font-size: 1rem;
+  margin-bottom: .75rem;
+}
+.live-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+  gap: .75rem;
+}
+.live-card {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: .75rem;
+  text-align: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.live-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.live-card img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: .5rem;
+}
+.live-card h3 {
+  font-size: .95rem;
+  margin-bottom: .25rem;
+}
+.live-card p {
+  font-size: .8rem;
+  opacity: .7;
+}
+
+
+    .top-achievements {
+  margin: 1.5rem 0;
+}
+.top-achievements h2 {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--gold);
+  font-size: 1rem;
+  margin-bottom: .75rem;
+}
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px,1fr));
+  gap: .75rem;
+}
+.achievement-badge {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: .75rem;
+  text-align: center;
+  opacity: .4;
+  transition: opacity .3s, box-shadow .3s;
+}
+.achievement-badge.unlocked {
+  opacity: 1;
+  box-shadow: 0 4px 12px rgba(255,152,0,0.4);
+}
+.achievement-badge i {
+  font-size: 1.4rem;
+  color: var(--gold);
+  margin-bottom: .25rem;
+}
+.achievement-badge p {
+  font-size: .8rem;
+  margin: 0;
+}
+
+    /* Mobile */
+    @media (max-width:600px) {
+      .sidebar {
+        position:fixed; top:0; bottom:0; left:0;
+        width:75vw; max-width:260px;
+        transform:translateX(-100%);
+      }
+      .sidebar.open { transform:translateX(0); }
+      .sidebar-close { display:block; position:absolute; top:1rem; right:1rem; font-size:1.5rem; }
+
+      header {
+        display:flex; align-items:center; justify-content:space-between;
+        padding:1rem 3rem; /* room for icons */
+         z-index: 1000;
+      }
+      header h1 {
+        position:static; font-size:1rem; flex:1; text-align:center; color:var(--white);
+      }
+      .hamburger,
+  .profile-btn {
+    display: block;
+    position: fixed;
+    top: 1rem;
+    font-size: 1.5rem;
+    z-index: 9999;      /* way above header/content */
+    background: transparent;
+    border: none;
+    color: white;
+  }
+      .hamburger { left:1rem; }
+      .profile-btn { right:1rem; }
+
+      .content { padding:.8rem 1rem; }
+      .notif-bar { font-size:.9rem; padding:.6rem 1rem; }
       .stats { grid-template-columns:1fr 1fr; }
+      .stat-card { padding:.6rem; }
+      .goals { grid-template-columns:1fr; }
       .charts { grid-template-columns:1fr; }
+      .chart-card canvas { height:200px !important; }
     }
   </style>
 </head>
+
 <body>
-  <!-- notification -->
+  <!-- Overlay -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- Notification -->
   <div id="notif-bar" class="notif-bar hidden">
     👋 Don’t forget to <a href="profile.html">complete your profile</a>.
-    <button id="notif-close">&times;</button>
+    <button id="notif-close" aria-label="Close">&times;</button>
   </div>
 
-  <!-- sidebar -->
-  <aside class="sidebar">
+  <!-- Mobile controls -->
+  <button id="hamburger" class="hamburger" aria-label="Open menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <button id="profile-btn" class="profile-btn" aria-label="View profile">
+    <i id="top-avatar" class="fas fa-user-circle avatar"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar">
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <a href="dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i><br/>Dashboard</a>
-    <a href="log.html"><i class="fas fa-pen"></i><br/>Log</a>
-    <a href="workouts.html"><i class="fas fa-dumbbell"></i><br/>Workouts</a>
-    <a href="board.html"><i class="fas fa-trophy"></i><br/>Board</a>
-    <button class="profile-menu"><i class="fas fa-user-circle"></i><br/>Profile</button>
-    <a href="home.html"><i class="fas fa-sign-out-alt"></i><br/>Sign&nbsp;Out</a>
+
+    <a href="dashboard.html" class="menu-item active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+    <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="board.html"     class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+
+    <button class="menu-item profile-menu">
+      <i id="side-avatar" class="fas fa-user-circle avatar"></i>
+      <span>Profile</span>
+    </button>
+
+    <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
+  <!-- Main content -->
   <div class="main">
     <header>
       <h1 id="greeting">Loading…</h1>
-      <button class="new-workout"><i class="fas fa-plus"></i> New Workout</button>
+      <button class="new-workout" aria-label="New workout">
+        <i class="fas fa-plus"></i><span>New Workout</span>
+      </button>
     </header>
-
-    <div class="content">
-      <!-- Profile summary -->
+<!-- Profile summary -->
       <div class="profile-summary" style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
         <img id="dash-avatar" class="avatar" src="" alt="You" style="width:48px;height:48px;border-radius:50%;"/>
         <span id="dash-name" style="font-size:1.1rem;"></span>
       </div>
 
-      <!-- Stats -->
+    <div class="content">
+       <!-- Stats, Progress, Goals, Charts, etc. (identical to your original) -->
       <section class="stats">
         <div class="stat-card"><i class="fas fa-dumbbell"></i><h3 id="workoutsCount">0</h3><p>This Month</p></div>
         <div class="stat-card"><i class="fas fa-road"></i><h3 id="distanceCount">0 km</h3><p>Distance</p></div>
@@ -177,72 +422,64 @@
         <div class="stat-card"><i class="fas fa-percentage"></i><h3 id="avgCalories">0</h3><p>Avg Calories</p></div>
       </section>
 
-      <!-- Progress & Goals -->
       <section class="progress">
-        <h3 style="color:var(--gold)"><i class="fas fa-chart-line"></i> Weekly Goal</h3>
+        <h3><i class="fas fa-chart-line"></i> Weekly Goal</h3>
         <div class="bar-container"><div class="bar-fill" id="progressBar"></div></div>
       </section>
+
       <section class="goals">
-        <div class="goal-card"><p>Daily: 30 min</p><div class="bar-container"><div class="bar-fill" id="goalDaily"></div></div></div>
-        <div class="goal-card"><p>Weekly: 5 workouts</p><div class="bar-container"><div class="bar-fill" id="goalWeekly"></div></div></div>
-        <div class="goal-card"><p>Monthly: 20 workouts</p><div class="bar-container"><div class="bar-fill" id="goalMonthly"></div></div></div>
+        <div class="goal-card"><p>Daily: 30 min</p><div class="goal-container"><div class="goal-fill" id="goalDaily"></div></div></div>
+        <div class="goal-card"><p>Weekly: 5 workouts</p><div class="goal-container"><div class="goal-fill" id="goalWeekly"></div></div></div>
+        <div class="goal-card"><p>Monthly: 20 workouts</p><div class="goal-container"><div class="goal-fill" id="goalMonthly"></div></div></div>
       </section>
 
-      <!-- Charts -->
       <section class="charts">
         <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Activity Over Time</h3><canvas id="activityChart"></canvas></div>
         <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Workout Distribution</h3><canvas id="distributionChart"></canvas></div>
       </section>
 
-      <!-- Recent Activities -->
-      <section class="quick-log">
-        <h2><i class="fas fa-history"></i> Recent Activities</h2>
-        <table>
-          <thead><tr><th>Date</th><th>Type</th><th>Dur.</th><th>Km</th></tr></thead>
-          <tbody id="recent-acts"></tbody>
-        </table>
-        <div class="fast-stats">
-          <div><strong id="avg-dur">0</strong> min avg</div>
-          <div><strong id="tot-dist">0</strong> km total</div>
-          <div><strong id="tot-cal">0</strong> cal total</div>
-        </div>
-      </section>
-
-      <!-- Tip of the Day -->
+ 
+   
+<section class="quick-log">
+  <h2><i class="fas fa-history"></i> Recent Activities</h2>
+  <table>
+    <thead><tr><th>Date</th><th>Type</th><th>Dur.</th><th>Km</th></tr></thead>
+    <tbody id="recent-acts"></tbody>
+  </table>
+  <div class="fast-stats">
+    <div><strong id="avg-dur">0</strong> min avg</div>
+    <div><strong id="tot-dist">0</strong> km total</div>
+    <div><strong id="tot-cal">0</strong> cal total</div>
+  </div>
+</section>
       <section class="daily-tip">
-        <h2><i class="fas fa-lightbulb"></i> Tip of the Day</h2>
-        <p id="tip-of-day"></p>
-      </section>
+  <h2><i class="fas fa-lightbulb"></i> Tip of the Day</h2>
+  <p id="tip-of-day"></p>
+</section>
+<section class="live-sessions">
+  <h2><i class="fas fa-video"></i> Upcoming Live Sessions</h2>
+  <div class="live-grid" id="liveSessionsGrid"></div>
+</section>
+      <!-- add under your live‑sessions: -->
+<section class="mini-board">
+  <h2>Top 5</h2><ol id="miniLeaderboard"></ol>
+</section>
 
-      <!-- Live Sessions -->
-      <section class="live-sessions">
-        <h2><i class="fas fa-video"></i> Upcoming Live Sessions</h2>
-        <div class="live-grid" id="liveSessionsGrid"></div>
-      </section>
-
-      <!-- Top 5 Mini‑Leaderboard -->
-      <section class="mini-board">
-        <h2 style="color:var(--gold)"><i class="fas fa-trophy"></i> Top 5</h2>
-        <ol id="miniLeaderboard"></ol>
-      </section>
-
-      <!-- Achievements -->
-      <section class="top-achievements">
-        <h2><i class="fas fa-medal"></i> Your Achievements</h2>
-        <div class="achievements-grid" id="yourAchievements"></div>
-      </section>
-
-      <!-- Community feed -->
-      <section class="community">
+<section class="top-achievements">
+  <h2><i class="fas fa-medal"></i> Your Achievements</h2>
+  <div class="achievements-grid" id="yourAchievements"></div>
+</section>
+  <section class="community">
         <h2><i class="fas fa-users"></i> Community Feed</h2>
         <ul class="feed-list" id="communityFeed"></ul>
       </section>
-    </div>
-
-    <footer>&copy; 2025 FitTrack. All rights reserved.</footer>
+ </div>
+    <footer>
+      <p>&copy; 2025 FitTrack. All rights reserved.</p>
+    </footer>
   </div>
 
-  <!-- New Workout Modal -->
+   <!-- New Workout Modal -->
   <div id="workout-modal" class="modal-overlay">
     <div class="modal">
       <h2>Log New Workout</h2>
@@ -267,53 +504,81 @@
       <button class="close" id="w-cancel" style="margin-top:.5rem;">Cancel</button>
     </div>
   </div>
+  
+<div id="tour-overlay" style="display:none;
+     position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;"></div>
+<div id="tour-tooltip" style="display:none;position:absolute;
+     padding:1rem;background:#fff;color:#000;border-radius:5px;z-index:3001;">
+</div>
 
-  <!-- Tour overlay/tooltip -->
-  <div id="tour-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;"></div>
-  <div id="tour-tooltip" style="display:none;position:absolute;padding:1rem;background:#fff;color:#000;border-radius:5px;z-index:3001;"></div>
+<script type="module">
+import { Storage } from './storage.js';
+console.log('✅ dashboard module loaded');
 
-  <script type="module">
-    import { Storage } from './storage.js';
+document.addEventListener('DOMContentLoaded', () => {
+  // ─── Guard: redirect if not signed in ──────────────────────
+  const cur = Storage.get('ft_current', null);
+  if (!cur || !cur.name) return location.replace('home.html');
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // 1) Guard: redirect if not signed in
-      const cur = Storage.get('ft_current', null);
-      if (!cur || !cur.name) return location.replace('home.html');
+  // ─── Elements ─────────────────────────────────────────────
+  const greetEl        = document.getElementById('greeting');
+  const notifBar       = document.getElementById('notif-bar');
+  const notifCloseBtn  = document.getElementById('notif-close');
+  const hamburgerBtn   = document.getElementById('hamburger');
+  const sidebar        = document.getElementById('sidebar');
+  const overlay        = document.getElementById('overlay');
+  const sidebarClose   = document.getElementById('sidebar-close');
+  const profileBtn     = document.getElementById('profile-btn');
+  const profileMenuBtn = document.querySelector('.profile-menu');
+  const newWorkoutBtn  = document.querySelector('.new-workout');
+  const workoutModal   = document.getElementById('workout-modal');
+  const workoutClose   = document.getElementById('workout-close');
+  const wSave          = document.getElementById('w-save');
+  const tourOverlay    = document.getElementById('tour-overlay');
+  const tourTooltip    = document.getElementById('tour-tooltip');
+  const wCancel        = document.getElementById('w-cancel');
+  
+  // ─── “Complete your profile” banner ───────────────────────
+  const prof = Storage.get('ft_profile', {});
+  if (!prof.name || !prof.avatar) notifBar.classList.remove('hidden');
+  notifCloseBtn.addEventListener('click', () => notifBar.classList.add('hidden'));
 
-      // Elements
-      const greetEl        = document.getElementById('greeting');
-      const notifBar       = document.getElementById('notif-bar');
-      const notifCloseBtn  = document.getElementById('notif-close');
-      const profileBtn     = document.querySelector('.profile-menu');
-      const newWorkoutBtn  = document.querySelector('.new-workout');
-      const workoutModal   = document.getElementById('workout-modal');
-      const wSave          = document.getElementById('w-save');
-      const wCancel        = document.getElementById('w-cancel');
+  // ─── Greeting & New‑user tour ─────────────────────────────
+  if (cur.isNew) {
+    greetEl.textContent = `Hello ${cur.name}!`;
+    runTour([
+      { sel: '.stats',         msg: 'Here are your monthly stats.' },
+      { sel: '.live-sessions', msg: 'Schedule or join live sessions.' },
+      { sel: '.charts',        msg: 'Track your activity over time.' },
+      { sel: '.mini-board',    msg: 'Snapshot of the top‑5 leaderboard.' }
+    ]);
+    cur.isNew = false;
+    Storage.set('ft_current', cur);
+  } else {
+    greetEl.textContent = `Welcome back, ${cur.name}!`;
+  }
 
-      // Show “complete your profile” banner until closed
-      const prof = Storage.get('ft_profile', {});
-      if (!prof.name || !prof.avatar) notifBar.classList.remove('hidden');
-      notifCloseBtn.onclick = () => notifBar.classList.add('hidden');
+  
 
-      // Greeting + Tour
-      if (cur.isNew) {
-        greetEl.textContent = `Hello ${cur.name}!`;
-        runTour([
-          { sel: '.stats',         msg: 'Here are your monthly stats.' },
-          { sel: '.live-sessions', msg: 'Schedule or join live sessions.' },
-          { sel: '.charts',        msg: 'Track your activity over time.' },
-          { sel: '.mini-board',    msg: 'Snapshot of the top‑5 leaderboard.' }
-        ]);
-        cur.isNew = false;
-        Storage.set('ft_current', cur);
-      } else {
-        greetEl.textContent = `Welcome back, ${cur.name}!`;
-      }
+  // ─── Sidebar toggle ────────────────────────────────────────
+  hamburgerBtn.addEventListener('click', () => {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  });
+  sidebarClose.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  });
 
-      // Profile nav
-      profileBtn.onclick = () => location.replace('profile.html');
+  // ─── Profile navigation ────────────────────────────────────
+  profileBtn.addEventListener('click',     () => location.replace('profile.html'));
+  profileMenuBtn.addEventListener('click', () => location.replace('profile.html'));
 
-      // New‑Workout modal open/close
+ // New‑Workout modal open/close
       newWorkoutBtn.onclick  = () => workoutModal.classList.add('active');
       wCancel.onclick        = () => workoutModal.classList.remove('active');
 
@@ -336,30 +601,37 @@
         workoutModal.classList.remove('active');
       };
 
-      // Charts
-      const actCtx  = document.getElementById('activityChart').getContext('2d');
-      const pieCtx  = document.getElementById('distributionChart').getContext('2d');
-      const activityChart = new Chart(actCtx, {
-        type:'line',
-        data:{ labels:[], datasets:[{
-          label:'Minutes', data:[],
-          borderColor:'#ff9800', backgroundColor:'rgba(255,152,0,0.2)',
-          fill:true, tension:.3
-        }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}
-      });
-      const distributionChart = new Chart(pieCtx, {
-        type:'pie',
-        data:{ labels:['Cardio','Strength','Flexibility','Other'], datasets:[{
-          data:[], backgroundColor:[
-            'rgba(255,152,0,0.8)','rgba(255,87,34,0.8)',
-            'rgba(76,175,80,0.8)','rgba(3,169,244,0.8)'
-          ]
-        }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}
-      });
 
-      // Tour helper
+  // ─── Charts setup ─────────────────────────────────────────
+  const activityCtx     = document.getElementById('activityChart').getContext('2d');
+  const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+  const activityChart = new Chart(activityCtx, {
+    type: 'line',
+    data: { labels: [], datasets: [{
+      label: 'Minutes',
+      data: [],
+      borderColor: '#ff9800',
+      backgroundColor: 'rgba(255,152,0,0.2)',
+      fill: true,
+      tension: .3
+    }]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+  const distributionChart = new Chart(distributionCtx, {
+    type: 'pie',
+    data: {
+      labels: ['Cardio','Strength','Flexibility','Other'],
+      datasets: [{ data: [], backgroundColor: [
+        'rgba(255,152,0,0.8)',
+        'rgba(255,87,34,0.8)',
+        'rgba(76,175,80,0.8)',
+        'rgba(3,169,244,0.8)'
+      ]}]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+   // Tour helper
       const tourOv = document.getElementById('tour-overlay');
       const tourTp = document.getElementById('tour-tooltip');
       function runTour(steps) {
@@ -382,148 +654,184 @@
         show();
       }
 
-      // Core update functions
-      function updateProfileSummary() {
-        const p = Storage.get('ft_profile', {});
-        document.getElementById('dash-name').textContent = cur.name;
-        document.getElementById('dash-avatar').src = p.avatar 
-          || `https://i.pravatar.cc/150?u=${cur.email}`;
-      }
-      function updateStats() {
-        const acts = Storage.get('ft_activities', []);
-        const now  = new Date(), today = now.toISOString().slice(0,10);
-        const thisMonth = acts.filter(a=>{
-          const d=new Date(a.date);
-          return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
-        });
-        document.getElementById('workoutsCount').textContent = thisMonth.length;
-        const dist = thisMonth.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1)+' km';
-        const cal  = thisMonth.reduce((s,a)=>s+(+a.calories||0),0);
-        document.getElementById('distanceCount').textContent = dist;
-        document.getElementById('caloriesCount').textContent = cal;
-        const days = new Set(thisMonth.map(a=>a.date)).size;
-        document.getElementById('activeDaysCount').textContent = days;
-        const todayTotal = acts.filter(a=>a.date===today)
-          .reduce((s,a)=>s+(+a.duration||0),0);
-        document.getElementById('todayTime').textContent = todayTotal+' min';
-        document.getElementById('avgCalories').textContent = thisMonth.length
-          ? Math.round(cal/thisMonth.length) : 0;
 
-        // progress bars
-        const weekCount = acts.filter(a=>{
-          const d=new Date(a.date);
-          return (now-d)/(1000*60*60*24)<=7;
-        }).length;
-        document.getElementById('progressBar').style.width   = Math.min(100,Math.round(weekCount/5*100))+'%';
-        document.getElementById('goalDaily').style.width     = Math.min(100,Math.round(todayTotal/30*100))+'%';
-        document.getElementById('goalWeekly').style.width    = Math.min(100,Math.round(weekCount/5*100))+'%';
-        document.getElementById('goalMonthly').style.width   = Math.min(100,Math.round(thisMonth.length/20*100))+'%';
-      }
-      function updateCharts() {
-        const acts = Storage.get('ft_activities', []);
-        const now  = new Date();
-        // line
-        const labels = [], data = [];
-        for(let i=6;i>=0;i--){
-          const d = new Date(); d.setDate(d.getDate()-i);
-          const key = d.toISOString().slice(0,10);
-          labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
-          data.push(acts.filter(a=>a.date===key)
-                        .reduce((s,a)=>s+(+a.duration||0),0));
-        }
-        activityChart.data.labels = labels;
-        activityChart.data.datasets[0].data = data;
-        activityChart.update();
-        // pie
-        const thisMonth = acts.filter(a=>{
-          const d=new Date(a.date);
-          return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
-        });
-        const counts = {Cardio:0,Strength:0,Flexibility:0,Other:0};
-        thisMonth.forEach(a=>{
-          counts[a.type] = (counts[a.type]||0)+1;
-        });
-        distributionChart.data.datasets[0].data = [
-          counts.Cardio, counts.Strength, counts.Flexibility, counts.Other
-        ];
-        distributionChart.update();
-      }
-      function updateRecentActivities(){
-        const acts = Storage.get('ft_activities', []);
-        const tb = document.getElementById('recent-acts');
-        tb.innerHTML='';
-        acts.slice(0,5).forEach(a=>{
-          tb.insertAdjacentHTML('beforeend', `
-            <tr>
-              <td>${a.date}</td><td>${a.type}</td><td>${a.duration}</td><td>${a.distance||'-'}</td>
-            </tr>`);
-        });
-        const avgDur = acts.length
-          ? Math.round(acts.reduce((s,a)=>s+(+a.duration||0),0)/acts.length)
-          : 0;
-        const totDist = acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
-        const totCal  = acts.reduce((s,a)=>s+(+a.calories||0),0);
-        document.getElementById('avg-dur').textContent = avgDur;
-        document.getElementById('tot-dist').textContent = totDist;
-        document.getElementById('tot-cal').textContent  = totCal;
-      }
-      function updateMiniLeaderboard(){
-        const lb = Storage.get('ft_leaderboard',[])
-          .sort((a,b)=>b.score-a.score).slice(0,5);
-        const ol = document.getElementById('miniLeaderboard');
-        ol.innerHTML='';
-        lb.forEach(u=> ol.insertAdjacentHTML('beforeend', `<li>${u.name}: ${u.score}</li>`));
-      }
-      function updateAchievements(){
-        const total = Storage.get('ft_activities',[]).length;
-        const thresh = [
-          {n:1, icon:'fas fa-star',    text:'First Workout'},
-          {n:5, icon:'fas fa-medal',   text:'5 Workouts'},
-          {n:10,icon:'fas fa-trophy',  text:'10 Workouts'},
-          {n:30,icon:'fas fa-award',   text:'30 Workouts'}
-        ];
-        const cont = document.getElementById('yourAchievements');
-        cont.innerHTML='';
-        thresh.forEach(t=>{
-          const div = document.createElement('div');
-          div.className = 'achievement-badge'+(total>=t.n?' unlocked':'');
-          div.innerHTML = `<i class="${t.icon}"></i><p>${t.text}</p>`;
-          cont.appendChild(div);
-        });
-      }
-      function updateLiveSessions(){
-        const sessions = Storage.get('ft_liveSessions',[]);
-        const sched = Storage.get('ft_mySchedules',[]);
-        const grid = document.getElementById('liveSessionsGrid');
-        grid.innerHTML='';
-        sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
-          .forEach(s=>{
-            const d = new Date(s.start), now=new Date();
-            const future = d>now;
-            const txt = future?(sched.includes(s.id)?'✔ Scheduled':'Schedule'):'Join';
-            const cls = future?'schedule-btn':'join-btn';
-            grid.insertAdjacentHTML('beforeend', `
-              <div class="live-card">
-                <img src="${s.img}" alt="${s.title}"/>
-                <h3>${s.title}</h3>
-                <p>${s.host} • ${d.toLocaleString()}</p>
-                <button data-id="${s.id}" class="${cls}">${txt}</button>
-              </div>`);
-          });
-      }
-      document.getElementById('liveSessionsGrid').onclick = e=>{
-        if (e.target.classList.contains('schedule-btn')){
-          let sched=Storage.get('ft_mySchedules',[]);
-          const id=e.target.dataset.id;
-          if (!sched.includes(id)) {sched.push(id);Storage.set('ft_mySchedules',sched);}
-          updateLiveSessions();
-        }
-        if (e.target.classList.contains('join-btn')){
-          location.replace(`live.html?session=${e.target.dataset.id}`);
-        }
-      };
+  // ─── Update Routines ───────────────────────────────────────
+  function updateProfileSummary() {
+    const p = Storage.get('ft_profile', {});
+    document.getElementById('dash-name').textContent = cur.name;
+    document.getElementById('dash-avatar').src =
+      p.avatar || `https://i.pravatar.cc/150?u=${cur.email}`;
+  }
 
-      // Community feed (pseudo)
+  function updateStats() {
+    const acts     = Storage.get('ft_activities', []);
+    const now      = new Date();
+    const todayKey = now.toISOString().slice(0,10);
+
+    // Monthly filter
+    const thisMonth = acts.filter(a => {
+      const d = new Date(a.date);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    });
+    document.getElementById('workoutsCount').textContent = thisMonth.length;
+    const totalDist  = thisMonth.reduce((s,a) => s + (+a.distance||0),0).toFixed(1) + ' km';
+    const totalCal   = thisMonth.reduce((s,a) => s + (+a.calories||0),0);
+    document.getElementById('distanceCount').textContent = totalDist;
+    document.getElementById('caloriesCount').textContent = totalCal;
+    
+    // Active days
+    const days = new Set(thisMonth.map(a => a.date)).size;
+    document.getElementById('activeDaysCount').textContent = days;
+
+    // Today’s time & Avg calories
+    const todayTotal = acts.filter(a => a.date === todayKey)
+                           .reduce((s,a) => s + (+a.duration||0),0);
+    document.getElementById('todayTime').textContent = todayTotal + ' min';
+    document.getElementById('avgCalories').textContent =
+      thisMonth.length ? Math.round(totalCal / thisMonth.length) : 0;
+
+    // Progress bars
+    const weekCount = acts.filter(a => {
+      const d = new Date(a.date);
+      return (now - d)/(1000*60*60*24) <= 7;
+    }).length;
+    document.getElementById('progressBar').style.width  = Math.min(100, Math.round(weekCount/5*100)) + '%';
+    document.getElementById('goalDaily').style.width     = Math.min(100, Math.round(todayTotal/30*100)) + '%';
+    document.getElementById('goalWeekly').style.width    = Math.min(100, Math.round(weekCount/5*100)) + '%';
+    document.getElementById('goalMonthly').style.width   = Math.min(100, Math.round(thisMonth.length/20*100)) + '%';
+  }
+
+  function updateCharts() {
+    const acts   = Storage.get('ft_activities', []);
+    const now    = new Date();
+    const labels = [], data = [];
+
+    // Past 7 days line data
+    for (let i=6; i>=0; i--) {
+      const d   = new Date(); d.setDate(d.getDate()-i);
+      const key = d.toISOString().slice(0,10);
+      labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
+      data.push(acts.filter(a => a.date===key)
+                   .reduce((s,a)=>s + (+a.duration||0),0));
+    }
+    activityChart.data.labels          = labels;
+    activityChart.data.datasets[0].data = data;
+    activityChart.update();
+
+    // Pie distribution (this month by type)
+    const thisMonth = acts.filter(a => {
+      const d = new Date(a.date);
+      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+    });
+    const counts = { Cardio:0, Strength:0, Flexibility:0, Other:0 };
+    thisMonth.forEach(a => {
+      if (a.type==='Cardio')      counts.Cardio++;
+      else if (a.type==='Strength')counts.Strength++;
+      else if (a.type==='Flexibility')counts.Flexibility++;
+      else counts.Other++;
+    });
+    distributionChart.data.datasets[0].data = [
+      counts.Cardio,
+      counts.Strength,
+      counts.Flexibility,
+      counts.Other
+    ];
+    distributionChart.update();
+  }
+
+  function updateRecentActivities() {
+    const acts = Storage.get('ft_activities', []);
+    const tb   = document.getElementById('recent-acts');
+    tb.innerHTML = '';
+    acts.slice(0,5).forEach(a => {
+      tb.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td>${a.date}</td>
+          <td>${a.type||'-'}</td>
+          <td>${a.duration}</td>
+          <td>${a.distance||'-'}</td>
+        </tr>`);
+    });
+    // fast‐stats
+    const avgDur = acts.length
+      ? Math.round(acts.reduce((s,a)=>s+(+a.duration||0),0)/acts.length)
+      : 0;
+    const totDist = acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+    const totCal  = acts.reduce((s,a)=>s+(+a.calories||0),0);
+    document.getElementById('avg-dur').textContent = avgDur;
+    document.getElementById('tot-dist').textContent = totDist;
+    document.getElementById('tot-cal').textContent  = totCal;
+  }
+
+  function updateMiniLeaderboard() {
+    const list = Storage.get('ft_leaderboard', [])
+                  .sort((a,b)=>b.score-a.score)
+                  .slice(0,5);
+    const ol = document.getElementById('miniLeaderboard');
+    ol.innerHTML = '';
+    list.forEach(u => {
+      ol.insertAdjacentHTML('beforeend', `<li>${u.name}: ${u.score}</li>`);
+    });
+  }
+
+  function updateAchievements() {
+    const total = Storage.get('ft_activities', []).length;
+    const thresholds = [
+      { n:1,  icon:'fas fa-star',   text:'First Workout' },
+      { n:5,  icon:'fas fa-medal',  text:'5 Workouts'    },
+      { n:10, icon:'fas fa-trophy', text:'10 Workouts'   },
+      { n:30, icon:'fas fa-award',  text:'30 Workouts'   }
+    ];
+    const container = document.getElementById('yourAchievements');
+    container.innerHTML = '';
+    thresholds.forEach(t => {
+      const div = document.createElement('div');
+      div.className = 'achievement-badge' + (total>=t.n ? ' unlocked' : '');
+      div.innerHTML = `<i class="${t.icon}"></i><p>${t.text}</p>`;
+      container.appendChild(div);
+    });
+  }
+
+  function updateLiveSessions() {
+    const sessions = Storage.get('ft_liveSessions', []);
+    const sched    = Storage.get('ft_mySchedules', []);
+    const grid     = document.getElementById('liveSessionsGrid');
+    grid.innerHTML = '';
+    sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
+            .forEach(s => {
+      const start   = new Date(s.start);
+      const future  = start > new Date();
+      const btnText = future
+        ? (sched.includes(s.id) ? '✔ Scheduled' : 'Schedule')
+        : 'Join Now';
+      const cls     = future ? 'schedule-btn' : 'join-btn';
+      grid.insertAdjacentHTML('beforeend', `
+        <div class="live-card">
+          <img src="${s.img}" alt="${s.title}"/>
+          <h3>${s.title}</h3>
+          <p>${s.host} • ${start.toLocaleString()}</p>
+          <button data-id="${s.id}" class="${cls}">${btnText}</button>
+        </div>`);
+    });
+  }
+
+  // Handle schedule/join
+  document.getElementById('liveSessionsGrid').addEventListener('click', e => {
+    const btn = e.target;
+    if (btn.matches('.schedule-btn')) {
+      let sched = Storage.get('ft_mySchedules', []);
+      if (!sched.includes(btn.dataset.id)) {
+        sched.push(btn.dataset.id);
+        Storage.set('ft_mySchedules', sched);
+      }
+      updateLiveSessions();
+    }
+    if (btn.matches('.join-btn')) {
+      location.replace(`live.html?session=${btn.dataset.id}`);
+    }
+  });
+
+   // Community feed (pseudo)
       function updateFeed(){
         const feed = Storage.get('ft_feed',[
           "Alice completed a 5km run!",
@@ -535,33 +843,36 @@
         feed.slice(0,5).forEach(item=> ul.insertAdjacentHTML('beforeend', `<li>${item}</li>`));
       }
 
-      // tip array
-      const tips = [
-        "Stay hydrated—drink 250 ml of water before each session.",
-        "Warm up for 5 min to activate your muscles.",
-        "Focus on form; quality reps build strength safer.",
-        "Cool down & stretch for 3–5 min after every workout.",
-        "Try one fun activity (dance, sports) weekly to stay motivated."
-      ];
+  // ─── Master redraw + listeners ─────────────────────────────
+  function updateDashboard() {
+    updateProfileSummary();
+    updateStats();
+    updateCharts();
+    updateRecentActivities();
+    updateMiniLeaderboard();
+    updateAchievements();
+    updateLiveSessions();
+    // Tip of the Day
+    const tips = [
+      "Stay hydrated—drink 250 ml of water before each session.",
+      "Warm up for 5 min to activate your muscles.",
+      "Focus on form; quality reps build strength safer.",
+      "Cool down & stretch for 3–5 min after every workout.",
+      "Try one fun activity (dance, sports) weekly to stay motivated."
+    ];
+    document.getElementById('tip-of-day').textContent =
+      tips[Math.floor(Math.random()*tips.length)];
+  }
 
-      // Master update
-      function updateDashboard(){
-        updateProfileSummary();
-        updateStats();
-        updateCharts();
-        updateRecentActivities();
-        updateMiniLeaderboard();
-        updateAchievements();
-        updateLiveSessions();
-        updateFeed();
-        document.getElementById('tip-of-day').textContent = tips[Math.floor(Math.random()*tips.length)];
-      }
-      updateDashboard();
+  updateDashboard();
 
-      // watch storage
-      ['ft_current','ft_profile','ft_activities','ft_leaderboard','ft_liveSessions','ft_mySchedules','ft_feed']
-        .forEach(key => Storage.onChange(key,updateDashboard));
-    });
-  </script>
+  // Re‑draw whenever data changes anywhere
+  ['ft_current','ft_profile','ft_activities','ft_leaderboard','ft_liveSessions','ft_mySchedules']
+    .forEach(key => Storage.onChange(key, updateDashboard));
+});
+</script>
+
+
+
 </body>
-</html>
+</html> 
