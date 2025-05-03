@@ -13,7 +13,7 @@
 
   <!-- Chart.js & storage helper as ES module -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" src="storage.js"></script>
+
 
   <style>
     :root {
@@ -848,15 +848,16 @@
               {id:7,title:'Flexibility',desc:'15 min stretch.',target:14},
               {id:8,title:'HIIT Week',desc:'5 HIIT sessions.',target:5}
             ];
-      function renderChallenges(){
+       function renderChallenges(){
         const joined = Storage.get('ft_joined', []);
         chList.innerHTML = '';
-        challenges.forEach(ch=>{
+        challenges.forEach(ch => {
           const count = Storage.get('ft_activities', [])
-                                .filter(a=>a.type.includes(ch.title.split(' ')[1])).length,
-                pct   = Math.min(100,Math.round(count/ch.target*100)),
-                done  = joined.includes(ch.id),
-                div   = document.createElement('div');
+                               .filter(a => a.type === ch.title)
+                               .length;
+          const pct = Math.min(100, Math.round(count/ch.target*100));
+          const done = joined.includes(ch.id);
+          const div = document.createElement('div');
           div.className = 'challenge';
           div.innerHTML = `
             <h3>${ch.title}</h3>
@@ -864,8 +865,8 @@
             <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
             <p style="opacity:.8">${count}/${ch.target}</p>
             <button>${done?'Joined ✓':'Join Challenge'}</button>`;
-          div.querySelector('button').onclick = ()=>{
-            if (!done){
+          div.querySelector('button').onclick = () => {
+            if (!done) {
               joined.push(ch.id);
               Storage.set('ft_joined', joined);
             }
@@ -873,6 +874,7 @@
           chList.appendChild(div);
         });
       }
+
 
       /** Live Sessions **/
       const sessList = document.getElementById('sessionsList');
@@ -975,7 +977,7 @@
       syncAll();
       ['ft_activities','ft_plans','ft_joined','ft_sessions','ft_liveNow']
         .forEach(key => Storage.onChange(key, syncAll));
-
+     
     });
   </script>
 </body>
