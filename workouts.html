@@ -625,28 +625,28 @@
       // Define 8 workouts
       const workouts = [
         {id:1,title:'Full‑Body HIIT',category:'Cardio',duration:20,difficulty:'Intermediate',
-         image:'https://via.placeholder.com/300x200?text=HIIT',description:'Fast‑paced intervals.',
+         image:'hiit.jpg',description:'Fast‑paced intervals.',
          exercises:['Jumping Jacks','Burpees','Mountain Climbers'],equipment:'None',calories:200},
         {id:2,title:'Upper Body Strength',category:'Strength',duration:45,difficulty:'Advanced',
-         image:'https://via.placeholder.com/300x200?text=Upper+Body',description:'Build power with weights.',
+         image:'upper.jpg',description:'Build power with weights.',
          exercises:['Push‑Ups','Pull‑Ups','Rows'],equipment:'Dumbbells',calories:300},
         {id:3,title:'Morning Yoga Flow',category:'Yoga',duration:30,difficulty:'Beginner',
-         image:'https://via.placeholder.com/300x200?text=Yoga',description:'Gentle wake‑up sequences.',
+         image:'yoga.jpg',description:'Gentle wake‑up sequences.',
          exercises:['Sun Salutation','Tree Pose','Child’s Pose'],equipment:'Mat',calories:120},
         {id:4,title:'Tabata Burn',category:'Cardio',duration:15,difficulty:'Advanced',
-         image:'https://via.placeholder.com/300x200?text=Tabata',description:'High‑intensity Tabata rounds.',
+         image:'tabata.jpg',description:'High‑intensity Tabata rounds.',
          exercises:['20/10 Work‑Rest'],equipment:'None',calories:180},
         {id:5,title:'Lower Body Blast',category:'Strength',duration:40,difficulty:'Intermediate',
-         image:'https://via.placeholder.com/300x200?text=Lower+Body',description:'Squats & lunges focus.',
+         image:'lower.jpg',description:'Squats & lunges focus.',
          exercises:['Squats','Lunges','Deadlifts'],equipment:'Barbell',calories:250},
         {id:6,title:'Core Crusher',category:'Core',duration:25,difficulty:'Intermediate',
-         image:'https://via.placeholder.com/300x200?text=Core',description:'Abs & obliques workout.',
+         image:'abs.jpg',description:'Abs & obliques workout.',
          exercises:['Plank','Russian Twists','Leg Raises'],equipment:'None',calories:150},
         {id:7,title:'Pilates Power',category:'Pilates',duration:35,difficulty:'Beginner',
-         image:'https://via.placeholder.com/300x200?text=Pilates',description:'Full‑body Pilates flow.',
+         image:'pilate.jpg',description:'Full‑body Pilates flow.',
          exercises:['Roll‑Up','Hundred','Leg Circles'],equipment:'Mat',calories:130},
         {id:8,title:'Kickboxing Cardio',category:'Cardio',duration:30,difficulty:'Advanced',
-         image:'https://via.placeholder.com/300x200?text=Kickboxing',description:'Punch & kick combos.',
+         image:'bag.jpg',description:'Punch & kick combos.',
          exercises:['Jab‑Cross','Front Kick','Hook'],equipment:'Gloves',calories:300}
       ];
 
@@ -879,11 +879,11 @@
       /** Live Sessions **/
       const sessList = document.getElementById('sessionsList');
       const liveSessions = [
-              {id:1,img:'https://via.placeholder.com/300x200?text=Yoga',title:'Sunrise Yoga',host:'Alice',start:Date.now()+3600000,desc:'Vinyasa flow.'},
-              {id:2,img:'https://via.placeholder.com/300x200?text=HIIT',title:'HIIT Blast',host:'Bob',start:Date.now()+7200000,desc:'Intervals.'},
-              {id:3,img:'https://via.placeholder.com/300x200?text=Dance',title:'Cardio Dance',host:'Cara',start:Date.now()-1800000,desc:'Dance cardio.'},
-              {id:4,img:'https://via.placeholder.com/300x200?text=Core',title:'Core & Balance',host:'Dan',start:Date.now()+10800000,desc:'Stability drills.'},
-              {id:5,img:'https://via.placeholder.com/300x200?text=Pilates',title:'Pilates Power',host:'Eve',start:Date.now()+14400000,desc:'Core & posture.'}
+              {id:1,img:'sunrise.jpg',title:'Sunrise Yoga',host:'Alice',start:Date.now()+3600000,desc:'Vinyasa flow.'},
+              {id:2,img:'hiitblast.jpg',title:'HIIT Blast',host:'Bob',start:Date.now()+7200000,desc:'Intervals.'},
+              {id:3,img:'dance.jpg',title:'Cardio Dance',host:'Cara',start:Date.now()-1800000,desc:'Dance cardio.'},
+              {id:4,img:'core.jpg',title:'Core & Balance',host:'Dan',start:Date.now()+10800000,desc:'Stability drills.'},
+              {id:5,img:'posture.jpg',title:'Pilates Power',host:'Eve',start:Date.now()+14400000,desc:'Core & posture.'}
             ];
       function renderSessions(){
         const joined = Storage.get('ft_sessions', []),
