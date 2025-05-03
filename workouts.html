@@ -11,9 +11,9 @@
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-  <!-- Chart.js & storage helper -->
+  <!-- Chart.js & storage helper as ES module -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="storage.js" defer></script>
+  <script type="module" src="storage.js"></script>
 
   <style>
     :root {
@@ -60,6 +60,10 @@
       transform:scale(1.03);
       box-shadow:0 2px 8px rgba(0,0,0,0.4);
     }
+
+    /* helper for modals */
+    .flex-center { display:flex; }
+
     /* overlay */
     #overlay {
       position:fixed; inset:0;
@@ -81,22 +85,16 @@
       transition:transform var(--transition);
       z-index:var(--z-sidebar);
     }
-    .sidebar.open { transform:translateX(0); }
-    .sidebar-close {
-      display:none; position:absolute; top:1rem; right:1rem;
-      font-size:1.5rem; background:none; border:none; color:var(--white);
-    }
+    .sidebar-close { display:none; }
     @media(max-width:var(--break-mobile)){
       .sidebar {
         position:fixed; transform:translateX(-100%);
         width:var(--mobile-sidebar-w);
       }
       .sidebar.open { transform:translateX(0); }
-      .sidebar-close { display:block; }
+      .sidebar-close { display:block; position:absolute; top:1rem; right:1rem; font-size:1.5rem; background:none; border:none; color:var(--white); }
     }
-    .sidebar .logo {
-      font-size:1.8rem; color:var(--gold); margin-bottom:2rem;
-    }
+    .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item,
     .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
@@ -110,14 +108,10 @@
       background:rgba(255,152,0,0.2);
     }
     .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar {
-      font-size:1.4rem;
-    }
+    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
     .sidebar a.menu-item span,
     .sidebar button.profile-menu span { font-size:.7rem; }
-    .sidebar a.sign-out {
-      margin-top:auto; margin-bottom:1rem!important;
-    }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
     /* circular avatar */
     .sidebar button.profile-menu i.avatar,
     .sidebar button.profile-menu img.avatar {
@@ -257,17 +251,26 @@
 
     /* My Plans */
     #myPlans {
+      grid-column:1/-1;  /* full width */
       background:rgba(255,255,255,0.05);
       border-radius:12px; padding:1rem;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
     }
     #myPlans h2 { color:var(--gold); margin-bottom:.75rem; }
-    #myPlans ul { list-style:none; }
+    #myPlans ul {
+      list-style:none;
+      display:flex; flex-wrap:wrap; gap:1rem; padding:0;
+    }
     #myPlans li {
-      display:flex; justify-content:space-between;
-      padding:.5rem 0; border-bottom:1px solid rgba(255,255,255,0.1);
+      flex:1 1 calc(50% - 1rem);
+      background:rgba(255,255,255,0.1);
+      padding:.6rem .8rem; border-radius:6px;
+      display:flex; justify-content:space-between; align-items:center;
     }
     #myPlans button { background:none; color:var(--gold); }
+    @media(max-width:600px){
+      #myPlans li { flex:1 1 100%; }
+    }
 
     /* Progress Chart */
     #progressSummary {
@@ -429,7 +432,7 @@
       50%   { box-shadow:0 0 12px rgba(0,0,0,0.3),0 0 20px rgba(255,255,255,0.8); }
     }
 
-    /* MOBILE */
+    /* MOBILE adjustments */
     @media(max-width:600px){
       .hamburger, .profile-btn { display:block; }
       .sidebar { transform:translateX(-100%); position:fixed; }
@@ -603,11 +606,9 @@
               document.getElementById('profile-btn'),
               document.querySelector('.profile-menu')
             ];
-      function openMenu(){ sidebar.classList.add('open'); overlay.classList.add('active'); }
-      function closeMenu(){ sidebar.classList.remove('open'); overlay.classList.remove('active'); }
-      openBtn.addEventListener('click', openMenu);
-      closeBtn.addEventListener('click', closeMenu);
-      overlay.addEventListener('click', closeMenu);
+      openBtn.addEventListener('click', ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); });
+      closeBtn.addEventListener('click',()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+      overlay.addEventListener('click', ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
       profileBtns.forEach(b=> b && b.addEventListener('click',()=>location.replace('profile.html')));
 
       // Swap avatars
@@ -634,7 +635,7 @@
          exercises:['Sun Salutation','Tree Pose','Child’s Pose'],equipment:'Mat',calories:120},
         {id:4,title:'Tabata Burn',category:'Cardio',duration:15,difficulty:'Advanced',
          image:'https://via.placeholder.com/300x200?text=Tabata',description:'High‑intensity Tabata rounds.',
-         exercises:['20/10 Work Rest'],equipment:'None',calories:180},
+         exercises:['20/10 Work‑Rest'],equipment:'None',calories:180},
         {id:5,title:'Lower Body Blast',category:'Strength',duration:40,difficulty:'Intermediate',
          image:'https://via.placeholder.com/300x200?text=Lower+Body',description:'Squats & lunges focus.',
          exercises:['Squats','Lunges','Deadlifts'],equipment:'Barbell',calories:250},
@@ -643,31 +644,31 @@
          exercises:['Plank','Russian Twists','Leg Raises'],equipment:'None',calories:150},
         {id:7,title:'Pilates Power',category:'Pilates',duration:35,difficulty:'Beginner',
          image:'https://via.placeholder.com/300x200?text=Pilates',description:'Full‑body Pilates flow.',
-         exercises:['Roll-Up','Hundred','Leg Circles'],equipment:'Mat',calories:130},
+         exercises:['Roll‑Up','Hundred','Leg Circles'],equipment:'Mat',calories:130},
         {id:8,title:'Kickboxing Cardio',category:'Cardio',duration:30,difficulty:'Advanced',
          image:'https://via.placeholder.com/300x200?text=Kickboxing',description:'Punch & kick combos.',
-         exercises:['Jab-Cross','Front Kick','Hook'],equipment:'Gloves',calories:300}
+         exercises:['Jab‑Cross','Front Kick','Hook'],equipment:'Gloves',calories:300}
       ];
 
       /** Workout of the Day **/
       const wodTitle=document.getElementById('wodTitle'),
-            wodDesc=document.getElementById('wodDesc'),
-            rndBtn =document.getElementById('randomizeWOD');
+            wodDesc =document.getElementById('wodDesc'),
+            rndBtn  =document.getElementById('randomizeWOD');
       function pickWOD(){
-        const w=workouts[Math.floor(Math.random()*workouts.length)];
-        wodTitle.textContent=w.title;
-        wodDesc.textContent=w.description;
+        const w = workouts[Math.floor(Math.random()*workouts.length)];
+        wodTitle.textContent = w.title;
+        wodDesc .textContent = w.description;
       }
-      rndBtn.addEventListener('click',pickWOD);
+      rndBtn.addEventListener('click', pickWOD);
       pickWOD();
 
       /** Featured **/
-      const featuredList=document.getElementById('featuredList');
+      const featuredList = document.getElementById('featuredList');
       function renderFeatured(){
-        featuredList.innerHTML='';
+        featuredList.innerHTML = '';
         workouts.slice(0,8).forEach(w=>{
-          const card=document.createElement('div'); card.className='card';
-          card.innerHTML=`
+          const card = document.createElement('div'); card.className='card';
+          card.innerHTML = `
             <img src="${w.image}" alt="${w.title}">
             <div class="card-body">
               <h3>${w.title}</h3>
@@ -679,19 +680,20 @@
         });
       }
 
-      /** Library (same as featured for now) **/
-      const library=document.getElementById('library'),
-            catSel=document.getElementById('filterCategory'),
-            durSel=document.getElementById('filterDuration'),
-            difSel=document.getElementById('filterDifficulty');
+      /** Library **/
+      const library = document.getElementById('library'),
+            catSel   = document.getElementById('filterCategory'),
+            durSel   = document.getElementById('filterDuration'),
+            difSel   = document.getElementById('filterDifficulty');
       new Set(workouts.map(w=>w.category)).forEach(c=>catSel.add(new Option(c,c)));
       function renderLibrary(){
-        library.innerHTML='';
-        const cat=catSel.value, max=+durSel.value||Infinity, dif=difSel.value;
-        workouts.filter(w=>(!cat||w.category===cat) && w.duration<=max && (!dif||w.difficulty===dif))
+        library.innerHTML = '';
+        const cat = catSel.value, max = +durSel.value||Infinity, dif = difSel.value;
+        workouts
+          .filter(w=>(!cat||w.category===cat) && w.duration<=max && (!dif||w.difficulty===dif))
           .forEach(w=>{
-            const card=document.createElement('div'); card.className='card';
-            card.innerHTML=`
+            const card = document.createElement('div'); card.className='card';
+            card.innerHTML = `
               <img src="${w.image}" alt="${w.title}">
               <div class="card-body">
                 <h3>${w.title}</h3>
@@ -705,99 +707,108 @@
       [catSel,durSel,difSel].forEach(s=>s.addEventListener('change',renderLibrary));
 
       /** Detail Modal **/
-      const detailModal=document.getElementById('detailModal'),
-            detailClose=document.querySelector('#detailModal .close'),
-            detailTitle=document.getElementById('detailTitle'),
-            detailDesc=document.getElementById('detailDesc'),
-            detailList=document.getElementById('detailList'),
-            detailEquip=document.getElementById('detailEquip'),
-            detailCal=document.getElementById('detailCal'),
-            btnLog=document.getElementById('detailStart'),
-            btnSave=document.getElementById('savePlan');
+      const detailModal  = document.getElementById('detailModal'),
+            detailClose  = detailModal.querySelector('.close'),
+            detailTitle  = document.getElementById('detailTitle'),
+            detailDesc   = document.getElementById('detailDesc'),
+            detailList   = document.getElementById('detailList'),
+            detailEquip  = document.getElementById('detailEquip'),
+            detailCal    = document.getElementById('detailCal'),
+            btnLog       = document.getElementById('detailStart'),
+            btnSavePlan  = document.getElementById('savePlan');
       function openDetail(id){
-        const w=workouts.find(x=>x.id==id);
-        detailTitle.textContent=w.title;
-        detailDesc .textContent=w.description;
-        detailList.innerHTML=w.exercises.map(e=>`<li>${e}</li>`).join('');
-        detailEquip.textContent=w.equipment;
-        detailCal  .textContent=w.calories;
+        const w = workouts.find(x=>x.id==id);
+        detailTitle.textContent = w.title;
+        detailDesc .textContent = w.description;
+        detailList.innerHTML    = w.exercises.map(e=>`<li>${e}</li>`).join('');
+        detailEquip.textContent = w.equipment;
+        detailCal  .textContent = w.calories;
         detailModal.style.display='flex';
 
-       btnLog.onclick = () => {
-  const a = Storage.get('ft_activities', []);
-  a.unshift({
-    date: new Date().toISOString().slice(0,10),
-    type: detailTitle.textContent,
-    duration: +workouts.find(w=> w.title===detailTitle.textContent).duration,
-    distance: '',
-    calories: +detailCal.textContent,
-    notes: ''
-  });
-  Storage.set('ft_activities', a);
-  detailModal.style.display = 'none';
-  syncAll();    // <— make sure the UI immediately updates everywhere
-};
+        btnLog.onclick = () => {
+          const acts = Storage.get('ft_activities', []);
+          acts.unshift({
+            date: new Date().toISOString().slice(0,10),
+            type: w.title,
+            duration: w.duration,
+            distance: '',
+            calories: w.calories,
+            notes: ''
+          });
+          Storage.set('ft_activities', acts);
+          detailModal.style.display='none';
+          syncAll();
+        };
 
-btnSave.onclick = () => {
-  const id = +workouts.find(w=> w.title===detailTitle.textContent).id;
-  const p = Storage.get('ft_plans', []);
-  if (!p.includes(id)) p.push(id);
-  Storage.set('ft_plans', p);
-  detailModal.style.display = 'none';
-  syncAll();    // <— refresh “My Plans” right away
-};
-
-      detailClose.onclick=()=>detailModal.style.display='none';
-      document.body.addEventListener('click',e=>{
-        if(e.target.tagName==='BUTTON' && e.target.dataset.id){
+        btnSavePlan.onclick = () => {
+          const plans = Storage.get('ft_plans', []);
+          if (!plans.includes(w.id)) plans.push(w.id);
+          Storage.set('ft_plans', plans);
+          detailModal.style.display='none';
+          syncAll();
+        };
+      }
+      detailClose.onclick = ()=> detailModal.style.display='none';
+      document.body.addEventListener('click', e=>{
+        if (e.target.tagName==='BUTTON' && e.target.dataset.id) {
           openDetail(e.target.dataset.id);
         }
       });
 
       /** My Plans **/
-      const plansList=document.getElementById('plansList');
+      const plansList = document.getElementById('plansList');
       function renderPlans(){
-        const p=Storage.get('ft_plans',[]);
-        plansList.innerHTML='';
+        const p = Storage.get('ft_plans', []);
+        plansList.innerHTML = '';
         p.forEach((id,i)=>{
-          const w=workouts.find(x=>x.id===id),li=document.createElement('li');
-          li.innerHTML=`${w.title} <button data-remove="${i}">Remove</button>`;
+          const w = workouts.find(x=>x.id===id),
+                li = document.createElement('li');
+          li.innerHTML = `${w.title} <button data-remove="${i}">Remove</button>`;
           plansList.appendChild(li);
         });
       }
-      plansList.addEventListener('click',e=>{
-        if(e.target.dataset.remove){
-          const idx=+e.target.dataset.remove,arr=Storage.get('ft_plans',[]);
-          arr.splice(idx,1); Storage.set('ft_plans',arr);
+      plansList.addEventListener('click', e=>{
+        if (e.target.dataset.remove!=null){
+          const idx = +e.target.dataset.remove,
+                arr = Storage.get('ft_plans', []);
+          arr.splice(idx,1);
+          Storage.set('ft_plans', arr);
         }
       });
 
       /** Progress Chart **/
-      const ctx=document.getElementById('progressChart').getContext('2d');
+      const ctx = document.getElementById('progressChart').getContext('2d');
       let chart;
       function renderProgress(){
-        const acts=Storage.get('ft_activities',[]),
-              byCat=acts.reduce((o,a)=>{
-                const w=workouts.find(wk=>wk.title===a.type),c=w? w.category:'Other';
-                o[c]=(o[c]||0)+1;return o;
-              },{}),labels=Object.keys(byCat),data=Object.values(byCat);
-        if(chart)chart.destroy();
-        chart=new Chart(ctx,{
+        const acts = Storage.get('ft_activities', []),
+              byCat = acts.reduce((o,a)=>{
+                const w = workouts.find(wk=>wk.title===a.type),
+                      c = w? w.category : 'Other';
+                o[c] = (o[c]||0)+1; return o;
+              }, {}),
+              labels = Object.keys(byCat),
+              data   = Object.values(byCat);
+        if (chart) chart.destroy();
+        chart = new Chart(ctx,{
           type:'bar',
           data:{labels,datasets:[{label:'Sessions',data,backgroundColor:'rgba(255,152,0,0.7)'}]},
           options:{
             responsive:true,
-            plugins:{title:{display:true,text:'Sessions by Category',color:'#fff'},legend:{display:false}},
+            plugins:{
+              title:{display:true,text:'Sessions by Category',color:'#fff'},
+              legend:{display:false}
+            },
             scales:{
-              x:{ticks:{color:'#fff'}},y:{ticks:{color:'#fff'},beginAtZero:true}
+              x:{ticks:{color:'#fff'}},
+              y:{beginAtZero:true,ticks:{color:'#fff'}}
             }
           }
         });
       }
 
       /** Challenge Modes **/
-      const chList=document.getElementById('challengesList'),
-            challenges=[
+      const chList = document.getElementById('challengesList'),
+            challenges = [
               {id:1,title:'7‑Day Abs',desc:'Daily core sculpting.',target:7},
               {id:2,title:'30‑Day Push‑Up',desc:'+2 reps/day.',target:30},
               {id:3,title:'14‑Day Yoga',desc:'Morning flow.',target:14},
@@ -808,21 +819,25 @@ btnSave.onclick = () => {
               {id:8,title:'HIIT Week',desc:'5 HIIT sessions.',target:5}
             ];
       function renderChallenges(){
-        const joined=Storage.get('ft_joined',[]);
-        chList.innerHTML='';
+        const joined = Storage.get('ft_joined', []);
+        chList.innerHTML = '';
         challenges.forEach(ch=>{
-          const count=Storage.get('ft_activities',[]).filter(a=>a.type.includes(ch.title.split(' ')[1])).length,
-                pct=Math.min(100,Math.round(count/ch.target*100)),done=joined.includes(ch.id);
-          const div=document.createElement('div'); div.className='challenge';
-          div.innerHTML=`
+          const count = Storage.get('ft_activities', [])
+                                .filter(a=>a.type.includes(ch.title.split(' ')[1])).length,
+                pct   = Math.min(100,Math.round(count/ch.target*100)),
+                done  = joined.includes(ch.id),
+                div   = document.createElement('div');
+          div.className = 'challenge';
+          div.innerHTML = `
             <h3>${ch.title}</h3>
             <p>${ch.desc}</p>
             <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
             <p style="opacity:.8">${count}/${ch.target}</p>
             <button>${done?'Joined ✓':'Join Challenge'}</button>`;
-          div.querySelector('button').onclick=()=>{
-            if(!done){
-              joined.push(ch.id); Storage.set('ft_joined',joined);
+          div.querySelector('button').onclick = ()=>{
+            if (!done){
+              joined.push(ch.id);
+              Storage.set('ft_joined', joined);
             }
           };
           chList.appendChild(div);
@@ -830,8 +845,8 @@ btnSave.onclick = () => {
       }
 
       /** Live Sessions **/
-      const sessList=document.getElementById('sessionsList'),
-            liveSessions=[
+      const sessList = document.getElementById('sessionsList'),
+            liveSessions = [
               {id:1,img:'https://via.placeholder.com/300x200?text=Yoga',title:'Sunrise Yoga',host:'Alice',start:Date.now()+3600000,desc:'Vinyasa flow.'},
               {id:2,img:'https://via.placeholder.com/300x200?text=HIIT',title:'HIIT Blast',host:'Bob',start:Date.now()+7200000,desc:'Intervals.'},
               {id:3,img:'https://via.placeholder.com/300x200?text=Dance',title:'Cardio Dance',host:'Cara',start:Date.now()-1800000,desc:'Dance cardio.'},
@@ -839,25 +854,29 @@ btnSave.onclick = () => {
               {id:5,img:'https://via.placeholder.com/300x200?text=Pilates',title:'Pilates Power',host:'Eve',start:Date.now()+14400000,desc:'Core & posture.'}
             ];
       function renderSessions(){
-        const joined=Storage.get('ft_sessions',[]),now=Date.now();
-        sessList.innerHTML='';
+        const joined = Storage.get('ft_sessions', []),
+              now    = Date.now();
+        sessList.innerHTML = '';
         liveSessions.forEach(s=>{
-          const isLive=now>=s.start&&now< s.start+3600000,
-                isFuture=now<s.start,hasJoined=joined.includes(s.id),
-                btnTxt=isLive?'🔴 LIVE':(hasJoined?'✔ Scheduled':'⏱ Schedule'),
-                card=document.createElement('div');card.className='live-card';
-          card.innerHTML=`
+          const isLive    = now >= s.start && now < s.start + 3600_000,
+                isFuture  = now < s.start,
+                hasJoined = joined.includes(s.id),
+                btnTxt    = isLive ? '🔴 LIVE' : (hasJoined?'✔ Scheduled':'⏱ Schedule'),
+                card      = document.createElement('div');
+          card.className = 'live-card';
+          card.innerHTML = `
             ${isLive?'<div class="status">LIVE</div>':''}
             <img src="${s.img}" alt="${s.title}">
             <h3>${s.title}</h3>
             <p class="info">${s.host} • ${new Date(s.start).toLocaleString()}</p>
             <p class="desc">${s.desc}</p>
             <button data-id="${s.id}">${btnTxt}</button>`;
-          card.querySelector('button').onclick=()=>{
-            if(isFuture && !hasJoined){
-              joined.push(s.id); Storage.set('ft_sessions',joined);
+          card.querySelector('button').onclick = () => {
+            if (isFuture && !hasJoined) {
+              joined.push(s.id);
+              Storage.set('ft_sessions', joined);
             }
-            if(isLive){
+            if (isLive) {
               document.getElementById('goLiveModal').style.display='flex';
             }
           };
@@ -866,53 +885,56 @@ btnSave.onclick = () => {
       }
 
       /** Go Live Modal **/
-      const goLiveModal=document.getElementById('goLiveModal'),
-            startLiveBtn=document.getElementById('startLiveBtn'),
-            cancelLiveBtn=document.getElementById('cancelLiveBtn'),
-            liveName=document.getElementById('live-name'),
-            liveDesc=document.getElementById('live-desc');
+      const goLiveModal   = document.getElementById('goLiveModal'),
+            startLiveBtn  = document.getElementById('startLiveBtn'),
+            cancelLiveBtn = document.getElementById('cancelLiveBtn');
       let stream;
-      startLiveBtn.onclick=async()=>{
+      startLiveBtn.onclick = async()=>{
         goLiveModal.style.display='none';
-        try{
+        try {
           stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-          const vid=document.createElement('video');
-          vid.srcObject=stream; vid.autoplay=true; vid.style.position='fixed'; vid.style.bottom='80px'; vid.style.right='20px'; vid.style.width='200px'; vid.style.zIndex=500;
+          const vid = document.createElement('video');
+          vid.srcObject  = stream;
+          vid.autoplay   = true;
+          vid.style.cssText = 'position:fixed;bottom:80px;right:20px;width:200px;z-index:500;';
           document.body.appendChild(vid);
-          const nowLive=Storage.get('ft_liveNow',[]);
+          const nowLive = Storage.get('ft_liveNow', []);
           nowLive.push(cur.name);
-          Storage.set('ft_liveNow',nowLive);
-        }catch(e){
+          Storage.set('ft_liveNow', nowLive);
+        } catch(e){
           alert('Camera access denied');
         }
       };
-      cancelLiveBtn.onclick=()=>goLiveModal.style.display='none';
-      window.addEventListener('beforeunload',()=>{ if(stream)stream.getTracks().forEach(t=>t.stop()); });
+      cancelLiveBtn.onclick = ()=> goLiveModal.style.display='none';
+      window.addEventListener('beforeunload', ()=>{ if(stream) stream.getTracks().forEach(t=>t.stop()); });
 
       /** Chatbot **/
-      const chatBox=document.getElementById('chatbot'),
-            chatToggle=document.getElementById('chatToggle'),
-            chatClose=document.getElementById('chatClose'),
-            chatMessages=document.getElementById('chatMessages'),
-            questionSelect=document.getElementById('questionSelect'),
-            askBtn=document.getElementById('askBtn');
-      const qaList=[
-        {q:'What’s the WOD?',a:'Workout of the Day, randomized—hit “Randomize”.'},
-        {q:'How do I log?',a:'Click Details → Log This Workout.'},
-        {q:'How do I filter?',a:'Use the dropdowns above.'},
-        {q:'How to save a plan?',a:'In details, click Save to My Plans.'}
+      const chatBox        = document.getElementById('chatbot'),
+            chatToggleBtn  = document.getElementById('chatToggle'),
+            chatCloseBtn   = document.getElementById('chatClose'),
+            chatMessages   = document.getElementById('chatMessages'),
+            questionSelect = document.getElementById('questionSelect'),
+            askBtnEl       = document.getElementById('askBtn');
+      const qaList = [
+        {q:`What’s the WOD?`,    a:`Workout of the Day, randomized—hit “Randomize”.`},
+        {q:`How do I log?`,      a:`Click Details → Log This Workout.`},
+        {q:`How do I filter?`,   a:`Use the dropdowns above.`},
+        {q:`How to save a plan?`,a:`In details, click Save to My Plans.`}
       ];
-      qaList.forEach((x,i)=>questionSelect.add(new Option(x.q,i)));
-      chatToggle.onclick=()=>{ chatBox.style.display='flex'; chatToggle.style.display='none'; };
-      chatClose.onclick=()=>{
-        chatBox.style.display='none'; chatToggle.style.display='flex';
-        chatMessages.innerHTML='<div class="msg bot">Welcome! Choose a question…</div>';
+      qaList.forEach((x,i)=> questionSelect.add(new Option(x.q,i)));
+      chatToggleBtn.onclick = ()=>{ chatBox.style.display='flex'; chatToggleBtn.style.display='none'; };
+      chatCloseBtn.onclick  = ()=>{
+        chatBox.style.display='none';
+        chatToggleBtn.style.display='flex';
+        chatMessages.innerHTML = `<div class="msg bot">Welcome! Choose a question…</div>`;
       };
-      askBtn.onclick=()=>{
-        const idx=questionSelect.value; if(idx==null) return;
-        chatMessages.innerHTML+=`<div class="msg user">${qaList[idx].q}</div><div class="msg bot">${qaList[idx].a}</div>`;
-        chatMessages.scrollTop=chatMessages.scrollHeight;
-        questionSelect.selectedIndex=0;
+      askBtnEl.onclick = ()=>{
+        const idx = questionSelect.value;
+        if (idx===''||idx==null) return;
+        chatMessages.innerHTML += `<div class="msg user">${qaList[idx].q}</div>
+                                   <div class="msg bot">${qaList[idx].a}</div>`;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        questionSelect.selectedIndex = 0;
       };
 
       /** INITIAL RENDER & SYNC **/
@@ -922,11 +944,7 @@ btnSave.onclick = () => {
       }
       syncAll();
       ['ft_activities','ft_plans','ft_joined','ft_sessions','ft_liveNow']
-        .forEach(key=>Storage.onChange(key,syncAll));
-
-        // force‐render once on startup
-renderChallenges();
-renderSessions();
+        .forEach(key => Storage.onChange(key, syncAll));
 
     });
   </script>
