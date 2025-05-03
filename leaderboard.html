@@ -177,25 +177,7 @@
   }
   .section h2 { color:var(--gold); margin-bottom:.75rem; font-size:1.2rem; }
 
-  /* live sessions */
-  .live-grid {
-    display:grid; gap:1rem;
-    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  }
-  .live-card {
-    background:var(--accent); border-radius:8px; padding:.75rem; text-align:center;
-    transition:transform var(--transition);
-  }
-  .live-card:hover { transform:translateY(-4px); }
-  .live-card img { width:48px; height:48px; border-radius:50%; margin-bottom:.5rem; }
-  #liveDesc { font-size:.9rem; opacity:.8; margin-bottom:1rem; }
-  #toggleLiveBtn {
-    background:var(--gold); color:var(--bg);
-    border:none; border-radius:6px; padding:.5rem 1rem;
-  }
-  #liveVideo {
-    width:100%; max-width:320px; margin-top:1rem; border-radius:8px; background:#111;
-  }
+
 
   /* chart */
   .chart-container {
@@ -312,16 +294,24 @@ body {
         </table>
       </div>
 
-      <!-- Live Workouts -->
-      <section class="section live-now">
-        <h2><i class="fas fa-video"></i> Live Workouts</h2>
-        <p id="liveDesc">Broadcast live—others join on Workouts page.</p>
-        <div class="live-grid" id="liveNowGrid"></div>
-        <button id="toggleLiveBtn">Go Live</button>
-        <video id="liveVideo" autoplay playsinline hidden></video>
-        <h3 style="margin-top:1rem;color:var(--gold)">Recent Streams</h3>
-        <div id="pastStreams"></div>
-      </section>
+    <!-- ─── 7‑Day Activity Snapshot ───────────────────── -->
+<section class="section seven-day">
+  <h2><i class="fas fa-calendar-week"></i> Your Last 7 Days</h2>
+  <canvas id="last7Chart"></canvas>
+</section>
+
+<!-- ─── Badge Showcase ────────────────────────────── -->
+<section class="section achievements">
+  <h2><i class="fas fa-award"></i> Your Badges</h2>
+  <div id="badgeContainer" style="display:flex;gap:1rem;"></div>
+</section>
+
+<!-- ─── Rival Spotlight ───────────────────────────── -->
+<section class="section spotlight">
+  <h2><i class="fas fa-user-friends"></i> Rival Spotlight</h2>
+  <div id="rivalSpotlight"></div>
+</section>
+
 
       <!-- Trends Chart -->
       <section class="section trends">
@@ -340,13 +330,14 @@ body {
   </div>
 <script type="module">
 import { Storage } from './storage.js';
+import Chart from 'chart.js/auto';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ─── 1) Redirect if not signed in ─────────────────────
+  // 1) Redirect if not signed in
   const cur = Storage.get('ft_current', null);
   if (!cur || !cur.name) return location.replace('home.html');
 
-  // ─── 2) Sidebar toggle & profile nav ──────────────────
+  // 2) Sidebar toggle & profile nav
   const sidebar  = document.getElementById('sidebar'),
         overlay  = document.getElementById('overlay'),
         btnOpen  = document.getElementById('hamburger'),
@@ -357,85 +348,75 @@ document.addEventListener('DOMContentLoaded', () => {
   overlay.addEventListener ('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
   profBtn?.addEventListener('click', () => location.replace('profile.html'));
 
-  // ─── 3) Seed pseudo‑leaderboard on first run ─────────
+  // 3) Seed pseudo‑leaderboard first time
   if (!Storage.get('ft_leaderboard')?.length) {
     Storage.set('ft_leaderboard', [
       { name:'Alice', workouts:25, distanceKm:120, avatar:'alice.jpg'  },
-      { name:'Bob',   workouts:20, distanceKm: 95, avatar:'bob.jpg'    },
-      { name:'Cara',  workouts:18, distanceKm: 80, avatar:'cara.jpg'   },
-      { name:'Dana',  workouts:15, distanceKm: 70, avatar:'https://i.pravatar.cc/150?u=dana' },
-      { name:'Evan',  workouts:12, distanceKm: 55, avatar:'https://i.pravatar.cc/150?u=evan' }
+      { name:'Bob',   workouts:20, distanceKm:95,  avatar:'bob.jpg'    },
+      { name:'Cara',  workouts:18, distanceKm:80,  avatar:'cara.jpg'   },
+      { name:'Dana',  workouts:15, distanceKm:70,  avatar:'https://i.pravatar.cc/150?u=dana' },
+      { name:'Evan',  workouts:12, distanceKm:55,  avatar:'https://i.pravatar.cc/150?u=evan' }
     ]);
   }
 
-  // ─── 4) Always inject current user into leaderboard ────
+  // 4) Always compute & inject current user from ft_activities
   function injectCurrentUser() {
+    const acts = Storage.get('ft_activities', []);
+    const userStats = {
+      name: cur.name,
+      workouts: acts.length,
+      distanceKm: acts.reduce((s,a)=> s + (+a.distance||0), 0),
+      avatar: Storage.get('ft_profile', {}).avatar || null
+    };
     const lb = Storage.get('ft_leaderboard', []);
-    const exists = lb.some(u => u.name === cur.name);
-    if (!exists) {
-      const stats = cur.stats || { workouts:0, distanceKm:0 };
-      lb.push({
-        name: cur.name,
-        workouts: stats.workouts,
-        distanceKm: stats.distanceKm,
-        avatar: Storage.get('ft_profile', {}).avatar || null
-      });
+    if (!lb.some(u=>u.name===cur.name)) {
+      lb.push(userStats);
+      Storage.set('ft_leaderboard', lb);
+    } else {
+      // update in case stats changed
+      const idx = lb.findIndex(u=>u.name===cur.name);
+      lb[idx] = userStats;
       Storage.set('ft_leaderboard', lb);
     }
   }
   injectCurrentUser();
 
-  // ─── 5) Seed 3 pseudo live sessions ────────────────────
-  if (!Storage.get('ft_liveWorkouts')?.length) {
-    Storage.set('ft_liveWorkouts', [
-      { name:'Alice', avatar:'alice.jpg', workout:'Sunrise Yoga',    desc:'Gentle vinyasa flow.',    start:new Date().toLocaleTimeString() },
-      { name:'Bob',   avatar:'bob.jpg',   workout:'HIIT Blast',      desc:'High‑intensity intervals.', start:new Date().toLocaleTimeString() },
-      { name:'Cara',  avatar:'cara.jpg',  workout:'Cardio Dance',    desc:'Fun dance cardio.',       start:new Date().toLocaleTimeString() }
-    ]);
-    Storage.set('ft_pastStreams', []);
-  }
-
-  // ─── 6) Helpers ───────────────────────────────────────
+  // 5) Utility & DOM refs
   const load = key => Storage.get(key, []),
-        save = (k,v) => Storage.set(k, v),
-        hall    = document.getElementById('hallOfFame'),
-        body    = document.getElementById('leaderboardBody'),
-        search  = document.getElementById('searchInput'),
+        body = document.getElementById('leaderboardBody'),
+        hall = document.getElementById('hallOfFame'),
+        searchInput = document.getElementById('searchInput'),
         champAv = document.getElementById('champAvatar'),
         champNm = document.getElementById('champName'),
-        liveGrid= document.getElementById('liveNowGrid'),
-        pastDiv = document.getElementById('pastStreams'),
-        toggleBtn = document.getElementById('toggleLiveBtn'),
-        liveVid   = document.getElementById('liveVideo');
+        last7Ctx = document.getElementById('last7Chart').getContext('2d'),
+        badgeContainer = document.getElementById('badgeContainer'),
+        rivalSpot = document.getElementById('rivalSpotlight');
 
   function computeScore(u) {
     return (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2);
   }
 
-  // ─── 7) Render leaderboard & hall of fame ─────────────
+  // 6) Render Leaderboard + Hall of Fame + Champion
   function renderLeaderboard() {
     const entries = load('ft_leaderboard')
-      .map(u => ({
-        ...u,
-        score: computeScore(u)
-      }))
-      .sort((a,b) => b.score - a.score);
+      .map(u => ({ ...u, score: computeScore(u) }))
+      .sort((a,b)=> b.score - a.score);
 
     // Hall of Fame (top 3)
     hall.innerHTML = '';
     entries.slice(0,3).forEach((u,i) => {
-      const div = document.createElement('div');
-      div.className = 'hall-card';
-      div.innerHTML = `
+      const d = document.createElement('div');
+      d.className = 'hall-card';
+      d.innerHTML = `
         ${u.avatar
           ? `<img src="${u.avatar}" alt="${u.name}">`
           : `<i class="fas fa-user-circle" style="font-size:60px;color:var(--white)"></i>`
         }
         <span>#${i+1} ${u.name}</span>`;
-      hall.append(div);
+      hall.append(d);
     });
 
-    // Full table
+    // Table
     body.innerHTML = '';
     entries.forEach((u,i) => {
       const tr = document.createElement('tr');
@@ -444,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td class="rank">${i+1}</td>
         <td class="user-cell">
           ${u.avatar
-            ? `<img src="${u.avatar}" width="24" height="24" style="border-radius:50%">`
+            ? `<img src="${u.avatar}" width="24" height="24" style="border-radius:50%;">`
             : `<i class="fas fa-user-circle" style="font-size:24px;color:var(--white)"></i>`
           }
           <span>${u.name}</span>
@@ -455,112 +436,100 @@ document.addEventListener('DOMContentLoaded', () => {
       body.append(tr);
     });
 
-    // Monthly Champion = top entry
+    // Monthly Champion
     const champ = entries[0];
     if (champ) {
-      champAv.src         = champ.avatar || '';
+      champAv.src = champ.avatar || '';
       champNm.textContent = champ.name;
     }
   }
 
-  // ─── 8) Render live & past streams ─────────────────────
-  function renderLive() {
-    const live = load('ft_liveWorkouts'),
-          past = load('ft_pastStreams'),
-          isLive = live.some(s => s.name === cur.name);
-
-    // active streams
-    liveGrid.innerHTML = live.length
-      ? live.map(u => `
-          <div class="live-card">
-            ${u.avatar? `<img src="${u.avatar}" alt="">` : ''}
-            <div><strong>${u.workout}</strong></div>
-            <div style="opacity:.8;font-size:.85rem">${u.name} • ${u.start}</div>
-            <div style="font-size:.85rem">${u.desc}</div>
-          </div>`).join('')
-      : `<p style="opacity:.7;">No active streams.</p>`;
-
-    // past streams
-    pastDiv.innerHTML = past.length
-      ? past.map(s => `<p style="opacity:.8;font-size:.85rem">
-          ${s.workout} by ${s.name} • ${s.start}–${s.end}
-        </p>`).join('')
-      : `<p style="opacity:.7;">No past streams.</p>`;
-
-    // toggle text & video
-    toggleBtn.textContent = isLive ? 'End Live' : 'Go Live';
-    liveVid.hidden        = !isLive;
-    if (isLive) startCamera(); else stopCamera();
-  }
-
-  async function startCamera() {
-    if (!navigator.mediaDevices) return;
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video:true });
-      liveVid.srcObject = stream;
-    } catch {}
-  }
-  function stopCamera() {
-    liveVid.srcObject?.getTracks().forEach(t => t.stop());
-    liveVid.srcObject = null;
-  }
-
-  // ─── 9) Join / Leave live with prompt ───────────────────
-  toggleBtn.addEventListener('click', () => {
-    const live = load('ft_liveWorkouts'),
-          past = load('ft_pastStreams'),
-          idx  = live.findIndex(s => s.name === cur.name);
-
-    if (idx >= 0) {
-      // ending live
-      past.unshift({
-        ...live[idx],
-        end: new Date().toLocaleTimeString()
-      });
-      live.splice(idx,1);
-      save('ft_pastStreams', past);
-    } else {
-      // starting live: prompt for workout info
-      const workout = prompt('Workout name:', 'My Live Workout');
-      if (!workout) return;
-      const desc = prompt('Short description:', 'Join me live!');
-      live.unshift({
-        name: cur.name,
-        avatar: Storage.get('ft_profile', {}).avatar || null,
-        workout,
-        desc,
-        start: new Date().toLocaleTimeString()
-      });
+  // 7) 7‑Day Activity Chart
+  let last7Chart;
+  function renderLast7() {
+    const acts = load('ft_activities');
+    const labels = [], data = [];
+    for (let i=6; i>=0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0,10);
+      labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
+      data.push( acts.filter(a=>a.date===key).reduce((s,a)=> s + (+a.duration||0), 0) );
     }
+    if (last7Chart) last7Chart.destroy();
+    last7Chart = new Chart(last7Ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: labels.map(()=>getComputedStyle(document.documentElement).getPropertyValue('--gold').trim()) }] },
+      options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+    });
+  }
 
-    save('ft_liveWorkouts', live);
-    renderLive();
-  });
+  // 8) Badge Showcase
+  function renderBadges() {
+    const acts = load('ft_activities'),
+          total = acts.length,
+          thresholds = [
+            { n:1, icon:'fas fa-star', text:'First Workout' },
+            { n:5, icon:'fas fa-medal', text:'5 Workouts' },
+            { n:10, icon:'fas fa-trophy', text:'10 Workouts' },
+            { n:30, icon:'fas fa-award', text:'30 Workouts' }
+          ];
+    badgeContainer.innerHTML = '';
+    thresholds.forEach(t => {
+      const div = document.createElement('div');
+      div.className = 'achievement-badge' + (total>=t.n ? ' unlocked' : '');
+      div.innerHTML = `<i class="${t.icon}"></i><p style="font-size:.8rem;margin:0">${t.text}</p>`;
+      badgeContainer.append(div);
+    });
+  }
 
-  // ─── 10) Search filter ──────────────────────────────────
-  search.addEventListener('input', e => {
+  // 9) Rival Spotlight
+  function renderRival() {
+    const entries = load('ft_leaderboard')
+      .map(u => ({ ...u, score: computeScore(u) }))
+      .sort((a,b)=>b.score-b.score);
+    const top5 = entries.slice(0,5).filter(u=>u.name!==cur.name);
+    if (!top5.length) return rivalSpot.innerHTML='';
+    const rival = top5[Math.floor(Math.random()*top5.length)];
+    rivalSpot.innerHTML = `
+      <div style="display:flex;align-items:center;gap:1rem;">
+        ${rival.avatar? `<img src="${rival.avatar}" width="48" height="48" style="border-radius:50%;">`
+                       : `<i class="fas fa-user-circle" style="font-size:48px;color:var(--white)"></i>`}
+        <div>
+          <strong>${rival.name}</strong><br>
+          🏋️‍♂️ ${rival.workouts} sessions • 🚴 ${rival.distanceKm.toFixed(1)} km<br>
+          ⭐ Score: ${computeScore(rival)}
+        </div>
+      </div>
+    `;
+  }
+
+  // 10) Search filter
+  searchInput.addEventListener('input', e=>{
     const q = e.target.value.toLowerCase();
-    document.querySelectorAll('#leaderboardBody tr').forEach(row => {
+    document.querySelectorAll('#leaderboardBody tr').forEach(row=>{
       const name = row.querySelector('td:nth-child(2) span').textContent.toLowerCase();
       row.style.display = name.includes(q) ? '' : 'none';
     });
   });
 
-  // ─── 11) Re‑render on any Storage change ───────────────
-  ['ft_leaderboard','ft_liveWorkouts','ft_pastStreams'].forEach(key => {
+  // 11) Re‑render on any change
+  ['ft_leaderboard','ft_activities'].forEach(key=>{
     Storage.onChange(key, () => {
+      injectCurrentUser();
       renderLeaderboard();
-      renderLive();
+      renderLast7();
+      renderBadges();
+      renderRival();
     });
   });
 
-  // ─── Initial draw ──────────────────────────────────────
+  // 12) Initial draw
   renderLeaderboard();
-  renderLive();
+  renderLast7();
+  renderBadges();
+  renderRival();
 });
 </script>
-
-
 
 </body>
 </html>
