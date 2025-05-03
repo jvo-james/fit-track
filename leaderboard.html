@@ -298,7 +298,9 @@
 
       // Make sure current user is in leaderboard
       function syncCurrentUser() {
-        const acts = Storage.get('ft_activities', []) || [];
+       const allActs = Storage.get('ft_activities', []) || [];
+       const acts    = allActs.filter(a => a.user === cur.name);
+
         const me = {
           name: cur.name,
           workouts: acts.length,
