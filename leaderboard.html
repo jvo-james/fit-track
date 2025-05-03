@@ -232,17 +232,17 @@
 
   <script>
     // 1) Your Firebase config here
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+   // Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDO-IrBAGaZ8-LFbW_6wbkSBOh_2DPGRaw",
+  authDomain: "workout-4cb4d.firebaseapp.com",
+  projectId: "workout-4cb4d",
+  storageBucket: "workout-4cb4d.firebasestorage.app",
+  messagingSenderId: "114995917937",
+  appId: "1:114995917937:web:d6416c087915ebd50f57d0"
+};
+   // Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
     // 2) Sidebar toggle
     const sidebar = document.getElementById('sidebar'),
