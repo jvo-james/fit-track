@@ -573,6 +573,7 @@
         e.preventDefault();
         const f = e.target;
         const ent = {
+          user:     cur.name, 
           date:     f.date.value,
           type:     f.type.value,
           duration: f.duration.value,
@@ -598,7 +599,7 @@
         const a = loadActs();
         if(!a.length){
           a.push({
-            date: new Date().toISOString().slice(0,10),
+            user: cur.name, date: new Date().toISOString().slice(0,10),
             type: 'Cardio', duration:25, distance:3, calories:200, notes:'Welcome workout!'
           });
           saveActs(a);
