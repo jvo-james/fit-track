@@ -723,19 +723,30 @@
         detailCal  .textContent=w.calories;
         detailModal.style.display='flex';
 
-        btnLog.onclick=()=>{
-          const a=Storage.get('ft_activities',[]);
-          a.unshift({date:new Date().toISOString().slice(0,10),type:w.title,duration:w.duration,distance:'',calories:w.calories,notes:''});
-          Storage.set('ft_activities',a);
-          detailModal.style.display='none';
-        };
-        btnSave.onclick=()=>{
-          const p=Storage.get('ft_plans',[]);
-          if(!p.includes(w.id))p.push(w.id);
-          Storage.set('ft_plans',p);
-          detailModal.style.display='none';
-        };
-      }
+       btnLog.onclick = () => {
+  const a = Storage.get('ft_activities', []);
+  a.unshift({
+    date: new Date().toISOString().slice(0,10),
+    type: detailTitle.textContent,
+    duration: +workouts.find(w=> w.title===detailTitle.textContent).duration,
+    distance: '',
+    calories: +detailCal.textContent,
+    notes: ''
+  });
+  Storage.set('ft_activities', a);
+  detailModal.style.display = 'none';
+  syncAll();    // <— make sure the UI immediately updates everywhere
+};
+
+btnSave.onclick = () => {
+  const id = +workouts.find(w=> w.title===detailTitle.textContent).id;
+  const p = Storage.get('ft_plans', []);
+  if (!p.includes(id)) p.push(id);
+  Storage.set('ft_plans', p);
+  detailModal.style.display = 'none';
+  syncAll();    // <— refresh “My Plans” right away
+};
+
       detailClose.onclick=()=>detailModal.style.display='none';
       document.body.addEventListener('click',e=>{
         if(e.target.tagName==='BUTTON' && e.target.dataset.id){
@@ -912,6 +923,11 @@
       syncAll();
       ['ft_activities','ft_plans','ft_joined','ft_sessions','ft_liveNow']
         .forEach(key=>Storage.onChange(key,syncAll));
+
+        // force‐render once on startup
+renderChallenges();
+renderSessions();
+
     });
   </script>
 </body>
