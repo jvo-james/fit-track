@@ -238,7 +238,7 @@
     <h2><i class="fas fa-book-open"></i> Hall of Fame Stories</h2>
     <ul id="hofStories" style="list-style:disc;padding-left:1.5rem;"></ul>
   </section>
-</div>
+
   </div>
 
   <!-- User‑detail Modal -->
@@ -475,8 +475,7 @@
               </div>
             </div>`;
         }
-      }
-// Hall of Fame Stories
+      // Hall of Fame Stories
         const stories = [
           `🥇 ${lb[0].name} smashed ${lb[0].workouts} workouts!`,
           `🥈 ${lb[1].name} ran ${lb[1].distanceKm.toFixed(1)} km!`,
@@ -484,6 +483,8 @@
         ];
         document.getElementById('hofStories').innerHTML =
           stories.map(s=>`<li>${s}</li>`).join('');
+
+      }
 
     // Show user modal
     function showUserModal(u) {
