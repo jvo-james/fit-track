@@ -41,9 +41,7 @@
       border:1px solid rgba(255,255,255,0.3);
       border-radius:6px;
       padding:.6rem;
-      -webkit-appearance:none;
-         -moz-appearance:none;
-              appearance:none;
+      appearance:none;
     }
     button {
       background:var(--gold);
@@ -65,6 +63,19 @@
       z-index:var(--overlay-z);
     }
     #overlay.active { opacity:1; visibility:visible; }
+
+    /* TOUR */
+    #tour-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.7);
+      display:none; z-index:3000;
+    }
+    #tour-tooltip {
+      position:absolute; padding:1rem;
+      background:#fff; color:#000; border-radius:5px;
+      z-index:3001; max-width:240px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      display:none;
+    }
 
     /* SIDEBAR */
     aside#sidebar {
@@ -105,14 +116,10 @@
     a.menu-item i, button.profile-menu i.avatar { font-size:1.2rem; }
     a.menu-item span, button.profile-menu span { font-size:.75rem; }
     .sign-out { margin-top:auto; margin-bottom:1rem; }
-/* constrain the loaded avatar so it never overflows */
-.sidebar img.avatar {
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  object-fit:cover;
-  border:2px solid var(--white);
-}
+    .sidebar img.avatar {
+      width:32px; height:32px; border-radius:50%;
+      object-fit:cover; border:2px solid var(--white);
+    }
 
     /* HEADER */
     header {
@@ -121,9 +128,14 @@
       border-bottom:2px solid var(--gold);
       position:sticky; top:0; width:100%; z-index:var(--header-z);
     }
-    .hamburger, .profile-btn { display:none; background:transparent; border:none; color:var(--white); font-size:1.5rem; }
+    .hamburger, .profile-btn {
+      display:none; background:transparent; border:none;
+      color:var(--white); font-size:1.5rem;
+    }
     @media(max-width: var(--mobile-break)) {
-      .hamburger, .profile-btn { display:block; position:fixed; top:1rem; z-index:9999; }
+      .hamburger, .profile-btn {
+        display:block; position:fixed; top:1rem; z-index:9999;
+      }
       .hamburger { left:1rem; }
       .profile-btn { right:1rem; }
       header h1 { margin:0 auto; }
@@ -150,6 +162,21 @@
     }
     .stat-card i { font-size:1.5rem; color:var(--gold); margin-bottom:.5rem; }
     .stat-card p { margin:.25rem 0; }
+
+    /* DISTRIBUTION CHART */
+    .distribution-section {
+      padding:0 1.5rem 1.5rem;
+    }
+    .distribution-section h2 {
+      display:flex; align-items:center; gap:.5rem;
+      color:var(--gold); margin-bottom:.75rem; font-size:1.2rem;
+    }
+    #distributionChart {
+      width:100%; height:240px;
+      background:rgba(255,255,255,0.05);
+      border-radius:8px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.5);
+    }
 
     /* LOG FORM */
     .log-section {
@@ -200,6 +227,10 @@
     /* TIPS */
     .tips-section {
       margin:1.5rem;
+    }
+    .tips-section h2 {
+      display:flex; align-items:center; gap:.5rem;
+      color:var(--gold); font-size:1.2rem; margin-bottom:.75rem;
     }
     .tips-section .tip {
       display:flex; align-items:center; gap:.75rem;
@@ -281,13 +312,6 @@
     .delete-btn:hover { transform:scale(1.2); }
 
     @media(max-width:600px) {
-      .sidebar { position:fixed; top:0; bottom:0; left:0; transform:translateX(-100%); }
-      .sidebar.open { transform:translateX(0); }
-      .sidebar-close { display:block; }
-      header { padding:.75rem 1rem; }
-      header h1 { font-size:1.2rem; }
-      .hamburger, .profile-btn { font-size:1.2rem; }
-      .stats-section { grid-template-columns:repeat(2,1fr); }
       #logForm { grid-template-columns:1fr; }
       #duration,#distance,#calories { grid-column:span 1; }
       .achievements-section { grid-template-columns:repeat(2,1fr); }
@@ -296,10 +320,13 @@
 </head>
 
 <body>
+  <!-- Overlays -->
   <div id="overlay"></div>
+  <div id="tour-overlay"></div>
+  <div id="tour-tooltip"></div>
 
   <!-- SIDEBAR -->
-  <aside id="sidebar" class="sidebar">
+  <aside id="sidebar">
     <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
@@ -316,9 +343,8 @@
       <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i></button>
       <h1><i class="fas fa-pen"></i> Log Activity</h1>
       <div class="header-right">
-        <span class="welcome-text">Good Morning!</span>
-        <button class="icon-btn" aria-label="Quick Add"><i class="fas fa-bolt"></i></button>
-        <button id="profile-btn" class="profile-btn" aria-label="Profile"><i class="fas fa-user-circle"></i></button>
+        <button id="voiceBtn" class="icon-btn" aria-label="Voice input"><i class="fas fa-microphone"></i></button>
+        <button id="profile-btn" class="profile-btn" aria-label="Profile"><i id="top-avatar" class="fas fa-user-circle"></i></button>
       </div>
     </header>
 
@@ -327,6 +353,12 @@
       <div class="stat-card"><i class="fas fa-dumbbell"></i><p id="stat-workouts">0</p><p>Workouts</p></div>
       <div class="stat-card"><i class="fas fa-route"></i><p id="stat-distance">0</p><p>Km</p></div>
       <div class="stat-card"><i class="fas fa-fire"></i><p id="stat-calories">0</p><p>Calories</p></div>
+    </section>
+
+    <!-- DISTRIBUTION CHART -->
+    <section class="distribution-section">
+      <h2><i class="fas fa-chart-pie"></i> Workout Distribution</h2>
+      <canvas id="distributionChart"></canvas>
     </section>
 
     <!-- LOG FORM -->
@@ -355,6 +387,7 @@
           <option>Swimming</option>
           <option>Strength</option>
           <option>Yoga</option>
+          <option>Other</option>
         </select>
         <label for="duration">Duration (min)</label>
         <input type="number" id="duration" min="1" required/>
@@ -365,7 +398,7 @@
         <label for="notes">Notes</label>
         <textarea id="notes" rows="2" placeholder="Optional"></textarea>
         <div class="voice-control">
-          <button type="button" id="voiceBtn" aria-label="Voice input">
+          <button type="button" id="voiceBtn2" aria-label="Voice input">
             <i class="fas fa-microphone"></i>
           </button>
         </div>
@@ -373,7 +406,7 @@
       </form>
     </section>
 
-    <!-- WORKOUT TIPS -->
+    <!-- TIPS -->
     <section class="tips-section">
       <h2><i class="fas fa-lightbulb"></i> Workout Tips</h2>
       <div class="tip"><i class="fas fa-water"></i> Stay hydrated—drink water before and after.</div>
@@ -387,23 +420,23 @@
       <div class="achievement" data-threshold="1"><i class="fas fa-star"></i><p>First Workout</p></div>
       <div class="achievement" data-threshold="5"><i class="fas fa-medal"></i><p>5 Workouts</p></div>
       <div class="achievement" data-threshold="10"><i class="fas fa-medal"></i><p>10 Workouts</p></div>
-      <div class="achievement" data-threshold="30"><i class="fas fa-medal"></i><p>30 Workouts</p></div>
+      <div class="achievement" data-threshold="30"><i class="fas fa-award"></i><p>30 Workouts</p></div>
     </section>
 
-    <!-- MOTIVATIONAL QUOTE -->
+    <!-- MOTIVATION -->
     <section class="motivation-section">
       <h2><i class="fas fa-heart"></i> Motivation</h2>
       <blockquote id="motivation"></blockquote>
     </section>
 
-    <!-- RECENT ACTIVITY -->
+    <!-- RECENT -->
     <section class="recent">
       <h2><i class="fas fa-history"></i> Recent Activity</h2>
       <div id="recentSummary"><p>No activity yet.</p></div>
       <button id="recentEdit">Edit Last</button>
     </section>
 
-    <!-- ACTIVITY LIST -->
+    <!-- ACTIVITIES LIST -->
     <section class="activities">
       <h2><i class="fas fa-list"></i> My Activities</h2>
       <ul id="activityList" class="activity-list"></ul>
@@ -414,103 +447,148 @@
     import { Storage } from './storage.js';
 
     document.addEventListener('DOMContentLoaded', () => {
-      // 1) Guard
+      // → Guard
       const cur = Storage.get('ft_current', null);
       if (!cur || !cur.name) return location.replace('home.html');
 
-      // 2) Elements
+      // → Elements
       const overlay      = document.getElementById('overlay'),
             sidebar      = document.getElementById('sidebar'),
             openBtn      = document.getElementById('hamburger'),
             closeBtn     = document.getElementById('sidebar-close'),
-            profileBtn   = document.getElementById('profile-btn'),
-            sideAvatar   = document.getElementById('side-avatar'),
+            profileBtns  = [ document.getElementById('profile-btn'),
+                              document.querySelector('.profile-menu') ],
+            sideAvatarEl = document.getElementById('side-avatar'),
+            topAvatarEl  = document.getElementById('top-avatar'),
+
             // stats
             statWk       = document.getElementById('stat-workouts'),
             statDist     = document.getElementById('stat-distance'),
             statCal      = document.getElementById('stat-calories'),
+
+            // pie chart
+            distCtx      = document.getElementById('distributionChart').getContext('2d'),
+
             // timer
             timerDisp    = document.getElementById('timerDisplay'),
             startBtn     = document.getElementById('startTimer'),
             stopBtn      = document.getElementById('stopTimer'),
             resetBtn     = document.getElementById('resetTimer'),
-            // presets
+
+            // presets & voice
             presets      = document.querySelectorAll('.presets button'),
-            // form & lists
+            voiceBtn     = document.getElementById('voiceBtn2'),
+
+            // form + lists
             form         = document.getElementById('logForm'),
             activityList = document.getElementById('activityList'),
             recentSum    = document.getElementById('recentSummary'),
             recentEdit   = document.getElementById('recentEdit'),
+
             // achievements & motivation
             achEls       = document.querySelectorAll('.achievement'),
-            motivation   = document.getElementById('motivation');
+            motivation   = document.getElementById('motivation'),
 
-      // 3) Sidebar toggle
+            // tour
+            tourOv       = document.getElementById('tour-overlay'),
+            tourTp       = document.getElementById('tour-tooltip');
+
+      // → Sidebar toggle
       openBtn.onclick  = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); };
       closeBtn.onclick = overlay.onclick = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
-      profileBtn.onclick = ()=> location.replace('profile.html');
 
-      // 4) Sidebar avatar
-      function updateSidebarAvatar(){
-        const prof = Storage.get('ft_profile', {});
-        if(prof.avatar){
-          const img = document.createElement('img');
-          img.src = prof.avatar; img.className='avatar'; 
-          sideAvatar.replaceWith(img);
-        } else {
-          sideAvatar.style.fontSize='32px';
+      // → Profile nav
+      profileBtns.forEach(b=> b.onclick = ()=> location.replace('profile.html'));
+
+      // → Load / save helpers
+      const loadActs = ()=>Storage.get('ft_activities', []);
+      const saveActs = a=>Storage.set('ft_activities', a);
+
+      // → Avatar updater
+      function updateAvatars(){
+        const p = Storage.get('ft_profile', {});
+        if(p.avatar){
+          [sideAvatarEl, topAvatarEl].forEach(el=>{
+            const img = document.createElement('img');
+            img.src= p.avatar; img.className='avatar';
+            el.replaceWith(img);
+          });
         }
       }
-      updateSidebarAvatar();
-      Storage.onChange('ft_profile', updateSidebarAvatar);
+      Storage.onChange('ft_profile', updateAvatars);
+      updateAvatars();
 
-      // 5) Stopwatch
+      // → Stopwatch
       let seconds=0, intervalID=null;
-      function pad(n){ return String(n).padStart(2,'0'); }
+      const pad = n=>String(n).padStart(2,'0');
       function refreshTimer(){
         const m=Math.floor(seconds/60), s=seconds%60;
-        timerDisp.textContent = `${pad(m)}:${pad(s)}`;
+        timerDisp.textContent=`${pad(m)}:${pad(s)}`;
       }
       startBtn.onclick = ()=>{
-        if(!intervalID) intervalID = setInterval(()=>{ seconds++; refreshTimer(); },1000);
+        if(!intervalID) intervalID=setInterval(()=>{ seconds++; refreshTimer(); },1000);
       };
       stopBtn.onclick = ()=>{
         clearInterval(intervalID); intervalID=null;
-        document.getElementById('duration').value = Math.round(seconds/60);
+        form.duration.value = Math.round(seconds/60);
       };
       resetBtn.onclick = ()=>{
         clearInterval(intervalID); intervalID=null; seconds=0; refreshTimer();
-        document.getElementById('duration').value='';
+        form.duration.value='';
       };
       refreshTimer();
 
-      // 6) Presets
+      // → Presets
       presets.forEach(btn=>{
         btn.onclick = ()=>{
-          document.getElementById('type').value = btn.dataset.type;
-          document.getElementById('duration').value = btn.dataset.duration;
-          document.getElementById('date').valueAsDate = new Date();
+          form.type.value     = btn.dataset.type;
+          form.duration.value = btn.dataset.duration;
+          form.date.valueAsDate = new Date();
         };
       });
 
-      // 7) Voice notes
+      // → Voice notes
       if('webkitSpeechRecognition' in window){
         const recog = new webkitSpeechRecognition();
         recog.onresult = e=>{
-          const txt = e.results[0][0].transcript;
-          const notes = document.getElementById('notes');
-          notes.value += (notes.value?' ':'') + txt;
+          form.notes.value += ' ' + e.results[0][0].transcript;
         };
-        document.getElementById('voiceBtn').onclick = ()=>recog.start();
+        voiceBtn.onclick = ()=>recog.start();
       }
 
-      // 8) Storage helpers
-      const loadActs = ()=>Storage.get('ft_activities', []);
-      const saveActs = arr=>Storage.set('ft_activities', arr);
-
-      // 9) Render
-      function updateOverview(){
+      // → Pie chart setup
+      const distributionChart = new Chart(distCtx,{
+        type:'pie',
+        data:{
+          labels:['Running','Cycling','Swimming','Strength','Yoga','Other'],
+          datasets:[{
+            data:[], 
+            backgroundColor:[
+              'rgba(255,152,0,0.8)',
+              'rgba(244,67,54,0.8)',
+              'rgba(76,175,80,0.8)',
+              'rgba(3,169,244,0.8)',
+              'rgba(156,39,176,0.8)',
+              'rgba(255,235,59,0.8)'
+            ]
+          }]
+        },
+        options:{responsive:true,maintainAspectRatio:false}
+      });
+      function updateDistribution(){
         const a = loadActs();
+        const cnt = { Running:0, Cycling:0, Swimming:0, Strength:0, Yoga:0, Other:0 };
+        a.forEach(x=> cnt[x.type] = (cnt[x.type]||0)+1 );
+        distributionChart.data.datasets[0].data = [
+          cnt.Running, cnt.Cycling, cnt.Swimming,
+          cnt.Strength, cnt.Yoga, cnt.Other
+        ];
+        distributionChart.update();
+      }
+
+      // → Overview & lists
+      function updateOverview(){
+        const a=loadActs();
         statWk.textContent   = a.length;
         statDist.textContent = a.reduce((s,x)=>s+(parseFloat(x.distance)||0),0).toFixed(1);
         statCal.textContent  = a.reduce((s,x)=>s+(parseFloat(x.calories)||0),0);
@@ -518,15 +596,15 @@
           const th = +el.dataset.threshold;
           el.classList.toggle('unlocked', a.length>=th);
         });
+        updateDistribution();
       }
-
       function renderActivities(){
-        const a = loadActs();
-        activityList.innerHTML = '';
+        const a=loadActs();
+        activityList.innerHTML='';
         a.forEach((ent,i)=>{
-          const li = document.createElement('li');
-          li.className = 'activity-item';
-          li.innerHTML = `
+          const li=document.createElement('li');
+          li.className='activity-item';
+          li.innerHTML=`
             <div>
               <strong>${ent.type}</strong> on ${ent.date} — ${ent.duration} min
               ${ent.distance?`, ${ent.distance} km`:''}
@@ -535,31 +613,29 @@
               <time datetime="${ent.date}">${ent.date}</time>
             </div>
             <button class="delete-btn"><i class="fas fa-trash"></i></button>`;
-          li.querySelector('.delete-btn').onclick = ()=>{
+          li.querySelector('.delete-btn').onclick=()=>{
             a.splice(i,1); saveActs(a);
           };
           activityList.appendChild(li);
         });
       }
-
       function renderRecent(){
-        const a = loadActs();
+        const a=loadActs();
         if(a.length){
-          const L = a[0];
-          recentSum.innerHTML = `
+          const L=a[0];
+          recentSum.innerHTML=`
             <p><strong>${L.type}</strong> on ${L.date} — ${L.duration} min
             ${L.distance?`, ${L.distance} km`:''}
             ${L.calories?`, ${L.calories} cal`:''}</p>
             ${L.notes?`<p>“${L.notes}”</p>`:''}`;
         } else {
-          recentSum.textContent = 'No activity yet.';
+          recentSum.textContent='No activity yet.';
         }
       }
-
-      recentEdit.onclick = ()=>{
-        const a = loadActs();
+      recentEdit.onclick=()=>{
+        const a=loadActs();
         if(!a.length) return;
-        const L = a.shift(); saveActs(a);
+        const L=a.shift(); saveActs(a);
         form.date.value     = L.date;
         form.type.value     = L.type;
         form.duration.value = L.duration;
@@ -568,25 +644,8 @@
         form.notes.value    = L.notes;
       };
 
-      // 10) Submit
-      form.onsubmit = e=>{
-        e.preventDefault();
-        const f = e.target;
-        const ent = {
-          user:     cur.name, 
-          date:     f.date.value,
-          type:     f.type.value,
-          duration: f.duration.value,
-          distance: f.distance.value,
-          calories: f.calories.value,
-          notes:    f.notes.value.trim()
-        };
-        const a = loadActs(); a.unshift(ent); saveActs(a);
-        f.reset(); seconds=0; refreshTimer();
-      };
-
-      // 11) Motivation
-      const quotes = [
+      // → Motivation
+      const quotes=[
         "“Don’t limit your challenges. Challenge your limits.”",
         "“Sweat is just fat crying.”",
         "“The body achieves what the mind believes.”",
@@ -594,21 +653,74 @@
       ];
       motivation.textContent = quotes[Math.floor(Math.random()*quotes.length)];
 
-      // 12) Pseudo‐data for new users
+      // → New‑user tour
+      function runTour(steps){
+        let idx=0;
+        tourOv.style.display = tourTp.style.display = 'block';
+        function show(){
+          const {sel,msg} = steps[idx];
+          const el=document.querySelector(sel);
+          if(!el) return endTour();
+          el.scrollIntoView({behavior:'smooth',block:'center'});
+          const r=el.getBoundingClientRect();
+          tourTp.innerHTML = `
+            <div style="margin-bottom:.5rem;">${msg}</div>
+            <div style="display:flex;justify-content:space-between;">
+              <button id="tour-next">${idx===steps.length-1?'Done':'Next'}</button>
+              <button id="tour-skip">Skip</button>
+            </div>`;
+          tourTp.style.top = (window.scrollY + r.bottom + 8) + 'px';
+          tourTp.style.left= (window.scrollX + r.left) + 'px';
+          document.getElementById('tour-next').onclick = ()=>{
+            idx++; if(idx<steps.length) show(); else endTour();
+          };
+          document.getElementById('tour-skip').onclick = endTour;
+        }
+        function endTour(){
+          tourOv.style.display = tourTp.style.display = 'none';
+        }
+        show();
+      }
+
+      // → Handle new users
       if(cur.isNew){
-        const a = loadActs();
+        const a=loadActs();
         if(!a.length){
-          a.push({
-            user: cur.name, date: new Date().toISOString().slice(0,10),
-            type: 'Cardio', duration:25, distance:3, calories:200, notes:'Welcome workout!'
-          });
+          a.push({ user:cur.name,
+                   date:new Date().toISOString().slice(0,10),
+                   type:'Cardio', duration:25, distance:3,
+                   calories:200, notes:'Welcome workout!' });
           saveActs(a);
         }
-        cur.isNew = false;
+        runTour([
+          { sel:'.stats-section',     msg:'Here are your quick stats.' },
+          { sel:'.distribution-section', msg:'Check how your workouts break down.' },
+          { sel:'.presets',           msg:'Use presets for one‑tap logs.' },
+          { sel:'#logForm',           msg:'Fill out all fields and hit Save.' },
+          { sel:'.activity-list',     msg:'Your entries show up here.' }
+        ]);
+        cur.isNew=false;
         Storage.set('ft_current', cur);
       }
 
-      // Master update + sync
+      // → Form submit
+      form.onsubmit = e=>{
+        e.preventDefault();
+        const f=e.target;
+        const ent = {
+          user: cur.name,
+          date: f.date.value,
+          type: f.type.value,
+          duration: f.duration.value,
+          distance: f.distance.value,
+          calories: f.calories.value,
+          notes: f.notes.value.trim()
+        };
+        const a=loadActs(); a.unshift(ent); saveActs(a);
+        f.reset(); seconds=0; refreshTimer();
+      };
+
+      // → Master update
       function updateAll(){
         updateOverview();
         renderActivities();
