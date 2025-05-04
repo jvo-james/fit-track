@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Profile</title>
 
-  <!-- Google Fonts & FontAwesome -->
+  <!-- Google Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
@@ -22,28 +21,19 @@
     --font-head: 'Poppins', sans-serif;
     --transition: .3s ease;
     --sidebar-w: 80px;
-    --mobile-sidebar-w: 200px;
-    --overlay-z: 90;
-    --sidebar-z: 100;
-    --header-z: 200;
   }
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   body {
     display:flex; min-height:100vh;
     background:var(--bg); color:var(--fg);
     font-family:var(--font-base);
-    
   }
   a { color:inherit; text-decoration:none; }
-
-  /* Only .container scrolls */
   .container { flex:1; overflow-y:auto; overflow-x:hidden; }
-
-  /* Overlay */
   #overlay {
     position:fixed; inset:0; background:rgba(0,0,0,0.5);
     opacity:0; visibility:hidden; transition:opacity var(--transition);
-    z-index:var(--overlay-z);
+    z-index:90;
   }
   #overlay.active { opacity:1; visibility:visible; }
 
@@ -53,40 +43,36 @@
     border-right:2px solid var(--gold);
     display:flex; flex-direction:column; align-items:center;
     padding-top:1rem; position:sticky; top:0; height:100vh;
-    z-index:var(--sidebar-z);
-  }
-  .sidebar-close {
-    display:none; position:absolute; top:0.5rem; right:0.5rem;
-    font-size:1.5rem; background:none; color:var(--fg);
+    z-index:100;
   }
   .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
   .sidebar a.menu-item,
   .sidebar button.profile-menu {
     width:100%; padding:.8rem 0;
-    display:flex; flex-direction:column; align-items:center; gap:.3rem;
+    display:flex; flex-direction:column; align-items:center;
     color:var(--fg); background:none; border:none;
-    transition:background var(--transition);
+    transition:background var(--transition); gap:0.3rem;
   }
   .sidebar a.menu-item:hover,
   .sidebar a.menu-item.active,
   .sidebar button.profile-menu:hover {
     background:var(--accent);
   }
-  .sidebar a.menu-item i,
-  .sidebar button.profile-menu i {
-    font-size:1.2rem; color:var(--gold);
+  .avatar-small {
+    width:28px; height:28px; border-radius:50%; object-fit:cover;
   }
-  .sidebar a.menu-item span,
-  .sidebar button.profile-menu span { font-size:.75rem; }
-  .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
 
-  /* Main + Header */
-  .main { flex:1; display:flex; flex-direction:column; height: 100%; }
+  .sidebar .sign-out {
+    margin-top:auto; margin-bottom:1rem;
+  }
+
+  /* Main & Header */
+  .main { flex:1; display:flex; flex-direction:column; }
   header {
     position:sticky; top:0; background:rgba(0,0,0,0.9);
     border-bottom:2px solid var(--gold);
     padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between;
-    z-index:var(--header-z);
+    z-index:200;
   }
   header h1 { color:var(--gold); font-family:var(--font-head); font-size:1.6rem; }
   .header-controls { display:flex; align-items:center; gap:1rem; }
@@ -99,7 +85,7 @@
   }
   .avatar-btn img { width:100%; height:100%; object-fit:cover; }
 
-  /* Profile form */
+  /* Profile Form */
   .content { padding:2rem; }
   #profileForm {
     max-width:900px; margin:0 auto; background:var(--accent);
@@ -119,7 +105,6 @@
     background:var(--gold); color:var(--bg); border:none;
     padding:.4rem .8rem; border-radius:6px; cursor:pointer;
   }
-
   .fields { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
   .field { display:flex; flex-direction:column; }
   .field label {
@@ -130,7 +115,6 @@
     background:var(--input-bg); color:var(--fg); font-size:1rem;
   }
   .field textarea { resize:vertical; min-height:80px; grid-column:span 2; }
-
   .actions {
     grid-column:span 2; display:flex; justify-content:flex-end;
   }
@@ -140,12 +124,7 @@
     font-weight:600;
   }
 
-  /* Responsive */
   @media(max-width:900px) {
-    .sidebar { position:fixed; transform:translateX(-100%); }
-    .sidebar.open { transform:translateX(0); }
-    .sidebar-close { display:block; }
-
     #profileForm { grid-template-columns:1fr; }
     .fields { grid-template-columns:1fr; }
     .field textarea { grid-column:span 1; }
@@ -155,19 +134,16 @@
 <body>
   <div id="overlay"></div>
 
-  <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <button class="sidebar-close" id="sidebar-close">&times;</button>
     <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
     <a href="log.html"         class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="menu-item profile-menu"><i id="sideAvatar" class="fas fa-user-circle"></i><span>Profile</span></button>
+    <button class="menu-item profile-menu" id="profileSidebarBtn"><i class="fas fa-user-circle"></i><span>Profile</span></button>
     <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
-  <!-- Main -->
   <div class="main">
     <header>
       <h1>My Profile</h1>
@@ -182,7 +158,6 @@
     <div class="container">
       <div class="content">
         <form id="profileForm">
-          <!-- Avatar -->
           <div class="avatar-section">
             <div id="avatarPreview"><i class="fas fa-user"></i></div>
             <div class="avatar-buttons">
@@ -192,68 +167,29 @@
             <input type="file" id="avatarInput" accept="image/*" style="display:none;">
           </div>
 
-          <!-- Fields -->
           <div class="fields">
-            <div class="field">
-              <label for="fullName">Full Name *</label>
-              <input id="fullName" type="text" required>
-            </div>
-            <div class="field">
-              <label for="email">Email</label>
-              <input id="email" type="email" disabled>
-            </div>
-            <div class="field">
-              <label for="bio">Bio</label>
-              <textarea id="bio"></textarea>
-            </div>
-            <div class="field">
-              <label for="location">Location</label>
-              <input id="location" type="text">
-            </div>
-            <div class="field">
-              <label for="age">Age</label>
-              <input id="age" type="number" min="0">
-            </div>
-            <div class="field">
-              <label for="gender">Gender</label>
+            <div class="field"><label for="fullName">Full Name *</label><input id="fullName" type="text" required></div>
+            <div class="field"><label for="email">Email</label><input id="email" type="email" disabled></div>
+            <div class="field"><label for="bio">Bio</label><textarea id="bio"></textarea></div>
+            <div class="field"><label for="location">Location</label><input id="location" type="text"></div>
+            <div class="field"><label for="age">Age</label><input id="age" type="number" min="0"></div>
+            <div class="field"><label for="gender">Gender</label>
               <select id="gender">
-                <option value="">Prefer not to say</option>
-                <option>Female</option>
-                <option>Male</option>
-                <option>Other</option>
+                <option value="">Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option>
               </select>
             </div>
-            <div class="field">
-              <label for="height">Height (cm)</label>
-              <input id="height" type="number" min="0">
-            </div>
-            <div class="field">
-              <label for="weight">Weight (kg)</label>
-              <input id="weight" type="number" min="0">
-            </div>
-            <div class="field">
-              <label for="favorite">Favorite Workout</label>
+            <div class="field"><label for="height">Height (cm)</label><input id="height" type="number" min="0"></div>
+            <div class="field"><label for="weight">Weight (kg)</label><input id="weight" type="number" min="0"></div>
+            <div class="field"><label for="favorite">Favorite Workout</label>
               <select id="favorite">
-                <option>Running</option>
-                <option>Cycling</option>
-                <option>Swimming</option>
-                <option>HIIT</option>
-                <option>Yoga</option>
+                <option>Running</option><option>Cycling</option><option>Swimming</option><option>HIIT</option><option>Yoga</option>
               </select>
             </div>
-            <div class="field">
-              <label for="goals">Fitness Goals</label>
-              <textarea id="goals"></textarea>
+            <div class="field"><label for="goals">Fitness Goals</label><textarea id="goals"></textarea></div>
+            <div class="field"><label for="theme">Theme</label>
+              <select id="theme"><option value="dark">Dark Mode</option><option value="light">Light Mode</option></select>
             </div>
-            <div class="field">
-              <label for="theme">Theme</label>
-              <select id="theme">
-                <option value="dark">Dark Mode</option>
-                <option value="light">Light Mode</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Notifications</label>
+            <div class="field"><label>Notifications</label>
               <label><input type="checkbox" id="notifEmail"> Email</label><br>
               <label><input type="checkbox" id="notifPush"> Push</label>
             </div>
@@ -267,49 +203,37 @@
     </div>
   </div>
 
-
-    <!-- at the very bottom of profile.html, just before </body> -->
-  <!-- 1️⃣ Load your storage helper -->
+  <!-- Load Storage Helper -->
   <script type="module" src="storage.js"></script>
-
-  <!-- 2️⃣ Then wire up your form & UI -->
   <script type="module">
-    import { Storage } from '.storage.js';
+    import { Storage } from './storage.js';
 
-    // Utility to update sidebar & header avatars
     function updateAvatars(url) {
-      document.querySelectorAll('#sideAvatar, .sidebar .profile-menu i, .sidebar .profile-menu img')
-        .forEach(el => {
-          if (!url) return;
-          if (el.tagName === 'IMG') el.src = url;
-          else el.outerHTML = `<img id="sideAvatar" src="${url}" class="avatar-small" />`;
-        });
-      document.querySelectorAll('#hdrAvatarIcon, .avatar-btn i, .avatar-btn img')
-        .forEach(el => {
-          if (!url) return;
-          if (el.tagName === 'IMG') el.src = url;
-          else el.outerHTML = `<img id="hdrAvatarIcon" src="${url}" class="avatar-small" />`;
-        });
+      const imgHTML = `<img src="${url}" class="avatar-small" />`;
+      document.querySelectorAll('#sideAvatar, #profileSidebarBtn i').forEach(el => {
+        if (url) el.outerHTML = imgHTML;
+      });
+      document.querySelectorAll('#hdrAvatarIcon, .avatar-btn i').forEach(el => {
+        if (url) el.outerHTML = imgHTML;
+      });
     }
 
-    // Populate form fields from storage
     function populateForm(p) {
-      document.getElementById('fullName').value    = p.name  || '';
-      document.getElementById('email').value       = p.email || '';
-      document.getElementById('bio').value         = p.bio    || '';
-      document.getElementById('location').value    = p.location || '';
-      document.getElementById('age').value         = p.age    || '';
-      document.getElementById('gender').value      = p.gender || '';
-      document.getElementById('height').value      = p.height || '';
-      document.getElementById('weight').value      = p.weight || '';
-      document.getElementById('favorite').value    = p.favorite || 'Running';
-      document.getElementById('goals').value       = p.goals  || '';
-      document.getElementById('theme').value       = p.theme  || 'dark';
+      document.getElementById('fullName').value = p.name || '';
+      document.getElementById('email').value = p.email || '';
+      document.getElementById('bio').value = p.bio || '';
+      document.getElementById('location').value = p.location || '';
+      document.getElementById('age').value = p.age || '';
+      document.getElementById('gender').value = p.gender || '';
+      document.getElementById('height').value = p.height || '';
+      document.getElementById('weight').value = p.weight || '';
+      document.getElementById('favorite').value = p.favorite || 'Running';
+      document.getElementById('goals').value = p.goals || '';
+      document.getElementById('theme').value = p.theme || 'dark';
       document.getElementById('notifEmail').checked = !!p.notifEmail;
-      document.getElementById('notifPush').checked  = !!p.notifPush;
+      document.getElementById('notifPush').checked = !!p.notifPush;
     }
 
-    // Populate avatar preview
     function populateAvatar(p) {
       const prev = document.getElementById('avatarPreview');
       if (p.avatarDataUrl) {
@@ -321,29 +245,28 @@
       }
     }
 
-    // Save form + avatar into storage
     function bindSave() {
       document.getElementById('saveBtn').addEventListener('click', () => {
         const p = Storage.get('ft_current', {});
-        p.name  = document.getElementById('fullName').value.trim();
-        if (!p.name) return alert('Name is required');
-        p.bio      = document.getElementById('bio').value;
+        p.name = document.getElementById('fullName').value.trim();
+        if (!p.name) return alert('Full Name is required');
+        p.bio = document.getElementById('bio').value;
         p.location = document.getElementById('location').value;
-        p.age      = document.getElementById('age').value;
-        p.gender   = document.getElementById('gender').value;
-        p.height   = document.getElementById('height').value;
-        p.weight   = document.getElementById('weight').value;
+        p.age = document.getElementById('age').value;
+        p.gender = document.getElementById('gender').value;
+        p.height = document.getElementById('height').value;
+        p.weight = document.getElementById('weight').value;
         p.favorite = document.getElementById('favorite').value;
-        p.goals    = document.getElementById('goals').value;
-        p.theme    = document.getElementById('theme').value;
+        p.goals = document.getElementById('goals').value;
+        p.theme = document.getElementById('theme').value;
         p.notifEmail = document.getElementById('notifEmail').checked;
-        p.notifPush  = document.getElementById('notifPush').checked;
+        p.notifPush = document.getElementById('notifPush').checked;
+        p.profileComplete = true;
         Storage.set('ft_current', p);
         alert('Profile saved!');
       });
     }
 
-    // Bind avatar‐input change
     function bindAvatarInput() {
       const inp = document.getElementById('avatarInput');
       document.getElementById('changeAvatarBtn').addEventListener('click', () => inp.click());
@@ -365,7 +288,6 @@
       });
     }
 
-    // React to storage changes (same‑tab + other‑tabs)
     Storage.onChange('ft_current', () => {
       const p = Storage.get('ft_current', {});
       populateForm(p);
@@ -373,7 +295,6 @@
       updateAvatars(p.avatarDataUrl);
     });
 
-    // Initial load
     document.addEventListener('DOMContentLoaded', () => {
       const p = Storage.get('ft_current', {});
       populateForm(p);
@@ -383,7 +304,5 @@
       bindAvatarInput();
     });
   </script>
-
-
 </body>
 </html>
