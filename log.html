@@ -82,42 +82,34 @@
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
       padding-top:1rem; position:sticky; top:0; height:100vh;
-      transform:translateX(0);
       transition:transform var(--transition);
       z-index:var(--sidebar-z);
     }
     @media(max-width: var(--mobile-break)) {
-      aside#sidebar {
-        position:fixed; transform:translateX(-100%);
-        width:var(--mobile-w);
-      }
+      aside#sidebar { position:fixed; transform:translateX(-100%); width:var(--mobile-w); }
       aside#sidebar.open { transform:translateX(0); }
     }
     .sidebar-close {
       display:none; position:absolute; top:1rem; right:1rem;
       background:none; border:none; font-size:1.5rem; color:var(--white);
     }
-    @media(max-width: var(--mobile-break)) {
-      .sidebar-close { display:block; }
-    }
+    @media(max-width: var(--mobile-break)) { .sidebar-close { display:block; } }
     .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
     a.menu-item, button.profile-menu {
       width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center;
-      gap:.3rem; color:var(--white); background:transparent; border:none;
+      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      color:var(--white); background:transparent; border:none;
       transition:background var(--transition),transform .2s;
     }
-    a.menu-item:hover, a.menu-item.active,
-    button.profile-menu:hover {
-      background:rgba(255,152,0,0.2);
-      transform:translateX(4px);
+    a.menu-item:hover, a.menu-item.active, button.profile-menu:hover {
+      background:rgba(255,152,0,0.2); transform:translateX(4px);
     }
     a.menu-item i, button.profile-menu i.avatar { font-size:1.2rem; }
     a.menu-item span, button.profile-menu span { font-size:.75rem; }
     .sign-out { margin-top:auto; margin-bottom:1rem; }
 
-    /* Force avatar images at 32×32px */
-    .sidebar img.avatar {
+    /* Force both sidebar & topbar avatars to 32×32 */
+    img.avatar {
       width:32px!important;
       height:32px!important;
       border-radius:50%;
@@ -147,22 +139,12 @@
     header h1 {
       flex:1; text-align:center; font-size:1.5rem; color:var(--white);
     }
-    .header-right .icon-btn {
-      margin-left:1rem; font-size:1.2rem;
-    }
-    /* Topbar avatar sizing */
-    .profile-btn img.avatar {
-      width:32px!important;
-      height:32px!important;
-      border-radius:50%;
-      object-fit:cover;
-      border:2px solid var(--white);
-    }
+    .header-right .icon-btn { margin-left:1rem; font-size:1.2rem; }
 
-    /* Main */
+    /* Main Layout */
     .main { flex:1; display:flex; flex-direction:column; }
 
-    /* Stats */
+    /* Quick Stats */
     .stats-section {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
       gap:1rem; padding:1.5rem;
@@ -222,9 +204,7 @@
       display:flex; align-items:center; gap:.5rem;
       color:var(--gold); font-size:1.2rem; margin-bottom:.75rem;
     }
-    .tip {
-      display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem;
-    }
+    .tip { display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem; }
     .tip i { font-size:1.3rem; color:var(--gold); }
 
     /* Achievements */
@@ -421,11 +401,11 @@
     import { Storage } from './storage.js';
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Redirect if not signed in
+      // Redirect if not logged in
       const cur = Storage.get('ft_current', null);
       if (!cur || !cur.name) return location.replace('home.html');
 
-      // DOM refs
+      // Elements
       const overlay      = document.getElementById('overlay'),
             sidebar      = document.getElementById('sidebar'),
             openBtn      = document.getElementById('hamburger'),
@@ -463,22 +443,24 @@
       const loadActs = ()=> Storage.get('ft_activities', []);
       const saveActs = arr=> Storage.set('ft_activities', arr);
 
-      // Swap in profile avatars with correct id & class
+      // Avatar swapping (exactly like dashboard.html)
       function updateAvatars(){
         const p = Storage.get('ft_profile', {});
-        [ sideAvatarEl, topAvatarEl ].forEach(el=>{
-          if(!el) return;
+        const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${cur.email}`;
+        ['side-avatar','top-avatar'].forEach(id=>{
+          const oldEl = document.getElementById(id);
+          if(!oldEl) return;
           const img = document.createElement('img');
-          img.src = p.avatar || `https://i.pravatar.cc/150?u=${cur.email}`;
-          img.id = el.id;
+          img.id = id;
           img.className = 'avatar';
-          el.replaceWith(img);
+          img.src = src;
+          oldEl.replaceWith(img);
         });
       }
       Storage.onChange('ft_profile', updateAvatars);
       updateAvatars();
 
-      // Stopwatch logic
+      // Stopwatch
       let seconds=0, intervalID=null;
       const pad = n=> String(n).padStart(2,'0');
       function refreshTimer(){
@@ -499,7 +481,7 @@
       };
       refreshTimer();
 
-      // Preset buttons
+      // Presets
       presets.forEach(btn=>{
         btn.onclick = ()=>{
           form.type.value     = btn.dataset.type;
@@ -508,7 +490,7 @@
         };
       });
 
-      // Voice recognition for notes
+      // Voice recognition
       if('webkitSpeechRecognition' in window){
         const recog = new webkitSpeechRecognition();
         recog.onresult = e=>{
@@ -517,7 +499,7 @@
         voiceBtn.onclick = ()=> recog.start();
       }
 
-      // Overview & render functions
+      // Render helpers
       function updateOverview(){
         const a = loadActs();
         statWk.textContent   = a.length;
@@ -574,15 +556,14 @@
         form.notes.value    = L.notes;
       };
 
-      // Motivation quote
+      // Motivation
       const quotes = [
         "“Don’t limit your challenges. Challenge your limits.”",
         "“Sweat is just fat crying.”",
         "“The body achieves what the mind believes.”",
         "“Push yourself because no one else will.”"
       ];
-      document.getElementById('motivation').textContent =
-        quotes[Math.floor(Math.random()*quotes.length)];
+      motivation.textContent = quotes[Math.floor(Math.random()*quotes.length)];
 
       // Guided tour for new users
       function runTour(steps){
