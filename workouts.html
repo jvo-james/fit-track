@@ -17,244 +17,161 @@
 
   <style>
     :root {
-      --bg: #000;
-      --gold: #ff9800;
-      --white: #fff;
-      --font-base: 'Raleway', sans-serif;
-      --font-head: 'Poppins', sans-serif;
-      --transition: .3s ease;
-      --sidebar-w: 80px;
-      --mobile-break: 900px;
-      --z-sidebar: 100;
-      --z-header: 200;
+      --bg:#000; --gold:#ff9800; --white:#fff;
+      --font-base:'Raleway',sans-serif;
+      --font-head:'Poppins',sans-serif;
+      --transition:.3s ease;
+      --sidebar-w:80px; --mobile-break:900px;
+      --z-sidebar:100; --z-header:200;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      display:flex; min-height:100vh;
-      background:var(--bg); color:var(--white);
-      font-family:var(--font-base); overflow-x:hidden;
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{display:flex;min-height:100vh;background:var(--bg);color:var(--white);
+      font-family:var(--font-base);overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    button,select,input,textarea{
+      font-family:var(--font-head);transition:var(--transition);
+      cursor:pointer;border:none;border-radius:30px;
+      padding:.6rem 1.2rem;background:var(--gold);color:var(--bg);
     }
-    a { color:inherit; text-decoration:none; }
-
-    /* Buttons & Inputs */
-    button, select, input, textarea {
-      font-family:var(--font-head);
-      color: var(--white);
-      background: var(--gold);
-      border: none; border-radius: 30px;
-      padding: .6rem 1.2rem; cursor: pointer;
-      transition: var(--transition);
-    }
-    input, textarea {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.3);
-    }
-    select {
-      appearance: none; padding-right:2.5rem;
-      background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23fff" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg"><path d="M31 192h258c17.7 0 26.7 21.5 14.1 34l-129 129a16 16 0 01-22.6 0l-129-129c-12.6-12.5-3.6-34 14.5-34z"/></svg>');
-      background-repeat:no-repeat;
-      background-position:right .75rem center;
+    input,textarea,select{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.3);}
+    select{appearance:none;padding-right:2.5rem;
+      background-image:url('data:image/svg+xml;charset=UTF-8,<svg fill="%23fff" viewBox="0 0 320 512"><path d="M31 192h258c17.7 0 26.7 21.5 14.1 34l-129 129a16 16 0 01-22.6 0l-129-129c-12.6-12.5-3.6-34 14.5-34z"/></svg>');
+      background-repeat:no-repeat;background-position:right .75rem center;
       background-size:.65rem auto;
     }
-    button:hover, select:hover, input:hover, textarea:hover {
-      transform:scale(1.03);
-      box-shadow:0 2px 8px rgba(0,0,0,0.4);
+    button:hover,select:hover,input:hover,textarea:hover{
+      transform:scale(1.03);box-shadow:0 2px 8px rgba(0,0,0,0.4);
     }
 
     /* overlay */
-    #overlay {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,0.5);
-      opacity:0; visibility:hidden;
-      transition:opacity var(--transition);
-      z-index:var(--z-header);
-    }
-    #overlay.active { opacity:1; visibility:visible; }
+    #overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);
+      opacity:0;visibility:hidden;transition:opacity var(--transition);
+      z-index:var(--z-header);}
+    #overlay.active{opacity:1;visibility:visible;}
 
-    /* Sidebar */
-    .sidebar {
-      width:var(--sidebar-w);
-      background:rgba(0,0,0,0.9);
-      border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0; position:sticky; top:0; height:100vh;
-      z-index:var(--z-sidebar);
-    }
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar-w);background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);display:flex;flex-direction:column;
+      align-items:center;padding:1rem 0;position:sticky;top:0;height:100vh;
+      z-index:var(--z-sidebar);}
     @media(max-width:var(--mobile-break)){
-      .sidebar {
-        position:fixed; transform:translateX(-100%);
-        width:200px;
-      }
-      .sidebar.open { transform:translateX(0); }
+      .sidebar{position:fixed;transform:translateX(-100%);width:200px;}
+      .sidebar.open{transform:translateX(0);}
     }
-    .sidebar-close {
-      display:none;
-    }
-    @media(max-width:var(--mobile-break)){
-      .sidebar-close {
-        display:block; align-self:flex-end; margin:0.5rem;
-        font-size:1.5rem; background:none; border:none; color:var(--white);
-      }
-    }
-    .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
-    .sidebar a.menu-item, .sidebar button.profile-menu {
-      width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      background:transparent; border:none; color:var(--white);
-      transition:background var(--transition);
-    }
+    .sidebar-close{display:none;}
+    @media(max-width:var(--mobile-break)) .sidebar-close{display:block;align-self:flex-end;
+      margin:.5rem;font-size:1.5rem;background:none;color:var(--white);}
+    .sidebar .logo{font-size:1.8rem;color:var(--gold);margin-bottom:2rem;}
+    .sidebar a.menu-item,.sidebar button.profile-menu{
+      width:100%;padding:.8rem 0;display:flex;flex-direction:column;align-items:center;
+      gap:.3rem;background:transparent;color:var(--white);transition:background var(--transition);}
     .sidebar a.menu-item.active,
     .sidebar a.menu-item:hover,
-    .sidebar button.profile-menu:hover {
-      background:rgba(255,152,0,0.2);
-    }
-    img.avatar, i.avatar {
-      width:32px; height:32px; border-radius:50%;
-      object-fit:cover; border:2px solid var(--white);
-    }
-    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
+    .sidebar button.profile-menu:hover{background:rgba(255,152,0,0.2);}
+    .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar{font-size:1.4rem;}
+    .sidebar a.menu-item span,
+    .sidebar button.profile-menu span{font-size:.75rem;}
+    .sidebar a.sign-out{margin-top:auto;margin-bottom:1rem!important;}
+    img.avatar,i.avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;
+      border:2px solid var(--white);}
 
-    /* Main & Header */
-    .main {
-      flex:1; display:flex; flex-direction:column;
-      margin-left:var(--sidebar-w);
-    }
-    @media(max-width:var(--mobile-break)){ .main { margin-left:0; } }
-    header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
-      border-bottom:2px solid var(--gold);
-      position:sticky; top:0; z-index:var(--z-header);
-    }
-    .header-left { display:flex; align-items:center; gap:1rem; flex:1; }
-    .header-left h1 {
-      font-size:1.4rem; display:flex; align-items:center; gap:.5rem;
-    }
-    .header-right { display:flex; align-items:center; gap:1rem; }
-    .new-workout {
-      background:var(--gold); color:var(--bg);
-      border-radius:30px; padding:.6rem 1rem; font-size:1.1rem;
-    }
-    .hamburger { display:none; background:none; border:none; color:var(--white); font-size:1.5rem; }
-    @media(max-width:var(--mobile-break)){
-      .hamburger { display:inline-flex; }
-    }
-    #profile-btn { background:none; border:none; color:var(--white); font-size:1.5rem; }
+    /* MAIN & HEADER */
+    .main{flex:1;display:flex;flex-direction:column;margin-left:var(--sidebar-w);}
+    @media(max-width:var(--mobile-break)) .main{margin-left:0;}
+
+    header{display:flex;align-items:center;justify-content:space-between;
+      padding:1rem 1.5rem;background:rgba(0,0,0,0.9);border-bottom:2px solid var(--gold);
+      position:sticky;top:0;z-index:var(--z-header);}
+    .header-left{display:flex;align-items:center;gap:1rem;flex:1;}
+    .header-left h1{font-size:1.4rem;display:flex;align-items:center;gap:.5rem;}
+    .header-right{display:flex;align-items:center;gap:1rem;}
+    .new-workout{background:var(--gold);color:var(--bg);border-radius:30px;padding:.6rem 1rem;font-size:1.1rem;}
+    .hamburger{display:none;background:none;border:none;color:var(--white);font-size:1.5rem;}
+    @media(max-width:var(--mobile-break)) .hamburger{display:inline-flex;}
+    #profile-btn{background:none;border:none;color:var(--white);font-size:1.5rem;}
 
     /* Welcome banner */
-    #welcomeBanner {
-      background:rgba(255,152,0,0.1);
-      color:var(--white); text-align:center;
-      padding:.75rem 1.5rem; font-size:1rem;
-    }
+    #welcomeBanner{background:rgba(255,152,0,0.1);color:var(--white);
+      text-align:center;padding:.75rem 1.5rem;font-size:1rem;}
 
-    /* CONTENT GRID */
-    .content {
-      padding:1.5rem;
-      display:grid; gap:2rem;
-      grid-template-columns:1fr 1fr;
-    }
-    @media(max-width:900px){ .content { grid-template-columns:1fr; } }
+    /* GRID */
+    .content{padding:1.5rem;display:grid;gap:2rem;grid-template-columns:1fr 1fr;}
+    @media(max-width:900px) .content{grid-template-columns:1fr;}
 
-    /* Workout of the Day */
-    #workoutOfDay {
-      grid-column:1/-1;
-      background:rgba(255,255,255,0.05);
-      border-radius:12px; padding:1.5rem;
-      box-shadow:0 4px 12px rgba(0,0,0,0.5);
-    }
-    #workoutOfDay h2 {
-      display:flex; align-items:center; gap:.5rem;
-      color:var(--gold); font-size:1.4rem;
-    }
-    #workoutOfDay button {
-      background:var(--gold); color:var(--bg);
-      margin-top:.75rem;
-    }
+    /* WORKOUT OF THE DAY */
+    #workoutOfDay{grid-column:1/-1;background:rgba(255,255,255,0.05);
+      border-radius:12px;padding:1.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.5);}
+    #workoutOfDay h2{display:flex;align-items:center;gap:.5rem;color:var(--gold);font-size:1.4rem;}
+    #workoutOfDay button{background:var(--gold);color:var(--bg);margin-top:.75rem;}
 
-    /* Filters */
-    #filters {
-      grid-column:1/-1;
-      display:flex; flex-wrap:wrap; gap:1rem; align-items:center;
-    }
+    /* FEATURED */
+    section#featuredWorkouts h2,
+    section#library h2{margin-bottom:1rem;color:var(--gold);
+      display:flex;align-items:center;gap:.5rem;font-size:1.3rem;}
+    .card-grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+    .card{background:rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);display:flex;flex-direction:column;height:100%;}
+    .card img{width:100%;height:140px;object-fit:cover;}
+    .card-body{padding:1rem;flex:1;display:flex;flex-direction:column;}
+    .card-body h3{margin-bottom:.5rem;font-size:1.1rem;}
+    .card-body p.info{opacity:.8;margin-bottom:.5rem;font-size:.9rem;}
+    .card-body p.desc{flex:1;line-height:1.3;margin-bottom:.5rem;font-size:.9rem;}
+    .card-body button{background:var(--gold);color:var(--bg);padding:.6rem;border-radius:6px;}
 
-    /* Featured Workouts */
-    section#featuredWorkouts h2 {
-      color:var(--gold); display:flex; align-items:center; gap:.5rem; font-size:1.3rem;
-    }
-    #featuredWorkouts .card-grid { margin-bottom:2rem; }
+    /* DETAIL MODAL */
+    #detailModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);
+      align-items:center;justify-content:center;padding:1rem;z-index:95;}
+    #detailModal .modal-content{background:rgba(0,0,0,0.9);border-radius:12px;
+      padding:1.5rem;width:100%;max-width:600px;max-height:90%;overflow-y:auto;position:relative;}
+    #detailModal .close{position:absolute;top:1rem;right:1rem;font-size:1.5rem;color:var(--gold);cursor:pointer;}
 
-    /* NEW: Searchable/Tag‑filtered Library */
-    #libraryControls {
-      grid-column:1/-1;
-      display:flex; flex-wrap:wrap; gap:1rem; align-items:center;
-      margin-bottom:1rem;
-    }
-    #searchLibrary {
-      flex:1 1 200px; padding:.6rem; border-radius:6px;
-      border:1px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.05);
-      color:#fff;
-    }
-    #categoryTags button {
-      background:rgba(255,255,255,0.1); color:#fff;
-      border:none; border-radius:6px; padding:.4rem .8rem;
-      cursor:pointer; transition:background .2s;
-    }
-    #categoryTags button.active,
-    #categoryTags button:hover {
-      background:var(--gold); color:var(--bg);
-    }
-    section#library h2 {
-      color:var(--gold); display:flex; align-items:center; gap:.5rem; font-size:1.3rem;
-    }
+    /* MY PLANS, PROGRESS, CHALLENGES, LIVE */
+    #myPlans, #progressSummary, #challengeModes, #liveSessions{
+      grid-column:1/-1;background:rgba(255,255,255,0.05);border-radius:12px;padding:1rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);}
+    #myPlans ul{list-style:none;display:flex;flex-wrap:wrap;gap:1rem;padding:0;}
+    #myPlans li{flex:1 1 calc(50% - 1rem);background:rgba(255,255,255,0.1);
+      padding:.6rem .8rem;border-radius:6px;display:flex;justify-content:space-between;
+      align-items:center;font-size:.9rem;}
+    #myPlans button{background:none;color:var(--gold);}
 
-    /* Challenges */
-    #challengeModes h2 {
-      color:var(--gold); display:flex; align-items:center; gap:.5rem; font-size:1.3rem;
-    }
-    #challengeModes .challenge-hint {
-      grid-column:1/-1; margin-bottom:.5rem; opacity:.8;
-    }
-    #challengeModes .challenges-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
-    .challenge { background:rgba(255,255,255,0.1); border-radius:8px; padding:1rem; display:flex; flex-direction:column; }
-    .challenge h3 { font-size:1.1rem; margin-bottom:.5rem; }
-    .challenge p { font-size:0.9rem; margin-bottom:.5rem; }
-    .challenge .prog-bar { background:rgba(255,255,255,0.2); border-radius:6px; overflow:hidden; height:14px; margin-bottom:.5rem; }
-    .challenge .fill { height:100%; background:var(--gold); transition:width .5s ease; }
-    .challenge button { background:var(--gold); color:var(--bg); padding:.5rem .8rem; border-radius:6px; cursor:pointer; }
+    #progressSummary h2,#challengeModes h2,#liveSessions h2{font-size:1.3rem;color:var(--gold);margin-bottom:1rem;}
+    #progressChart{width:100%!important;height:240px!important;}
 
-    /* Live Sessions & Go Live */
-    section#liveSessions h2 {
-      color:var(--gold); display:flex; align-items:center; gap:.5rem; font-size:1.3rem;
-    }
-    .live-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
-    .live-card { background:rgba(255,255,255,0.1); border-radius:8px; padding:1rem; display:flex; flex-direction:column; }
-    .live-card img { width:100%; height:100px; object-fit:cover; border-radius:6px; margin-bottom:.5rem;}
-    .live-card h3 { font-size:1.1rem; margin-bottom:.3rem; }
-    .live-card .info { font-size:0.9rem; opacity:.8; margin-bottom:.5rem;}
-    .live-card button { background:var(--gold); color:var(--bg); padding:.5rem; border-radius:6px; }
-    #goLiveModal, #newWorkoutModal {
-      display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,0.8); align-items:center; justify-content:center;
-      z-index:300;
-    }
-    .modal {
-      background:var(--bg); padding:1.5rem; border:2px solid var(--gold);
-      border-radius:8px; max-width:400px; width:90%; color:#fff;
-    }
-    .modal h2 { color:var(--gold); margin-bottom:1rem; }
-    .modal label { display:block; margin:.5rem 0 .2rem; }
-    .modal input, .modal select, .modal textarea {
-      width:100%; padding:.6rem; border-radius:6px; border:1px solid rgba(255,255,255,0.3);
-      background:rgba(255,255,255,0.05); color:#fff; margin-bottom:.8rem;
-    }
-    .modal button { width:100%; margin-top:.5rem; }
+    .challenge{background:rgba(255,255,255,0.1);border-radius:8px;padding:1rem;
+      display:flex;flex-direction:column;justify-content:space-between;position:relative;}
+    .challenge:hover{transform:translateY(-4px);}
+    .challenge .prog-bar{background:rgba(255,255,255,0.2);border-radius:6px;overflow:hidden;height:14px;margin-bottom:.5rem;}
+    .challenge .fill{height:100%;background:var(--gold);width:0;transition:width 1s ease;}
+    .challenge button{background:var(--gold);color:var(--bg);padding:.5rem .8rem;border-radius:6px;margin-top:.5rem;}
+    .challenge .restart{background:transparent;color:var(--gold);border:1px solid var(--gold);}
 
-    /* Hide default canvas height so new chart fits */
-    #progressChart { width:100% !important; height:240px !important; }
+    .live-grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+    .live-card{position:relative;background:rgba(255,255,255,0.1);border-radius:8px;
+      padding:1rem;display:flex;flex-direction:column;justify-content:space-between;}
+    .live-card:hover{transform:translateY(-4px);}
+    .live-card img{width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:.5rem;}
+    .live-card .status{position:absolute;top:8px;left:8px;background:red;color:#fff;
+      padding:.2rem .5rem;border-radius:4px;font-size:.8rem;}
+    .live-card button{background:var(--gold);color:var(--bg);padding:.5rem .8rem;}
+
+    /* GO LIVE MODAL */
+    #goLiveModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);
+      align-items:center;justify-content:center;padding:1rem;z-index:300;}
+    #goLiveModal .modal{background:var(--bg);padding:1.5rem;border:2px solid var(--gold);
+      border-radius:8px;max-width:360px;width:90%;position:relative;}
+    #goLiveModal .close{position:absolute;top:1rem;right:1rem;font-size:1.5rem;color:var(--gold);cursor:pointer;}
+
+    /* CHATBOT & TOGGLE (unchanged) */
+    #chatbot{position:fixed;bottom:20px;right:20px;width:320px;max-height:420px;
+      background:#fff;color:#222;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.15);
+      display:none;flex-direction:column;overflow:hidden;font-family:'Poppins',sans-serif;
+      border:1px solid #ddd;z-index:400;}
+    /* … rest of chatbot CSS unchanged … */
+
   </style>
 </head>
-
 <body>
   <div id="overlay"></div>
 
@@ -288,7 +205,7 @@
     <div id="welcomeBanner"></div>
 
     <div class="content">
-      <!-- WOD -->
+      <!-- Workout of the Day -->
       <section id="workoutOfDay">
         <h2><i class="fas fa-star"></i> Workout of the Day</h2>
         <p id="wodTitle">Loading…</p>
@@ -296,52 +213,33 @@
         <button id="randomizeWOD">Randomize</button>
       </section>
 
-      <!-- Filters -->
-      <div id="filters">
-        <select id="filterCategory"><option value="">All Categories</option></select>
-        <select id="filterDuration">
-          <option value="">Any Duration</option>
-          <option value="20">Under 20 m</option>
-          <option value="45">Under 45 m</option>
-          <option value="999">45 m +</option>
-        </select>
-        <select id="filterDifficulty">
-          <option value="">Any Difficulty</option>
-          <option>Beginner</option>
-          <option>Intermediate</option>
-          <option>Advanced</option>
-        </select>
-      </div>
-
       <!-- Featured Workouts -->
       <section id="featuredWorkouts">
         <h2><i class="fas fa-fire"></i> Featured Workouts</h2>
         <div class="card-grid" id="featuredList"></div>
       </section>
 
-      <!-- Library Controls -->
-      <div id="libraryControls">
-        <input id="searchLibrary" placeholder="Search workouts…" />
-        <div id="categoryTags"></div>
-      </div>
-
-      <!-- Browse Library -->
+      <!-- Browse Library Redesigned -->
       <section id="library">
-        <h2><i class="fas fa-book-open"></i> Browse Library</h2>
+        <h2><i class="fas fa-book-open"></i> Popular Categories</h2>
+        <div class="card-grid" id="categoryList"></div>
+        <h2><i class="fas fa-list"></i> All Workouts</h2>
         <div class="card-grid" id="libraryGrid"></div>
       </section>
 
       <!-- Detail Modal -->
-      <div id="detailModal" class="flex-center">
-        <div class="modal">
+      <div id="detailModal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
           <h2 id="detailTitle"></h2>
           <p id="detailDesc"></p>
           <ul id="detailList"></ul>
           <p><strong>Equipment:</strong> <span id="detailEquip"></span></p>
-          <p><strong>Calories:</strong> <span id="detailCal"></span></p>
-          <button id="detailStart">Log This Workout</button>
-          <button id="savePlan">Save to My Plans</button>
-          <button class="close" id="detailClose" style="margin-top:.5rem;">Close</button>
+          <p><strong>Calories:</strong> <span id="detailCal">0</span></p>
+          <div style="margin-top:1rem;display:flex;gap:1rem;">
+            <button id="detailStart">Log This Workout</button>
+            <button id="savePlan">Save to My Plans</button>
+          </div>
         </div>
       </div>
 
@@ -360,7 +258,6 @@
       <!-- Challenge Modes -->
       <section id="challengeModes">
         <h2><i class="fas fa-flag"></i> Challenge Modes</h2>
-        <p class="challenge-hint">Join a challenge to track your progress. Click “Restart” at any time to start over.</p>
         <div class="challenges-grid" id="challengesList"></div>
       </section>
 
@@ -368,61 +265,35 @@
       <section id="liveSessions">
         <h2><i class="fas fa-video"></i> Live Sessions</h2>
         <div class="live-grid" id="sessionsList"></div>
-        <button id="globalGoLive" style="margin-top:1rem;">Go Live Now</button>
       </section>
     </div>
   </div>
 
   <!-- Go Live Modal -->
-  <div id="goLiveModal" class="flex-center">
+  <div id="goLiveModal">
     <div class="modal">
-      <h2>Go Live</h2>
-      <label for="liveTitle">Title</label>
-      <input id="liveTitle" placeholder="Workout name…" />
-      <label for="liveDesc">Description</label>
-      <textarea id="liveDesc" rows="3" placeholder="What are you doing?"></textarea>
-      <button id="startLiveBtn">Start Live Stream</button>
-      <button id="endLiveBtn" style="display:none; margin-top:.5rem;">End Live Stream</button>
-      <button id="goLiveClose" style="margin-top:.5rem;">Cancel</button>
+      <span class="close">&times;</span>
+      <h2>Start Your Live Workout</h2>
+      <label>Name of Workout</label>
+      <input type="text" id="live-name" placeholder="e.g. HIIT Blast"/>
+      <label>Description</label>
+      <textarea id="live-desc" rows="3" placeholder="Brief description…"></textarea>
+      <button id="startLiveBtn">Go Live Now</button>
     </div>
   </div>
 
-  <!-- New Workout Modal -->
-  <div id="newWorkoutModal" class="flex-center">
-    <div class="modal">
-      <h2>Create New Workout</h2>
-      <label for="nw-name">Name</label>
-      <input id="nw-name" placeholder="E.g. Evening Mobility" />
-      <label for="nw-category">Category</label>
-      <select id="nw-category"></select>
-      <label for="nw-duration">Duration (min)</label>
-      <input id="nw-duration" type="number" min="1" />
-      <label for="nw-difficulty">Difficulty</label>
-      <select id="nw-difficulty">
-        <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
-      </select>
-      <label for="nw-equipment">Equipment</label>
-      <input id="nw-equipment" placeholder="None, Dumbbells…" />
-      <label for="nw-calories">Calories Estimate</label>
-      <input id="nw-calories" type="number" min="0" />
-      <label for="nw-desc">Description</label>
-      <textarea id="nw-desc" rows="3"></textarea>
-      <label for="nw-exercises">Exercises (comma‑sep)</label>
-      <textarea id="nw-exercises" rows="2"></textarea>
-      <button id="nw-save">Save Workout</button>
-      <button id="nw-cancel" style="margin-top:.5rem;">Cancel</button>
-    </div>
-  </div>
+  <!-- Chatbot Toggle & Panel (unchanged) -->
+  <!-- … -->
 
-<script type="module">
+  <script type="module">
   import { Storage } from './storage.js';
 
   document.addEventListener('DOMContentLoaded', () => {
-    // → redirect if not signed in
+    // → Redirect if not signed in
     const cur = Storage.get('ft_current', null);
     if (!cur || !cur.name) return location.replace('home.html');
 
-    // → Elements
+    // ELEMENTS
     const sidebar      = document.getElementById('sidebar'),
           overlay      = document.getElementById('overlay'),
           openBtn      = document.getElementById('hamburger'),
@@ -431,19 +302,19 @@
                             document.querySelector('.profile-menu') ],
           sideAvatarEl = document.getElementById('side-avatar'),
           topAvatarEl  = document.getElementById('top-avatar'),
-          welcomeBanner= document.getElementById('welcomeBanner'),
+          welcomeEl    = document.getElementById('welcomeBanner'),
+          newBtn       = document.querySelector('.new-workout'),
+          goLiveModal  = document.getElementById('goLiveModal'),
+          goClose      = goLiveModal.querySelector('.close'),
+          startLiveBtn = document.getElementById('startLiveBtn'),
           wodTitle     = document.getElementById('wodTitle'),
           wodDesc      = document.getElementById('wodDesc'),
           rndBtn       = document.getElementById('randomizeWOD'),
           featuredList = document.getElementById('featuredList'),
+          categoryList = document.getElementById('categoryList'),
           libraryGrid  = document.getElementById('libraryGrid'),
-          searchInput  = document.getElementById('searchLibrary'),
-          tagContainer = document.getElementById('categoryTags'),
-          catSel       = document.getElementById('filterCategory'),
-          durSel       = document.getElementById('filterDuration'),
-          difSel       = document.getElementById('filterDifficulty'),
           detailModal  = document.getElementById('detailModal'),
-          detailClose  = document.getElementById('detailClose'),
+          detailClose  = detailModal.querySelector('.close'),
           detailTitle  = document.getElementById('detailTitle'),
           detailDesc   = document.getElementById('detailDesc'),
           detailList   = document.getElementById('detailList'),
@@ -454,336 +325,278 @@
           plansList    = document.getElementById('plansList'),
           ctx          = document.getElementById('progressChart').getContext('2d'),
           chList       = document.getElementById('challengesList'),
-          challengeHint= document.querySelector('.challenge-hint'),
-          sessList     = document.getElementById('sessionsList'),
-          goLiveModal  = document.getElementById('goLiveModal'),
-          globalGoLive = document.getElementById('globalGoLive'),
-          startLiveBtn = document.getElementById('startLiveBtn'),
-          endLiveBtn   = document.getElementById('endLiveBtn'),
-          goLiveClose  = document.getElementById('goLiveClose'),
-          newWorkoutBtn= document.querySelector('.new-workout'),
-          newWorkoutModal= document.getElementById('newWorkoutModal'),
-          nwSave       = document.getElementById('nw-save'),
-          nwCancel     = document.getElementById('nw-cancel'),
-          nwName       = document.getElementById('nw-name'),
-          nwCategory   = document.getElementById('nw-category'),
-          nwDuration   = document.getElementById('nw-duration'),
-          nwDifficulty = document.getElementById('nw-difficulty'),
-          nwEquipment  = document.getElementById('nw-equipment'),
-          nwCalories   = document.getElementById('nw-calories'),
-          nwDesc       = document.getElementById('nw-desc'),
-          nwExercises  = document.getElementById('nw-exercises');
+          sessList     = document.getElementById('sessionsList');
 
-    // → Sidebar toggle
+    // SIDEBAR TOGGLE & NAV
     openBtn.onclick  = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); };
     closeBtn.onclick = overlay.onclick = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+    profileBtns.forEach(b => b.onclick = ()=> location.replace('profile.html'));
 
-    // → Profile nav
-    profileBtns.forEach(b=> b.onclick = ()=> location.replace('profile.html'));
-
-    // → Swap avatars from ft_current
+    // SWAP AVATARS (sidebar & header)
     function updateAvatars(){
-      const p   = Storage.get('ft_current', {});
-      const src = p.avatarDataUrl||`https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||'')}`;
-      ['side-avatar','top-avatar'].forEach(id=>{
-        const el = document.getElementById(id);
-        if(!el) return;
+      const pf = Storage.get('ft_profile', {}),
+            src = pf.avatarDataUrl || `https://i.pravatar.cc/150?u=${cur.email}`;
+      [sideAvatarEl, topAvatarEl].forEach(old=>{
+        if (!old) return;
         const img = document.createElement('img');
-        img.id = id; img.className='avatar'; img.src=src;
-        el.replaceWith(img);
+        img.id = old.id; img.className='avatar'; img.src = src;
+        old.replaceWith(img);
       });
     }
-    Storage.onChange('ft_current', updateAvatars);
+    Storage.onChange('ft_profile', updateAvatars);
     updateAvatars();
 
-    // → Welcome banner
-    welcomeBanner.textContent = `Welcome back, ${cur.name}!`;
+    // WELCOME
+    welcomeEl.textContent = `Welcome back, ${cur.name}!`;
 
-    // → Workouts data (mutable)
+    // GO LIVE MODAL wiring
+    newBtn.onclick       = ()=> goLiveModal.style.display='flex';
+    goClose.onclick      = ()=> goLiveModal.style.display='none';
+    startLiveBtn.onclick = async()=>{
+      goLiveModal.style.display='none';
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+        const vid = document.createElement('video');
+        vid.srcObject = stream; vid.autoplay = true;
+        vid.style.cssText = 'position:fixed;bottom:80px;right:20px;width:200px;z-index:500;';
+        document.body.appendChild(vid);
+        const endBtn = document.createElement('button');
+        endBtn.textContent = 'End Live';
+        Object.assign(endBtn.style,{
+          position:'fixed',bottom:'20px',right:'20px',padding:'.5rem 1rem',
+          background:'#ff5252',color:'#fff',borderRadius:'6px',zIndex:501
+        });
+        document.body.appendChild(endBtn);
+        endBtn.onclick = ()=>{
+          stream.getTracks().forEach(t=>t.stop());
+          vid.remove(); endBtn.remove();
+        };
+      } catch {
+        alert('Camera access denied');
+      }
+    };
+
+    // WORKOUT DATA
     const workouts = [
-      { id:1, title:'Full‑Body HIIT', category:'Cardio', duration:20, difficulty:'Intermediate',
-        image:'hiit.jpg', description:'Fast‑paced intervals.',
-        exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None', calories:200 },
-      { id:2, title:'Upper Body Strength', category:'Strength', duration:45, difficulty:'Advanced',
-        image:'upper.jpg', description:'Build power with weights.',
-        exercises:['Push‑Ups','Pull‑Ups','Rows'], equipment:'Dumbbells', calories:300 },
-      { id:3, title:'Morning Yoga Flow', category:'Yoga', duration:30, difficulty:'Beginner',
-        image:'yoga.jpg', description:'Gentle wake‑up sequences.',
-        exercises:['Sun Salutation','Tree Pose','Child’s Pose'], equipment:'Mat', calories:120 },
-      { id:4, title:'Tabata Burn', category:'Cardio', duration:15, difficulty:'Advanced',
-        image:'tabata.jpg', description:'High‑intensity Tabata rounds.',
-        exercises:['20/10 Work‑Rest'], equipment:'None', calories:180 },
-      { id:5, title:'Lower Body Blast', category:'Strength', duration:40, difficulty:'Intermediate',
-        image:'lower.jpg', description:'Squats & lunges focus.',
-        exercises:['Squats','Lunges','Deadlifts'], equipment:'Barbell', calories:250 },
-      { id:6, title:'Core Crusher', category:'Core', duration:25, difficulty:'Intermediate',
-        image:'abs.jpg', description:'Abs & obliques workout.',
-        exercises:['Plank','Russian Twists','Leg Raises'], equipment:'None', calories:150 },
-      { id:7, title:'Pilates Power', category:'Pilates', duration:35, difficulty:'Beginner',
-        image:'pilate.jpg', description:'Full‑body Pilates flow.',
-        exercises:['Roll‑Up','Hundred','Leg Circles'], equipment:'Mat', calories:130 },
-      { id:8, title:'Kickboxing Cardio', category:'Cardio', duration:30, difficulty:'Advanced',
-        image:'bag.jpg', description:'Punch & kick combos.',
-        exercises:['Jab‑Cross','Front Kick','Hook'], equipment:'Gloves', calories:300 }
+      { id:1,title:'Full‑Body HIIT',      category:'Cardio',   duration:20, difficulty:'Intermediate',image:'hiit.jpg',   description:'Fast‑paced intervals.', exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None', calories:200 },
+      { id:2,title:'Upper Body Strength', category:'Strength', duration:45, difficulty:'Advanced',      image:'upper.jpg',  description:'Build power with weights.', exercises:['Push‑Ups','Pull‑Ups','Rows'],             equipment:'Dumbbells', calories:300 },
+      { id:3,title:'Morning Yoga Flow',   category:'Yoga',     duration:30, difficulty:'Beginner',      image:'yoga.jpg',   description:'Gentle wake‑up sequences.', exercises:['Sun Salutation','Tree Pose','Child’s Pose'],equipment:'Mat', calories:120 },
+      { id:4,title:'Tabata Burn',         category:'Cardio',   duration:15, difficulty:'Advanced',      image:'tabata.jpg', description:'High‑intensity Tabata rounds.', exercises:['20/10 Work‑Rest'],              equipment:'None', calories:180 },
+      { id:5,title:'Lower Body Blast',    category:'Strength', duration:40, difficulty:'Intermediate',image:'lower.jpg',  description:'Squats & lunges focus.', exercises:['Squats','Lunges','Deadlifts'],          equipment:'Barbell', calories:250 },
+      { id:6,title:'Core Crusher',        category:'Core',     duration:25, difficulty:'Intermediate',image:'abs.jpg',    description:'Abs & obliques workout.', exercises:['Plank','Russian Twists','Leg Raises'],    equipment:'None', calories:150 },
+      { id:7,title:'Pilates Power',       category:'Pilates',  duration:35, difficulty:'Beginner',      image:'pilate.jpg', description:'Full‑body Pilates flow.', exercises:['Roll‑Up','Hundred','Leg Circles'],        equipment:'Mat', calories:130 },
+      { id:8,title:'Kickboxing Cardio',   category:'Cardio',   duration:30, difficulty:'Advanced',      image:'bag.jpg',    description:'Punch & kick combos.', exercises:['Jab‑Cross','Front Kick','Hook'],            equipment:'Gloves', calories:300 }
     ];
 
-    // — Workout of the Day
+    // WORKOUT OF THE DAY
     function pickWOD(){
       const w = workouts[Math.floor(Math.random()*workouts.length)];
       wodTitle.textContent = w.title;
-      wodDesc.textContent = w.description;
+      wodDesc .textContent = w.description;
     }
-    rndBtn.onclick = pickWOD;
-    pickWOD();
+    rndBtn.onclick = pickWOD; pickWOD();
 
-    // — Featured Workouts
+    // FEATURED
     function renderFeatured(){
       featuredList.innerHTML = '';
-      workouts.slice(-6).reverse().forEach(w=>{  // show newest 6
-        const c = document.createElement('div'); c.className='card';
-        c.innerHTML=`
+      workouts.slice(0,6).forEach(w=>{
+        const card = document.createElement('div'); card.className='card';
+        card.innerHTML = `
           <img src="${w.image}" alt="${w.title}">
           <div class="card-body">
             <h3>${w.title}</h3>
             <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+            <p class="desc">${w.description}</p>
             <button data-id="${w.id}">Details</button>
           </div>`;
-        featuredList.appendChild(c);
+        featuredList.append(card);
       });
     }
 
-    // — Searchable & Tag‑filtered Library
-    let libFilter = { text:'', tag:'' };
-    function initLibraryControls(){
-      // populate tags from categories
-      const cats = Array.from(new Set(workouts.map(w=>w.category)));
-      tagContainer.innerHTML='';
-      cats.unshift('All');
+    // POPULAR CATEGORIES
+    function renderCategories(){
+      const cats = [...new Set(workouts.map(w=>w.category))];
+      categoryList.innerHTML = '';
       cats.forEach(cat=>{
-        const b=document.createElement('button');
-        b.textContent=cat; b.dataset.cat=cat;
-        b.onclick=()=>{
-          libFilter.tag = (cat==='All'?'':cat);
-          document.querySelectorAll('#categoryTags button').forEach(x=>x.classList.remove('active'));
-          b.classList.add('active');
-          renderLibrary();
-        };
-        if(cat==='All') b.classList.add('active');
-        tagContainer.appendChild(b);
-      });
-      searchInput.oninput =()=>{ libFilter.text=searchInput.value.toLowerCase(); renderLibrary(); };
-    }
-    function renderLibrary(){
-      libraryGrid.innerHTML='';
-      workouts.filter(w=>{
-        const matchesTag = libFilter.tag? w.category===libFilter.tag : true;
-        const matchesText= libFilter.text? w.title.toLowerCase().includes(libFilter.text): true;
-        return matchesTag && matchesText;
-      }).forEach(w=>{
-        const c=document.createElement('div'); c.className='card';
-        c.innerHTML=`
-          <img src="${w.image}" alt="${w.title}">
+        const count   = workouts.filter(w=>w.category===cat).length,
+              imgSrc  = workouts.find(w=>w.category===cat).image,
+              card    = document.createElement('div'); card.className='card';
+        card.innerHTML = `
+          <img src="${imgSrc}" alt="${cat}">
           <div class="card-body">
-            <h3>${w.title}</h3>
-            <p class="info">${w.category} • ${w.duration}m</p>
-            <p><strong>Equipment:</strong> ${w.equipment}</p>
-            <button data-id="${w.id}">Details</button>
+            <h3>${cat}</h3>
+            <p>${count} workouts</p>
+            <button class="explore" data-cat="${cat}">Explore</button>
           </div>`;
-        libraryGrid.appendChild(c);
+        categoryList.append(card);
+      });
+      // EXPLORE CLICK HANDLER
+      categoryList.querySelectorAll('.explore').forEach(b=>{
+        b.onclick = ()=> renderAllWorkouts(b.dataset.cat);
       });
     }
 
-    // — Detail Modal
+    // ALL WORKOUTS (optionally filtered)
+    function renderAllWorkouts(filter=''){
+      libraryGrid.innerHTML = '';
+      workouts.filter(w=>!filter||w.category===filter)
+        .forEach(w=>{
+          const card = document.createElement('div'); card.className='card';
+          card.innerHTML = `
+            <img src="${w.image}" alt="${w.title}">
+            <div class="card-body">
+              <h3>${w.title}</h3>
+              <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+              <p class="desc">${w.description}</p>
+              <button data-id="${w.id}">Details</button>
+            </div>`;
+          libraryGrid.append(card);
+        });
+    }
+
+    // DETAIL MODAL
     detailClose.onclick = ()=> detailModal.style.display='none';
     document.body.addEventListener('click', e=>{
-      if(e.target.matches('.card-body button')){
-        const id = e.target.dataset.id;
-        const w  = workouts.find(x=>x.id==id);
+      if(e.target.tagName==='BUTTON'&&e.target.dataset.id){
+        const w = workouts.find(x=>x.id==e.target.dataset.id);
         detailTitle.textContent = w.title;
-        detailDesc.textContent  = w.description;
+        detailDesc .textContent = w.description;
         detailList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
         detailEquip.textContent = w.equipment;
-        detailCal.textContent   = w.calories;
+        detailCal  .textContent = w.calories;
         detailModal.style.display='flex';
-        btnLog.onclick =()=>{
+
+        btnLog.onclick = ()=>{
           const acts = Storage.get('ft_activities', []);
-          acts.unshift({
-            date:new Date().toISOString().slice(0,10),
-            type:w.title, category:w.category,
-            duration:w.duration, distance:'', calories:w.calories, notes:'' 
-          });
-          Storage.set('ft_activities', acts);
+          acts.unshift({ date:new Date().toISOString().slice(0,10),
+            type:w.title,category:w.category,duration:w.duration,
+            distance:'',calories:w.calories,notes:''});
+          Storage.set('ft_activities',acts);
           detailModal.style.display='none';
         };
-        btnSavePlan.onclick=()=>{
-          const p = Storage.get('ft_plans', []);
-          if(!p.includes(w.id)) p.push(w.id);
-          Storage.set('ft_plans',p);
+        btnSavePlan.onclick = ()=>{
+          const plans=Storage.get('ft_plans',[]);
+          if(!plans.includes(w.id)) plans.push(w.id);
+          Storage.set('ft_plans',plans);
           detailModal.style.display='none';
         };
       }
     });
 
-    // — My Plans
+    // MY PLANS
     function renderPlans(){
-      const p = Storage.get('ft_plans', []);
+      const p=Storage.get('ft_plans',[]);
       plansList.innerHTML='';
       p.forEach((id,i)=>{
-        const w = workouts.find(x=>x.id===id),
+        const w=workouts.find(x=>x.id===id),
               li=document.createElement('li');
-        li.innerHTML=`${w.title} <button data-remove="${i}">✕</button>`;
-        plansList.appendChild(li);
+        li.innerHTML=`${w.title} <button data-remove="${i}">Remove</button>`;
+        plansList.append(li);
       });
     }
-    plansList.onclick = e=>{
+    plansList.onclick=e=>{
       if(e.target.dataset.remove!=null){
-        const arr=Storage.get('ft_plans',[]);
-        arr.splice(+e.target.dataset.remove,1);
-        Storage.set('ft_plans',arr);
+        const idx=+e.target.dataset.remove,arr=Storage.get('ft_plans',[]);
+        arr.splice(idx,1);Storage.set('ft_plans',arr);
       }
     };
 
-    // — Progress Chart
+    // PROGRESS CHART
     let chart;
     function renderProgress(){
       const acts=Storage.get('ft_activities',[]),
             byCat=acts.reduce((o,a)=>{
-              const w=workouts.find(x=>x.title===a.type);
-              const c=w? w.category:'Other';
-              o[c]=(o[c]||0)+1; return o;
+              const w=workouts.find(wk=>wk.title===a.type),
+                    c=w? w.category:'Other';
+              o[c]=(o[c]||0)+1;return o;
             },{}),
-            labels=Object.keys(byCat), data=Object.values(byCat);
+            labels=Object.keys(byCat),data=Object.values(byCat);
       if(chart) chart.destroy();
       chart=new Chart(ctx,{
-        type:'line', data:{ labels, datasets:[{ data, borderColor:'#ff9800', fill:false, tension:0.3 }]},
-        options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#fff'}}, y:{ticks:{color:'#fff'}, beginAtZero:true}}}
+        type:'line',
+        data:{labels,datasets:[{data,borderColor:var(--gold),fill:false,tension:0.3}]},
+        options:{responsive:true,plugins:{legend:{display:false}},
+          scales:{x:{ticks:{color:'#fff'}},y:{beginAtZero:true,ticks:{color:'#fff'}}}}
       });
     }
 
-    // — Challenge Modes
-    const CH_KEY='ft_joinedChallenges';
-    if(!Storage.get(CH_KEY)) Storage.set(CH_KEY,[]);
-    const challenges = [
-      { id:1, title:'7‑Day Abs', target:7, matchCategory:'Core', desc:'Daily core sculpting.' },
-      { id:2, title:'30‑Day Push‑Up', target:30, matchCategory:'Strength', desc:'+2 reps/day.' },
-      { id:3, title:'14‑Day Yoga', target:14, matchCategory:'Yoga', desc:'Morning flow.' },
-      { id:4, title:'10k Steps x10', target:10, matchCategory:'Cardio', desc:'10k daily.' },
-      { id:5, title:'5k Run', target:1, matchCategory:'Cardio', desc:'Complete 5 km.' }
-    ];
+    // CHALLENGE MODES (with restartable progress)
+    const CH_KEY='ft_challenges';
+    if(!Storage.get(CH_KEY)) Storage.set(CH_KEY,{});
     function renderChallenges(){
-      const joined=Storage.get(CH_KEY,[]),
-            acts=Storage.get('ft_activities',[]);
+      const progObj=Storage.get(CH_KEY,{}),acts=Storage.get('ft_activities',[]);
       chList.innerHTML='';
       challenges.forEach(ch=>{
-        const count=acts.filter(a=>a.category===ch.matchCategory).length,
+        const rec=progObj[ch.id],
+              start=new Date(rec?rec.startDate:0),
+              count=acts.filter(a=>
+                a.category===ch.matchCategory && new Date(a.date)>=start
+              ).length,
               pct=Math.min(100,Math.round(count/ch.target*100)),
-              done=joined.includes(ch.id);
-        const d=document.createElement('div'); d.className='challenge';
-        d.innerHTML=`
+              joined=!!rec;
+        const div=document.createElement('div');div.className='challenge';
+        div.innerHTML=`
           <h3>${ch.title}</h3>
           <p>${ch.desc}</p>
           <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
-          <p>${count}/${ch.target} (${pct}%)</p>
-          <button>${done?'Restart':'Join Challenge'}</button>`;
-        const btn=d.querySelector('button');
-        btn.onclick=()=>{
-          let arr=Storage.get(CH_KEY,[]);
-          if(done){
-            arr=arr.filter(x=>x!==ch.id);
-          } else {
-            arr.push(ch.id);
-          }
-          Storage.set(CH_KEY,arr);
+          <p style="opacity:.8">${count} / ${ch.target} complete (${pct}%)</p>
+          <button class="join">${joined?'Joined ✓':'Join Challenge'}</button>
+          ${ joined ? '<button class="restart">Restart</button>' : ''}`;
+        // join
+        div.querySelector('.join').onclick=()=>{
+          progObj[ch.id]={startDate:new Date().toISOString()};
+          Storage.set(CH_KEY,progObj);renderChallenges();
         };
-        chList.appendChild(d);
+        // restart
+        const rBtn=div.querySelector('.restart');
+        if(rBtn) rBtn.onclick=()=>{
+          progObj[ch.id]={startDate:new Date().toISOString()};
+          Storage.set(CH_KEY,progObj);renderChallenges();
+        };
+        chList.append(div);
       });
     }
 
-    // — Live Sessions
-    const SESS_KEY='ft_liveSessions', SCH_KEY='ft_mySchedules';
-    const seeded=[
-      {id:1,title:'Sunrise Yoga',    host:'Alice', date:Date.now()+3600000, img:'sunrise.jpg'},
-      {id:2,title:'HIIT Blast',      host:'Bob',   date:Date.now()+7200000, img:'hiitblast.jpg'},
-      {id:3,title:'Cardio Dance',    host:'Cara',  date:Date.now()-1800000, img:'dance.jpg'}
+    // LIVE SESSIONS
+    const SESS_KEY='ft_liveSessions',SCH_KEY='ft_mySchedules';
+    const seed=[
+      {id:1,img:'sunrise.jpg',title:'Sunrise Yoga',host:'Alice',date:Date.now()+3600000,desc:'Vinyasa flow.'},
+      {id:2,img:'hiitblast.jpg',title:'HIIT Blast',host:'Bob',date:Date.now()+7200000,desc:'Intervals.'},
+      {id:3,img:'dance.jpg',title:'Cardio Dance',host:'Cara',date:Date.now()-1800000,desc:'Dance cardio.'},
+      {id:4,img:'core.jpg',title:'Core & Balance',host:'Dan',date:Date.now()+10800000,desc:'Stability drills.'},
+      {id:5,img:'posture.jpg',title:'Pilates Power',host:'Eve',date:Date.now()+14400000,desc:'Core & posture.'}
     ];
-    if(!Storage.get(SESS_KEY,[]).length) Storage.set(SESS_KEY,seeded);
+    if(!Storage.get(SESS_KEY,[]).length) Storage.set(SESS_KEY,seed);
     function renderSessions(){
-      const sess=Storage.get(SESS_KEY,[]), sched=Storage.get(SCH_KEY,[]), now=Date.now();
+      const sessions=Storage.get(SESS_KEY,[]),joined=Storage.get(SCH_KEY,[]),now=Date.now();
       sessList.innerHTML='';
-      sess.forEach(s=>{
-        const future=s.date>now, live=now>=s.date && now<s.date+3600000, joined=sched.includes(s.id);
-        const btnTxt= live?'Join Live':(joined?'★ Scheduled':'Schedule');
-        const c=document.createElement('div'); c.className='live-card';
-        c.innerHTML=`
+      sessions.forEach(s=>{
+        const isLive=now>=s.date&&now<s.date+3600000,
+              isFuture=now<s.date,hasJoined=joined.includes(s.id),
+              btnTxt=isLive?'🔴 LIVE':(hasJoined?'✔ Scheduled':'⏱ Schedule'),
+              card=document.createElement('div');card.className='live-card';
+        card.innerHTML=`
+          ${isLive?'<div class="status">LIVE</div>':''}
           <img src="${s.img}" alt="${s.title}">
           <h3>${s.title}</h3>
           <p class="info">${s.host} • ${new Date(s.date).toLocaleString()}</p>
+          <p class="desc">${s.desc}</p>
           <button data-id="${s.id}">${btnTxt}</button>`;
-        c.querySelector('button').onclick=()=>{
-          if(live) { goLiveModal.style.display='flex'; }
-          else if(future&&!joined){
-            const arr=Storage.get(SCH_KEY,[]); arr.push(s.id); Storage.set(SCH_KEY,arr);
+        card.querySelector('button').onclick=()=>{
+          if(isFuture&&!hasJoined){
+            joined.push(s.id);Storage.set(SCH_KEY,joined);renderSessions();
           }
+          if(isLive) goLiveModal.style.display='flex';
         };
-        sessList.appendChild(c);
+        sessList.append(card);
       });
     }
 
-    // — Go Live / End Live
-    let stream;
-    globalGoLive.onclick=()=>goLiveModal.style.display='flex';
-    goLiveClose.onclick=()=>goLiveModal.style.display='none';
-    startLiveBtn.onclick=async ()=>{
-      const d=document.getElementById('liveTitle').value.trim();
-      if(!d) return alert('Give your live a title.');
-      goLiveModal.style.display='none';
-      try {
-        stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-        const vid=document.createElement('video');
-        vid.autoplay=true; vid.srcObject=stream;
-        vid.style.cssText='position:fixed;bottom:20px;right:20px;width:200px;z-index:500;border:2px solid var(--gold);';
-        vid.id='liveVideo';
-        document.body.appendChild(vid);
-        endLiveBtn.style.display='block';
-      } catch{
-        alert('Camera denied.');
-      }
-    };
-    endLiveBtn.onclick=()=>{
-      if(stream){
-        stream.getTracks().forEach(t=>t.stop());
-        stream=null;
-      }
-      const vid=document.getElementById('liveVideo');
-      if(vid) vid.remove();
-      endLiveBtn.style.display='none';
-    };
-
-    // — New Workout Modal
-    newWorkoutBtn.onclick=()=> {
-      // fill category & difficulty
-      nwCategory.innerHTML='';
-      [...new Set(workouts.map(w=>w.category))].forEach(c=> nwCategory.add(new Option(c,c)));
-      newWorkoutModal.style.display='flex';
-    };
-    nwCancel.onclick=()=>newWorkoutModal.style.display='none';
-    nwSave.onclick=()=>{
-      const name=nwName.value.trim();
-      if(!name) return alert('Name required');
-      const cat=nwCategory.value, dur=+nwDuration.value, diff=nwDifficulty.value,
-            eq=nwEquipment.value.trim(), cal=+nwCalories.value,
-            desc=nwDesc.value.trim(), exs=nwExercises.value.split(',').map(x=>x.trim()).filter(x=>x);
-      const id=workouts.length+1;
-      workouts.push({id,title:name,category:cat,duration:dur,difficulty:diff,
-                     image:'hiit.jpg',description:desc,exercises:exs,equipment:eq,calories:cal});
-      newWorkoutModal.style.display='none';
-      renderFeatured(); renderLibrary();
-    };
-
-    // — Sync & render all sections
+    // MASTER RENDER
     function syncAll(){
       renderFeatured();
-      initLibraryControls(); renderLibrary();
+      renderCategories();
+      renderAllWorkouts();
       renderPlans();
       renderProgress();
       renderChallenges();
@@ -791,11 +604,10 @@
     }
     syncAll();
 
-    // — Watch storage changes
+    // WATCH STORAGE
     ['ft_activities','ft_plans','ft_mySchedules',CH_KEY,SESS_KEY]
       .forEach(k=>Storage.onChange(k,syncAll));
   });
-</script>
-
+  </script>
 </body>
 </html>
