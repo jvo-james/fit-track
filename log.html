@@ -53,7 +53,7 @@
       box-shadow:0 2px 6px rgba(0,0,0,0.5);
     }
 
-    /* OVERLAY */
+    /* Overlay */
     #overlay {
       position:fixed; inset:0;
       background:rgba(0,0,0,0.5);
@@ -63,7 +63,7 @@
     }
     #overlay.active { opacity:1; visibility:visible; }
 
-    /* TOUR */
+    /* Tour */
     #tour-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,0.7);
       display:none; z-index:3000;
@@ -76,7 +76,7 @@
       display:none;
     }
 
-    /* SIDEBAR */
+    /* Sidebar */
     aside#sidebar {
       width:var(--sidebar-w); background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
@@ -115,14 +115,17 @@
     a.menu-item i, button.profile-menu i.avatar { font-size:1.2rem; }
     a.menu-item span, button.profile-menu span { font-size:.75rem; }
     .sign-out { margin-top:auto; margin-bottom:1rem; }
-    /* ensure avatar fits neatly */
+
+    /* Force avatar images at 32×32px */
     .sidebar img.avatar {
-      width:1.2rem; height:1.2rem;
-      border-radius:50%; object-fit:cover;
-      border:1px solid var(--white);
+      width:32px!important;
+      height:32px!important;
+      border-radius:50%;
+      object-fit:cover;
+      border:2px solid var(--white);
     }
 
-    /* HEADER */
+    /* Header */
     header {
       display:flex; align-items:center; justify-content:space-between;
       padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
@@ -147,17 +150,19 @@
     .header-right .icon-btn {
       margin-left:1rem; font-size:1.2rem;
     }
-    /* topbar avatar sizing */
+    /* Topbar avatar sizing */
     .profile-btn img.avatar {
-      width:1.5rem; height:1.5rem;
-      border-radius:50%; object-fit:cover;
-      border:1px solid var(--white);
+      width:32px!important;
+      height:32px!important;
+      border-radius:50%;
+      object-fit:cover;
+      border:2px solid var(--white);
     }
 
-    /* MAIN */
+    /* Main */
     .main { flex:1; display:flex; flex-direction:column; }
 
-    /* QUICK STATS */
+    /* Stats */
     .stats-section {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
       gap:1rem; padding:1.5rem;
@@ -170,7 +175,7 @@
     .stat-card i { font-size:1.5rem; color:var(--gold); margin-bottom:.5rem; }
     .stat-card p { margin:.25rem 0; }
 
-    /* LOG FORM */
+    /* Log Form */
     .log-section {
       background:rgba(255,255,255,0.05); border-radius:12px;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
@@ -201,9 +206,7 @@
       display:grid; gap:1rem;
       grid-template-columns:1fr 1fr;
     }
-    #logForm label {
-      font-weight:600; grid-column:span 2;
-    }
+    #logForm label { font-weight:600; grid-column:span 2; }
     #logForm input, #logForm select, #logForm textarea {
       background:rgba(255,255,255,0.05); color:var(--white);
       border:1px solid rgba(255,255,255,0.3); border-radius:6px;
@@ -211,28 +214,20 @@
     }
     #duration,#distance,#calories { grid-column:auto; }
     .voice-control { grid-column:span 2; text-align:right; }
-    #logForm button {
-      grid-column:span 2;
-      font-weight:600;
-    }
+    #logForm button { grid-column:span 2; font-weight:600; }
 
-    /* TIPS */
-    .tips-section {
-      margin:1.5rem;
-    }
+    /* Tips */
+    .tips-section { margin:1.5rem; }
     .tips-section h2 {
       display:flex; align-items:center; gap:.5rem;
       color:var(--gold); font-size:1.2rem; margin-bottom:.75rem;
     }
-    .tips-section .tip {
-      display:flex; align-items:center; gap:.75rem;
-      margin-bottom:.75rem;
+    .tip {
+      display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem;
     }
-    .tips-section .tip i {
-      font-size:1.3rem; color:var(--gold); min-width:24px;
-    }
+    .tip i { font-size:1.3rem; color:var(--gold); }
 
-    /* ACHIEVEMENTS */
+    /* Achievements */
     .achievements-section {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
       gap:1rem; margin:1.5rem;
@@ -252,24 +247,19 @@
     }
     .achievement i { font-size:1.5rem; color:var(--gold); margin-bottom:.5rem; }
 
-    /* MOTIVATION */
-    .motivation-section {
-      margin:1.5rem;
-    }
+    /* Motivation */
+    .motivation-section { margin:1.5rem; }
     .motivation-section h2 {
       display:flex; align-items:center; gap:.5rem;
       color:var(--gold); font-size:1.2rem; margin-bottom:.5rem;
     }
-    .motivation-section blockquote {
+    blockquote {
       font-style:italic; opacity:.8;
-      border-left:3px solid var(--gold);
-      padding-left:.75rem;
+      border-left:3px solid var(--gold); padding-left:.75rem;
     }
 
-    /* RECENT */
-    .recent {
-      margin:1.5rem;
-    }
+    /* Recent & List */
+    .recent { margin:1.5rem; }
     .recent h2 {
       display:flex; align-items:center; gap:.5rem;
       color:var(--gold); font-size:1.2rem; margin-bottom:.75rem;
@@ -279,11 +269,7 @@
       background:rgba(255,152,0,0.8); color:var(--bg);
       border-radius:6px; padding:.4rem .8rem;
     }
-
-    /* ACTIVITIES LIST */
-    .activities {
-      margin:1.5rem;
-    }
+    .activities { margin:1.5rem; }
     .activities h2 {
       display:flex; align-items:center; gap:.5rem;
       color:var(--gold); font-size:1.2rem; margin-bottom:.75rem;
@@ -294,9 +280,7 @@
       padding:1rem; margin-bottom:.6rem;
       display:grid; grid-template-columns:1fr auto; gap:.5rem;
     }
-    .activity-item time {
-      font-size:.75rem; opacity:.6;
-    }
+    time { font-size:.75rem; opacity:.6; }
     .delete-btn {
       background:transparent; color:var(--gold);
       font-size:1.2rem; transition:transform .2s;
@@ -312,7 +296,6 @@
 </head>
 
 <body>
-  <!-- Overlays -->
   <div id="overlay"></div>
   <div id="tour-overlay"></div>
   <div id="tour-tooltip"></div>
@@ -438,11 +421,11 @@
     import { Storage } from './storage.js';
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Guard: must be signed in
+      // Redirect if not signed in
       const cur = Storage.get('ft_current', null);
       if (!cur || !cur.name) return location.replace('home.html');
 
-      // Elements
+      // DOM refs
       const overlay      = document.getElementById('overlay'),
             sidebar      = document.getElementById('sidebar'),
             openBtn      = document.getElementById('hamburger'),
@@ -451,33 +434,21 @@
                               document.querySelector('.profile-menu') ],
             sideAvatarEl = document.getElementById('side-avatar'),
             topAvatarEl  = document.getElementById('top-avatar'),
-
-            // stats
             statWk       = document.getElementById('stat-workouts'),
             statDist     = document.getElementById('stat-distance'),
             statCal      = document.getElementById('stat-calories'),
-
-            // timer
             timerDisp    = document.getElementById('timerDisplay'),
             startBtn     = document.getElementById('startTimer'),
             stopBtn      = document.getElementById('stopTimer'),
             resetBtn     = document.getElementById('resetTimer'),
-
-            // presets & voice
             presets      = document.querySelectorAll('.presets button'),
             voiceBtn     = document.getElementById('voiceBtn'),
-
-            // form + lists
             form         = document.getElementById('logForm'),
             activityList = document.getElementById('activityList'),
             recentSum    = document.getElementById('recentSummary'),
             recentEdit   = document.getElementById('recentEdit'),
-
-            // achievements & motivation
             achEls       = document.querySelectorAll('.achievement'),
             motivation   = document.getElementById('motivation'),
-
-            // tour
             tourOv       = document.getElementById('tour-overlay'),
             tourTp       = document.getElementById('tour-tooltip');
 
@@ -488,68 +459,65 @@
       // Profile nav
       profileBtns.forEach(b=> b.onclick = ()=> location.replace('profile.html'));
 
-      // Load/save helpers
+      // Storage helpers
       const loadActs = ()=> Storage.get('ft_activities', []);
       const saveActs = arr=> Storage.set('ft_activities', arr);
 
-      // Avatar loader
+      // Swap in profile avatars with correct id & class
       function updateAvatars(){
         const p = Storage.get('ft_profile', {});
-        if(p.avatar){
-          [sideAvatarEl, topAvatarEl].forEach(el=>{
-            const img = document.createElement('img');
-            img.src = p.avatar;
-            img.className = 'avatar';
-            el.replaceWith(img);
-          });
-        }
+        [ sideAvatarEl, topAvatarEl ].forEach(el=>{
+          if(!el) return;
+          const img = document.createElement('img');
+          img.src = p.avatar || `https://i.pravatar.cc/150?u=${cur.email}`;
+          img.id = el.id;
+          img.className = 'avatar';
+          el.replaceWith(img);
+        });
       }
       Storage.onChange('ft_profile', updateAvatars);
       updateAvatars();
 
-      // Stopwatch
+      // Stopwatch logic
       let seconds=0, intervalID=null;
       const pad = n=> String(n).padStart(2,'0');
       function refreshTimer(){
         const m=Math.floor(seconds/60), s=seconds%60;
         timerDisp.textContent = `${pad(m)}:${pad(s)}`;
       }
-      startBtn.onclick = () => {
-        if(!intervalID) intervalID = setInterval(() => { seconds++; refreshTimer(); }, 1000);
+      startBtn.onclick = ()=>{
+        if(!intervalID) intervalID = setInterval(()=>{ seconds++; refreshTimer(); },1000);
       };
-      stopBtn.onclick = () => {
-        clearInterval(intervalID);
-        intervalID = null;
+      stopBtn.onclick = ()=>{
+        clearInterval(intervalID); intervalID=null;
         form.duration.value = Math.round(seconds/60);
       };
-      resetBtn.onclick = () => {
-        clearInterval(intervalID);
-        intervalID = null;
-        seconds = 0;
-        refreshTimer();
+      resetBtn.onclick = ()=>{
+        clearInterval(intervalID); intervalID=null;
+        seconds=0; refreshTimer();
         form.duration.value = '';
       };
       refreshTimer();
 
-      // Presets
+      // Preset buttons
       presets.forEach(btn=>{
-        btn.onclick = () => {
+        btn.onclick = ()=>{
           form.type.value     = btn.dataset.type;
           form.duration.value = btn.dataset.duration;
           form.date.valueAsDate = new Date();
         };
       });
 
-      // Voice notes
+      // Voice recognition for notes
       if('webkitSpeechRecognition' in window){
         const recog = new webkitSpeechRecognition();
-        recog.onresult = e => {
+        recog.onresult = e=>{
           form.notes.value += ' ' + e.results[0][0].transcript;
         };
         voiceBtn.onclick = ()=> recog.start();
       }
 
-      // Overview & lists
+      // Overview & render functions
       function updateOverview(){
         const a = loadActs();
         statWk.textContent   = a.length;
@@ -606,16 +574,17 @@
         form.notes.value    = L.notes;
       };
 
-      // Motivation
+      // Motivation quote
       const quotes = [
         "“Don’t limit your challenges. Challenge your limits.”",
         "“Sweat is just fat crying.”",
         "“The body achieves what the mind believes.”",
         "“Push yourself because no one else will.”"
       ];
-      motivation.textContent = quotes[Math.floor(Math.random()*quotes.length)];
+      document.getElementById('motivation').textContent =
+        quotes[Math.floor(Math.random()*quotes.length)];
 
-      // Tour
+      // Guided tour for new users
       function runTour(steps){
         let idx = 0;
         tourOv.style.display = tourTp.style.display = 'block';
@@ -644,44 +613,46 @@
         show();
       }
 
-      // New‑user bootstrap
+      // New-user bootstrap
       if(cur.isNew){
         const a = loadActs();
         if(!a.length){
-          a.push({ user:cur.name,
-                   date:new Date().toISOString().slice(0,10),
-                   type:'Cardio', duration:25, distance:3,
-                   calories:200, notes:'Welcome workout!' });
+          a.push({
+            user:cur.name,
+            date:new Date().toISOString().slice(0,10),
+            type:'Cardio', duration:25, distance:3,
+            calories:200, notes:'Welcome workout!'
+          });
           saveActs(a);
         }
         runTour([
-          { sel:'.stats-section',   msg:'These are your quick stats.' },
-          { sel:'.log-section',     msg:'Use this form to log any workout.' },
-          { sel:'.presets',         msg:'Tap a preset for one‑click logging.' },
-          { sel:'.activity-list',   msg:'Your logged activities appear here.' }
+          { sel:'.stats-section', msg:'Here are your quick stats.' },
+          { sel:'.log-section',   msg:'Use this form to log workouts.' },
+          { sel:'.presets',       msg:'Tap a preset for one‑click logging.' },
+          { sel:'.activity-list', msg:'Your logged activities appear here.' }
         ]);
         cur.isNew = false;
         Storage.set('ft_current', cur);
       }
 
-      // Form handler
+      // Form submission
       form.onsubmit = e=>{
         e.preventDefault();
         const f = e.target;
         const ent = {
-          user: cur.name,
-          date: f.date.value,
-          type: f.type.value,
-          duration: f.duration.value,
-          distance: f.distance.value,
-          calories: f.calories.value,
-          notes: f.notes.value.trim()
+          user:cur.name,
+          date:f.date.value,
+          type:f.type.value,
+          duration:f.duration.value,
+          distance:f.distance.value,
+          calories:f.calories.value,
+          notes:f.notes.value.trim()
         };
         const a = loadActs(); a.unshift(ent); saveActs(a);
         f.reset(); seconds=0; refreshTimer();
       };
 
-      // Master update
+      // Master updater
       function updateAll(){
         updateOverview();
         renderActivities();
