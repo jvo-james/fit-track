@@ -844,19 +844,19 @@ Storage.onChange(CHALLENGE_KEY,       renderChallenges);
 // ——————————————————————————————————————————————————————
 // … and in your **“Log This Workout”** handler, make sure you also record category:
 
-btnLog.onclick = () => {
+btnLog.onclick = ()=>{
   const acts = Storage.get('ft_activities', []);
   acts.unshift({
     date:     new Date().toISOString().slice(0,10),
     type:     w.title,
-    category: w.category,      // ← new!
+    category: w.category,     
     duration: w.duration,
     distance: '',
     calories: w.calories,
     notes:    ''
   });
   Storage.set('ft_activities', acts);
-  detailModal.style.display = 'none';
+  detailModal.style.display='none';
 };
 
 
