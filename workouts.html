@@ -782,30 +782,33 @@
     }
 
   // — Challenge Modes (updated)
-const chList = document.getElementById('challengesList');
-const CHALLENGE_KEY = 'ft_joinedChallenges';
-// make sure key exists
+
+
+const chList       = document.getElementById('challengesList');
+const CHALLENGE_KEY= 'ft_joinedChallenges';
+
+// ensure storage key exists
 if (!Storage.get(CHALLENGE_KEY)) Storage.set(CHALLENGE_KEY, []);
 
 const challenges = [
-  {id:1, title:'7‑Day Abs',       desc:'Daily core sculpting.',       target:7},
-  {id:2, title:'30‑Day Push‑Up',  desc:'+2 reps/day.',                target:30},
-  {id:3, title:'14‑Day Yoga',     desc:'Morning flow.',               target:14},
-  {id:4, title:'10k Steps x10',   desc:'10k daily.',                  target:10},
-  {id:5, title:'5k Run',          desc:'Complete 5 km.',               target:1},
-  {id:6, title:'Plank Progress',  desc:'+10 s/day.',                  target:14},
-  {id:7, title:'Flexibility',     desc:'15 min stretch.',             target:14},
-  {id:8, title:'HIIT Week',       desc:'5 HIIT sessions.',             target:5}
+  { id: 1,  title:'7‑Day Abs',       desc:'Daily core sculpting.',   target:7,  matchCategory:'Core' },
+  { id: 2,  title:'30‑Day Push‑Up',  desc:'+2 reps/day.',            target:30, matchCategory:'Strength' },
+  { id: 3,  title:'14‑Day Yoga',     desc:'Morning flow.',           target:14, matchCategory:'Yoga' },
+  { id: 4,  title:'10k Steps x10',   desc:'10k daily.',              target:10, matchCategory:'Cardio' },
+  { id: 5,  title:'5k Run',          desc:'Complete 5 km.',           target:1,  matchCategory:'Cardio' },
+  { id: 6,  title:'Plank Progress',  desc:'+10 s/day.',              target:14, matchCategory:'Core' },
+  { id: 7,  title:'Flexibility',     desc:'15 min stretch.',         target:14, matchCategory:'Flexibility' },
+  { id: 8,  title:'HIIT Week',       desc:'5 HIIT sessions.',         target:5,  matchCategory:'Cardio' }
 ];
 
 function renderChallenges() {
   const joined = Storage.get(CHALLENGE_KEY, []);
   const acts   = Storage.get('ft_activities', []);
-  chList.innerHTML = '';
 
+  chList.innerHTML = '';
   challenges.forEach(ch => {
-    // count how many times user logged this workout title
-    const count = acts.filter(a => a.type === ch.title).length;
+    // count all activities of that category
+    const count = acts.filter(a => a.category === ch.matchCategory).length;
     const pct   = Math.min(100, Math.round(count / ch.target * 100));
     const done  = joined.includes(ch.id);
 
@@ -826,7 +829,6 @@ function renderChallenges() {
         joined.push(ch.id);
         Storage.set(CHALLENGE_KEY, joined);
       }
-      // re‑render so button text updates
       renderChallenges();
     };
 
@@ -834,10 +836,29 @@ function renderChallenges() {
   });
 }
 
-// call it on load, and re‑call whenever activities or joined list changes
+// hook into storage changes
 renderChallenges();
-Storage.onChange('ft_activities', renderChallenges);
-Storage.onChange(CHALLENGE_KEY,    renderChallenges);
+Storage.onChange('ft_activities',    renderChallenges);
+Storage.onChange(CHALLENGE_KEY,       renderChallenges);
+
+// ——————————————————————————————————————————————————————
+// … and in your **“Log This Workout”** handler, make sure you also record category:
+
+btnLog.onclick = () => {
+  const acts = Storage.get('ft_activities', []);
+  acts.unshift({
+    date:     new Date().toISOString().slice(0,10),
+    type:     w.title,
+    category: w.category,      // ← new!
+    duration: w.duration,
+    distance: '',
+    calories: w.calories,
+    notes:    ''
+  });
+  Storage.set('ft_activities', acts);
+  detailModal.style.display = 'none';
+};
+
 
     // — Live Sessions: seed into ft_liveSessions and use ft_mySchedules
     const sessList     = document.getElementById('sessionsList');
