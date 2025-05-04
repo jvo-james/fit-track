@@ -8,6 +8,7 @@
   <!-- Google Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
@@ -29,7 +30,6 @@
     font-family:var(--font-base);
   }
   a { color:inherit; text-decoration:none; }
-  .container { flex:1; overflow-y:auto; overflow-x:hidden; }
   #overlay {
     position:fixed; inset:0; background:rgba(0,0,0,0.5);
     opacity:0; visibility:hidden; transition:opacity var(--transition);
@@ -49,21 +49,22 @@
   .sidebar a.menu-item,
   .sidebar button.profile-menu {
     width:100%; padding:.8rem 0;
-    display:flex; flex-direction:column; align-items:center;
+    display:flex; flex-direction:column; align-items:center; gap:.3rem;
     color:var(--fg); background:none; border:none;
-    transition:background var(--transition); gap:0.3rem;
+    transition:background var(--transition);
   }
   .sidebar a.menu-item:hover,
   .sidebar a.menu-item.active,
-  .sidebar button.profile-menu:hover {
+  .sidebar button.profile-menu.active {
     background:var(--accent);
   }
-  .avatar-small {
+  .sidebar a.menu-item i,
+  .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
+  .sidebar a.menu-item span,
+  .sidebar button.profile-menu span   { font-size:.75rem; }
+  .sidebar .sign-out { margin-top:auto; margin-bottom:1rem!important; }
+  img.avatar-small, i.avatar-small {
     width:28px; height:28px; border-radius:50%; object-fit:cover;
-  }
-
-  .sidebar .sign-out {
-    margin-top:auto; margin-bottom:1rem;
   }
 
   /* Main & Header */
@@ -86,6 +87,7 @@
   .avatar-btn img { width:100%; height:100%; object-fit:cover; }
 
   /* Profile Form */
+  .container { flex:1; overflow-y:auto; }
   .content { padding:2rem; }
   #profileForm {
     max-width:900px; margin:0 auto; background:var(--accent);
@@ -102,8 +104,8 @@
   }
   .avatar-buttons { display:flex; gap:.5rem; }
   .avatar-buttons button {
-    background:var(--gold); color:var(--bg); border:none;
-    padding:.4rem .8rem; border-radius:6px; cursor:pointer;
+    background:var(--gold); color:var(--bg); padding:.4rem .8rem;
+    border:none; border-radius:6px; cursor:pointer;
   }
   .fields { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
   .field { display:flex; flex-direction:column; }
@@ -115,14 +117,32 @@
     background:var(--input-bg); color:var(--fg); font-size:1rem;
   }
   .field textarea { resize:vertical; min-height:80px; grid-column:span 2; }
+  .completion-container {
+    grid-column:1/-1; margin-top:1rem;
+  }
+  .completion-bar {
+    background:rgba(255,255,255,0.2); border-radius:6px; overflow:hidden; height:12px;
+  }
+  #completionFill {
+    height:100%; width:0; background:var(--gold); transition:width .5s ease;
+  }
   .actions {
-    grid-column:span 2; display:flex; justify-content:flex-end;
+    grid-column:span 2; display:flex; justify-content:flex-end; margin-top:1.5rem;
   }
   .actions button {
     background:var(--gold); color:var(--bg); border:none;
     padding:.75rem 1.5rem; border-radius:30px; cursor:pointer;
     font-weight:600;
   }
+
+  /* Profile Summary */
+  #profileSummary {
+    max-width:900px; margin:2rem auto; background:var(--accent);
+    border-radius:12px; padding:1.5rem;
+  }
+  #profileSummary h2 { color:var(--gold); margin-bottom:.5rem; }
+  #profileSummary ul { list-style:none; }
+  #profileSummary li { margin-bottom:.4rem; }
 
   @media(max-width:900px) {
     #profileForm { grid-template-columns:1fr; }
@@ -140,17 +160,20 @@
     <a href="log.html"         class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="menu-item profile-menu" id="profileSidebarBtn"><i class="fas fa-user-circle"></i><span>Profile</span></button>
-    <a href="signout.html"     class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <button id="profileSidebarBtn" class="menu-item profile-menu active">
+      <i id="sideAvatar" class="fas fa-user-circle avatar-small"></i>
+      <span>Profile</span>
+    </button>
+    <a href="home.html"        class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
   <div class="main">
     <header>
       <h1>My Profile</h1>
       <div class="header-controls">
-        <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+        <button id="logoutBtn" title="Sign Out"><i class="fas fa-sign-out-alt"></i></button>
         <button class="avatar-btn" id="hdrAvatarBtn">
-          <i id="hdrAvatarIcon" class="fas fa-user-circle"></i>
+          <i id="hdrAvatarIcon" class="fas fa-user-circle avatar-small"></i>
         </button>
       </div>
     </header>
@@ -186,12 +209,10 @@
               </select>
             </div>
             <div class="field"><label for="goals">Fitness Goals</label><textarea id="goals"></textarea></div>
-            <div class="field"><label for="theme">Theme</label>
-              <select id="theme"><option value="dark">Dark Mode</option><option value="light">Light Mode</option></select>
-            </div>
-            <div class="field"><label>Notifications</label>
-              <label><input type="checkbox" id="notifEmail"> Email</label><br>
-              <label><input type="checkbox" id="notifPush"> Push</label>
+
+            <div class="completion-container">
+              <label>Profile Completion:</label>
+              <div class="completion-bar"><div id="completionFill"></div></div>
             </div>
           </div>
 
@@ -199,110 +220,185 @@
             <button type="button" id="saveBtn">Save Changes</button>
           </div>
         </form>
+
+        <div id="profileSummary">
+          <h2>Your Profile Summary</h2>
+          <ul>
+            <li><strong>Name:</strong> <span id="sumName">—</span></li>
+            <li><strong>Email:</strong> <span id="sumEmail">—</span></li>
+            <li><strong>Bio:</strong> <span id="sumBio">—</span></li>
+            <li><strong>Location:</strong> <span id="sumLocation">—</span></li>
+            <li><strong>Age/Gender:</strong> <span id="sumAgeGender">—</span></li>
+            <li><strong>Height/Weight:</strong> <span id="sumHW">—</span></li>
+            <li><strong>Favorite:</strong> <span id="sumFavorite">—</span></li>
+            <li><strong>Goals:</strong> <span id="sumGoals">—</span></li>
+            <li><strong>Total Workouts:</strong> <span id="sumWorkouts">0</span></li>
+            <li><strong>Total Distance:</strong> <span id="sumDistance">0 km</span></li>
+            <li><strong>Total Calories:</strong> <span id="sumCalories">0</span></li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Load Storage Helper -->
+  <!-- storage.js helper -->
   <script type="module" src="storage.js"></script>
   <script type="module">
     import { Storage } from './storage.js';
 
+    // Elements
+    const form           = document.getElementById('profileForm');
+    const fields         = ['fullName','bio','location','age','gender','height','weight','favorite','goals'];
+    const avatarInput    = document.getElementById('avatarInput');
+    const avatarPreview  = document.getElementById('avatarPreview');
+    const completionFill = document.getElementById('completionFill');
+    const sum            = {
+      name:    document.getElementById('sumName'),
+      email:   document.getElementById('sumEmail'),
+      bio:     document.getElementById('sumBio'),
+      location:document.getElementById('sumLocation'),
+      ageGender:document.getElementById('sumAgeGender'),
+      hw:      document.getElementById('sumHW'),
+      favorite:document.getElementById('sumFavorite'),
+      goals:   document.getElementById('sumGoals'),
+      workouts:document.getElementById('sumWorkouts'),
+      distance:document.getElementById('sumDistance'),
+      calories:document.getElementById('sumCalories')
+    };
+
+    // Update sidebar & header avatars
     function updateAvatars(url) {
       const imgHTML = `<img src="${url}" class="avatar-small" />`;
-      document.querySelectorAll('#sideAvatar, #profileSidebarBtn i').forEach(el => {
-        if (url) el.outerHTML = imgHTML;
-      });
-      document.querySelectorAll('#hdrAvatarIcon, .avatar-btn i').forEach(el => {
-        if (url) el.outerHTML = imgHTML;
-      });
+      document.getElementById('sideAvatar').outerHTML = imgHTML;
+      document.getElementById('hdrAvatarIcon').outerHTML = imgHTML;
     }
 
-    function populateForm(p) {
-      document.getElementById('fullName').value = p.name || '';
-      document.getElementById('email').value = p.email || '';
-      document.getElementById('bio').value = p.bio || '';
-      document.getElementById('location').value = p.location || '';
-      document.getElementById('age').value = p.age || '';
-      document.getElementById('gender').value = p.gender || '';
-      document.getElementById('height').value = p.height || '';
-      document.getElementById('weight').value = p.weight || '';
-      document.getElementById('favorite').value = p.favorite || 'Running';
-      document.getElementById('goals').value = p.goals || '';
-      document.getElementById('theme').value = p.theme || 'dark';
-      document.getElementById('notifEmail').checked = !!p.notifEmail;
-      document.getElementById('notifPush').checked = !!p.notifPush;
-    }
-
-    function populateAvatar(p) {
-      const prev = document.getElementById('avatarPreview');
-      if (p.avatarDataUrl) {
-        prev.style.backgroundImage = `url(${p.avatarDataUrl})`;
-        prev.innerHTML = '';
+    // Populate form & preview
+    function populate() {
+      const cur = Storage.get('ft_current', {});
+      document.getElementById('fullName').value = cur.name || '';
+      document.getElementById('email').value    = cur.email || '';
+      document.getElementById('bio').value      = cur.bio || '';
+      document.getElementById('location').value = cur.location || '';
+      document.getElementById('age').value      = cur.age || '';
+      document.getElementById('gender').value   = cur.gender || '';
+      document.getElementById('height').value   = cur.height || '';
+      document.getElementById('weight').value   = cur.weight || '';
+      document.getElementById('favorite').value = cur.favorite || 'Running';
+      document.getElementById('goals').value     = cur.goals || '';
+      if (cur.avatarDataUrl) {
+        avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
+        avatarPreview.innerHTML = '';
       } else {
-        prev.style.backgroundImage = '';
-        prev.innerHTML = '<i class="fas fa-user"></i>';
+        avatarPreview.style.backgroundImage = '';
+        avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
       }
+      updateCompletion();
+      updateSummary();
     }
 
-    function bindSave() {
-      document.getElementById('saveBtn').addEventListener('click', () => {
-        const p = Storage.get('ft_current', {});
-        p.name = document.getElementById('fullName').value.trim();
-        if (!p.name) return alert('Full Name is required');
-        p.bio = document.getElementById('bio').value;
-        p.location = document.getElementById('location').value;
-        p.age = document.getElementById('age').value;
-        p.gender = document.getElementById('gender').value;
-        p.height = document.getElementById('height').value;
-        p.weight = document.getElementById('weight').value;
-        p.favorite = document.getElementById('favorite').value;
-        p.goals = document.getElementById('goals').value;
-        p.theme = document.getElementById('theme').value;
-        p.notifEmail = document.getElementById('notifEmail').checked;
-        p.notifPush = document.getElementById('notifPush').checked;
-        p.profileComplete = true;
-        Storage.set('ft_current', p);
-        alert('Profile saved!');
-      });
+    // Compute & update completion bar
+    function updateCompletion() {
+      const cur = Storage.get('ft_current', {});
+      let count = 0;
+      if (cur.name) count++;
+      if (cur.bio) count++;
+      if (cur.location) count++;
+      if (cur.age) count++;
+      if (cur.gender) count++;
+      if (cur.height) count++;
+      if (cur.weight) count++;
+      if (cur.favorite) count++;
+      if (cur.goals) count++;
+      if (cur.avatarDataUrl) count++;
+      const pct = Math.round(count / 10 * 100);
+      completionFill.style.width = pct + '%';
     }
 
-    function bindAvatarInput() {
-      const inp = document.getElementById('avatarInput');
-      document.getElementById('changeAvatarBtn').addEventListener('click', () => inp.click());
-      document.getElementById('removeAvatarBtn').addEventListener('click', () => {
-        const p = Storage.get('ft_current', {});
-        delete p.avatarDataUrl;
-        Storage.set('ft_current', p);
-      });
-      inp.addEventListener('change', e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const p = Storage.get('ft_current', {});
-          p.avatarDataUrl = reader.result;
-          Storage.set('ft_current', p);
-        };
-        reader.readAsDataURL(file);
-      });
+    // Populate profile summary & stats
+    function updateSummary() {
+      const cur = Storage.get('ft_current', {});
+      sum.name.textContent = cur.name || '—';
+      sum.email.textContent= cur.email || '—';
+      sum.bio.textContent = cur.bio || '—';
+      sum.location.textContent = cur.location || '—';
+      sum.ageGender.textContent = ((cur.age||'')+' / '+(cur.gender||'—')).replace(/\/\s*—$/,'');
+      sum.hw.textContent = ((cur.height||'')+' cm / '+(cur.weight||'')+' kg').replace(/\/\s*kg$/,'');
+      sum.favorite.textContent = cur.favorite || '—';
+      sum.goals.textContent = cur.goals || '—';
+
+      // stats from activities
+      const acts = Storage.get('ft_activities', []);
+      const totalWorkouts = acts.length;
+      const totalDistance = acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+      const totalCalories = acts.reduce((s,a)=>s+(+a.calories||0),0);
+      sum.workouts.textContent = totalWorkouts;
+      sum.distance.textContent = totalDistance + ' km';
+      sum.calories.textContent = totalCalories;
     }
 
+    // Bind avatar change/remove
+    document.getElementById('changeAvatarBtn').onclick = ()=> avatarInput.click();
+    document.getElementById('removeAvatarBtn').onclick = () => {
+      const cur = Storage.get('ft_current', {});
+      delete cur.avatarDataUrl;
+      Storage.set('ft_current', cur);
+      Storage.set('ft_profile', {...cur, avatarDataUrl: undefined, profileComplete:cur.profileComplete});
+    };
+    avatarInput.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const cur = Storage.get('ft_current', {});
+        cur.avatarDataUrl = reader.result;
+        Storage.set('ft_current', cur);
+        Storage.set('ft_profile', {...cur, avatarDataUrl:cur.avatarDataUrl, profileComplete:cur.profileComplete});
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Bind save button
+    document.getElementById('saveBtn').onclick = () => {
+      const cur = Storage.get('ft_current', {});
+      cur.name      = document.getElementById('fullName').value.trim();
+      if (!cur.name) return alert('Full Name is required');
+      cur.bio       = document.getElementById('bio').value;
+      cur.location  = document.getElementById('location').value;
+      cur.age       = document.getElementById('age').value;
+      cur.gender    = document.getElementById('gender').value;
+      cur.height    = document.getElementById('height').value;
+      cur.weight    = document.getElementById('weight').value;
+      cur.favorite  = document.getElementById('favorite').value;
+      cur.goals     = document.getElementById('goals').value;
+      cur.profileComplete = true;
+      Storage.set('ft_current', cur);
+      Storage.set('ft_profile', {
+        name: cur.name,
+        avatarDataUrl: cur.avatarDataUrl,
+        profileComplete: true
+      });
+      alert('Profile saved!');
+    };
+
+    // Update on storage changes
     Storage.onChange('ft_current', () => {
-      const p = Storage.get('ft_current', {});
-      populateForm(p);
-      populateAvatar(p);
-      updateAvatars(p.avatarDataUrl);
+      populate();
+      updateAvatars(Storage.get('ft_current').avatarDataUrl || '');
     });
 
+    // Initial populate
     document.addEventListener('DOMContentLoaded', () => {
-      const p = Storage.get('ft_current', {});
-      populateForm(p);
-      populateAvatar(p);
-      updateAvatars(p.avatarDataUrl);
-      bindSave();
-      bindAvatarInput();
+      populate();
+      updateAvatars(Storage.get('ft_current').avatarDataUrl || '');
     });
+
+    // Logout button
+    document.getElementById('logoutBtn').onclick = () => {
+      // Clear current user & redirect
+      Storage.set('ft_current', {});
+      location.replace('home.html');
+    };
   </script>
 </body>
 </html>
