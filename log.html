@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="storage.js"></script>
 
   <style>
@@ -116,9 +115,11 @@
     a.menu-item i, button.profile-menu i.avatar { font-size:1.2rem; }
     a.menu-item span, button.profile-menu span { font-size:.75rem; }
     .sign-out { margin-top:auto; margin-bottom:1rem; }
+    /* ensure avatar fits neatly */
     .sidebar img.avatar {
-      width:32px; height:32px; border-radius:50%;
-      object-fit:cover; border:2px solid var(--white);
+      width:1.2rem; height:1.2rem;
+      border-radius:50%; object-fit:cover;
+      border:1px solid var(--white);
     }
 
     /* HEADER */
@@ -146,6 +147,12 @@
     .header-right .icon-btn {
       margin-left:1rem; font-size:1.2rem;
     }
+    /* topbar avatar sizing */
+    .profile-btn img.avatar {
+      width:1.5rem; height:1.5rem;
+      border-radius:50%; object-fit:cover;
+      border:1px solid var(--white);
+    }
 
     /* MAIN */
     .main { flex:1; display:flex; flex-direction:column; }
@@ -162,21 +169,6 @@
     }
     .stat-card i { font-size:1.5rem; color:var(--gold); margin-bottom:.5rem; }
     .stat-card p { margin:.25rem 0; }
-
-    /* DISTRIBUTION CHART */
-    .distribution-section {
-      padding:0 1.5rem 1.5rem;
-    }
-    .distribution-section h2 {
-      display:flex; align-items:center; gap:.5rem;
-      color:var(--gold); margin-bottom:.75rem; font-size:1.2rem;
-    }
-    #distributionChart {
-      width:100%; height:240px;
-      background:rgba(255,255,255,0.05);
-      border-radius:8px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.5);
-    }
 
     /* LOG FORM */
     .log-section {
@@ -333,7 +325,9 @@
     <a href="log.html"         class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="menu-item profile-menu"><i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
+    <button class="menu-item profile-menu">
+      <i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span>
+    </button>
     <a href="home.html"        class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
@@ -343,8 +337,11 @@
       <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i></button>
       <h1><i class="fas fa-pen"></i> Log Activity</h1>
       <div class="header-right">
-        <button id="voiceBtn" class="icon-btn" aria-label="Voice input"><i class="fas fa-microphone"></i></button>
-        <button id="profile-btn" class="profile-btn" aria-label="Profile"><i id="top-avatar" class="fas fa-user-circle"></i></button>
+        <span class="welcome-text">Good Morning!</span>
+        <button class="icon-btn" aria-label="Quick Add"><i class="fas fa-bolt"></i></button>
+        <button id="profile-btn" class="profile-btn" aria-label="Profile">
+          <i id="top-avatar" class="fas fa-user-circle avatar"></i>
+        </button>
       </div>
     </header>
 
@@ -353,12 +350,6 @@
       <div class="stat-card"><i class="fas fa-dumbbell"></i><p id="stat-workouts">0</p><p>Workouts</p></div>
       <div class="stat-card"><i class="fas fa-route"></i><p id="stat-distance">0</p><p>Km</p></div>
       <div class="stat-card"><i class="fas fa-fire"></i><p id="stat-calories">0</p><p>Calories</p></div>
-    </section>
-
-    <!-- DISTRIBUTION CHART -->
-    <section class="distribution-section">
-      <h2><i class="fas fa-chart-pie"></i> Workout Distribution</h2>
-      <canvas id="distributionChart"></canvas>
     </section>
 
     <!-- LOG FORM -->
@@ -398,7 +389,7 @@
         <label for="notes">Notes</label>
         <textarea id="notes" rows="2" placeholder="Optional"></textarea>
         <div class="voice-control">
-          <button type="button" id="voiceBtn2" aria-label="Voice input">
+          <button type="button" id="voiceBtn" aria-label="Voice input">
             <i class="fas fa-microphone"></i>
           </button>
         </div>
@@ -447,11 +438,11 @@
     import { Storage } from './storage.js';
 
     document.addEventListener('DOMContentLoaded', () => {
-      // → Guard
+      // Guard: must be signed in
       const cur = Storage.get('ft_current', null);
       if (!cur || !cur.name) return location.replace('home.html');
 
-      // → Elements
+      // Elements
       const overlay      = document.getElementById('overlay'),
             sidebar      = document.getElementById('sidebar'),
             openBtn      = document.getElementById('hamburger'),
@@ -466,9 +457,6 @@
             statDist     = document.getElementById('stat-distance'),
             statCal      = document.getElementById('stat-calories'),
 
-            // pie chart
-            distCtx      = document.getElementById('distributionChart').getContext('2d'),
-
             // timer
             timerDisp    = document.getElementById('timerDisplay'),
             startBtn     = document.getElementById('startTimer'),
@@ -477,7 +465,7 @@
 
             // presets & voice
             presets      = document.querySelectorAll('.presets button'),
-            voiceBtn     = document.getElementById('voiceBtn2'),
+            voiceBtn     = document.getElementById('voiceBtn'),
 
             // form + lists
             form         = document.getElementById('logForm'),
@@ -493,24 +481,25 @@
             tourOv       = document.getElementById('tour-overlay'),
             tourTp       = document.getElementById('tour-tooltip');
 
-      // → Sidebar toggle
+      // Sidebar toggle
       openBtn.onclick  = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); };
       closeBtn.onclick = overlay.onclick = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
 
-      // → Profile nav
+      // Profile nav
       profileBtns.forEach(b=> b.onclick = ()=> location.replace('profile.html'));
 
-      // → Load / save helpers
-      const loadActs = ()=>Storage.get('ft_activities', []);
-      const saveActs = a=>Storage.set('ft_activities', a);
+      // Load/save helpers
+      const loadActs = ()=> Storage.get('ft_activities', []);
+      const saveActs = arr=> Storage.set('ft_activities', arr);
 
-      // → Avatar updater
+      // Avatar loader
       function updateAvatars(){
         const p = Storage.get('ft_profile', {});
         if(p.avatar){
           [sideAvatarEl, topAvatarEl].forEach(el=>{
             const img = document.createElement('img');
-            img.src= p.avatar; img.className='avatar';
+            img.src = p.avatar;
+            img.className = 'avatar';
             el.replaceWith(img);
           });
         }
@@ -518,93 +507,66 @@
       Storage.onChange('ft_profile', updateAvatars);
       updateAvatars();
 
-      // → Stopwatch
+      // Stopwatch
       let seconds=0, intervalID=null;
-      const pad = n=>String(n).padStart(2,'0');
+      const pad = n=> String(n).padStart(2,'0');
       function refreshTimer(){
         const m=Math.floor(seconds/60), s=seconds%60;
-        timerDisp.textContent=`${pad(m)}:${pad(s)}`;
+        timerDisp.textContent = `${pad(m)}:${pad(s)}`;
       }
-      startBtn.onclick = ()=>{
-        if(!intervalID) intervalID=setInterval(()=>{ seconds++; refreshTimer(); },1000);
+      startBtn.onclick = () => {
+        if(!intervalID) intervalID = setInterval(() => { seconds++; refreshTimer(); }, 1000);
       };
-      stopBtn.onclick = ()=>{
-        clearInterval(intervalID); intervalID=null;
+      stopBtn.onclick = () => {
+        clearInterval(intervalID);
+        intervalID = null;
         form.duration.value = Math.round(seconds/60);
       };
-      resetBtn.onclick = ()=>{
-        clearInterval(intervalID); intervalID=null; seconds=0; refreshTimer();
-        form.duration.value='';
+      resetBtn.onclick = () => {
+        clearInterval(intervalID);
+        intervalID = null;
+        seconds = 0;
+        refreshTimer();
+        form.duration.value = '';
       };
       refreshTimer();
 
-      // → Presets
+      // Presets
       presets.forEach(btn=>{
-        btn.onclick = ()=>{
+        btn.onclick = () => {
           form.type.value     = btn.dataset.type;
           form.duration.value = btn.dataset.duration;
           form.date.valueAsDate = new Date();
         };
       });
 
-      // → Voice notes
+      // Voice notes
       if('webkitSpeechRecognition' in window){
         const recog = new webkitSpeechRecognition();
-        recog.onresult = e=>{
+        recog.onresult = e => {
           form.notes.value += ' ' + e.results[0][0].transcript;
         };
-        voiceBtn.onclick = ()=>recog.start();
+        voiceBtn.onclick = ()=> recog.start();
       }
 
-      // → Pie chart setup
-      const distributionChart = new Chart(distCtx,{
-        type:'pie',
-        data:{
-          labels:['Running','Cycling','Swimming','Strength','Yoga','Other'],
-          datasets:[{
-            data:[], 
-            backgroundColor:[
-              'rgba(255,152,0,0.8)',
-              'rgba(244,67,54,0.8)',
-              'rgba(76,175,80,0.8)',
-              'rgba(3,169,244,0.8)',
-              'rgba(156,39,176,0.8)',
-              'rgba(255,235,59,0.8)'
-            ]
-          }]
-        },
-        options:{responsive:true,maintainAspectRatio:false}
-      });
-      function updateDistribution(){
-        const a = loadActs();
-        const cnt = { Running:0, Cycling:0, Swimming:0, Strength:0, Yoga:0, Other:0 };
-        a.forEach(x=> cnt[x.type] = (cnt[x.type]||0)+1 );
-        distributionChart.data.datasets[0].data = [
-          cnt.Running, cnt.Cycling, cnt.Swimming,
-          cnt.Strength, cnt.Yoga, cnt.Other
-        ];
-        distributionChart.update();
-      }
-
-      // → Overview & lists
+      // Overview & lists
       function updateOverview(){
-        const a=loadActs();
+        const a = loadActs();
         statWk.textContent   = a.length;
-        statDist.textContent = a.reduce((s,x)=>s+(parseFloat(x.distance)||0),0).toFixed(1);
-        statCal.textContent  = a.reduce((s,x)=>s+(parseFloat(x.calories)||0),0);
+        statDist.textContent = a.reduce((s,x)=>s+(+x.distance||0),0).toFixed(1);
+        statCal.textContent  = a.reduce((s,x)=>s+(+x.calories||0),0);
         achEls.forEach(el=>{
           const th = +el.dataset.threshold;
-          el.classList.toggle('unlocked', a.length>=th);
+          el.classList.toggle('unlocked', a.length >= th);
         });
-        updateDistribution();
       }
       function renderActivities(){
-        const a=loadActs();
-        activityList.innerHTML='';
+        const a = loadActs();
+        activityList.innerHTML = '';
         a.forEach((ent,i)=>{
-          const li=document.createElement('li');
-          li.className='activity-item';
-          li.innerHTML=`
+          const li = document.createElement('li');
+          li.className = 'activity-item';
+          li.innerHTML = `
             <div>
               <strong>${ent.type}</strong> on ${ent.date} — ${ent.duration} min
               ${ent.distance?`, ${ent.distance} km`:''}
@@ -613,29 +575,29 @@
               <time datetime="${ent.date}">${ent.date}</time>
             </div>
             <button class="delete-btn"><i class="fas fa-trash"></i></button>`;
-          li.querySelector('.delete-btn').onclick=()=>{
+          li.querySelector('.delete-btn').onclick = ()=>{
             a.splice(i,1); saveActs(a);
           };
           activityList.appendChild(li);
         });
       }
       function renderRecent(){
-        const a=loadActs();
+        const a = loadActs();
         if(a.length){
-          const L=a[0];
-          recentSum.innerHTML=`
+          const L = a[0];
+          recentSum.innerHTML = `
             <p><strong>${L.type}</strong> on ${L.date} — ${L.duration} min
             ${L.distance?`, ${L.distance} km`:''}
             ${L.calories?`, ${L.calories} cal`:''}</p>
             ${L.notes?`<p>“${L.notes}”</p>`:''}`;
         } else {
-          recentSum.textContent='No activity yet.';
+          recentSum.textContent = 'No activity yet.';
         }
       }
-      recentEdit.onclick=()=>{
-        const a=loadActs();
+      recentEdit.onclick = ()=>{
+        const a = loadActs();
         if(!a.length) return;
-        const L=a.shift(); saveActs(a);
+        const L = a.shift(); saveActs(a);
         form.date.value     = L.date;
         form.type.value     = L.type;
         form.duration.value = L.duration;
@@ -644,8 +606,8 @@
         form.notes.value    = L.notes;
       };
 
-      // → Motivation
-      const quotes=[
+      // Motivation
+      const quotes = [
         "“Don’t limit your challenges. Challenge your limits.”",
         "“Sweat is just fat crying.”",
         "“The body achieves what the mind believes.”",
@@ -653,24 +615,24 @@
       ];
       motivation.textContent = quotes[Math.floor(Math.random()*quotes.length)];
 
-      // → New‑user tour
+      // Tour
       function runTour(steps){
-        let idx=0;
+        let idx = 0;
         tourOv.style.display = tourTp.style.display = 'block';
         function show(){
           const {sel,msg} = steps[idx];
-          const el=document.querySelector(sel);
+          const el = document.querySelector(sel);
           if(!el) return endTour();
-          el.scrollIntoView({behavior:'smooth',block:'center'});
-          const r=el.getBoundingClientRect();
+          el.scrollIntoView({behavior:'smooth', block:'center'});
+          const r = el.getBoundingClientRect();
           tourTp.innerHTML = `
             <div style="margin-bottom:.5rem;">${msg}</div>
             <div style="display:flex;justify-content:space-between;">
               <button id="tour-next">${idx===steps.length-1?'Done':'Next'}</button>
               <button id="tour-skip">Skip</button>
             </div>`;
-          tourTp.style.top = (window.scrollY + r.bottom + 8) + 'px';
-          tourTp.style.left= (window.scrollX + r.left) + 'px';
+          tourTp.style.top  = (window.scrollY + r.bottom + 8) + 'px';
+          tourTp.style.left = (window.scrollX + r.left) + 'px';
           document.getElementById('tour-next').onclick = ()=>{
             idx++; if(idx<steps.length) show(); else endTour();
           };
@@ -682,9 +644,9 @@
         show();
       }
 
-      // → Handle new users
+      // New‑user bootstrap
       if(cur.isNew){
-        const a=loadActs();
+        const a = loadActs();
         if(!a.length){
           a.push({ user:cur.name,
                    date:new Date().toISOString().slice(0,10),
@@ -693,20 +655,19 @@
           saveActs(a);
         }
         runTour([
-          { sel:'.stats-section',     msg:'Here are your quick stats.' },
-          { sel:'.distribution-section', msg:'Check how your workouts break down.' },
-          { sel:'.presets',           msg:'Use presets for one‑tap logs.' },
-          { sel:'#logForm',           msg:'Fill out all fields and hit Save.' },
-          { sel:'.activity-list',     msg:'Your entries show up here.' }
+          { sel:'.stats-section',   msg:'These are your quick stats.' },
+          { sel:'.log-section',     msg:'Use this form to log any workout.' },
+          { sel:'.presets',         msg:'Tap a preset for one‑click logging.' },
+          { sel:'.activity-list',   msg:'Your logged activities appear here.' }
         ]);
-        cur.isNew=false;
+        cur.isNew = false;
         Storage.set('ft_current', cur);
       }
 
-      // → Form submit
+      // Form handler
       form.onsubmit = e=>{
         e.preventDefault();
-        const f=e.target;
+        const f = e.target;
         const ent = {
           user: cur.name,
           date: f.date.value,
@@ -716,11 +677,11 @@
           calories: f.calories.value,
           notes: f.notes.value.trim()
         };
-        const a=loadActs(); a.unshift(ent); saveActs(a);
+        const a = loadActs(); a.unshift(ent); saveActs(a);
         f.reset(); seconds=0; refreshTimer();
       };
 
-      // → Master update
+      // Master update
       function updateAll(){
         updateOverview();
         renderActivities();
