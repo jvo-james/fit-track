@@ -575,7 +575,7 @@
     <div class="live-grid" id="sessionsList"></div>
   </section>
 </div>
-```
+
 
   </div>
 
@@ -650,17 +650,24 @@ document.addEventListener('DOMContentLoaded', () => {
     location.replace('profile.html');
   }));
 
-  // — Swap avatars
-  const pf = Storage.get('ft_profile', {});
+ // right after DOMContentLoaded, inside your script
+function updateAvatars() {
+  const prof = Storage.get('ft_profile', {});
   ['side-avatar','top-avatar'].forEach(id => {
-    const placeholder = document.getElementById(id);
-    if (!placeholder) return;
+    const oldEl = document.getElementById(id);
+    if (!oldEl) return;
     const img = document.createElement('img');
     img.id = id;
     img.className = 'avatar';
-    img.src = pf.avatar || `https://i.pravatar.cc/150?u=${pf.email}`;
-    placeholder.replaceWith(img);
+    // use the exact key you set in profile.html:
+    img.src = prof.avatarDataUrl || prof.avatar || `https://i.pravatar.cc/150?u=${prof.email}`;
+    oldEl.replaceWith(img);
   });
+}
+updateAvatars();
+// re‑run on profile changes
+Storage.onChange('ft_profile', updateAvatars);
+
 
   // — Workouts data
   const workouts = [
@@ -901,7 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <p>${ch.desc}</p>
         <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
         <p style="opacity:.8">${count} / ${ch.target} complete (${pct}%)</p>
-        <button class="join-btn">${done?'Joined ✓':'Join Challenge'}</button>
+        <button class="join-btn">${done?'Joined ✓':'Join Challenge'}</button><br>
         ${done?`<button class="restart-btn" data-id="${ch.id}">Restart</button>`:''}
       `;
       // join
