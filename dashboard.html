@@ -622,14 +622,24 @@
         data:{labels:[],datasets:[{data:[],borderColor:'rgba(255,152,0,1)',backgroundColor:'rgba(255,152,0,0.3)',fill:true,tension:0.3}]},
         options:{responsive:true,maintainAspectRatio:false}
       });
-      const distributionChart = new Chart(ctxD,{
-        type:'pie',
-        data:{
-          labels:['Cardio','Strength','Flexibility','Other'],
-          datasets:[{data:[],backgroundColor:['rgba(255,152,0,0.8)','rgba(244,67,54,0.8)','rgba(76,175,80,0.8)','rgba(33,150,243,0.8)']}]
-        },
-        options:{responsive:true,maintainAspectRatio:false}
-      });
+    distributionChart = new Chart(ctxD, {
+  type: 'pie',
+  data: {
+    labels: ['Cardio','Strength','Flexibility','Other'],
+    datasets: [{
+      data: [cnt.Cardio, cnt.Strength, cnt.Flexibility, cnt.Other],
+      // one distinct color per slice
+      backgroundColor: [
+        'rgba(255,152,0,0.8)',  // Cardio
+        'rgba(244,67,54,0.8)',   // Strength
+        'rgba(76,175,80,0.8)',   // Flexibility
+        'rgba(33,150,243,0.8)'   // Other
+      ]
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+
 
       // Update sidebar & header avatar + name
       function syncProfileDisplay(){
