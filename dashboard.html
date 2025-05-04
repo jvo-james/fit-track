@@ -36,24 +36,23 @@
       overflow-x:hidden;
     }
     a { color:inherit; text-decoration:none; }
-    /* all buttons & selects */
+
+    /* Buttons & selects */
     button, select {
       font-family:var(--font-head);
-      background:var(--gold);
-      color:var(--bg);
-      border:none;
-      border-radius:30px;
-      padding:.6rem 1.2rem;
-      cursor:pointer;
+      border:none; border-radius:30px;
       transition:var(--transition);
     }
+    button {
+      background:var(--gold);
+      color:var(--bg);
+      padding:.6rem 1.2rem;
+    }
     select {
-      background:rgba(255,255,255,0.05);
-      color:var(--white);
+      background:rgba(255,255,255,0.05); color:var(--white);
       border:1px solid rgba(255,255,255,0.3);
-      -webkit-appearance:none;
-         -moz-appearance:none;
-              appearance:none;
+      padding:.6rem 1rem;
+      appearance:none;
     }
     button:hover, select:hover {
       transform:scale(1.03);
@@ -70,7 +69,8 @@
     /* Notification toast */
     .notif-bar {
       display:flex; align-items:center; justify-content:space-between;
-      position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+      position:fixed; bottom:20px; left:50%;
+      transform:translateX(-50%);
       background:rgba(255,152,0,0.1);
       border-left:4px solid var(--gold);
       padding:.8rem 1.2rem; border-radius:8px;
@@ -78,15 +78,14 @@
       font-size:.9rem; z-index:3000;
     }
     .notif-bar.hidden { display:none; }
-    .notif-bar button { background:transparent; color:var(--white); font-size:1.2rem; padding:0; }
+    .notif-bar button { background:transparent; color:var(--white); font-size:1.2rem; }
 
     /* Sidebar */
     aside#sidebar {
       width:var(--sidebar-w); background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
-      transform:translateX(0); transition:transform var(--transition);
+      padding:1rem 0; position:sticky; top:0; height:100vh;
       z-index:var(--sidebar-z);
     }
     @media(max-width: var(--mobile-break)) {
@@ -107,48 +106,65 @@
     a.menu-item, button.profile-menu {
       width:100%; padding:.8rem 0;
       display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      background:transparent; border:none; color:var(--white);
-      transition:background var(--transition),transform .2s;
+      background:transparent; color:var(--white);
+      transition:background var(--transition), transform .2s;
     }
     a.menu-item:hover, a.menu-item.active, button.profile-menu:hover {
       background:rgba(255,152,0,0.2);
       transform:translateX(4px);
     }
-    a.menu-item i, button.profile-menu i.avatar { font-size:1.4rem; }
-    a.menu-item span, button.profile-menu span { font-size:.75rem; }
-    .profile-menu { margin-top:auto; }
-    .sign-out { margin-top:auto; }
-    i.avatar {
-      width:32px; height:32px; border-radius:50%;
-      line-height:32px; text-align:center; font-size:1.5rem;
-      border:2px solid var(--white);
+    a.menu-item i, button.profile-menu i.avatar {
+      font-size:1.4rem;
     }
-    img.avatar {
+    a.menu-item span, button.profile-menu span { font-size:.75rem; }
+
+    /* Move profile up, sign-out down */
+    button.profile-menu { margin-top:0 !important; }
+    a.sign-out     { margin-top:auto; }
+
+    i.avatar, img.avatar {
       width:32px; height:32px; border-radius:50%;
       object-fit:cover; border:2px solid var(--white);
     }
 
     /* Main & Header */
-    .main { flex:1; display:flex; flex-direction:column; margin-left:var(--sidebar-w); }
+    .main {
+      flex:1; display:flex; flex-direction:column;
+      /* remove that 2px gap under the sidebar border */
+      margin-left:calc(var(--sidebar-w) - 2px);
+    }
     @media(max-width: var(--mobile-break)) { .main { margin-left:0; } }
     header {
       display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.5rem; background:linear-gradient(135deg,#111,#222);
+      padding:1rem 1.5rem;
+      background:linear-gradient(135deg,#111,#222);
       box-shadow:0 4px 12px rgba(0,0,0,0.7);
+      border-bottom:2px solid var(--gold);
       position:sticky; top:0; z-index:var(--header-z);
     }
-    .hamburger, .profile-btn { display:none; background:transparent; border:none; color:var(--white); font-size:1.5rem; }
+    .hamburger, .profile-btn {
+      display:none; background:transparent; border:none;
+      color:var(--white); font-size:1.5rem; z-index:9999;
+    }
     @media(max-width: var(--mobile-break)) {
-      .hamburger, .profile-btn { display:block; position:fixed; top:1rem; z-index:9999; }
+      .hamburger, .profile-btn { display:block; position:fixed; top:1rem; }
       .hamburger { left:1rem; }
       .profile-btn { right:1rem; }
-      header h1 { flex:1; text-align:center; }
+      header h1 { margin:0 auto; }
     }
-    header h1 { font-size:1.6rem; flex:1; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    header h1 {
+      font-size:1.6rem; flex:1;
+      text-align:center; white-space:nowrap;
+      overflow:hidden; text-overflow:ellipsis;
+    }
     .new-workout {
       display:flex; align-items:center; gap:.4rem;
-      background:var(--gold); color:var(--bg);
-      border-radius:30px; padding:.6rem 1.2rem;
+    }
+
+    /* Profile summary */
+    .profile-summary {
+      display:flex; align-items:center; gap:1rem;
+      padding:1rem 1.5rem;
     }
 
     /* Content grid */
@@ -159,7 +175,9 @@
     }
 
     /* Stats */
-    .stats { grid-column:1/-1; display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
+    .stats { grid-column:1/-1; display:grid; gap:1rem;
+      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    }
     .stat-card {
       background:rgba(255,255,255,0.05);
       border-radius:8px; padding:1rem; text-align:center;
@@ -169,78 +187,151 @@
     .stat-card i { font-size:1.4rem; color:var(--gold); margin-bottom:.4rem; }
     .stat-card h3 { font-size:1.2rem; }
 
-    /* Progress bars & goals */
-    .progress, .goals, .quick-log, .daily-tip, .live-sessions, .mini-board, .top-achievements, .community {
-      grid-column:1/-1;
+    /* Progress & Goals */
+    .progress, .goals { grid-column:1/-1; }
+    .bar-container, .goal-container {
+      background:rgba(255,255,255,0.2); border-radius:6px;
+      overflow:hidden; height:10px;
     }
-    .bar-container, .goal-container { background:rgba(255,255,255,0.2); border-radius:6px; overflow:hidden; height:10px; }
-    .bar-fill, .goal-fill { width:0; height:100%; background:var(--gold); transition:width 1s ease; }
-
-    .goals { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); }
-    .goal-card { background:rgba(255,255,255,0.05); border-radius:8px; padding:.8rem; }
+    .bar-fill, .goal-fill {
+      width:0; height:100%; background:var(--gold);
+      transition:width 1s ease;
+    }
+    .goals { display:grid; gap:1rem;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    }
+    .goal-card {
+      background:rgba(255,255,255,0.05); border-radius:8px;
+      padding:.8rem;
+    }
 
     /* Charts */
-    .charts { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
-    .chart-card { background:rgba(255,255,255,0.05); border-radius:8px; padding:1rem; }
-    .chart-card canvas { width:100% !important; height:300px !important; }
+    .charts {
+      grid-column:1/-1; display:grid; gap:1rem;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    }
+    .chart-card {
+      background:rgba(255,255,255,0.05);
+      border-radius:8px; padding:1rem; position:relative;
+      height:320px;
+    }
+    .chart-card canvas {
+      position:absolute; top:1.5rem; left:1rem; right:1rem; bottom:1rem;
+    }
 
-    /* Quick log */
-    .quick-log { background:rgba(255,255,255,0.05); padding:1rem; border-radius:8px; }
-    .quick-log h2 { margin-bottom:.6rem; color:var(--gold); font-size:1.1rem; }
-    .quick-log table { width:100%; border-collapse:collapse; margin-bottom:.8rem; }
-    .quick-log th, .quick-log td { padding:.4rem; text-align:left; border-bottom:1px solid rgba(255,255,255,0.2); font-size:.9rem; }
-    .fast-stats { display:flex; gap:1rem; font-size:.9rem; }
+    /* Recent Activities */
+    .quick-log {
+      grid-column:1/-1; background:rgba(255,255,255,0.05);
+      padding:1rem; border-radius:8px;
+    }
+    .quick-log h2 { margin-bottom:.6rem; }
+    .quick-log table {
+      width:100%; border-collapse:collapse; margin-bottom:.8rem;
+    }
+    .quick-log th, .quick-log td {
+      padding:.4rem; text-align:left;
+      border-bottom:1px solid rgba(255,255,255,0.2);
+      font-size:.9rem;
+    }
+    .fast-stats {
+      display:flex; gap:1rem; font-size:.9rem;
+    }
 
     /* Daily tip */
-    .daily-tip h2 { font-size:1.1rem; color:var(--gold); margin-bottom:.5rem; display:flex; align-items:center; gap:.5rem; }
+    .daily-tip h2 {
+      font-size:1.1rem; color:var(--gold);
+      margin-bottom:.5rem; display:flex; align-items:center; gap:.5rem;
+    }
     .daily-tip p { font-size:.9rem; line-height:1.4; opacity:.8; }
 
     /* Live sessions */
-    .live-sessions h2 { font-size:1.1rem; color:var(--gold); margin-bottom:.6rem; display:flex; align-items:center; gap:.5rem; }
-    .live-grid { display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); }
+    .live-sessions h2 {
+      font-size:1.1rem; color:var(--gold);
+      margin-bottom:.6rem; display:flex; align-items:center; gap:.5rem;
+    }
+    .live-grid {
+      display:grid; gap:.75rem;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    }
     .live-card {
-      background:rgba(255,255,255,0.05); border-radius:8px; padding:.75rem; text-align:center;
+      background:rgba(255,255,255,0.05); border-radius:8px;
+      padding:.75rem; text-align:center;
       transition:transform var(--transition),box-shadow var(--transition);
     }
-    .live-card:hover { transform:translateY(-4px); box-shadow:0 4px 12px rgba(0,0,0,0.4); }
-    .live-card img { width:100%; height:80px; object-fit:cover; border-radius:6px; margin-bottom:.5rem; }
+    .live-card:hover {
+      transform:translateY(-4px);
+      box-shadow:0 4px 12px rgba(0,0,0,0.4);
+    }
+    .live-card img {
+      width:100%; height:80px; object-fit:cover;
+      border-radius:6px; margin-bottom:.5rem;
+    }
     .live-card h3 { font-size:.95rem; margin-bottom:.25rem; }
     .live-card p { font-size:.8rem; opacity:.7; }
-    .live-card button { padding:.5rem 1rem; }
+    .live-card button { padding:.5rem 1rem; margin-top:.5rem; }
 
-    /* Mini‐ leaderboard */
+    /* Mini leaderboard (Top 5) */
     .mini-board {
-      background:rgba(255,255,255,0.05); border-radius:8px; padding:1rem;
+      grid-column:1/-1;
+      background:rgba(255,255,255,0.05);
+      border-radius:8px; padding:1rem;
       box-shadow:0 4px 12px rgba(0,0,0,0.5);
     }
-    .mini-board h2 { font-size:1.1rem; color:var(--gold); margin-bottom:.6rem; display:flex; align-items:center; gap:.5rem; }
-    .mini-board ol { list-style:none; padding:0; }
+    .mini-board h2 {
+      font-size:1.1rem; color:var(--gold);
+      margin-bottom:.6rem; display:flex; align-items:center; gap:.5rem;
+    }
+    .mini-board ol {
+      list-style:none; padding:0; margin:0;
+    }
     .mini-board li {
-      background:rgba(255,255,255,0.1); padding:.6rem; border-radius:6px;
-      display:flex; justify-content:space-between; margin-bottom:.5rem;
+      background:rgba(255,255,255,0.1);
+      padding:.6rem; border-radius:6px;
+      display:flex; justify-content:space-between;
+      margin-bottom:.5rem;
       font-size:.9rem;
     }
 
     /* Achievements */
-    .top-achievements h2 { font-size:1.1rem; color:var(--gold); margin-bottom:.6rem; display:flex; align-items:center; gap:.5rem; }
-    .achievements-grid { display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(80px,1fr)); }
+    .top-achievements h2 {
+      font-size:1.1rem; color:var(--gold);
+      margin-bottom:.6rem; display:flex; align-items:center; gap:.5rem;
+    }
+    .achievements-grid {
+      display:grid; gap:.75rem;
+      grid-template-columns:repeat(auto-fit,minmax(80px,1fr));
+    }
     .achievement-badge {
-      background:rgba(255,255,255,0.05); border-radius:8px; padding:.75rem; text-align:center;
+      background:rgba(255,255,255,0.05);
+      border-radius:8px; padding:.75rem; text-align:center;
       opacity:.4; transition:opacity .3s,box-shadow .3s;
     }
     .achievement-badge.unlocked {
       opacity:1; box-shadow:0 4px 12px rgba(255,152,0,0.4);
     }
-    .achievement-badge i { font-size:1.4rem; color:var(--gold); margin-bottom:.25rem; }
+    .achievement-badge i { font-size:1.4rem; color:var(--gold); }
     .achievement-badge p { font-size:.8rem; margin:0; }
 
     /* Community feed */
-    .community h2 { font-size:1.1rem; color:var(--gold); margin-bottom:.6rem; display:flex; align-items:center; gap:.5rem; }
-    .feed-list { list-style:none; display:flex; flex-direction:column; gap:.6rem; }
-    .feed-item { background:rgba(255,255,255,0.05); padding:.6rem; border-radius:6px; font-size:.9rem; }
+    .community h2 {
+      font-size:1.1rem; color:var(--gold);
+      margin-bottom:.6rem; display:flex; align-items:center; gap:.5rem;
+    }
+    .feed-list {
+      list-style:none; display:flex; flex-direction:column; gap:.6rem;
+      padding:0; margin:0;
+    }
+    .feed-item {
+      background:rgba(255,255,255,0.05); padding:.6rem; border-radius:6px;
+      font-size:.9rem;
+    }
 
-    /* Modal & Tour */
-    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:2000; }
+    /* Modals & Tour */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.7);
+      display:none; align-items:center; justify-content:center;
+      z-index:2000;
+    }
     .modal-overlay.active { display:flex; }
     .modal {
       background:var(--bg); padding:1.5rem; border:2px solid var(--gold);
@@ -248,20 +339,31 @@
     }
     .modal h2 { margin-bottom:1rem; color:var(--gold); }
     .modal label { display:block; margin:.6rem 0 .2rem; font-size:.9rem; }
-    .modal input, .modal select, .modal textarea { width:100%; padding:.6rem; border-radius:6px; border:1px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.05); color:var(--white); margin-bottom:.8rem; }
+    .modal input, .modal select, .modal textarea {
+      width:100%; padding:.6rem; border-radius:6px;
+      border:1px solid rgba(255,255,255,0.3);
+      background:rgba(255,255,255,0.05); color:var(--white);
+      margin-bottom:.8rem;
+    }
     .modal button.primary { width:100%; }
 
     #tour-overlay {
-      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:3000;
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
+      z-index:3000;
     }
     #tour-tooltip {
-      display:none; position:absolute; padding:1rem; background:#fff; color:#000; border-radius:5px; z-index:3001;
-      max-width:240px; box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      display:none; position:absolute; padding:1rem;
+      background:#fff; color:#000; border-radius:5px;
+      z-index:3001; max-width:240px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
     }
 
     /* Footer */
-    footer { text-align:center; padding:1rem 0; border-top:1px solid rgba(255,255,255,0.2); font-size:.9rem; opacity:.7; }
-
+    footer {
+      text-align:center; padding:1rem 0;
+      border-top:1px solid rgba(255,255,255,0.2);
+      font-size:.9rem; opacity:.7;
+    }
   </style>
 </head>
 
@@ -284,7 +386,7 @@
   </button>
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar">
+  <aside id="sidebar">
     <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html" class="menu-item active"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
@@ -300,55 +402,86 @@
   <!-- Main & header -->
   <div class="main">
     <header>
-      <button class="hamburger" id="hamburger-header"><i class="fas fa-bars"></i></button>
       <h1 id="greeting">Loading…</h1>
       <button class="new-workout"><i class="fas fa-plus"></i><span>New Workout</span></button>
     </header>
 
     <!-- Profile summary -->
-    <div class="profile-summary" style="display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;">
-      <img id="dash-avatar" class="avatar" src="" alt="You" style="width:48px;height:48px;"/>
-      <span id="dash-name" style="font-size:1.1rem;"></span>
+    <div class="profile-summary">
+      <img id="dash-avatar" class="avatar" src="" alt="You"/>
+      <span id="dash-name"></span>
     </div>
 
     <div class="content">
       <!-- Stats -->
       <section class="stats">
         <div class="stat-card"><i class="fas fa-dumbbell"></i><h3 id="workoutsCount">0</h3><p>This Month</p></div>
-        <div class="stat-card"><i class="fas fa-road"></i><h3 id="distanceCount">0 km</h3><p>Distance</p></div>
+        <div class="stat-card"><i class="fas fa-road"></i><h3 id="distanceCount">0 km</h3><p>Distance</p></div>
         <div class="stat-card"><i class="fas fa-fire"></i><h3 id="caloriesCount">0</h3><p>Calories</p></div>
         <div class="stat-card"><i class="fas fa-calendar-day"></i><h3 id="activeDaysCount">0</h3><p>Days</p></div>
-        <div class="stat-card"><i class="fas fa-stopwatch"></i><h3 id="todayTime">0 min</h3><p>Today</p></div>
+        <div class="stat-card"><i class="fas fa-stopwatch"></i><h3 id="todayTime">0 min</h3><p>Today</p></div>
         <div class="stat-card"><i class="fas fa-percentage"></i><h3 id="avgCalories">0</h3><p>Avg Cal</p></div>
       </section>
 
       <!-- Weekly progress -->
       <section class="progress">
-        <h3 style="color:var(--gold);margin-bottom:.5rem;"><i class="fas fa-chart-line"></i> Weekly Goal</h3>
-        <div class="bar-container"><div class="bar-fill" id="progressBar"></div></div>
+        <h3 style="color:var(--gold);margin-bottom:.5rem;">
+          <i class="fas fa-chart-line"></i> Weekly Goal
+        </h3>
+        <div class="bar-container">
+          <div class="bar-fill" id="progressBar"></div>
+        </div>
       </section>
 
       <!-- Goals -->
       <section class="goals">
-        <div class="goal-card"><p>Daily: 30 min</p><div class="goal-container"><div class="goal-fill" id="goalDaily"></div></div></div>
-        <div class="goal-card"><p>Weekly: 5 workouts</p><div class="goal-container"><div class="goal-fill" id="goalWeekly"></div></div></div>
-        <div class="goal-card"><p>Monthly: 20 workouts</p><div class="goal-container"><div class="goal-fill" id="goalMonthly"></div></div></div>
+        <div class="goal-card">
+          <p>Daily: 30 min</p>
+          <div class="goal-container"><div class="goal-fill" id="goalDaily"></div></div>
+        </div>
+        <div class="goal-card">
+          <p>Weekly: 5 workouts</p>
+          <div class="goal-container"><div class="goal-fill" id="goalWeekly"></div></div>
+        </div>
+        <div class="goal-card">
+          <p>Monthly: 20 workouts</p>
+          <div class="goal-container"><div class="goal-fill" id="goalMonthly"></div></div>
+        </div>
       </section>
 
       <!-- Charts -->
       <section class="charts">
-        <div class="chart-card"><h3 style="color:var(--gold);margin-bottom:.5rem;"><i class="fas fa-chart-line"></i> Activity Over Time</h3><canvas id="activityChart"></canvas></div>
-        <div class="chart-card"><h3 style="color:var(--gold);margin-bottom:.5rem;"><i class="fas fa-chart-pie"></i> Workout Distribution</h3><canvas id="distributionChart"></canvas></div>
+        <div class="chart-card">
+          <h3 style="color:var(--gold);margin-bottom:.5rem;">
+            <i class="fas fa-chart-line"></i> Activity Over Time
+          </h3>
+          <canvas id="activityChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 style="color:var(--gold);margin-bottom:.5rem;">
+            <i class="fas fa-chart-pie"></i> Workout Distribution
+          </h3>
+          <canvas id="distributionChart"></canvas>
+        </div>
       </section>
 
-      <!-- Recent -->
+      <!-- Recent Activities -->
       <section class="quick-log">
         <h2><i class="fas fa-history"></i> Recent Activities</h2>
-        <table><thead><tr><th>Date</th><th>Type</th><th>Dur.</th><th>Km</th></tr></thead><tbody id="recent-acts"></tbody></table>
-        <div class="fast-stats"><div><strong id="avg-dur">0</strong> min avg</div><div><strong id="tot-dist">0</strong> km</div><div><strong id="tot-cal">0</strong> cal</div></div>
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Type</th><th>Dur.</th><th>Km</th></tr>
+          </thead>
+          <tbody id="recent-acts"></tbody>
+        </table>
+        <div class="fast-stats">
+          <div><strong id="avg-dur">0</strong> min avg</div>
+          <div><strong id="tot-dist">0</strong> km</div>
+          <div><strong id="tot-cal">0</strong> cal</div>
+        </div>
       </section>
 
-      <!-- Tip -->
+      <!-- Tip of the Day -->
       <section class="daily-tip">
         <h2><i class="fas fa-lightbulb"></i> Tip of the Day</h2>
         <p id="tip-of-day"></p>
@@ -360,9 +493,9 @@
         <div class="live-grid" id="liveSessionsGrid"></div>
       </section>
 
-      <!-- Top 5 leaderboard -->
+      <!-- Top 5 Leaderboard -->
       <section class="mini-board">
-        <h2><i class="fas fa-star"></i> Top 5</h2>
+        <h2><i class="fas fa-star"></i> Top 5</h2>
         <ol id="miniLeaderboard"></ol>
       </section>
 
@@ -372,7 +505,7 @@
         <div class="achievements-grid" id="yourAchievements"></div>
       </section>
 
-      <!-- Community -->
+      <!-- Community Feed -->
       <section class="community">
         <h2><i class="fas fa-users"></i> Community Feed</h2>
         <ul class="feed-list" id="communityFeed"></ul>
@@ -390,7 +523,8 @@
       <input type="date" id="w-date" />
       <label for="w-type">Type</label>
       <select id="w-type">
-        <option>Cardio</option><option>Strength</option><option>Flexibility</option><option>Other</option>
+        <option>Cardio</option><option>Strength</option>
+        <option>Flexibility</option><option>Other</option>
       </select>
       <label for="w-duration">Duration (mins)</label>
       <input type="number" id="w-duration" placeholder="30" />
@@ -401,7 +535,8 @@
       <label for="w-notes">Notes</label>
       <textarea id="w-notes" rows="3" placeholder="How did it feel?"></textarea>
       <button class="primary" id="w-save">Save Workout</button>
-      <button class="close" id="w-cancel" style="margin-top:.5rem;padding:.4rem 1rem;">Cancel</button>
+      <button class="close" id="w-cancel"
+        style="margin-top:.5rem;padding:.4rem 1rem;">Cancel</button>
     </div>
   </div>
 
@@ -409,61 +544,76 @@
   <div id="tour-overlay"></div>
   <div id="tour-tooltip"></div>
 
-
   <script type="module">
     import { Storage } from './storage.js';
 
     document.addEventListener('DOMContentLoaded', () => {
-      // redirect if not signed in
-      const cur = Storage.get('ft_current', null);
+      // Redirect if not logged in
+      let cur = Storage.get('ft_current', null);
       if (!cur || !cur.name) return location.replace('home.html');
 
-      // elements
-      const notifBar      = document.getElementById('notif-bar');
-      const notifClose    = document.getElementById('notif-close');
-      const hamburger     = document.getElementById('hamburger');
-      const sidebar       = document.getElementById('sidebar');
-      const overlay       = document.getElementById('overlay');
-      const sidebarClose  = document.getElementById('sidebar-close');
-      const profileBtn    = document.getElementById('profile-btn');
-      const profileMenu   = document.querySelector('.profile-menu');
-      const newWorkoutBtn = document.querySelector('.new-workout');
-      const workoutModal  = document.getElementById('workout-modal');
-      const wCancel       = document.getElementById('w-cancel');
-      const wSave         = document.getElementById('w-save');
-      const tourOv        = document.getElementById('tour-overlay');
-      const tourTp        = document.getElementById('tour-tooltip');
-      const greetEl       = document.getElementById('greeting');
+      // Elements
+      const notifBar     = document.getElementById('notif-bar');
+      const notifClose   = document.getElementById('notif-close');
+      const hamburger    = document.getElementById('hamburger');
+      const sidebar      = document.getElementById('sidebar');
+      const overlay      = document.getElementById('overlay');
+      const sidebarClose = document.getElementById('sidebar-close');
+      const profileBtn   = document.getElementById('profile-btn');
+      const profileMenu  = document.querySelector('.profile-menu');
+      const newWorkoutBtn= document.querySelector('.new-workout');
+      const workoutModal = document.getElementById('workout-modal');
+      const wCancel      = document.getElementById('w-cancel');
+      const wSave        = document.getElementById('w-save');
+      const tourOv       = document.getElementById('tour-overlay');
+      const tourTp       = document.getElementById('tour-tooltip');
+      const greetEl      = document.getElementById('greeting');
 
-      // notification position fix
-      const prof       = Storage.get('ft_profile', {});
-      if (!prof.name || !prof.avatar) notifBar.classList.remove('hidden');
+      // Show toast until profileComplete = true
+      function syncNotif() {
+        const prof = Storage.get('ft_profile', {});
+        if (prof.profileComplete) notifBar.classList.add('hidden');
+        else                       notifBar.classList.remove('hidden');
+      }
+      Storage.onChange('ft_profile', syncNotif);
+      syncNotif();
       notifClose.addEventListener('click', ()=> notifBar.classList.add('hidden'));
 
-      // sidebar toggle
-      hamburger.addEventListener('click', ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); });
-      sidebarClose.addEventListener('click', ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
-      overlay.addEventListener('click', ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+      // Sidebar toggle
+      hamburger.addEventListener('click', ()=>{
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+      });
+      sidebarClose.addEventListener('click', ()=>{
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      });
+      overlay.addEventListener('click', ()=>{
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      });
 
-      // profile nav
+      // Profile nav
       profileBtn.addEventListener('click', ()=> location.replace('profile.html'));
       profileMenu.addEventListener('click', ()=> location.replace('profile.html'));
 
-      // pseudo initial workout if new
+      // Possibly seed a sample workout
       if (cur.isNew) {
-        if (!Storage.get('ft_activities', []).length) {
+        const acts = Storage.get('ft_activities', []);
+        if (!acts.length) {
           Storage.set('ft_activities', [{
             id: 'sample1',
             date: new Date().toISOString().slice(0,10),
-            type: 'Cardio', duration:25, distance:3, calories:200, notes:'Welcome workout!'
+            type: 'Cardio', duration:25, distance:3, calories:200,
+            notes:'Welcome workout!'
           }]);
         }
         greetEl.textContent = `Hello, ${cur.name}!`;
         runTour([
-          { sel: '.stats',         msg: 'These are your monthly stats.' },
-          { sel: '.live-sessions', msg: 'See & schedule live sessions here.' },
-          { sel: '.charts',        msg: 'Track your activity over time.' },
-          { sel: '.mini-board',    msg: 'Check out the Top 5 leaderboard.' }
+          { sel: '.stats',          msg: 'These are your monthly stats.' },
+          { sel: '.charts',         msg: 'Track your activity over time.' },
+          { sel: '.mini-board',     msg: 'See the Top 5 leaderboard.' },
+          { sel: '.live-sessions',  msg: 'Browse upcoming live sessions.' }
         ]);
         cur.isNew = false;
         Storage.set('ft_current', cur);
@@ -471,226 +621,302 @@
         greetEl.textContent = `Welcome back, ${cur.name}!`;
       }
 
-      // Tour with Skip
+      // Tour with automatic scroll
       function runTour(steps) {
         let idx = 0;
         tourOv.style.display = tourTp.style.display = 'block';
         function show() {
           const {sel,msg} = steps[idx];
           const el = document.querySelector(sel);
-          const r  = el.getBoundingClientRect();
+          if (!el) return endTour();
+          el.scrollIntoView({behavior:'smooth', block:'center'});
+          const r = el.getBoundingClientRect();
           tourTp.innerHTML = `
             <div style="margin-bottom:.5rem;">${msg}</div>
             <div style="display:flex;justify-content:space-between;">
               <button id="tour-next">${idx===steps.length-1?'Done':'Next'}</button>
               <button id="tour-skip">Skip</button>
             </div>`;
-          tourTp.style.top  = (r.bottom + window.scrollY + 8)+'px';
-          tourTp.style.left = (r.left + window.scrollX)+'px';
+          tourTp.style.top  = (window.scrollY + r.bottom + 8) + 'px';
+          tourTp.style.left = (window.scrollX + r.left) + 'px';
           document.getElementById('tour-next').onclick = ()=>{
-            idx++;
-            if(idx<steps.length) show();
-            else tourOv.style.display = tourTp.style.display = 'none';
+            idx++; if(idx<steps.length) show(); else endTour();
           };
-          document.getElementById('tour-skip').onclick = ()=>{
-            tourOv.style.display = tourTp.style.display = 'none';
-          };
+          document.getElementById('tour-skip').onclick = endTour;
+        }
+        function endTour() {
+          tourOv.style.display = tourTp.style.display = 'none';
         }
         show();
       }
 
-      // new-workout modal
+      // Workout modal
       newWorkoutBtn.onclick = ()=> workoutModal.classList.add('active');
       wCancel.onclick       = ()=> workoutModal.classList.remove('active');
       wSave.onclick         = ()=>{
         const date     = document.getElementById('w-date').value;
         const type     = document.getElementById('w-type').value;
         const duration = +document.getElementById('w-duration').value;
-        if(!date || !duration) return alert('Date & duration required');
+        if(!date||!duration) return alert('Date & duration required');
         const distance = +document.getElementById('w-distance').value;
         const calories = +document.getElementById('w-calories').value;
         const notes    = document.getElementById('w-notes').value.trim();
         const all = Storage.get('ft_activities', []);
-        all.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
+        all.unshift({ id:Date.now().toString(), date,type,duration,distance,calories,notes });
         Storage.set('ft_activities', all);
         updateDashboard();
         workoutModal.classList.remove('active');
       };
 
-      // chart setup
+      // Charts
       const actCtx = document.getElementById('activityChart').getContext('2d');
       const distCtx= document.getElementById('distributionChart').getContext('2d');
       const activityChart = new Chart(actCtx,{
         type:'line',
-        data:{labels:[],datasets:[{label:'Mins',data:[],borderColor:'#ff9800',backgroundColor:'rgba(255,152,0,0.2)',fill:true,tension:.3}]},
+        data:{labels:[],datasets:[{
+          label:'Mins',
+          data:[],
+          borderColor: 'rgba(255,152,0,1)',
+          backgroundColor:'rgba(255,152,0,0.2)',
+          fill:true,
+          tension:0.3
+        }]},
         options:{responsive:true,maintainAspectRatio:false}
       });
       const distributionChart = new Chart(distCtx,{
         type:'pie',
         data:{
           labels:['Cardio','Strength','Flexibility','Other'],
-          datasets:[{data:[],backgroundColor:['rgba(255,152,0,0.8)','rgba(255,87,34,0.8)','rgba(76,175,80,0.8)','rgba(3,169,244,0.8)']}]
+          datasets:[{ data:[], backgroundColor:[
+            'rgba(255,152,0,0.8)','rgba(255,87,34,0.8)',
+            'rgba(76,175,80,0.8)','rgba(3,169,244,0.8)'
+          ]}]
         },
         options:{responsive:true,maintainAspectRatio:false}
       });
 
-      // updates
+      // Modal for scheduling & joins
+      const userModalOv = document.getElementById('userModalOverlay');
+      // ... you can reuse your leaderboard modal if desired ...
+
+      // Profile summary updates
       function updateProfileSummary(){
         const p = Storage.get('ft_profile', {});
         const avatarUrl = p.avatar || `https://i.pravatar.cc/150?u=${cur.email}`;
         ['dash-avatar','side-avatar','top-avatar'].forEach(id=>{
-          const el = document.getElementById(id);
+          const old = document.getElementById(id);
+          if (!old) return;
           const img = document.createElement('img');
           img.id = id; img.className='avatar'; img.src=avatarUrl; img.alt='Profile';
-          el.replaceWith(img);
+          old.replaceWith(img);
         });
         document.getElementById('dash-name').textContent = cur.name;
       }
 
+      // Stats & progress
       function updateStats(){
         const acts = Storage.get('ft_activities', []);
         const now  = new Date();
+        // This month
         const thisMonth = acts.filter(a=>{
           const d=new Date(a.date);
-          return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+          return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
         });
         document.getElementById('workoutsCount').textContent = thisMonth.length;
-        const totDist = thisMonth.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1)+' km';
+        const totDist = thisMonth.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
         const totCal  = thisMonth.reduce((s,a)=>s+(+a.calories||0),0);
-        document.getElementById('distanceCount').textContent = totDist;
+        document.getElementById('distanceCount').textContent = totDist+' km';
         document.getElementById('caloriesCount').textContent = totCal;
         const days = new Set(thisMonth.map(a=>a.date)).size;
         document.getElementById('activeDaysCount').textContent = days;
+        // Today
         const todayKey = now.toISOString().slice(0,10);
-        const todayTotal = acts.filter(a=>a.date===todayKey).reduce((s,a)=>s+(+a.duration||0),0);
-        document.getElementById('todayTime').textContent = todayTotal+' min';
-        document.getElementById('avgCalories').textContent = thisMonth.length?Math.round(totCal/thisMonth.length):0;
-        // bars
+        const todayTotal = acts.filter(a=>a.date===todayKey)
+                              .reduce((s,a)=>s+(+a.duration||0),0);
+        document.getElementById('todayTime').textContent = todayTotal+' min';
+        document.getElementById('avgCalories').textContent =
+          thisMonth.length ? Math.round(totCal/thisMonth.length) : 0;
+
+        // Progress bars
         const weekCount = acts.filter(a=>{
           const d=new Date(a.date);
-          return (now-d)/(1000*60*60*24)<=7;
+          return (now-d)/(1000*60*60*24) <= 7;
         }).length;
-        document.getElementById('progressBar').style.width = Math.min(100,Math.round(weekCount/5*100))+'%';
-        document.getElementById('goalDaily').style.width   = Math.min(100,Math.round(todayTotal/30*100))+'%';
-        document.getElementById('goalWeekly').style.width  = Math.min(100,Math.round(weekCount/5*100))+'%';
-        document.getElementById('goalMonthly').style.width = Math.min(100,Math.round(thisMonth.length/20*100))+'%';
+        document.getElementById('progressBar').style.width     =
+          Math.min(100,Math.round(weekCount/5*100))+'%';
+        document.getElementById('goalDaily').style.width       =
+          Math.min(100,Math.round(todayTotal/30*100))+'%';
+        document.getElementById('goalWeekly').style.width      =
+          Math.min(100,Math.round(weekCount/5*100))+'%';
+        document.getElementById('goalMonthly').style.width     =
+          Math.min(100,Math.round(thisMonth.length/20*100))+'%';
       }
 
+      // Charts data
       function updateCharts(){
         const acts = Storage.get('ft_activities', []);
         const now  = new Date();
-        const labels=[], data=[];
+        const labels=[], data7=[];
         for(let i=6;i>=0;i--){
           const d=new Date(); d.setDate(d.getDate()-i);
           labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
-          data.push(acts.filter(a=>a.date===d.toISOString().slice(0,10)).reduce((s,a)=>s+(+a.duration||0),0));
+          data7.push(
+            acts.filter(a=>a.date===d.toISOString().slice(0,10))
+                .reduce((s,a)=>s+(+a.duration||0),0)
+          );
         }
-        activityChart.data.labels = labels;
-        activityChart.data.datasets[0].data = data;
+        activityChart.data.labels            = labels;
+        activityChart.data.datasets[0].data  = data7;
         activityChart.update();
+
         // pie
-        const thisMonth = acts.filter(a=>{
+        const monthActs = acts.filter(a=>{
           const d=new Date(a.date);
           return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
         });
-        const cnt={Cardio:0,Strength:0,Flexibility:0,Other:0};
-        thisMonth.forEach(a=>{
-          if(cnt[a.type]!==undefined) cnt[a.type]++;
-          else cnt.Other++;
+        const cnt = { Cardio:0, Strength:0, Flexibility:0, Other:0 };
+        monthActs.forEach(a=>{
+          cnt[a.type] = (cnt[a.type]||0) + 1;
         });
-        distributionChart.data.datasets[0].data = [cnt.Cardio,cnt.Strength,cnt.Flexibility,cnt.Other];
+        distributionChart.data.datasets[0].data = [
+          cnt.Cardio, cnt.Strength, cnt.Flexibility, cnt.Other
+        ];
         distributionChart.update();
       }
 
+      // Recent + scheduled
       function updateRecentActivities(){
-        const acts = Storage.get('ft_activities', []);
-        const tb   = document.getElementById('recent-acts');
-        tb.innerHTML='';
-        acts.slice(0,5).forEach(a=>{
-          tb.insertAdjacentHTML('beforeend', `
-            <tr><td>${a.date}</td><td>${a.type}</td><td>${a.duration}</td><td>${a.distance||'-'}</td></tr>`);
+        const acts      = Storage.get('ft_activities', []);
+        const schedIds  = Storage.get('ft_mySchedules', []);
+        const sessions  = Storage.get('ft_liveSessions', []);
+        const combined  = [];
+        // Scheduled events
+        schedIds.forEach(id=>{
+          const s = sessions.find(x=>x.id===id);
+          if(s) combined.push({
+            date: new Date().toISOString().slice(0,10),
+            type:`Scheduled: ${s.title}`,
+            duration:'–',
+            distance:'–'
+          });
         });
-        const avgDur = acts.length?Math.round(acts.reduce((s,a)=>s+(+a.duration||0),0)/acts.length):0;
-        const totDist=acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
-        const totCal =acts.reduce((s,a)=>s+(+a.calories||0),0);
+        // normal
+        acts.forEach(a=>{
+          combined.push({
+            date:a.date, type:a.type,
+            duration:a.duration, distance:a.distance||'–'
+          });
+        });
+        // sort desc
+        combined.sort((a,b)=> b.date.localeCompare(a.date));
+        const tb = document.getElementById('recent-acts');
+        tb.innerHTML='';
+        combined.slice(0,5).forEach(e=>{
+          tb.insertAdjacentHTML('beforeend',`
+            <tr>
+              <td>${e.date}</td>
+              <td>${e.type}</td>
+              <td>${e.duration}</td>
+              <td>${e.distance}</td>
+            </tr>`);
+        });
+        // summary
+        const avgDur = acts.length
+          ? Math.round(acts.reduce((s,a)=>s+(+a.duration||0),0)/acts.length)
+          : 0;
+        const totDist = acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+        const totCal  = acts.reduce((s,a)=>s+(+a.calories||0),0);
         document.getElementById('avg-dur').textContent = avgDur;
         document.getElementById('tot-dist').textContent = totDist;
         document.getElementById('tot-cal').textContent  = totCal;
       }
 
+      // Top 5 mini‑leaderboard
       function updateMiniLeaderboard(){
-        const list=Storage.get('ft_leaderboard',[])
-                    .sort((a,b)=>b.score-a.score).slice(0,5);
-        const ol =document.getElementById('miniLeaderboard');
+        const lb = Storage.get('ft_leaderboard', [])
+          .sort((a,b)=>(b.score||0)-(a.score||0))
+          .slice(0,5);
+        const ol = document.getElementById('miniLeaderboard');
         ol.innerHTML='';
-        list.forEach(u=> ol.insertAdjacentHTML('beforeend', `<li>${u.name}<span>${u.score}</span></li>`));
+        lb.forEach(u=>{
+          ol.insertAdjacentHTML('beforeend',`
+            <li>
+              <span>${u.name}</span>
+              <strong>${u.score||0}</strong>
+            </li>`);
+        });
       }
 
+      // Achievements
       function updateAchievements(){
         const total = Storage.get('ft_activities', []).length;
-        const th =[
-          {n:1, icon:'fas fa-star',   text:'First Workout'},
-          {n:5, icon:'fas fa-medal',  text:'5 Workouts'},
-          {n:10,icon:'fas fa-trophy', text:'10 Workouts'},
-          {n:30,icon:'fas fa-award',  text:'30 Workouts'}
+        const thresh = [
+          {n:1,  icon:'fas fa-star',   txt:'First Workout'},
+          {n:5,  icon:'fas fa-medal',  txt:'5 Workouts'},
+          {n:10, icon:'fas fa-trophy', txt:'10 Workouts'},
+          {n:30, icon:'fas fa-award',  txt:'30 Workouts'}
         ];
-        const cont =document.getElementById('yourAchievements');
+        const cont = document.getElementById('yourAchievements');
         cont.innerHTML='';
-        th.forEach(t=>{
-          const div=document.createElement('div');
-          div.className='achievement-badge'+(total>=t.n?' unlocked':'');
-          div.innerHTML=`<i class="${t.icon}"></i><p>${t.text}</p>`;
+        thresh.forEach(b=>{
+          const div = document.createElement('div');
+          div.className = 'achievement-badge'+(total>=b.n?' unlocked':'');
+          div.innerHTML = `<i class="${b.icon}"></i><p>${b.txt}</p>`;
           cont.append(div);
         });
       }
 
+      // Live sessions
       function updateLiveSessions(){
         const sessions = Storage.get('ft_liveSessions', []);
-        const sched    = Storage.get('ft_mySchedules', []);
+        const mySched  = Storage.get('ft_mySchedules', []);
         const grid     = document.getElementById('liveSessionsGrid');
         grid.innerHTML='';
-        sessions.sort((a,b)=>new Date(a.start)-new Date(b.start))
-          .forEach(s=>{
-            const start = new Date(s.start);
-            const future= start>new Date();
-            const btnTxt= future
-              ? (sched.includes(s.id)? '✔ Scheduled' : 'Schedule')
-              : 'Join Now';
-            const cls = future? 'schedule-btn':'join-btn';
-            grid.insertAdjacentHTML('beforeend', `
-              <div class="live-card">
-                <img src="${s.img}" alt="${s.title}"/>
-                <h3>${s.title}</h3>
-                <p>${s.host} • ${start.toLocaleString()}</p>
-                <button class="${cls}" data-id="${s.id}">${btnTxt}</button>
-              </div>`);
+        sessions.forEach(s=>{
+          const start = new Date(s.start);
+          const future = start > new Date();
+          const btnTxt = future
+            ? (mySched.includes(s.id)? '✔ Scheduled' : 'Schedule')
+            : 'Join Now';
+          const cls = future? 'schedule-btn':'join-btn';
+          grid.insertAdjacentHTML('beforeend',`
+            <div class="live-card">
+              <img src="${s.img}" alt="${s.title}"/>
+              <h3>${s.title}</h3>
+              <p>${s.host} • ${start.toLocaleString()}</p>
+              <button class="${cls}" data-id="${s.id}">${btnTxt}</button>
+            </div>`);
         });
       }
 
+      // schedule/join handlers
       document.getElementById('liveSessionsGrid').addEventListener('click', e=>{
-        const btn=e.target;
-        if(btn.matches('.schedule-btn')){
-          let sched=Storage.get('ft_mySchedules',[]);
-          if(!sched.includes(btn.dataset.id)){
-            sched.push(btn.dataset.id);
-            Storage.set('ft_mySchedules',sched);
-          }
+        const btn = e.target;
+        if (!btn.dataset.id) return;
+        const id = btn.dataset.id;
+        if (btn.classList.contains('schedule-btn')) {
+          const arr = Storage.get('ft_mySchedules', []);
+          if (!arr.includes(id)) arr.push(id);
+          Storage.set('ft_mySchedules', arr);
           updateLiveSessions();
         }
-        if(btn.matches('.join-btn')){
-          location.replace(`live.html?session=${btn.dataset.id}`);
+        if (btn.classList.contains('join-btn')) {
+          location.replace(`live.html?session=${id}`);
         }
       });
 
+      // Community feed
       function updateFeed(){
-        const feed = Storage.get('ft_feed',[
+        const feed = Storage.get('ft_feed', [
           "Alice completed a 5 km run!",
           "Bob joined a HIIT session.",
           "Cara logged 10 workouts this month!"
         ]);
         const ul = document.getElementById('communityFeed');
-        ul.innerHTML='';
-        feed.slice(0,5).forEach(item=> ul.insertAdjacentHTML('beforeend', `<li class="feed-item">${item}</li>`));
+        ul.innerHTML = '';
+        feed.slice(0,5).forEach(item=>{
+          ul.insertAdjacentHTML('beforeend', `<li class="feed-item">${item}</li>`);
+        });
       }
 
       // Tip of the day
@@ -701,9 +927,10 @@
         "Cool down & stretch after each session.",
         "Try a fun activity weekly to stay motivated."
       ];
-      document.getElementById('tip-of-day').textContent = tips[Math.floor(Math.random()*tips.length)];
+      document.getElementById('tip-of-day').textContent =
+        tips[Math.floor(Math.random()*tips.length)];
 
-      // master update
+      // Master updater
       function updateDashboard(){
         updateProfileSummary();
         updateStats();
@@ -715,11 +942,12 @@
         updateFeed();
       }
 
-      updateDashboard();
-
-      // listen for changes
+      // on any storage change
       ['ft_profile','ft_activities','ft_leaderboard','ft_liveSessions','ft_mySchedules','ft_feed']
         .forEach(k=> Storage.onChange(k, updateDashboard));
+
+      // initial
+      updateDashboard();
     });
   </script>
 </body>
