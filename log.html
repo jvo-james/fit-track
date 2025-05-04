@@ -445,20 +445,26 @@
 
       // Avatar swapping (exactly like dashboard.html)
       function updateAvatars(){
-        const p = Storage.get('ft_profile', {});
-        const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${cur.email}`;
-        ['side-avatar','top-avatar'].forEach(id=>{
-          const oldEl = document.getElementById(id);
-          if(!oldEl) return;
-          const img = document.createElement('img');
-          img.id = id;
-          img.className = 'avatar';
-          img.src = src;
-          oldEl.replaceWith(img);
-        });
-      }
-      Storage.onChange('ft_profile', updateAvatars);
-      updateAvatars();
+  // pull exactly what profile.html writes into ft_current
+  const p   = Storage.get('ft_current', {});
+  // use the uploaded picture, or fallback to a pravatar based on their email
+  const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||'')}`;
+  
+  ['side-avatar','top-avatar'].forEach(id=>{
+    const oldEl = document.getElementById(id);
+    if (!oldEl) return;
+    const img = document.createElement('img');
+    img.id        = id;
+    img.className = 'avatar';
+    img.src       = src;
+    oldEl.replaceWith(img);
+  });
+}
+
+// whenever ft_current changes, refresh both sidebar & topbar
+Storage.onChange('ft_current', updateAvatars);
+// initial swap on page load
+updateAvatars();
 
       // Stopwatch
       let seconds=0, intervalID=null;
