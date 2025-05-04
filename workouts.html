@@ -576,359 +576,362 @@
   </div>
   <button id="chatToggle"><i class="fas fa-comments"></i></button>
 
-  <script type="module">
-    import { Storage } from './storage.js';
+<script type="module">
+  import { Storage } from './storage.js';
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // redirect if not signed in
-      const cur = Storage.get('ft_current', null);
-      if (!cur || !cur.name) return location.replace('home.html');
+  document.addEventListener('DOMContentLoaded', () => {
+    // → redirect if not signed in
+    const cur = Storage.get('ft_current', null);
+    if (!cur || !cur.name) return location.replace('home.html');
 
-      // welcome banner
-      document.getElementById('welcomeBanner').textContent = `Welcome back, ${cur.name}!`;
+    // → welcome banner
+    document.getElementById('welcomeBanner').textContent = `Welcome back, ${cur.name}!`;
 
-      // sidebar toggle & profile nav
-      const sidebar = document.getElementById('sidebar'),
-            overlay = document.getElementById('overlay'),
-            openBtn = document.getElementById('hamburger'),
-            closeBtn = document.getElementById('sidebar-close'),
-            profileBtns = [
-              document.getElementById('profile-btn'),
-              document.querySelector('.profile-menu')
-            ];
-      openBtn.addEventListener('click', ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); });
-      closeBtn.addEventListener('click',()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
-      overlay .addEventListener('click',()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
-      profileBtns.forEach(b=> b && b.addEventListener('click',()=> location.replace('profile.html')));
+    // → sidebar toggle & profile nav
+    const sidebar = document.getElementById('sidebar'),
+          overlay = document.getElementById('overlay'),
+          openBtn = document.getElementById('hamburger'),
+          closeBtn= document.getElementById('sidebar-close'),
+          profileBtns = [
+            document.getElementById('profile-btn'),
+            document.querySelector('.profile-menu')
+          ];
+    openBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('active'); });
+    closeBtn.addEventListener('click',()=> { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    overlay.addEventListener('click',   ()=> { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    profileBtns.forEach(b=> b && b.addEventListener('click', ()=> location.replace('profile.html')));
 
-      // swap avatars
-      const pf = Storage.get('ft_profile', {});
-      ['side-avatar','top-avatar'].forEach(id=>{
-        const el = document.getElementById(id);
-        if(el && pf.avatar){
-          const img = document.createElement('img');
-          img.id = id; img.className = 'avatar'; img.src = pf.avatar;
-          el.replaceWith(img);
-        }
-      });
-
-      // workouts data
-      const workouts = [
-        {id:1,title:'Full‑Body HIIT',category:'Cardio',duration:20,difficulty:'Intermediate',
-         image:'hiit.jpg',description:'Fast‑paced intervals.',
-         exercises:['Jumping Jacks','Burpees','Mountain Climbers'],equipment:'None',calories:200},
-        {id:2,title:'Upper Body Strength',category:'Strength',duration:45,difficulty:'Advanced',
-         image:'upper.jpg',description:'Build power with weights.',
-         exercises:['Push‑Ups','Pull‑Ups','Rows'],equipment:'Dumbbells',calories:300},
-        {id:3,title:'Morning Yoga Flow',category:'Yoga',duration:30,difficulty:'Beginner',
-         image:'yoga.jpg',description:'Gentle wake‑up sequences.',
-         exercises:['Sun Salutation','Tree Pose','Child’s Pose'],equipment:'Mat',calories:120},
-        {id:4,title:'Tabata Burn',category:'Cardio',duration:15,difficulty:'Advanced',
-         image:'tabata.jpg',description:'High‑intensity Tabata rounds.',
-         exercises:['20/10 Work‑Rest'],equipment:'None',calories:180},
-        {id:5,title:'Lower Body Blast',category:'Strength',duration:40,difficulty:'Intermediate',
-         image:'lower.jpg',description:'Squats & lunges focus.',
-         exercises:['Squats','Lunges','Deadlifts'],equipment:'Barbell',calories:250},
-        {id:6,title:'Core Crusher',category:'Core',duration:25,difficulty:'Intermediate',
-         image:'abs.jpg',description:'Abs & obliques workout.',
-         exercises:['Plank','Russian Twists','Leg Raises'],equipment:'None',calories:150},
-        {id:7,title:'Pilates Power',category:'Pilates',duration:35,difficulty:'Beginner',
-         image:'pilate.jpg',description:'Full‑body Pilates flow.',
-         exercises:['Roll‑Up','Hundred','Leg Circles'],equipment:'Mat',calories:130},
-        {id:8,title:'Kickboxing Cardio',category:'Cardio',duration:30,difficulty:'Advanced',
-         image:'bag.jpg',description:'Punch & kick combos.',
-         exercises:['Jab‑Cross','Front Kick','Hook'],equipment:'Gloves',calories:300}
-      ];
-
-      // WOD
-      const wodTitle=document.getElementById('wodTitle'),
-            wodDesc =document.getElementById('wodDesc'),
-            rndBtn  =document.getElementById('randomizeWOD');
-      function pickWOD(){
-        const w = workouts[Math.floor(Math.random()*workouts.length)];
-        wodTitle.textContent = w.title;
-        wodDesc .textContent = w.description;
+    // → swap avatars
+    const pf = Storage.get('ft_profile', {});
+    ['side-avatar','top-avatar'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el && pf.avatar){
+        const img = document.createElement('img');
+        img.id = id; img.className = 'avatar'; img.src = pf.avatar;
+        el.replaceWith(img);
       }
-      rndBtn.addEventListener('click', pickWOD);
-      pickWOD();
-
-      // Featured
-      const featuredList = document.getElementById('featuredList');
-      function renderFeatured(){
-        featuredList.innerHTML = '';
-        workouts.slice(0,8).forEach(w=>{
-          const card = document.createElement('div'); card.className='card';
-          card.innerHTML = `
-            <img src="${w.image}" alt="${w.title}">
-            <div class="card-body">
-              <h3>${w.title}</h3>
-              <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
-              <p class="desc">${w.description}</p>
-              <button data-id="${w.id}">Details</button>
-            </div>`;
-          featuredList.appendChild(card);
-        });
-      }
-
-      // Library & filters
-      const libraryGrid = document.getElementById('libraryGrid'),
-            catSel = document.getElementById('filterCategory'),
-            durSel = document.getElementById('filterDuration'),
-            difSel = document.getElementById('filterDifficulty');
-
-      new Set(workouts.map(w=>w.category)).forEach(c=>catSel.add(new Option(c,c)));
-
-      function renderLibrary(){
-        libraryGrid.innerHTML = '';
-        const cat = catSel.value, max = +durSel.value||Infinity, dif = difSel.value;
-        workouts.filter(w=>
-          (!cat||w.category===cat) &&
-          w.duration<=max &&
-          (!dif||w.difficulty===dif)
-        ).forEach(w=>{
-          const card = document.createElement('div'); card.className='card';
-          card.innerHTML = `
-            <img src="${w.image}" alt="${w.title}">
-            <div class="card-body">
-              <h3>${w.title}</h3>
-              <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
-              <p class="desc">${w.description}</p>
-              <button data-id="${w.id}">Details</button>
-            </div>`;
-          libraryGrid.appendChild(card);
-        });
-      }
-      [catSel,durSel,difSel].forEach(s=>s.addEventListener('change',renderLibrary));
-
-      // Detail Modal
-      const detailModal = document.getElementById('detailModal'),
-            detailClose = detailModal.querySelector('.close'),
-            detailTitle = document.getElementById('detailTitle'),
-            detailDesc  = document.getElementById('detailDesc'),
-            detailList  = document.getElementById('detailList'),
-            detailEquip = document.getElementById('detailEquip'),
-            detailCal   = document.getElementById('detailCal'),
-            btnLog      = document.getElementById('detailStart'),
-            btnSavePlan = document.getElementById('savePlan');
-
-      detailClose.onclick = ()=> detailModal.style.display='none';
-
-      document.body.addEventListener('click', e=>{
-        if(e.target.tagName==='BUTTON'&&e.target.dataset.id){
-          const w = workouts.find(x=>x.id==e.target.dataset.id);
-          detailTitle.textContent = w.title;
-          detailDesc .textContent = w.description;
-          detailList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
-          detailEquip.textContent = w.equipment;
-          detailCal  .textContent = w.calories;
-          detailModal.style.display='flex';
-
-          btnLog.onclick = ()=>{
-            const acts = Storage.get('ft_activities', []);
-            acts.unshift({
-              date:new Date().toISOString().slice(0,10),
-              type:w.title, duration:w.duration, distance:'', calories:w.calories, notes:''
-            });
-            Storage.set('ft_activities', acts);
-            detailModal.style.display='none';
-          };
-          btnSavePlan.onclick = ()=>{
-            const plans = Storage.get('ft_plans', []);
-            if(!plans.includes(w.id)) plans.push(w.id);
-            Storage.set('ft_plans', plans);
-            detailModal.style.display='none';
-          };
-        }
-      });
-
-      // My Plans
-      const plansList = document.getElementById('plansList');
-      function renderPlans(){
-        const p = Storage.get('ft_plans', []);
-        plansList.innerHTML = '';
-        p.forEach((id,i)=>{
-          const w = workouts.find(x=>x.id===id);
-          const li = document.createElement('li');
-          li.innerHTML = `${w.title} <button data-remove="${i}">Remove</button>`;
-          plansList.appendChild(li);
-        });
-      }
-      plansList.addEventListener('click', e=>{
-        if(e.target.dataset.remove!=null){
-          const idx = +e.target.dataset.remove;
-          const arr = Storage.get('ft_plans', []);
-          arr.splice(idx,1);
-          Storage.set('ft_plans',arr);
-        }
-      });
-
-      // Progress Chart
-      const ctx = document.getElementById('progressChart').getContext('2d');
-      let chart;
-      function renderProgress(){
-        const acts = Storage.get('ft_activities', []);
-        const byCat = acts.reduce((o,a)=>{
-          const w = workouts.find(wk=>wk.title===a.type);
-          const c = w? w.category : 'Other';
-          o[c]=(o[c]||0)+1; return o;
-        }, {});
-        const labels = Object.keys(byCat),
-              data   = Object.values(byCat);
-        if(chart) chart.destroy();
-        chart = new Chart(ctx, {
-          type:'line',
-          data:{labels,datasets:[{
-            data, borderColor:'#ff9800', fill:false, tension:0.3
-          }]},
-          options:{
-            responsive:true,
-            plugins:{legend:{display:false}},
-            scales:{x:{ticks:{color:'#fff'}},y:{beginAtZero:true,ticks:{color:'#fff'}}}
-          }
-        });
-      }
-
-      // Challenge Modes
-      const chList = document.getElementById('challengesList');
-      const challenges = [
-        {id:1,title:'7‑Day Abs',desc:'Daily core sculpting.',target:7},
-        {id:2,title:'30‑Day Push‑Up',desc:'+2 reps/day.',target:30},
-        {id:3,title:'14‑Day Yoga',desc:'Morning flow.',target:14},
-        {id:4,title:'10k Steps x10',desc:'10k daily.',target:10},
-        {id:5,title:'5k Run',desc:'Complete 5 km.',target:1},
-        {id:6,title:'Plank Progress',desc:'+10 s/day.',target:14},
-        {id:7,title:'Flexibility',desc:'15 min stretch.',target:14},
-        {id:8,title:'HIIT Week',desc:'5 HIIT sessions.',target:5}
-      ];
-      function renderChallenges(){
-        const joined = Storage.get('ft_joined', []);
-        chList.innerHTML='';
-        challenges.forEach(ch=>{
-          const count = Storage.get('ft_activities', []).filter(a=>a.type===ch.title).length;
-          const pct   = Math.min(100,Math.round(count/ch.target*100));
-          const done  = joined.includes(ch.id);
-          const div   = document.createElement('div');
-          div.className='challenge';
-          div.innerHTML=`
-            <h3>${ch.title}</h3>
-            <p>${ch.desc}</p>
-            <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
-            <p style="opacity:.8">${count}/${ch.target}</p>
-            <button>${done?'Joined ✓':'Join Challenge'}</button>`;
-          div.querySelector('button').onclick=()=>{
-            if(!done){
-              joined.push(ch.id);
-              Storage.set('ft_joined',joined);
-            }
-          };
-          chList.appendChild(div);
-        });
-      }
-
-      // Live Sessions
-      const sessList = document.getElementById('sessionsList');
-      const liveSessions = [
-        {id:1,img:'sunrise.jpg',title:'Sunrise Yoga',host:'Alice',start:Date.now()+3600000,desc:'Vinyasa flow.'},
-        {id:2,img:'hiitblast.jpg',title:'HIIT Blast',host:'Bob',start:Date.now()+7200000,desc:'Intervals.'},
-        {id:3,img:'dance.jpg',title:'Cardio Dance',host:'Cara',start:Date.now()-1800000,desc:'Dance cardio.'}
-      ];
-      function renderSessions(){
-        const joined = Storage.get('ft_sessions', []);
-        const now    = Date.now();
-        sessList.innerHTML='';
-        liveSessions.forEach(s=>{
-          const isLive    = now>=s.start&&now<s.start+3600000,
-                isFuture  = now<s.start,
-                hasJoined = joined.includes(s.id),
-                btnTxt    = isLive?'🔴 LIVE':(hasJoined?'✔ Scheduled':'⏱ Schedule'),
-                card      = document.createElement('div');
-          card.className='live-card';
-          card.innerHTML=`
-            ${isLive?'<div class="status">LIVE</div>':''}
-            <img src="${s.img}" alt="${s.title}">
-            <h3>${s.title}</h3>
-            <p class="info">${s.host} • ${new Date(s.start).toLocaleString()}</p>
-            <p class="desc">${s.desc}</p>
-            <button data-id="${s.id}">${btnTxt}</button>`;
-          card.querySelector('button').onclick=()=>{
-            if(isFuture&&!hasJoined){
-              joined.push(s.id);
-              Storage.set('ft_sessions',joined);
-            }
-            if(isLive){
-              document.getElementById('goLiveModal').style.display='flex';
-            }
-          };
-          sessList.appendChild(card);
-        });
-      }
-
-      // Go Live Modal
-      const goLiveModal   = document.getElementById('goLiveModal'),
-            goClose       = goLiveModal.querySelector('.close'),
-            startLiveBtn  = document.getElementById('startLiveBtn');
-      goClose.onclick     = ()=> goLiveModal.style.display='none';
-      startLiveBtn.onclick= async()=>{
-        goLiveModal.style.display='none';
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-          const vid = document.createElement('video');
-          vid.srcObject=stream; vid.autoplay=true;
-          vid.style.cssText='position:fixed;bottom:80px;right:20px;width:200px;z-index:500;';
-          document.body.appendChild(vid);
-          const liveNow = Storage.get('ft_liveNow',[]);
-          liveNow.push(cur.name);
-          Storage.set('ft_liveNow',liveNow);
-        } catch(e){ alert('Camera access denied'); }
-      };
-
-      // Chatbot
-      const chatBox       = document.getElementById('chatbot'),
-            chatToggleBtn = document.getElementById('chatToggle'),
-            chatCloseBtn  = document.getElementById('chatClose'),
-            chatMessages  = document.getElementById('chatMessages'),
-            questionSelect= document.getElementById('questionSelect'),
-            chatInput     = document.getElementById('chatInput'),
-            askBtn        = document.getElementById('askBtn');
-      const qa = [
-        {q:`What's the WOD?`, a:`Hit Randomize to see today's workout.`},
-        {q:`How to log?`,      a:`Open Details → Log This Workout.`},
-        {q:`Save plans?`,      a:`In details, click Save to My Plans.`}
-      ];
-      qa.forEach((x,i)=> questionSelect.add(new Option(x.q,i)));
-      chatToggleBtn.onclick = ()=>{
-        chatBox.style.display='flex'; chatToggleBtn.style.display='none';
-      };
-      chatCloseBtn.onclick = ()=>{
-        chatBox.style.display='none'; chatToggleBtn.style.display='flex';
-        chatMessages.innerHTML=`<div class="msg bot">Welcome! Choose a question…</div>`;
-      };
-      questionSelect.onchange = ()=>{
-        chatInput.value = questionSelect.options[questionSelect.selectedIndex].text;
-      };
-      askBtn.onclick = ()=>{
-        const text = chatInput.value.trim();
-        if(!text) return;
-        const idx = questionSelect.value;
-        chatMessages.innerHTML += `<div class="msg user">${text}</div>`;
-        if(idx!=='') chatMessages.innerHTML += `<div class="msg bot">${qa[idx].a}</div>`;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        chatInput.value=''; questionSelect.selectedIndex=0;
-      };
-
-      // initial render & sync
-      function syncAll(){
-        renderFeatured();
-        renderLibrary();
-        renderPlans();
-        renderProgress();
-        renderChallenges();
-        renderSessions();
-      }
-      syncAll();
-      ['ft_activities','ft_plans','ft_joined','ft_sessions','ft_liveNow']
-        .forEach(k=> Storage.onChange(k, syncAll));
     });
-  </script>
+
+    // → workouts data
+    const workouts = [
+      {id:1,title:'Full‑Body HIIT',category:'Cardio',duration:20,difficulty:'Intermediate',
+       image:'hiit.jpg',description:'Fast‑paced intervals.',
+       exercises:['Jumping Jacks','Burpees','Mountain Climbers'],equipment:'None',calories:200},
+      {id:2,title:'Upper Body Strength',category:'Strength',duration:45,difficulty:'Advanced',
+       image:'upper.jpg',description:'Build power with weights.',
+       exercises:['Push‑Ups','Pull‑Ups','Rows'],equipment:'Dumbbells',calories:300},
+      {id:3,title:'Morning Yoga Flow',category:'Yoga',duration:30,difficulty:'Beginner',
+       image:'yoga.jpg',description:'Gentle wake‑up sequences.',
+       exercises:['Sun Salutation','Tree Pose','Child’s Pose'],equipment:'Mat',calories:120},
+      {id:4,title:'Tabata Burn',category:'Cardio',duration:15,difficulty:'Advanced',
+       image:'tabata.jpg',description:'High‑intensity Tabata rounds.',
+       exercises:['20/10 Work‑Rest'],equipment:'None',calories:180},
+      {id:5,title:'Lower Body Blast',category:'Strength',duration:40,difficulty:'Intermediate',
+       image:'lower.jpg',description:'Squats & lunges focus.',
+       exercises:['Squats','Lunges','Deadlifts'],equipment:'Barbell',calories:250},
+      {id:6,title:'Core Crusher',category:'Core',duration:25,difficulty:'Intermediate',
+       image:'abs.jpg',description:'Abs & obliques workout.',
+       exercises:['Plank','Russian Twists','Leg Raises'],equipment:'None',calories:150},
+      {id:7,title:'Pilates Power',category:'Pilates',duration:35,difficulty:'Beginner',
+       image:'pilate.jpg',description:'Full‑body Pilates flow.',
+       exercises:['Roll‑Up','Hundred','Leg Circles'],equipment:'Mat',calories:130},
+      {id:8,title:'Kickboxing Cardio',category:'Cardio',duration:30,difficulty:'Advanced',
+       image:'bag.jpg',description:'Punch & kick combos.',
+       exercises:['Jab‑Cross','Front Kick','Hook'],equipment:'Gloves',calories:300}
+    ];
+
+    // — Workout of the Day
+    const wodTitle = document.getElementById('wodTitle'),
+          wodDesc  = document.getElementById('wodDesc'),
+          rndBtn   = document.getElementById('randomizeWOD');
+    function pickWOD(){
+      const w = workouts[Math.floor(Math.random()*workouts.length)];
+      wodTitle.textContent = w.title;
+      wodDesc .textContent = w.description;
+    }
+    rndBtn.addEventListener('click', pickWOD);
+    pickWOD();
+
+    // — Featured
+    const featuredList = document.getElementById('featuredList');
+    function renderFeatured(){
+      featuredList.innerHTML = '';
+      workouts.slice(0,8).forEach(w=>{
+        const card = document.createElement('div'); card.className='card';
+        card.innerHTML = `
+          <img src="${w.image}" alt="${w.title}">
+          <div class="card-body">
+            <h3>${w.title}</h3>
+            <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+            <p class="desc">${w.description}</p>
+            <button data-id="${w.id}">Details</button>
+          </div>`;
+        featuredList.appendChild(card);
+      });
+    }
+
+    // — Library & filters
+    const libraryGrid = document.getElementById('libraryGrid'),
+          catSel = document.getElementById('filterCategory'),
+          durSel = document.getElementById('filterDuration'),
+          difSel = document.getElementById('filterDifficulty');
+    new Set(workouts.map(w=>w.category)).forEach(c=>catSel.add(new Option(c,c)));
+
+    function renderLibrary(){
+      libraryGrid.innerHTML = '';
+      const cat = catSel.value, max = +durSel.value||Infinity, dif = difSel.value;
+      workouts.filter(w=>
+        (!cat||w.category===cat) &&
+        w.duration<=max &&
+        (!dif||w.difficulty===dif)
+      ).forEach(w=>{
+        const card = document.createElement('div'); card.className='card';
+        card.innerHTML = `
+          <img src="${w.image}" alt="${w.title}">
+          <div class="card-body">
+            <h3>${w.title}</h3>
+            <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+            <p class="desc">${w.description}</p>
+            <button data-id="${w.id}">Details</button>
+          </div>`;
+        libraryGrid.appendChild(card);
+      });
+    }
+    [catSel,durSel,difSel].forEach(s=>s.addEventListener('change',renderLibrary));
+
+    // — Detail Modal
+    const detailModal = document.getElementById('detailModal'),
+          detailClose = detailModal.querySelector('.close'),
+          detailTitle = document.getElementById('detailTitle'),
+          detailDesc  = document.getElementById('detailDesc'),
+          detailList  = document.getElementById('detailList'),
+          detailEquip = document.getElementById('detailEquip'),
+          detailCal   = document.getElementById('detailCal'),
+          btnLog      = document.getElementById('detailStart'),
+          btnSavePlan = document.getElementById('savePlan');
+
+    detailClose.onclick = ()=> detailModal.style.display='none';
+
+    document.body.addEventListener('click', e=>{
+      if(e.target.tagName==='BUTTON' && e.target.dataset.id){
+        const w = workouts.find(x=>x.id==e.target.dataset.id);
+        detailTitle.textContent = w.title;
+        detailDesc .textContent = w.description;
+        detailList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
+        detailEquip.textContent = w.equipment;
+        detailCal  .textContent = w.calories;
+        detailModal.style.display='flex';
+
+        btnLog.onclick = ()=>{
+          const acts = Storage.get('ft_activities', []);
+          acts.unshift({
+            date:new Date().toISOString().slice(0,10),
+            type:w.title, duration:w.duration,
+            distance:'', calories:w.calories, notes:''
+          });
+          Storage.set('ft_activities', acts);
+          detailModal.style.display='none';
+        };
+        btnSavePlan.onclick = ()=>{
+          const plans = Storage.get('ft_plans', []);
+          if(!plans.includes(w.id)) plans.push(w.id);
+          Storage.set('ft_plans', plans);
+          detailModal.style.display='none';
+        };
+      }
+    });
+
+    // — My Plans
+    const plansList = document.getElementById('plansList');
+    function renderPlans(){
+      const p = Storage.get('ft_plans', []);
+      plansList.innerHTML = '';
+      p.forEach((id,i)=>{
+        const w = workouts.find(x=>x.id===id),
+              li= document.createElement('li');
+        li.innerHTML = `${w.title} <button data-remove="${i}">Remove</button>`;
+        plansList.appendChild(li);
+      });
+    }
+    plansList.addEventListener('click', e=>{
+      if(e.target.dataset.remove!=null){
+        const idx = +e.target.dataset.remove;
+        const arr = Storage.get('ft_plans', []);
+        arr.splice(idx,1);
+        Storage.set('ft_plans',arr);
+      }
+    });
+
+    // — Progress Chart
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    let chart;
+    function renderProgress(){
+      const acts = Storage.get('ft_activities', []);
+      const byCat = acts.reduce((o,a)=>{
+        const w=workouts.find(wk=>wk.title===a.type),
+              c=w? w.category:'Other';
+        o[c]=(o[c]||0)+1; return o;
+      }, {});
+      const labels=Object.keys(byCat), data=Object.values(byCat);
+      if(chart) chart.destroy();
+      chart = new Chart(ctx,{
+        type:'line',
+        data:{labels,datasets:[{data,borderColor:'#ff9800',fill:false,tension:0.3}]},
+        options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#fff'}},y:{beginAtZero:true,ticks:{color:'#fff'}}}}
+      });
+    }
+
+    // — Challenge Modes
+    const chList = document.getElementById('challengesList');
+    const challenges = [
+      {id:1,title:'7‑Day Abs',desc:'Daily core sculpting.',target:7},
+      {id:2,title:'30‑Day Push‑Up',desc:'+2 reps/day.',target:30},
+      {id:3,title:'14‑Day Yoga',desc:'Morning flow.',target:14},
+      {id:4,title:'10k Steps x10',desc:'10k daily.',target:10},
+      {id:5,title:'5k Run',desc:'Complete 5 km.',target:1},
+      {id:6,title:'Plank Progress',desc:'+10 s/day.',target:14},
+      {id:7,title:'Flexibility',desc:'15 min stretch.',target:14},
+      {id:8,title:'HIIT Week',desc:'5 HIIT sessions.',target:5}
+    ];
+    function renderChallenges(){
+      const joined = Storage.get('ft_mySchedules', []); // use same schedule key
+      chList.innerHTML = '';
+      challenges.forEach(ch=>{
+        const count   = Storage.get('ft_activities', []).filter(a=>a.type===ch.title).length;
+        const pct     = Math.min(100, Math.round(count/ch.target*100));
+        const done    = joined.includes(ch.id);
+        const display = done ? 100 : pct;            // ← FULL on join
+        const div     = document.createElement('div');
+        div.className = 'challenge';
+        div.innerHTML=`
+          <h3>${ch.title}</h3>
+          <p>${ch.desc}</p>
+          <div class="prog-bar"><div class="fill" style="width:${display}%"></div></div>
+          <p style="opacity:.8">${count}/${ch.target}</p>
+          <button>${done?'Joined ✓':'Join Challenge'}</button>`;
+        div.querySelector('button').onclick=()=>{
+          if(!done){
+            joined.push(ch.id);
+            Storage.set('ft_mySchedules', joined);
+          }
+        };
+        chList.appendChild(div);
+      });
+    }
+
+    // — Live Sessions: seed into ft_liveSessions and use ft_mySchedules
+    const sessList     = document.getElementById('sessionsList');
+    const liveSessions = [
+      {id:1,img:'sunrise.jpg',title:'Sunrise Yoga',host:'Alice',start:Date.now()+3600000,desc:'Vinyasa flow.'},
+      {id:2,img:'hiitblast.jpg',title:'HIIT Blast',host:'Bob',start:Date.now()+7200000,desc:'Intervals.'},
+      {id:3,img:'dance.jpg',title:'Cardio Dance',host:'Cara',start:Date.now()-1800000,desc:'Dance cardio.'},
+      {id:4,img:'core.jpg',title:'Core & Balance',host:'Dan',start:Date.now()+10800000,desc:'Stability drills.'},
+      {id:5,img:'posture.jpg',title:'Pilates Power',host:'Eve',start:Date.now()+14400000,desc:'Core & posture.'}
+    ];
+    // seed once
+    if(!Storage.get('ft_liveSessions',[]).length){
+      Storage.set('ft_liveSessions', liveSessions);
+    }
+    function renderSessions(){
+      const sessions = Storage.get('ft_liveSessions', []);
+      const joined   = Storage.get('ft_mySchedules', []);
+      const now      = Date.now();
+      sessList.innerHTML = '';
+      sessions.forEach(s=>{
+        const isLive    = now>=s.start && now< s.start+3600000;
+        const isFuture  = now< s.start;
+        const hasJoined = joined.includes(s.id);
+        const btnTxt    = isLive ? '🔴 LIVE'
+                         : (hasJoined? '✔ Scheduled' : '⏱ Schedule');
+        const card      = document.createElement('div');
+        card.className = 'live-card';
+        card.innerHTML=`
+          ${isLive?'<div class="status">LIVE</div>':''}
+          <img src="${s.img}" alt="${s.title}">
+          <h3>${s.title}</h3>
+          <p class="info">${s.host} • ${new Date(s.start).toLocaleString()}</p>
+          <p class="desc">${s.desc}</p>
+          <button data-id="${s.id}">${btnTxt}</button>`;
+        card.querySelector('button').onclick = ()=>{
+          if(isFuture && !hasJoined){
+            joined.push(s.id);
+            Storage.set('ft_mySchedules', joined);
+          }
+          if(isLive){
+            document.getElementById('goLiveModal').style.display='flex';
+          }
+        };
+        sessList.appendChild(card);
+      });
+    }
+
+    // — Go Live Modal
+    const goLiveModal   = document.getElementById('goLiveModal'),
+          goClose       = goLiveModal.querySelector('.close'),
+          startLiveBtn  = document.getElementById('startLiveBtn');
+    goClose.onclick     = ()=> goLiveModal.style.display='none';
+    startLiveBtn.onclick= async()=>{
+      goLiveModal.style.display='none';
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+        const vid = document.createElement('video');
+        vid.srcObject = stream; vid.autoplay = true;
+        vid.style.cssText = 'position:fixed;bottom:80px;right:20px;width:200px;z-index:500;';
+        document.body.appendChild(vid);
+      } catch(e){
+        alert('Camera access denied');
+      }
+    };
+
+    // — Chatbot
+    const chatBox        = document.getElementById('chatbot'),
+          chatToggleBtn  = document.getElementById('chatToggle'),
+          chatCloseBtn   = document.getElementById('chatClose'),
+          chatMessages   = document.getElementById('chatMessages'),
+          questionSelect = document.getElementById('questionSelect'),
+          chatInput      = document.getElementById('chatInput'),
+          askBtn         = document.getElementById('askBtn');
+    const qaList = [
+      {q:`What's the WOD?`,      a:`Hit Randomize to see today's workout.`},
+      {q:`How do I log?`,        a:`Open Details → Log This Workout.`},
+      {q:`How to save a plan?`,  a:`In details, click Save to My Plans.`}
+    ];
+    qaList.forEach((x,i)=> questionSelect.add(new Option(x.q,i)));
+    chatToggleBtn.onclick = ()=>{
+      chatBox.style.display='flex'; chatToggleBtn.style.display='none';
+    };
+    chatCloseBtn.onclick = ()=>{
+      chatBox.style.display='none'; chatToggleBtn.style.display='flex';
+      chatMessages.innerHTML = `<div class="msg bot">Welcome! Choose a question…</div>`;
+    };
+    questionSelect.onchange = ()=>{
+      chatInput.value = questionSelect.options[questionSelect.selectedIndex].text;
+    };
+    askBtn.onclick = ()=>{
+      const text = chatInput.value.trim();
+      if(!text) return;
+      const idx = questionSelect.value;
+      chatMessages.innerHTML += `<div class="msg user">${text}</div>`;
+      if(idx!=='') chatMessages.innerHTML += `<div class="msg bot">${qaList[idx].a}</div>`;
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      chatInput.value=''; questionSelect.selectedIndex=0;
+    };
+
+    // — initial render & sync
+    function syncAll(){
+      renderFeatured();
+      renderLibrary();
+      renderPlans();
+      renderProgress();
+      renderChallenges();
+      renderSessions();
+    }
+    syncAll();
+    // watch both keys
+    ['ft_activities','ft_plans','ft_mySchedules','ft_liveSessions','ft_joined']
+      .forEach(k=> Storage.onChange(k, syncAll));
+  });
+</script>
+
 </body>
 </html>
