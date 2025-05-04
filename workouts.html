@@ -660,8 +660,10 @@ function updateAvatars() {
     img.id = id;
     img.className = 'avatar';
     // use the exact key you set in profile.html:
-    img.src = prof.avatarDataUrl || prof.avatar || `https://i.pravatar.cc/150?u=${prof.email}`;
-    oldEl.replaceWith(img);
+   img.src = prof.avatarDataUrl   
+            || prof.avatar        
+            || `https://i.pravatar.cc/150?u=${prof.email}`;
+    placeholder.replaceWith(img);
   });
 }
 updateAvatars();
