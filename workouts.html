@@ -781,43 +781,63 @@
       });
     }
 
-    // — Challenge Modes
-    const chList = document.getElementById('challengesList');
-    const challenges = [
-      {id:1,title:'7‑Day Abs',desc:'Daily core sculpting.',target:7},
-      {id:2,title:'30‑Day Push‑Up',desc:'+2 reps/day.',target:30},
-      {id:3,title:'14‑Day Yoga',desc:'Morning flow.',target:14},
-      {id:4,title:'10k Steps x10',desc:'10k daily.',target:10},
-      {id:5,title:'5k Run',desc:'Complete 5 km.',target:1},
-      {id:6,title:'Plank Progress',desc:'+10 s/day.',target:14},
-      {id:7,title:'Flexibility',desc:'15 min stretch.',target:14},
-      {id:8,title:'HIIT Week',desc:'5 HIIT sessions.',target:5}
-    ];
-    function renderChallenges(){
-      const joined = Storage.get('ft_mySchedules', []); // use same schedule key
-      chList.innerHTML = '';
-      challenges.forEach(ch=>{
-        const count   = Storage.get('ft_activities', []).filter(a=>a.type===ch.title).length;
-        const pct     = Math.min(100, Math.round(count/ch.target*100));
-        const done    = joined.includes(ch.id);
-        const display = done ? 100 : pct;            // ← FULL on join
-        const div     = document.createElement('div');
-        div.className = 'challenge';
-        div.innerHTML=`
-          <h3>${ch.title}</h3>
-          <p>${ch.desc}</p>
-          <div class="prog-bar"><div class="fill" style="width:${display}%"></div></div>
-          <p style="opacity:.8">${count}/${ch.target}</p>
-          <button>${done?'Joined ✓':'Join Challenge'}</button>`;
-        div.querySelector('button').onclick=()=>{
-          if(!done){
-            joined.push(ch.id);
-            Storage.set('ft_mySchedules', joined);
-          }
-        };
-        chList.appendChild(div);
-      });
-    }
+  // — Challenge Modes (updated)
+const chList = document.getElementById('challengesList');
+const CHALLENGE_KEY = 'ft_joinedChallenges';
+// make sure key exists
+if (!Storage.get(CHALLENGE_KEY)) Storage.set(CHALLENGE_KEY, []);
+
+const challenges = [
+  {id:1, title:'7‑Day Abs',       desc:'Daily core sculpting.',       target:7},
+  {id:2, title:'30‑Day Push‑Up',  desc:'+2 reps/day.',                target:30},
+  {id:3, title:'14‑Day Yoga',     desc:'Morning flow.',               target:14},
+  {id:4, title:'10k Steps x10',   desc:'10k daily.',                  target:10},
+  {id:5, title:'5k Run',          desc:'Complete 5 km.',               target:1},
+  {id:6, title:'Plank Progress',  desc:'+10 s/day.',                  target:14},
+  {id:7, title:'Flexibility',     desc:'15 min stretch.',             target:14},
+  {id:8, title:'HIIT Week',       desc:'5 HIIT sessions.',             target:5}
+];
+
+function renderChallenges() {
+  const joined = Storage.get(CHALLENGE_KEY, []);
+  const acts   = Storage.get('ft_activities', []);
+  chList.innerHTML = '';
+
+  challenges.forEach(ch => {
+    // count how many times user logged this workout title
+    const count = acts.filter(a => a.type === ch.title).length;
+    const pct   = Math.min(100, Math.round(count / ch.target * 100));
+    const done  = joined.includes(ch.id);
+
+    const div = document.createElement('div');
+    div.className = 'challenge';
+    div.innerHTML = `
+      <h3>${ch.title}</h3>
+      <p>${ch.desc}</p>
+      <div class="prog-bar">
+        <div class="fill" style="width:${pct}%"></div>
+      </div>
+      <p style="opacity:.8">${count} / ${ch.target} complete (${pct}%)</p>
+      <button>${done ? 'Joined ✓' : 'Join Challenge'}</button>
+    `;
+
+    div.querySelector('button').onclick = () => {
+      if (!done) {
+        joined.push(ch.id);
+        Storage.set(CHALLENGE_KEY, joined);
+      }
+      // re‑render so button text updates
+      renderChallenges();
+    };
+
+    chList.appendChild(div);
+  });
+}
+
+// call it on load, and re‑call whenever activities or joined list changes
+renderChallenges();
+Storage.onChange('ft_activities', renderChallenges);
+Storage.onChange(CHALLENGE_KEY,    renderChallenges);
 
     // — Live Sessions: seed into ft_liveSessions and use ft_mySchedules
     const sessList     = document.getElementById('sessionsList');
