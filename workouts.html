@@ -673,7 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
  // right after DOMContentLoaded, inside your script
 // ─── AVATAR SWAP ────────────────────────────────────────────────────────────
  function updateAvatars() {
-   const prof = Storage.get('ft_profile', {});
+   const prof = Storage.get('ft_current', {});
    ['side-avatar','top-avatar'].forEach(id => {
      const placeholder = document.getElementById(id);
      if (!placeholder) return;
