@@ -109,6 +109,8 @@
   .main {
     margin-left: 0 !important;
   }
+  .hamburger { display:inline-flex; }
+  .text { display: none; }
   /* overlay covers the main content when active */
   #overlay {
     z-index: 200;          /* below sidebar */
@@ -291,7 +293,7 @@
     @media(max-width:600px){
       #myPlans li { flex:1 1 100%; }
     }
-.hamburger { display:inline-flex; }
+
     
     /* Progress Chart */
     #progressSummary {
@@ -464,10 +466,7 @@
       font-size:1.4rem; cursor:pointer; animation:pulse 2s infinite;
       z-index:300;
     }
-    @keyframes pulse {
-      0%,100% { box-shadow:0 0 8px rgba(0,0,0,0.2),0 0 12px rgba(255,255,255,0.6); }
-      50%    { box-shadow:0 0 12px rgba(0,0,0,0.3),0 0 20px rgba(255,255,255,0.8); }
-    }
+   
   </style>
 
 </head>
@@ -499,7 +498,7 @@
         <h1><i class="fas fa-dumbbell"></i> Workouts</h1>
       </div>
       <div class="header-right">
-       <button id="open-go-live" class="new-workout"><i class="fas fa-plus"></i> Go Live</button>
+       <button id="open-go-live" class="new-workout"><i class="fas fa-plus"></i> <text>Go Live</text></button>
       </div>
       <button id="profile-btn" class="profile-btn"><i id="top-avatar" class="fas fa-user-circle avatar"></i></button>
     </header>
