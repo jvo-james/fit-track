@@ -87,22 +87,45 @@
       padding:1rem 0; position:sticky; top:0; height:100vh;
       z-index:var(--z-sidebar);
     }
-    @media(max-width:var(--mobile-break)){
-      .sidebar {
-        position:fixed; transform:translateX(-100%);
-        width:200px;
-      }
-      .sidebar.open { transform:translateX(0); }
-    }
+
     .sidebar-close {
       display:none;
     }
-    @media(max-width:var(--mobile-break)){
-      .sidebar-close {
-        display:block; align-self:flex-end; margin:0.5rem;
-        font-size:1.5rem; background:none; border:none; color:var(--white);
-      }
-    }
+    /* ===== Mobile sidebar exactly like leaderboard.html ===== */
+@media (max-width: 600px) {
+  .sidebar {
+    position: fixed;       /* take out of flow */
+    top: 0;
+    left: -100%;           /* hide completely off-canvas */
+    width: 200px;          /* same as var(--mobile-w) earlier */
+    height: 100vh;
+    transition: left .3s;  /* slide in/out */
+    z-index: 300;          /* above overlay */
+  }
+  .sidebar.open {
+    left: 0;               /* slide in */
+  }
+  /* ensure main always full-width on mobile */
+  .main {
+    margin-left: 0 !important;
+  }
+  /* overlay covers the main content when active */
+  #overlay {
+    z-index: 200;          /* below sidebar */
+  }
+  /* tighten header padding */
+  header {
+    padding: .75rem 1rem;
+  }
+  /* show hamburger */
+  .hamburger {
+    display: inline-flex;
+  }
+  .sidebar-close {
+    display: block;        /* show the “×” close button you already have */
+  }
+}
+
     .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item, .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
