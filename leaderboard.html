@@ -44,36 +44,49 @@
       background:rgba(255,152,0,0.1); border-left:4px solid var(--gold);
       padding:.8rem 1.5rem; color:var(--white); z-index:2000;
     }
-       /* Sidebar */
-.sidebar {
-      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
-      border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
-      transition:transform var(--transition);
-      z-index:var(--sidebar-z);
-    }
+      
+
  
     
-    .sidebar.open { left:0; }
-    .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-    .sidebar a.menu-item, .sidebar button.profile-menu {
-      width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      color:var(--white); background:none; }
-    a.menu-item:hover, a.menu-item.active, button.profile-menu:hover {
-      background:rgba(255,152,0,0.2); transform:translateX(4px);
+   
+  
+
+    /* SIDEBAR */
+    .sidebar {
+      width:var(--sidebar-w);
+      background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding:1rem 0; position:sticky; top:0; height:100vh;
+      z-index:var(--z-sidebar);
     }
-    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
-    .avatar-small {
-      width:28px; height:28px; border-radius:50%; object-fit:cover; border:2px solid var(--white);
-    }
-    @media(max-width:600px){
+   
+      @media(max-width:600px){
       .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
       .sidebar.open { left:0; }
     }
-
-    /* remove the inline style on #badgeContainer in your HTML */
+   
+    .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar a.menu-item, .sidebar button.profile-menu {
+      width:100%; padding:.8rem 0;
+      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      background:transparent; border:none; color:var(--white);
+      transition:background var(--transition);
+    }
+    .sidebar a.menu-item.active,
+    .sidebar a.menu-item:hover,
+    .sidebar button.profile-menu:hover {
+      background:rgba(255,152,0,0.2);
+    }
+    .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
+    .sidebar a.menu-item span,
+    .sidebar button.profile-menu span   { font-size:.75rem; }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
+    img.avatar, i.avatar {
+      width:32px; height:32px; border-radius:50%;
+      object-fit:cover; border:2px solid var(--white);
+    }
 
 #badgeContainer {
   display: flex;
