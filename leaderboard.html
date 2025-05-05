@@ -218,9 +218,9 @@
     <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item active"><i class="fas fa-trophy"></i><span>Board</span></a>
     <button class="menu-item profile-menu" id="profileBtn">
-      <i class="fas fa-user-circle avatar" id="sideAvatar"></i><span>Profile</span>
+      <i class="fas fa-user-circle avatar" id="side-avatar"></i><span>Profile</span>
     </button>
-    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Exit</span></a>
+    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
   <!-- Main content -->
@@ -334,6 +334,11 @@
     return;
   }
 
+        const profileBtns  = [ document.getElementById('profile-btn'),
+                              document.querySelector('.profile-menu') ],
+            sideAvatarEl = document.getElementById('side-avatar'),
+            topAvatarEl  = document.getElementById('top-avatar');
+            
   // ————————————————————————————————
   // Seed some fake users if leaderboard is empty
   function seedLeaderboard() {
@@ -348,6 +353,29 @@
     ];
     setLS('ft_leaderboard', seed);
   }
+
+   // Avatar swapping (exactly like dashboard.html)
+      function updateAvatars(){
+  // pull exactly what profile.html writes into ft_current
+  const p   = Storage.get('ft_current', {});
+  // use the uploaded picture, or fallback to a pravatar based on their email
+  const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||'')}`;
+  
+  ['side-avatar','top-avatar'].forEach(id=>{
+    const oldEl = document.getElementById(id);
+    if (!oldEl) return;
+    const img = document.createElement('img');
+    img.id        = id;
+    img.className = 'avatar';
+    img.src       = src;
+    oldEl.replaceWith(img);
+  });
+}
+
+// whenever ft_current changes, refresh both sidebar & topbar
+Storage.onChange('ft_current', updateAvatars);
+// initial swap on page load
+updateAvatars();
 
   // ————————————————————————————————
   // Merge current user into leaderboard
