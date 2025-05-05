@@ -59,10 +59,8 @@
       width:100%; padding:.8rem 0;
       display:flex; flex-direction:column; align-items:center; gap:.3rem;
       color:var(--white); background:none; }
-    .sidebar a.menu-item.active,
-    .sidebar a.menu-item:hover,
-    .sidebar button.profile-menu:hover {
-      background:var(--accent);
+    a.menu-item:hover, a.menu-item.active, button.profile-menu:hover {
+      background:rgba(255,152,0,0.2); transform:translateX(4px);
     }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
     .avatar-small {
