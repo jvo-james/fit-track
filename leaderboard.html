@@ -44,15 +44,17 @@
       background:rgba(255,152,0,0.1); border-left:4px solid var(--gold);
       padding:.8rem 1.5rem; color:var(--white); z-index:2000;
     }
-
-    /* Sidebar */
-    .sidebar {
+       /* Sidebar */
+.sidebar {
       width:var(--sidebar-w); background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0; position:sticky; top:0; height:100vh; z-index:100;
-      transition:left var(--transition);
+      padding-top:1rem; position:sticky; top:0; height:100vh;
+      transition:transform var(--transition);
+      z-index:var(--sidebar-z);
     }
+ 
+    
     .sidebar.open { left:0; }
     .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
     .sidebar a.menu-item, .sidebar button.profile-menu {
