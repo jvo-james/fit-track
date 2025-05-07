@@ -60,7 +60,22 @@
       padding:1rem 0; position:sticky; top:0; height:100vh;
       z-index:var(--z-sidebar);
     }
-   
+   .sidebar {
+
+  z-index: 1000; 
+}
+@media(max-width:600px){
+  .sidebar {
+    position: fixed;
+    left: -100%;
+    width: var(--mobile-w);
+    z-index: 1000; /* also here */
+  }
+  .sidebar.open {
+    left: 0;
+  }
+}
+
       @media(max-width:600px){
       .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
       .sidebar.open { left:0; }
@@ -175,6 +190,22 @@
     .section { background:var(--accent); padding:1rem; border-radius:6px; margin-bottom:1rem; }
     .section h2 { color:var(--gold); margin-bottom:.5rem; }
     .chart-container { height:180px; }
+
+    /* Hover effect */
+.achievement-badge:hover {
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+/* Locked vs Unlocked styling */
+.achievement-badge {
+  opacity: 0.4;
+}
+.achievement-badge.unlocked {
+  opacity: 1;
+  box-shadow: 0 0 8px var(--gold);
+}
 
     /* User‑Detail Modal */
     #userModalOverlay {
@@ -306,6 +337,21 @@
       <button class="close-btn" id="modalClose">Close</button>
     </div>
   </div>
+<!-- Chatbot for Leaderboard -->
+<div id="lb-chatbot" class="chatbot">
+  <header><i class="fas fa-comments"></i> Board Bot
+    <button id="lb-chat-close">&times;</button>
+  </header>
+  <div class="messages" id="lb-chat-messages">
+    <div class="msg bot">Hi! Ask me about the leaderboard…</div>
+  </div>
+  <div class="input">
+    <input list="lb-questions" id="lb-chat-input" placeholder="Your question…"/>
+    <datalist id="lb-questions"></datalist>
+    <button id="lb-ask-btn"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+<button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
 
   <!-- storage.js helper -->
 
@@ -522,6 +568,19 @@
       bc.appendChild(div);
     });
 
+  
+document.querySelectorAll('.achievement-badge').forEach((badge, idx) => {
+  badge.addEventListener('click', () => {
+    const milestones = [1, 5, 10, 30];
+    const needed = milestones[idx];
+    alert(
+      badge.classList.contains('unlocked')
+        ? `👏 You’ve unlocked the ${needed}-workout badge!`
+        : `Keep going! Complete ${needed} workouts to unlock this badge.`
+    );
+  });
+});
+
     // Rival Spotlight
     const rivals = lb.filter(u=>u.name!==current.name);
     if (rivals.length) {
@@ -567,6 +626,63 @@
     if (e.key === 'ft_current') updateAvatars();
     if (['ft_current','ft_leaderboard','ft_activities'].includes(e.key)) renderAll();
   });
+// — Chatbot for Leaderboard — 
+const lbChatBox      = document.getElementById('lb-chatbot'),
+      lbChatToggle   = document.getElementById('lb-chat-toggle'),
+      lbChatClose    = document.getElementById('lb-chat-close'),
+      lbChatMsgs     = document.getElementById('lb-chat-messages'),
+      lbChatInput    = document.getElementById('lb-chat-input'),
+      lbAskBtn       = document.getElementById('lb-ask-btn'),
+      lbDataList     = document.getElementById('lb-questions');
+
+// 20 Q&A entries
+const lbQaList = [
+  { q:"What's my current rank?",      a:() => `You are #${document.getElementById('statRank').textContent.slice(1)}!` },
+  { q:"How many members are there?",   a:() => `${document.getElementById('statMembers').textContent} members total.` },
+  { q:"How many workouts logged?",     a:() => `${document.getElementById('statWorkouts').textContent} workouts so far.` },
+  { q:"What's the top score?",         a:() => {
+      const top = JSON.parse(localStorage.getItem('ft_leaderboard')||'[]')
+                    .map(u=>u.score).sort((a,b)=>b-a)[0]||0;
+      return `The highest score is ${top}.`;
+    }
+  },
+  { q:"Who is in the Hall of Fame?",   a:() => "Check out the top 3 avatars at the top of the page!" },
+  { q:"How do I filter the table?",    a:() => "Use the search box to filter by username." },
+  { q:"What are the badges?",          a:() => "Badges show at bottom – click them to learn milestones." },
+  { q:"How to challenge a user?",      a:() => "That feature is coming soon! Stay tuned." },
+  { q:"How to see weekly stats?",      a:() => "Use the Timeframe dropdown to switch to Weekly." },
+  { q:"How to share the leaderboard?", a:() => "Copy the URL and send it to your friends!" },
+ 
+];
+
+// populate datalist
+lbQaList.forEach(item => {
+  const opt = document.createElement('option');
+  opt.value = item.q;
+  lbDataList.appendChild(opt);
+});
+
+lbChatToggle.onclick = () => {
+  lbChatBox.style.display = 'flex';
+  lbChatToggle.style.display = 'none';
+};
+lbChatClose.onclick = () => {
+  lbChatBox.style.display = 'none';
+  lbChatToggle.style.display = 'block';
+  lbChatMsgs.innerHTML = `<div class="msg bot">Hi! Ask me about the leaderboard…</div>`;
+};
+
+lbAskBtn.onclick = () => {
+  const text = lbChatInput.value.trim();
+  if (!text) return;
+  lbChatMsgs.innerHTML += `<div class="msg user">${text}</div>`;
+  const found = lbQaList.find(item => item.q.toLowerCase() === text.toLowerCase());
+  const answer = found ? ( typeof found.a === 'function' ? found.a() : found.a ) 
+                       : "Sorry, I don't have an answer for that. Pick from the list.";
+  lbChatMsgs.innerHTML += `<div class="msg bot">${answer}</div>`;
+  lbChatMsgs.scrollTop = lbChatMsgs.scrollHeight;
+  lbChatInput.value = '';
+};
 
   // ————————————————————————————————
   // Initial render
