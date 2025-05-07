@@ -492,11 +492,11 @@
   <!-- Main content -->
   <div class="main">
     <header>
-       <button id="hamburger" class="hamburger" onclick="toggleSidebar()">
+     <button id="hamburger" class="hamburger" onclick="toggleSidebar()">
 <i class="fas fa-bars"></i></button>
       <h1 id="greeting">Loading…</h1>
       <button class="new-workout"><i class="fas fa-plus"></i><span>New Workout</span></button>
-         <button id="profile-btn" class="avatar-btn" id="hdrAvatarBtn">
+       <button id="profile-btn" class="avatar-btn">
           <i class="fas fa-user-circle avatar" id="hdrAvatarIcon"></i>
           </button>
     </header>
@@ -636,11 +636,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const notifBar       = document.getElementById('notif-bar');
   const notifClose     = document.getElementById('notif-close');
   const pseudoToast    = document.getElementById('pseudo-toast');
-  const hamburger      = document.getElementById('.hamburger');
+  const hamburger      = document.getElementById('hamburger');
   const sidebar        = document.getElementById('sidebar');
   const overlay        = document.getElementById('overlay');
   const sidebarClose   = document.getElementById('sidebar-close');
-  const profileBtn     = document.getElementById('hdrAvatarBtn');
+  const profileBtn     = document.getElementById('profile-btn');
   const profileMenu    = document.querySelector('.profile-menu');
   const newWorkoutBtn  = document.querySelector('.new-workout');
   const workoutModal   = document.getElementById('workout-modal');
