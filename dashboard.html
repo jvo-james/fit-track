@@ -471,13 +471,7 @@
     the <a href="leaderboard.html">Leaderboard</a> too!
   </div>
 
-  <!-- Off-canvas overlay -->
-  <div id="overlay" class="overlay"></div>
-
-  <!-- Mobile buttons -->
-  <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i></button>
-  <button id="profile-btn" class="profile-btn" aria-label="Profile"><i id="top-avatar" class="fas fa-user-circle avatar"></i></button>
-
+ 
  <!-- Sidebar -->
 
   <div id="overlay" onclick="toggleSidebar()"></div>
@@ -502,6 +496,7 @@
       <button class="new-workout"><i class="fas fa-plus"></i><span>New Workout</span></button>
           <button class="avatar-btn" id="hdrAvatarBtn">
           <i class="fas fa-user-circle avatar" id="hdrAvatarIcon"></i>
+          </button>
     </header>
 
     <div class="profile-summary">
@@ -740,19 +735,20 @@
         document.getElementById('dash-name').textContent = p.name;
       }
      // Avatar swapping
-  function updateAvatars() {
-    const p   = getLS('ft_current', {});
-    const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
-    ['side-avatar','hdrAvatarIcon'].forEach(id=>{
-      const oldEl = document.getElementById(id);
-      if (!oldEl) return;
-      const img = document.createElement('img');
-      img.id        = id;
-      img.className = 'avatar';
-      img.src       = src;
-      oldEl.replaceWith(img);
-    });
-  }
+ function updateAvatars() {
+  const p = Storage.get('ft_current', {});
+  const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
+  ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id=>{
+    const oldEl = document.getElementById(id);
+    if (!oldEl) return;
+    const img = document.createElement('img');
+    img.id        = id;
+    img.className = 'avatar';
+    img.src       = src;
+    oldEl.replaceWith(img);
+  });
+}
+
   updateAvatars();
       // Master update function
       function updateDashboard(){
@@ -842,9 +838,7 @@ rawLB.forEach(u => {
 });
 const lb = rawLB.sort((a,b)=>b.score - a.score).slice(0,5);
 
-        const lb = Storage.get('ft_leaderboard',[])
-                   .sort((a,b)=>(b.score||0)-(a.score||0))
-                   .slice(0,5);
+        
         const ol = document.getElementById('miniLeaderboard');
         ol.innerHTML = '';
         lb.forEach(u=>{
@@ -975,8 +969,15 @@ const chatBox      = document.getElementById('chatbot'),
       askBtn       = document.getElementById('askBtn');
 
 const qaList = [
-  {q:"What's my monthly total?",          a:()=>`${monthActs.length} workouts logged this month.`},
-  {q:"How many km did I run?",            a:()=>`${totDist} km this month.`},
+ { 
+  q: "What's my monthly total?",
+  a: () => document.getElementById('workoutsCount').textContent + " workouts logged this month." 
+},
+{ 
+  q: "How many km did I run?",
+  a: () => document.getElementById('distanceCount').textContent 
+},
+
   {q:"What's my best day?",               a:()=>{
       const counts = {};
       acts.forEach(a=>counts[a.date]=(counts[a.date]||0)+a.duration);
