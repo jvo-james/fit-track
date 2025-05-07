@@ -104,7 +104,13 @@
     left: 0;
   }
 }
+@media (max-width: 600px) {
 
+  header .new-workout,
+  header #profile-btn {
+    display: none;
+  }
+ }
      
     .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item, .sidebar button.profile-menu {
@@ -160,11 +166,43 @@
       display:none; background:transparent; border:none;
       color:var(--white); font-size:1.5rem; cursor:pointer;
     }
-    @media(max-width: var(--mobile-break)) {
-      .hamburger, .profile-btn { display:block; position:fixed; top:1rem; }
-      .hamburger { left:1rem; } .profile-btn { right:1rem; }
-      header h1 { margin:0 auto; }
-    }
+   @media (max-width: 600px) {
+  .hamburger, .profile-btn {
+    display: block;
+    position: fixed;
+    top: 1rem;
+  }
+  .hamburger { left: 1rem; }
+  .profile-btn { right: 1rem; }
+  header h1 { margin: 0 auto; }
+}
+    /* hide sidebar-close on desktop */
+#sidebar-close {
+  display: none;
+}
+
+/* show it under 600px only */
+@media (max-width: 600px) {
+  #sidebar-close {
+    display: block;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: transparent;
+    color: var(--white);
+    font-size: 1.5rem;
+    border: none;
+    cursor: pointer;
+  }
+}
+#chatToggle {
+  z-index: 9999;    /* above everything */
+  display: flex;    /* ensure it’s visible */
+
+}
+
+header h1 { margin:0 auto; }
+    
     header h1 {
       font-size:1.6rem; flex:1; text-align:center;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -505,6 +543,14 @@
   opacity: 0.8;
   margin-bottom: 0.6rem;
 }
+#chatToggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;  /* above all overlays */
+  display: flex;  /* ensure it’s visible */
+  /* …existing styles… */
+}
 
   </style>
 </head>
@@ -527,7 +573,7 @@
  
  <!-- Sidebar -->
 
-  <div id="overlay" onclick="toggleSidebar()"></div>
+ <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
@@ -553,6 +599,7 @@
           <i class="fas fa-user-circle avatar" id="hdrAvatarIcon"></i>
           </button>
     </header>
+
 
     <div class="profile-summary">
       <img id="dash-avatar" class="avatar" src="" alt="Avatar"/>
@@ -788,14 +835,23 @@ document.addEventListener('DOMContentLoaded', () => {
     options: { responsive: true, maintainAspectRatio: false }
   });
 
- const distributionChart = new Chart(distCtx,{
-        type:'pie',
-        data:{
-          labels:['Cardio','Strength','Flexibility','Other'],
-          datasets:[{data:[],backgroundColor:['rgba(255,152,0,0.8)','rgba(255,87,34,0.8)','rgba(76,175,80,0.8)','rgba(3,169,244,0.8)']}]
-        },
-        options:{responsive:true,maintainAspectRatio:false}
-      });
+ const distributionChart = new Chart(distributionCtx, {
+  type: 'pie',
+  data: {
+    labels: ['Cardio','Strength','Flexibility','Other'],
+    datasets: [{
+      data: [1,1,1,1],
+      backgroundColor: [
+        'rgba(255,152,0,0.8)',
+        'rgba(255,87,34,0.8)',
+        'rgba(76,175,80,0.8)',
+        'rgba(3,169,244,0.8)'
+      ]
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+
 
 
   // —— Update avatars & name
