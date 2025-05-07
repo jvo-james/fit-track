@@ -727,7 +727,7 @@ header h1 { margin:0 auto; }
 
 <script type="module">
 import { Storage } from './storage.js';
-import Chart from 'chart.js/auto';
+import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.esm.min.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // —— Redirect if not logged in
@@ -737,37 +737,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // —— Grab DOM elements
-  const notifBar     = document.getElementById('notif-bar');
-  const notifClose   = document.getElementById('notif-close');
-  const pseudoToast  = document.getElementById('pseudo-toast');
-  const hamburger    = document.getElementById('hamburger');
-  const sidebar      = document.getElementById('sidebar');
-  const overlay      = document.getElementById('overlay');
-  const sidebarClose = document.getElementById('sidebar-close');
-  const profileBtn   = document.getElementById('profile-btn');
-  const profileMenu  = document.querySelector('.profile-menu');
-  const newWorkoutBtn= document.querySelector('.new-workout');
-  const workoutModal = document.getElementById('workout-modal');
-  const wCancel      = document.getElementById('w-cancel');
-  const wSave        = document.getElementById('w-save');
-  const greetingEl   = document.getElementById('greeting');
-  const activityCtx  = document.getElementById('activityChart').getContext('2d');
-  const distributionCtx = document.getElementById('distributionChart').getContext('2d');
-  const recentBody   = document.getElementById('recent-acts');
-  const miniList     = document.getElementById('miniLeaderboard');
-  const achGrid      = document.getElementById('yourAchievements');
-  const liveGrid     = document.getElementById('liveSessionsGrid');
-  const communityFeed= document.getElementById('communityFeed');
-  const postInput    = document.getElementById('newFeedInput');
-  const postBtn      = document.getElementById('postFeedBtn');
-  const tipEl        = document.getElementById('tip-of-day');
-  const chatBox      = document.getElementById('chatbot');
-  const chatToggle   = document.getElementById('chatToggle');
-  const chatClose    = document.getElementById('chatClose');
-  const chatMsgs     = document.getElementById('chatMessages');
-  const qSelect      = document.getElementById('questionSelect');
-  const chatInput    = document.getElementById('chatInput');
-  const askBtn       = document.getElementById('askBtn');
+  const notifBar       = document.getElementById('notif-bar');
+  const notifClose     = document.getElementById('notif-close');
+  const pseudoToast    = document.getElementById('pseudo-toast');
+  const hamburger      = document.getElementById('hamburger');
+  const sidebar        = document.getElementById('sidebar');
+  const overlay        = document.getElementById('overlay');
+  const sidebarClose   = document.getElementById('sidebar-close');
+  const profileBtn     = document.getElementById('profile-btn');
+  const profileMenu    = document.querySelector('.profile-menu');
+  const newWorkoutBtn  = document.querySelector('.new-workout');
+  const workoutModal   = document.getElementById('workout-modal');
+  const wCancel        = document.getElementById('w-cancel');
+  const wSave          = document.getElementById('w-save');
+  const greetingEl     = document.getElementById('greeting');
+  const activityCtx    = document.getElementById('activityChart').getContext('2d');
+  const distributionCtx= document.getElementById('distributionChart').getContext('2d');
+  const recentBody     = document.getElementById('recent-acts');
+  const miniList       = document.getElementById('miniLeaderboard');
+  const achGrid        = document.getElementById('yourAchievements');
+  const liveGrid       = document.getElementById('liveSessionsGrid');
+  const communityFeed  = document.getElementById('communityFeed');
+  const postInput      = document.getElementById('newFeedInput');
+  const postBtn        = document.getElementById('postFeedBtn');
+  const tipEl          = document.getElementById('tip-of-day');
+  const chatBox        = document.getElementById('chatbot');
+  const chatToggle     = document.getElementById('chatToggle');
+  const chatClose      = document.getElementById('chatClose');
+  const chatMsgs       = document.getElementById('chatMessages');
+  const qSelect        = document.getElementById('questionSelect');
+  const chatInput      = document.getElementById('chatInput');
+  const askBtn         = document.getElementById('askBtn');
 
   // —— Notification bar toggle
   function syncNotif() {
@@ -830,10 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const calories = +document.getElementById('w-calories').value || 0;
     const notes    = document.getElementById('w-notes').value.trim();
     const all      = Storage.get('ft_activities', []);
-    all.unshift({
-      id: Date.now().toString(),
-      date, type, duration, distance, calories, notes
-    });
+    all.unshift({ id: Date.now().toString(), date, type, duration, distance, calories, notes });
     Storage.set('ft_activities', all);
     workoutModal.classList.remove('active');
   });
@@ -944,24 +941,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Leaderboard top 5
-    const rawLB = Storage.get('ft_leaderboard', []).map(u => ({
-      ...u,
-      score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2)
-    }));
-    rawLB.sort((a,b)=>b.score-a.score).slice(0,5).forEach(u => {
-      miniList.insertAdjacentHTML('beforeend', `<li><span>${u.name}</span><strong>${u.score}</strong></li>`);
-    });
+    miniList.innerHTML = '';
+    Storage.get('ft_leaderboard', [])
+      .map(u => ({ ...u, score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2) }))
+      .sort((a,b)=>b.score-a.score)
+      .slice(0,5)
+      .forEach(u => {
+        miniList.insertAdjacentHTML('beforeend', `<li><span>${u.name}</span><strong>${u.score}</strong></li>`);
+      });
 
     // Achievements
+    achGrid.innerHTML = '';
     const total = acts.length;
-    const badges = [
+    [
       {n:1,  icon:'fas fa-star',   txt:'First Workout'},
       {n:5,  icon:'fas fa-medal',  txt:'5 Workouts'},
       {n:10, icon:'fas fa-trophy', txt:'10 Workouts'},
       {n:30, icon:'fas fa-award',  txt:'30 Workouts'}
-    ];
-    achGrid.innerHTML = '';
-    badges.forEach(b => {
+    ].forEach(b => {
       achGrid.insertAdjacentHTML('beforeend', `
         <div class="achievement-badge${total>=b.n?' unlocked':''}">
           <i class="${b.icon}"></i><p>${b.txt}</p>
@@ -992,7 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `);
     });
-    document.querySelectorAll('.live-btn').forEach(btn => {
+    liveGrid.querySelectorAll('.live-btn').forEach(btn => {
       btn.addEventListener('click', e => {
         const id = +e.currentTarget.dataset.id;
         let arr = Storage.get('ft_mySchedules', []);
@@ -1128,6 +1125,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-  
 </body>
 </html>
