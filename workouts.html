@@ -294,7 +294,24 @@
       #myPlans li { flex:1 1 100%; }
     }
 
-    
+    @media (max-width: 600px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 200px;
+    height: 100vh;
+    transition: left .3s;
+    z-index: 300;
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .sidebar-close {
+    display: block;
+  }
+}
+
     /* Progress Chart */
     #progressSummary {
       grid-column:1/-1;
