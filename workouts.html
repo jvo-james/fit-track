@@ -487,7 +487,23 @@
       font-size:1.4rem; cursor:pointer; animation:pulse 2s infinite;
       z-index:300;
     }
-   
+
+    @media (max-width: 600px) {
+  header {
+    padding: .5rem 1rem;
+  }
+  header .header-left h1 {
+    font-size: 1.1rem;
+  }
+  header .new-workout {
+    padding: .4rem .8rem;
+    font-size: .9rem;
+  }
+  #profile-btn, .hamburger {
+    font-size: 1.2rem;
+  }
+}
+
   </style>
 
 </head>
@@ -648,9 +664,11 @@
       <div class="msg bot">Welcome! Choose a question…</div>
     </div>
     <div class="input">
-      <select id="questionSelect">
-        <option disabled selected>Choose a question…</option>
-      </select>
+     <input list="questions" id="chatInput" placeholder="Ask me…"/>
+<datalist id="questions">
+  <!-- JS will inject <option value="..."> here -->
+</datalist>
+
       <input type="text" id="chatInput" placeholder="Your question…"/>
       <button id="askBtn"><i class="fas fa-paper-plane"></i></button>
     </div>
@@ -676,62 +694,73 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('profile-btn'),
           ...document.querySelectorAll('.profile-menu')
         ];
-  openBtn.onclick = () => { sidebar.classList.add('open'); overlay.classList.add('active'); };
-  closeBtn.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
-  overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
-  profileBtns.forEach(b => b && b.addEventListener('click', () => location.replace('profile.html')));
 
+  openBtn.onclick = () => {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  };
+  closeBtn.onclick = () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  };
+  overlay.onclick = () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  };
+  profileBtns.forEach(b => b && b.addEventListener('click', () => {
+    location.replace('profile.html');
+  }));
 
- // right after DOMContentLoaded, inside your script
-// ─── AVATAR SWAP ────────────────────────────────────────────────────────────
- function updateAvatars() {
-   const prof = Storage.get('ft_current', {});
-   ['side-avatar','top-avatar'].forEach(id => {
-     const placeholder = document.getElementById(id);
-     if (!placeholder) return;
-     const img = document.createElement('img');
-     img.id        = id;
-     img.className = 'avatar';
-     // use the exact key you set in profile.html:
-     img.src = prof.avatarDataUrl
-             || `https://i.pravatar.cc/150?u=${prof.email}`;
-     placeholder.replaceWith(img);
-   });
- }
- updateAvatars();
- Storage.onChange('ft_profile', updateAvatars);
- // ─────────────────────────────────────────────────────────────────────────────
+  // ───── AVATAR SWAP ────────────────────────────────────────────────────────
+  function updateAvatars() {
+    const prof = Storage.get('ft_current', {});
+    ['side-avatar','top-avatar'].forEach(id => {
+      const placeholder = document.getElementById(id);
+      if (!placeholder) return;
+      const img = document.createElement('img');
+      img.id        = id;
+      img.className = 'avatar';
+      img.src = prof.avatarDataUrl
+              || `https://i.pravatar.cc/150?u=${prof.email}`;
+      placeholder.replaceWith(img);
+    });
+  }
+  updateAvatars();
+  Storage.onChange('ft_current', updateAvatars);
+  // ─────────────────────────────────────────────────────────────────────────────
 
-  // — Workouts data
+  // — Workouts data (10 items)
   const workouts = [
-    { id:1, title:'Full‑Body HIIT',      category:'Cardio',     duration:20, difficulty:'Intermediate',
-      image:'hiit.jpg', description:'Fast‑paced intervals.',
+    { id:1,  title:'Full-Body HIIT',      category:'Cardio',     duration:20, difficulty:'Intermediate',
+      image:'hiit.jpg',    description:'Fast-paced intervals.',
       exercises:['Jumping Jacks','Burpees','Mountain Climbers'], equipment:'None', calories:200 },
-    { id:2, title:'Upper Body Strength', category:'Strength',   duration:45, difficulty:'Advanced',
-      image:'upper.jpg', description:'Build power with weights.',
-      exercises:['Push‑Ups','Pull‑Ups','Rows'], equipment:'Dumbbells', calories:300 },
-    { id:3, title:'Morning Yoga Flow',   category:'Yoga',       duration:30, difficulty:'Beginner',
-      image:'yoga.jpg', description:'Gentle wake‑up sequences.',
+    { id:2,  title:'Upper Body Strength', category:'Strength',   duration:45, difficulty:'Advanced',
+      image:'upper.jpg',  description:'Build power with weights.',
+      exercises:['Push-Ups','Pull-Ups','Rows'], equipment:'Dumbbells', calories:300 },
+    { id:3,  title:'Morning Yoga Flow',   category:'Yoga',       duration:30, difficulty:'Beginner',
+      image:'yoga.jpg',   description:'Gentle wake-up sequences.',
       exercises:['Sun Salutation','Tree Pose','Child’s Pose'], equipment:'Mat', calories:120 },
-    { id:4, title:'Tabata Burn',         category:'Cardio',     duration:15, difficulty:'Advanced',
-      image:'tabata.jpg', description:'High‑intensity Tabata rounds.',
-      exercises:['20/10 Work‑Rest'], equipment:'None', calories:180 },
-    { id:5, title:'Lower Body Blast',    category:'Strength',   duration:40, difficulty:'Intermediate',
-      image:'lower.jpg', description:'Squats & lunges focus.',
+    { id:4,  title:'Tabata Burn',         category:'Cardio',     duration:15, difficulty:'Advanced',
+      image:'tabata.jpg', description:'High-intensity Tabata rounds.',
+      exercises:['20/10 Work-Rest'], equipment:'None', calories:180 },
+    { id:5,  title:'Lower Body Blast',    category:'Strength',   duration:40, difficulty:'Intermediate',
+      image:'lower.jpg',  description:'Squats & lunges focus.',
       exercises:['Squats','Lunges','Deadlifts'], equipment:'Barbell', calories:250 },
-    { id:6, title:'Core Crusher',        category:'Core',       duration:25, difficulty:'Intermediate',
-      image:'abs.jpg', description:'Abs & obliques workout.',
+    { id:6,  title:'Core Crusher',        category:'Core',       duration:25, difficulty:'Intermediate',
+      image:'abs.jpg',    description:'Abs & obliques workout.',
       exercises:['Plank','Russian Twists','Leg Raises'], equipment:'None', calories:150 },
-    { id:7, title:'Pilates Power',       category:'Pilates',    duration:35, difficulty:'Beginner',
-      image:'pilate.jpg', description:'Full‑body Pilates flow.',
-      exercises:['Roll‑Up','Hundred','Leg Circles'], equipment:'Mat', calories:130 },
-    { id:8, title:'Kickboxing Cardio',   category:'Cardio',     duration:30, difficulty:'Advanced',
-      image:'bag.jpg', description:'Punch & kick combos.',
-      exercises:['Jab‑Cross','Front Kick','Hook'], equipment:'Gloves', calories:300 },
-     { id:9, title:'Endurance Run',       category:'Cardio',     duration:60, difficulty:'Advanced',   
-      image:'run.jpg', description:'Steady long run.', exercises:['5 km Run'], equipment:'None', calories:400 },
-    { id:10,title:'Zen Stretch',         category:'Flexibility',duration:15, difficulty:'Beginner',     
-     image:'stretch.jpg', description:'Relaxing full-body stretches.', exercises:['Hamstring Stretch','Quad Stretch'], equipment:'Mat', calories:80 }
+    { id:7,  title:'Pilates Power',       category:'Pilates',    duration:35, difficulty:'Beginner',
+      image:'pilate.jpg', description:'Full-body Pilates flow.',
+      exercises:['Roll-Up','Hundred','Leg Circles'], equipment:'Mat', calories:130 },
+    { id:8,  title:'Kickboxing Cardio',   category:'Cardio',     duration:30, difficulty:'Advanced',
+      image:'bag.jpg',    description:'Punch & kick combos.',
+      exercises:['Jab-Cross','Front Kick','Hook'], equipment:'Gloves', calories:300 },
+    { id:9,  title:'Endurance Run',       category:'Cardio',     duration:60, difficulty:'Advanced',
+      image:'run.jpg',    description:'Steady long run.',
+      exercises:['5 km Run'], equipment:'None', calories:400 },
+    { id:10, title:'Zen Stretch',         category:'Flexibility',duration:15, difficulty:'Beginner',
+      image:'stretch.jpg',description:'Relaxing full-body stretches.',
+      exercises:['Hamstring Stretch','Quad Stretch'], equipment:'Mat', calories:80 }
   ];
 
   // — Workout of the Day
@@ -739,24 +768,24 @@ document.addEventListener('DOMContentLoaded', () => {
         wodDesc  = document.getElementById('wodDesc'),
         rndBtn   = document.getElementById('randomizeWOD');
   function pickWOD() {
-    const w = workouts[Math.floor(Math.random()*workouts.length)];
+    const w = workouts[Math.floor(Math.random() * workouts.length)];
     wodTitle.textContent = w.title;
-    wodDesc .textContent = w.description;
+    wodDesc.textContent  = w.description;
   }
   rndBtn.addEventListener('click', pickWOD);
   pickWOD();
 
-  // — Featured Workouts
+  // — Featured Workouts (first 10)
   const featuredList = document.getElementById('featuredList');
   function renderFeatured() {
     featuredList.innerHTML = '';
     workouts.slice(0,10).forEach(w => {
-      const card = document.createElement('div'); card.className='card';
+      const card = document.createElement('div'); card.className = 'card';
       card.innerHTML = `
         <img src="${w.image}" alt="${w.title}">
         <div class="card-body">
           <h3>${w.title}</h3>
-          <p class="info">${w.category} • ${w.duration}m • ${w.difficulty}</p>
+          <p class="info">${w.category} • ${w.duration} m • ${w.difficulty}</p>
           <p class="desc">${w.description}</p>
           <button data-id="${w.id}">Details</button>
         </div>`;
@@ -765,59 +794,54 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // — Library & Filters
-  const libraryGrid     = document.getElementById('libraryGrid'),
-        catSel          = document.getElementById('filterCategory'),
-        durSel          = document.getElementById('filterDuration'),
-        difSel          = document.getElementById('filterDifficulty'),
-        libSearchInput  = document.getElementById('libSearchInput'),
-        libSearchBtn    = document.getElementById('libSearchBtn');
+  const libraryGrid    = document.getElementById('libraryGrid'),
+        catSel         = document.getElementById('filterCategory'),
+        durSel         = document.getElementById('filterDuration'),
+        difSel         = document.getElementById('filterDifficulty'),
+        libSearchInput = document.getElementById('libSearchInput'),
+        libSearchBtn   = document.getElementById('libSearchBtn');
 
-// populate category dropdown
-  new Set(workouts.map(w => w.category))
-    .forEach(c => catSel.add(new Option(c,c)));
+  // populate category dropdown
+  new Set(workouts.map(w => w.category)).forEach(c => {
+    catSel.add(new Option(c, c));
+  });
 
-  // helper to render one library card
   function renderLibraryItem(w) {
-    const card = document.createElement('div');
-    card.className = 'card';
+    const card = document.createElement('div'); card.className = 'card';
     card.innerHTML = `
       <img src="${w.image}" alt="${w.title}">
       <div class="card-body">
         <h3>${w.title}</h3>
-        <p class="info">🏷️ ${w.category} • ⏱️ ${w.duration} min • 🔥 ${w.difficulty}</p>
+        <p class="info">🏷️ ${w.category} • ⏱️ ${w.duration} min • 🔥 ${w.difficulty}</p>
         <p class="desc">${w.description.slice(0,80)}…</p>
-        <p class="rating">⭐ ${w.rating||4.5} (${w.reviews||20} reviews)</p>
+        <p class="rating">⭐ ${w.rating || 4.5} (${w.reviews || 0} reviews)</p>
         <button data-id="${w.id}">Details</button>
       </div>`;
     libraryGrid.appendChild(card);
   }
 
-  // full renderLibrary combining filters + search
   function renderLibrary() {
     const term = libSearchInput.value.trim().toLowerCase();
-    const cat  = catSel.value,
-          max  = +durSel.value || Infinity,
-          diff = difSel.value;
+    const cat  = catSel.value;
+    const max  = +durSel.value || Infinity;
+    const diff = difSel.value;
     libraryGrid.innerHTML = '';
-    workouts
-      .filter(w => {
-        const matchesText = !term
-          || w.title.toLowerCase().includes(term)
-          || w.category.toLowerCase().includes(term);
-        const matchesFilter = (!cat || w.category===cat)
-          && w.duration<=max
-          && (!diff || w.difficulty===diff);
-        return matchesText && matchesFilter;
-      })
-      .forEach(renderLibraryItem);
+    workouts.filter(w => {
+      const matchesText = !term
+        || w.title.toLowerCase().includes(term)
+        || w.category.toLowerCase().includes(term);
+      const matchesFilter = (!cat || w.category === cat)
+        && w.duration <= max
+        && (!diff || w.difficulty === diff);
+      return matchesText && matchesFilter;
+    }).forEach(renderLibraryItem);
   }
 
-  // wire up library controls
   libSearchBtn.addEventListener('click', renderLibrary);
-  [catSel,durSel,difSel].forEach(el => el.addEventListener('change', renderLibrary));
+  [catSel, durSel, difSel].forEach(el => el.addEventListener('change', renderLibrary));
   renderLibrary();
 
-  // — Detail Modal
+  // — Detail Modal Logic
   const detailModal = document.getElementById('detailModal'),
         detailClose = detailModal.querySelector('.close'),
         detailTitle = document.getElementById('detailTitle'),
@@ -831,16 +855,16 @@ document.addEventListener('DOMContentLoaded', () => {
   detailClose.onclick = () => detailModal.style.display = 'none';
 
   document.body.addEventListener('click', e => {
-    if (e.target.tagName==='BUTTON' && e.target.dataset.id) {
-      const w = workouts.find(x=>x.id==e.target.dataset.id);
+    if (e.target.tagName === 'BUTTON' && e.target.dataset.id) {
+      const w = workouts.find(x => x.id == e.target.dataset.id);
       detailTitle.textContent = w.title;
-      detailDesc .textContent = w.description;
-      detailList.innerHTML    = w.exercises.map(x=>`<li>${x}</li>`).join('');
+      detailDesc.textContent  = w.description;
+      detailList.innerHTML    = w.exercises.map(x => `<li>${x}</li>`).join('');
       detailEquip.textContent = w.equipment;
-      detailCal  .textContent = w.calories;
+      detailCal.textContent   = w.calories;
       detailModal.style.display = 'flex';
 
-      btnLog.onclick = ()=>{
+      btnLog.onclick = () => {
         const acts = Storage.get('ft_activities', []);
         acts.unshift({
           date:     new Date().toISOString().slice(0,10),
@@ -854,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Storage.set('ft_activities', acts);
         detailModal.style.display = 'none';
       };
-      btnSavePlan.onclick = ()=>{
+      btnSavePlan.onclick = () => {
         const plans = Storage.get('ft_plans', []);
         if (!plans.includes(w.id)) {
           plans.push(w.id);
@@ -870,14 +894,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderPlans() {
     const p = Storage.get('ft_plans', []);
     plansList.innerHTML = '';
-    p.forEach((id,i)=>{
-      const w = workouts.find(x=>x.id===id),
-            li = document.createElement('li');
+    p.forEach((id, i) => {
+      const w = workouts.find(x => x.id === id);
+      const li = document.createElement('li');
       li.innerHTML = `${w.title} <button data-remove="${i}">Remove</button>`;
       plansList.appendChild(li);
     });
   }
-  plansList.addEventListener('click', e=>{
+  plansList.addEventListener('click', e => {
     if (e.target.dataset.remove != null) {
       const idx = +e.target.dataset.remove;
       const arr = Storage.get('ft_plans', []);
@@ -891,12 +915,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let chart;
   function renderProgress() {
     const acts = Storage.get('ft_activities', []);
-    const byCat = acts.reduce((o,a)=>{
-      const w = workouts.find(wk=>wk.title===a.type),
-            c = w? w.category:'Other';
+    const byCat = acts.reduce((o,a) => {
+      const w = workouts.find(wk => wk.title === a.type),
+            c = w ? w.category : 'Other';
       o[c] = (o[c]||0) + 1;
       return o;
-    },{});
+    }, {});
     const labels = Object.keys(byCat),
           data   = Object.values(byCat);
     if (chart) chart.destroy();
@@ -914,28 +938,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // — Challenge Modes
+  // — Challenge Modes (unchanged)
   const CHALLENGE_KEY = 'ft_joinedChallenges',
         chList        = document.getElementById('challengesList');
   if (!Storage.get(CHALLENGE_KEY)) Storage.set(CHALLENGE_KEY, []);
-
   const challenges = [
-    { id:1, title:'7‑Day Abs',       desc:'Daily core sculpting.',   target:7,  matchCategory:'Core' },
-    { id:2, title:'30‑Day Push‑Up',  desc:'+2 reps/day.',            target:30, matchCategory:'Strength' },
-    { id:3, title:'14‑Day Yoga',     desc:'Morning flow.',           target:14, matchCategory:'Yoga' },
+    { id:1, title:'7-Day Abs',       desc:'Daily core sculpting.',   target:7,  matchCategory:'Core' },
+    { id:2, title:'30-Day Push-Up',  desc:'+2 reps/day.',            target:30, matchCategory:'Strength' },
+    { id:3, title:'14-Day Yoga',     desc:'Morning flow.',           target:14, matchCategory:'Yoga' },
     { id:4, title:'10k Steps x10',   desc:'10k daily.',              target:10, matchCategory:'Cardio' },
-    { id:5, title:'5k Run',          desc:'Complete 5 km.',           target:1,  matchCategory:'Cardio' },
-    { id:6, title:'Plank Progress',  desc:'+10 s/day.',              target:14, matchCategory:'Core' },
-    { id:7, title:'Flexibility',     desc:'15 min stretch.',         target:14, matchCategory:'Flexibility' },
+    { id:5, title:'5k Run',          desc:'Complete 5 km.',           target:1,  matchCategory:'Cardio' },
+    { id:6, title:'Plank Progress',  desc:'+10 s/day.',              target:14, matchCategory:'Core' },
+    { id:7, title:'Flexibility',     desc:'15 min stretch.',         target:14, matchCategory:'Flexibility' },
     { id:8, title:'HIIT Week',       desc:'5 HIIT sessions.',         target:5,  matchCategory:'Cardio' }
   ];
-
   function renderChallenges() {
     const joined = Storage.get(CHALLENGE_KEY, []),
           acts   = Storage.get('ft_activities', []);
     chList.innerHTML = '';
     challenges.forEach(ch => {
-      const count = acts.filter(a=>a.category===ch.matchCategory).length,
+      const count = acts.filter(a => a.category === ch.matchCategory).length,
             pct   = Math.min(100, Math.round(count/ch.target*100)),
             done  = joined.includes(ch.id);
       const div = document.createElement('div');
@@ -944,24 +966,20 @@ document.addEventListener('DOMContentLoaded', () => {
         <h3>${ch.title}</h3>
         <p>${ch.desc}</p>
         <div class="prog-bar"><div class="fill" style="width:${pct}%"></div></div>
-        <p style="opacity:.8">${count} / ${ch.target} complete (${pct}%)</p>
-        <button class="join-btn">${done?'Joined ✓':'Join Challenge'}</button><br>
+        <p style="opacity:.8">${count} / ${ch.target} complete (${pct}%)</p>
+        <button class="join-btn">${done?'Joined ✓':'Join Challenge'}</button>
         ${done?`<button class="restart-btn" data-id="${ch.id}">Restart</button>`:''}
       `;
-      // join
-      div.querySelector('.join-btn').onclick = ()=>{
+      div.querySelector('.join-btn').onclick = () => {
         if (!done) {
           joined.push(ch.id);
           Storage.set(CHALLENGE_KEY, joined);
           renderChallenges();
         }
       };
-      // restart
       const rb = div.querySelector('.restart-btn');
-      if (rb) rb.onclick = ()=>{
-        Storage.set(CHALLENGE_KEY,
-          Storage.get(CHALLENGE_KEY).filter(id=>id!==ch.id)
-        );
+      if (rb) rb.onclick = () => {
+        Storage.set(CHALLENGE_KEY, Storage.get(CHALLENGE_KEY).filter(id => id!==ch.id));
         renderChallenges();
       };
       chList.appendChild(div);
@@ -969,16 +987,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   Storage.onChange('ft_activities', renderChallenges);
 
-  // — Live Sessions
+  // — Live Sessions (interactive)
   const SESS_KEY = 'ft_liveSessions',
         schedKey = 'ft_mySchedules',
         sessList = document.getElementById('sessionsList');
   const seedSessions = [
-    {id:1,img:'sunrise.jpg',title:'Sunrise Yoga',    host:'Alice', date:Date.now()+3600000, desc:'Vinyasa flow.'},
-    {id:2,img:'hiitblast.jpg',title:'HIIT Blast',    host:'Bob',   date:Date.now()+7200000, desc:'Intervals.'},
-    {id:3,img:'dance.jpg',     title:'Cardio Dance',  host:'Cara',  date:Date.now()-1800000, desc:'Dance cardio.'},
-    {id:4,img:'core.jpg',      title:'Core & Balance',host:'Dan',   date:Date.now()+10800000,desc:'Stability drills.'},
-    {id:5,img:'posture.jpg',   title:'Pilates Power', host:'Eve',   date:Date.now()+14400000,desc:'Core & posture.'}
+    {id:1,img:'sunrise.jpg', title:'Sunrise Yoga',    host:'Alice', date:Date.now()+3600000, desc:'Vinyasa flow.'},
+    {id:2,img:'hiitblast.jpg',title:'HIIT Blast',     host:'Bob',   date:Date.now()+7200000, desc:'Intervals.'},
+    {id:3,img:'dance.jpg',    title:'Cardio Dance',   host:'Cara',  date:Date.now()-1800000, desc:'Dance cardio.'},
+    {id:4,img:'core.jpg',     title:'Core & Balance', host:'Dan',   date:Date.now()+10800000,desc:'Stability drills.'},
+    {id:5,img:'posture.jpg',  title:'Pilates Power',  host:'Eve',   date:Date.now()+14400000,desc:'Core & posture.'}
   ];
   if (!Storage.get(SESS_KEY, []).length) Storage.set(SESS_KEY, seedSessions);
 
@@ -987,30 +1005,64 @@ document.addEventListener('DOMContentLoaded', () => {
           joined   = Storage.get(schedKey, []),
           now      = Date.now();
     sessList.innerHTML = '';
-    sessions.forEach(s=>{
-      const isLive    = now>=s.date && now< s.date+3600000,
-            isFuture  = now< s.date,
+    sessions.forEach(s => {
+      const isLive    = now >= s.date && now < s.date + 3600000,
             hasJoined = joined.includes(s.id),
-            btnTxt    = isLive ? '🔴 LIVE' : (hasJoined?'✔ Scheduled':'⏱ Schedule'),
             card      = document.createElement('div');
       card.className = 'live-card';
+
+      let actionBtns = '';
+      if (isLive) {
+        actionBtns = `<button data-action="watch" data-id="${s.id}">🔴 LIVE Now</button>`;
+      } else if (hasJoined) {
+        actionBtns = `
+          <button data-action="cancel" data-id="${s.id}">❌ Cancel</button>
+          <button data-action="invite" data-id="${s.id}">➕ Invite Friend</button>
+        `;
+      } else {
+        actionBtns = `
+          <button data-action="join" data-id="${s.id}">⏱ Join</button>
+          <button data-action="remind" data-id="${s.id}">🔔 Remind Me</button>
+        `;
+      }
+
       card.innerHTML = `
         ${isLive?'<div class="status">LIVE</div>':''}
         <img src="${s.img}" alt="${s.title}">
         <h3>${s.title}</h3>
         <p class="info">${s.host} • ${new Date(s.date).toLocaleString()}</p>
         <p class="desc">${s.desc}</p>
-        <button data-id="${s.id}">${btnTxt}</button>
+        <div class="live-actions">${actionBtns}</div>
       `;
-      card.querySelector('button').onclick = ()=>{
-        if (isFuture && !hasJoined) {
-          joined.push(s.id);
-          Storage.set(schedKey, joined);
+
+      card.addEventListener('click', e => {
+        const id = +e.target.dataset.id;
+        const action = e.target.dataset.action;
+        if (!action) return;
+        const arr = Storage.get(schedKey, []);
+        switch (action) {
+          case 'join':
+            arr.push(id);
+            Storage.set(schedKey, arr);
+            alert('You have joined — see you there!');
+            break;
+          case 'cancel':
+            Storage.set(schedKey, arr.filter(i=>i!==id));
+            alert('Your spot has been cancelled.');
+            break;
+          case 'remind':
+            alert('You will be reminded 10 minutes before start.');
+            break;
+          case 'invite':
+            prompt('Share this link with a friend:', location.href + '?invite=' + id);
+            break;
+          case 'watch':
+            alert('Enjoy the live session!');
+            break;
         }
-        if (isLive) {
-          document.getElementById('goLiveModal').style.display='flex';
-        }
-      };
+        renderSessions();
+      });
+
       sessList.appendChild(card);
     });
   }
@@ -1022,12 +1074,10 @@ document.addEventListener('DOMContentLoaded', () => {
         endLiveBtn   = document.getElementById('endLiveBtn'),
         openGoLive   = document.getElementById('open-go-live');
 
-  // open modal
-  openGoLive.onclick = ()=> goLiveModal.style.display = 'flex';
-  // close modal
-  goClose.onclick    = ()=> goLiveModal.style.display = 'none';
-  // start live
-  startLiveBtn.onclick = async ()=>{
+  openGoLive.onclick = () => goLiveModal.style.display = 'flex';
+  goClose.onclick    = () => goLiveModal.style.display = 'none';
+
+  startLiveBtn.onclick = async () => {
     goLiveModal.style.display = 'none';
     try {
       currentStream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
@@ -1040,8 +1090,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Camera access denied');
     }
   };
-  // end live
-  endLiveBtn.onclick = ()=>{
+  endLiveBtn.onclick = () => {
     if (currentStream) {
       currentStream.getTracks().forEach(t=>t.stop());
       currentStream = null;
@@ -1049,7 +1098,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('body > video').forEach(v=>v.remove());
   };
 
-  // — Chatbot
+  // — Chatbot Q&A (20 items)
   const chatBox       = document.getElementById('chatbot'),
         chatToggleBtn = document.getElementById('chatToggle'),
         chatCloseBtn  = document.getElementById('chatClose'),
@@ -1057,36 +1106,60 @@ document.addEventListener('DOMContentLoaded', () => {
         questionSelect= document.getElementById('questionSelect'),
         chatInput     = document.getElementById('chatInput'),
         askBtn        = document.getElementById('askBtn');
+
   const qaList = [
-    { q:"What's the WOD?",      a:"Hit Randomize to see today's workout." },
-    { q:"How do I log?",        a:"Open Details → Log This Workout." },
-    { q:"How to save a plan?",  a:"In details, click Save to My Plans." }
+    { q: "What's the WOD today?",            a: "Click Randomize to see today's Workout of the Day." },
+    { q: "How do I log a workout?",           a: "Open the workout's Details modal, then click Log This Workout." },
+    { q: "How do I save a plan?",             a: "In the Details modal, click Save to My Plans." },
+    { q: "How can I filter workouts?",        a: "Use the dropdowns under Filters to narrow by category, duration, or difficulty." },
+    { q: "How do I add a review?",            a: "In the Library, click the Reviews link on any workout and submit your rating." },
+    { q: "Where are my saved plans?",         a: "Scroll down to My Plans — your saved workouts are listed there." },
+    { q: "How do I join a live session?",     a: "Click Join in Live Sessions — you'll get a reminder before start." },
+    { q: "How do I schedule a live session?", a: "Under Live Sessions, click Schedule to reserve your spot." },
+    { q: "What are the challenges?",          a: "Scroll to Challenge Modes to view and join." },
+    { q: "How do I restart a challenge?",     a: "Click Restart on any joined challenge card." },
+    { q: "How to view my progress chart?",    a: "Check Sessions by Category — updates each time you log." },
+    { q: "How to edit my profile?",           a: "Click your avatar (top or sidebar) to open Profile." },
+    { q: "How to sign out?",                  a: "Click Sign Out at the bottom of the sidebar." },
+    { q: "How to change my avatar?",          a: "Go to Profile → Edit Avatar, then upload a new one." },
+    { q: "How to clear all data?",            a: "In Profile, choose Clear Data to reset stats." },
+    { q: "Where to get help?",                a: "Email support@fittrack.com or use Contact Support in Profile." },
+    { q: "Can I reorder my plans?",           a: "Not yet — drag & drop isn't available, sorry!" },
+    { q: "PDF download of workout?",          a: "That feature is coming soon!" },
+    { q: "How to see my review history?",     a: "We currently show only aggregate reviews, not per-user history." },
+    { q: "How to report a bug?",              a: "Email bugs@fittrack.com with details and screenshots." }
   ];
-  qaList.forEach((x,i)=> questionSelect.add(new Option(x.q,i)));
-  chatToggleBtn.onclick = ()=>{
-    chatBox.style.display='flex';
-    chatToggleBtn.style.display='none';
+
+  // populate dropdown
+  qaList.forEach((item,i) => {
+    questionSelect.add(new Option(item.q, i));
+  });
+
+  chatToggleBtn.onclick = () => {
+    chatBox.style.display = 'flex';
+    chatToggleBtn.style.display = 'none';
   };
-  chatCloseBtn.onclick = ()=>{
-    chatBox.style.display='none';
-    chatToggleBtn.style.display='flex';
-    chatMessages.innerHTML = `<div class="msg bot">Welcome! Choose a question…</div>`;
+  chatCloseBtn.onclick = () => {
+    chatBox.style.display = 'none';
+    chatToggleBtn.style.display = 'flex';
+    chatMessages.innerHTML = `<div class="msg bot">Welcome! Ask me anything…</div>`;
   };
-  questionSelect.onchange = ()=>{
-    chatInput.value = questionSelect.options[questionSelect.selectedIndex].text;
-  };
-  askBtn.onclick = ()=>{
+
+  askBtn.onclick = () => {
     const text = chatInput.value.trim();
     if (!text) return;
-    const idx = questionSelect.value;
     chatMessages.innerHTML += `<div class="msg user">${text}</div>`;
-    if (idx!=='') chatMessages.innerHTML += `<div class="msg bot">${qaList[idx].a}</div>`;
+    let answer = "Sorry, I don't know that one. Try selecting from the list.";
+    if (questionSelect.value !== "") {
+      answer = qaList[questionSelect.value].a;
+    }
+    chatMessages.innerHTML += `<div class="msg bot">${answer}</div>`;
     chatMessages.scrollTop = chatMessages.scrollHeight;
     chatInput.value = '';
     questionSelect.selectedIndex = 0;
   };
 
-  // — Sync all
+  // — Initial render
   function syncAll() {
     renderFeatured();
     renderLibrary();
