@@ -104,13 +104,7 @@
     left: 0;
   }
 }
-@media (max-width: 600px) {
 
-  header .new-workout,
-  header #profile-btn {
-    display: none;
-  }
- }
      
     .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item, .sidebar button.profile-menu {
@@ -166,43 +160,11 @@
       display:none; background:transparent; border:none;
       color:var(--white); font-size:1.5rem; cursor:pointer;
     }
-   @media (max-width: 600px) {
-  .hamburger, .profile-btn {
-    display: block;
-    position: fixed;
-    top: 1rem;
-  }
-  .hamburger { left: 1rem; }
-  .profile-btn { right: 1rem; }
-  header h1 { margin: 0 auto; }
-}
-    /* hide sidebar-close on desktop */
-#sidebar-close {
-  display: none;
-}
-
-/* show it under 600px only */
-@media (max-width: 600px) {
-  #sidebar-close {
-    display: block;
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: transparent;
-    color: var(--white);
-    font-size: 1.5rem;
-    border: none;
-    cursor: pointer;
-  }
-}
-#chatToggle {
-  z-index: 9999;    /* above everything */
-  display: flex;    /* ensure it’s visible */
-
-}
-
-header h1 { margin:0 auto; }
-    
+    @media(max-width: var(--mobile-break)) {
+      .hamburger, .profile-btn { display:block; position:fixed; top:1rem; }
+      .hamburger { left:1rem; } .profile-btn { right:1rem; }
+      header h1 { margin:0 auto; }
+    }
     header h1 {
       font-size:1.6rem; flex:1; text-align:center;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -543,14 +505,6 @@ header h1 { margin:0 auto; }
   opacity: 0.8;
   margin-bottom: 0.6rem;
 }
-#chatToggle {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;  /* above all overlays */
-  display: flex;  /* ensure it’s visible */
-  /* …existing styles… */
-}
 
   </style>
 </head>
@@ -573,7 +527,7 @@ header h1 { margin:0 auto; }
  
  <!-- Sidebar -->
 
- <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+  <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
@@ -639,7 +593,7 @@ header h1 { margin:0 auto; }
       <section class="quick-log">
         <h2><i class="fas fa-history"></i> Recent Activities</h2>
         <table><thead><tr><th>Date</th><th>Type</th><th>Duration</th><th>Km</th><th>Calories</th>      
-        <th>Notes</th></tr></thead><tbody id="recent-acts"></tbody></table>
++        <th>Notes</th></tr></thead><tbody id="recent-acts"></tbody></table>
         <div class="fast-stats">
           <div><strong id="avg-dur">0</strong> min avg</div>
           <div><strong id="tot-dist">0</strong> km</div>
@@ -720,21 +674,16 @@ header h1 { margin:0 auto; }
     <select id="questionSelect"><option disabled selected>Pick a question…</option></select>
     <input type="text" id="chatInput" placeholder="Or type your own…"/>
     <button type="button" id="askBtn"><i class="fas fa-paper-plane"></i></button>
-</div></div>
+</div>
 <button id="chatToggle"><i class="fas fa-comments"></i></button>
-
-
 
 <script type="module">
 import { Storage } from './storage.js';
-import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.esm.min.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // —— Redirect if not logged in
   const cur = Storage.get('ft_current', null);
-  if (!cur || !cur.name) {
-    return location.replace('home.html');
-  }
+  if (!cur || !cur.name) return location.replace('home.html');
 
   // —— Grab DOM elements
   const notifBar       = document.getElementById('notif-bar');
@@ -761,15 +710,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const postInput      = document.getElementById('newFeedInput');
   const postBtn        = document.getElementById('postFeedBtn');
   const tipEl          = document.getElementById('tip-of-day');
-  const chatBox        = document.getElementById('chatbot');
-  const chatToggle     = document.getElementById('chatToggle');
-  const chatClose      = document.getElementById('chatClose');
-  const chatMsgs       = document.getElementById('chatMessages');
-  const qSelect        = document.getElementById('questionSelect');
-  const chatInput      = document.getElementById('chatInput');
-  const askBtn         = document.getElementById('askBtn');
 
-  // —— Notification bar toggle
+  // —— Show/hide notification bar
   function syncNotif() {
     const p = Storage.get('ft_current', {});
     notifBar.classList.toggle('hidden', !!p.profileComplete);
@@ -783,14 +725,14 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
   }
-  hamburger.addEventListener('click', toggleSidebar);
-  sidebarClose.addEventListener('click', toggleSidebar);
-  overlay.addEventListener('click', toggleSidebar);
+  hamburger.onclick = toggleSidebar;
+  sidebarClose.onclick = toggleSidebar;
+  overlay.onclick = toggleSidebar;
   window.toggleSidebar = toggleSidebar;
 
-  // —— Profile navigation
-  profileBtn.addEventListener('click', () => location.replace('profile.html'));
-  profileMenu.addEventListener('click', () => location.replace('profile.html'));
+  // —— Profile nav
+  profileBtn.onclick  = () => location.replace('profile.html');
+  profileMenu.onclick = () => location.replace('profile.html');
 
   // —— Seed sample workout for new users
   if (cur.isNew) {
@@ -800,11 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
       acts = [{
         id: 'sample',
         date: new Date().toISOString().slice(0,10),
-        type: 'Cardio',
-        duration: 20,
-        distance: 2,
-        calories: 150,
-        notes: 'Welcome sample workout!'
+        type: 'Cardio', duration: 20, distance: 2, calories: 150, notes: 'Welcome sample workout!'
       }];
       Storage.set('ft_activities', acts);
     }
@@ -814,109 +752,130 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     greetingEl.textContent = `Welcome back, ${cur.name}!`;
   }
-  pseudoToast.addEventListener('click', () => pseudoToast.classList.remove('active'));
+  pseudoToast.onclick = () => pseudoToast.classList.remove('active');
 
-  // —— Workout modal handlers
-  newWorkoutBtn.addEventListener('click', () => workoutModal.classList.add('active'));
-  wCancel.addEventListener('click', () => workoutModal.classList.remove('active'));
-  wSave.addEventListener('click', () => {
+  // —— Workout modal
+  newWorkoutBtn.onclick     = () => workoutModal.classList.add('active');
+  wCancel.onclick           = () => workoutModal.classList.remove('active');
+  wSave.onclick             = () => {
     const date     = document.getElementById('w-date').value;
-    const duration = +document.getElementById('w-duration').value;
-    if (!date || !duration) {
-      return alert('Date & duration required');
-    }
     const type     = document.getElementById('w-type').value;
-    const distance = +document.getElementById('w-distance').value || 0;
-    const calories = +document.getElementById('w-calories').value || 0;
+    const duration = +document.getElementById('w-duration').value;
+    if (!date || !duration) return alert('Date & duration required');
+    const distance = +document.getElementById('w-distance').value;
+    const calories = +document.getElementById('w-calories').value;
     const notes    = document.getElementById('w-notes').value.trim();
     const all      = Storage.get('ft_activities', []);
-    all.unshift({ id: Date.now().toString(), date, type, duration, distance, calories, notes });
+    all.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
     Storage.set('ft_activities', all);
     workoutModal.classList.remove('active');
-  });
+  };
 
-  // —— Charts setup
+  // —— Charts instances
   const activityChart = new Chart(activityCtx, {
     type: 'line',
-    data: { labels: [], datasets: [{ data: [], tension: 0.3 }] },
-    options: { responsive: true, maintainAspectRatio: false }
-  });
-  const distributionChart = new Chart(distributionCtx, {
-    type: 'pie',
-    data: { labels: ['Cardio','Strength','Flexibility','Other'], datasets: [{ data: [1,1,1,1] }] },
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        borderColor: 'rgba(255,152,0,1)',
+        backgroundColor: 'rgba(255,152,0,0.3)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
     options: { responsive: true, maintainAspectRatio: false }
   });
 
-  // —— Sync profile display
-  function syncProfileDisplay() {
+  const distributionChart = new Chart(distributionCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Cardio', 'Strength', 'Flexibility', 'Other'],
+      datasets: [{
+        data: [],
+        backgroundColor: ['#ff9800', '#e91e63', '#4caf50', '#2196f3'],
+        hoverOffset: 8,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '50%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { size: 14, weight: 'bold' } }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.label}: ${ctx.parsed} workouts`
+          }
+        }
+      }
+    }
+  });
+
+  // —— Update avatars & name
+  function syncProfileDisplay(){
     const p = Storage.get('ft_current', {});
     const url = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
-    ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id => {
+    ['dash-avatar','side-avatar','top-avatar','hdrAvatarIcon'].forEach(id => {
       const old = document.getElementById(id);
-      if (old) {
-        const img = document.createElement('img');
-        img.id = id; img.className = 'avatar'; img.src = url; img.alt = 'Avatar';
-        old.replaceWith(img);
-      }
+      if (!old) return;
+      const img = document.createElement('img');
+      img.id = id; img.className = 'avatar'; img.src = url; img.alt = 'Avatar';
+      old.replaceWith(img);
     });
     document.getElementById('dash-name').textContent = p.name;
   }
   syncProfileDisplay();
-  Storage.onChange('ft_current', syncProfileDisplay);
 
-  // —— Main render function
-  function updateDashboard() {
+  // —— Main render
+  function updateDashboard(){
     const acts = Storage.get('ft_activities', []);
     const now  = new Date();
 
-    // Recent summary
-    const recent = acts.slice(0,7);
-    const totalDur  = recent.reduce((sum,a)=>sum + a.duration, 0);
-    const totalDist = recent.reduce((sum,a)=>sum + a.distance, 0);
-    const totalCal  = recent.reduce((sum,a)=>sum + a.calories, 0);
-    document.getElementById('avg-dur').textContent = recent.length ? Math.round(totalDur/recent.length) : 0;
-    document.getElementById('tot-dist').textContent = totalDist.toFixed(1);
-    document.getElementById('tot-cal').textContent = totalCal;
-
-    // Monthly stats
+    // — Monthly stats
     const monthActs = acts.filter(a => {
       const d = new Date(a.date);
-      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     });
-    const workoutsCount = monthActs.length;
-    const distSum       = monthActs.reduce((s,a)=>s + a.distance, 0).toFixed(1);
-    const calSum        = monthActs.reduce((s,a)=>s + a.calories, 0);
-    const activeDays    = new Set(monthActs.map(a=>a.date)).size;
-    document.getElementById('workoutsCount').textContent   = workoutsCount;
-    document.getElementById('distanceCount').textContent   = `${distSum} km`;
-    document.getElementById('caloriesCount').textContent   = calSum;
+    document.getElementById('workoutsCount').textContent   = monthActs.length;
+    const totDist = monthActs.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+    document.getElementById('distanceCount').textContent   = `${totDist} km`;
+    const totCal = monthActs.reduce((s,a)=>s+(+a.calories||0),0);
+    document.getElementById('caloriesCount').textContent   = totCal;
+    const activeDays = new Set(monthActs.map(a=>a.date)).size;
     document.getElementById('activeDaysCount').textContent = activeDays;
 
-    // Today & avg cal
+    // — Today & Avg
     const todayKey = now.toISOString().slice(0,10);
-    const todayMin = acts.filter(a=>a.date===todayKey).reduce((s,a)=>s + a.duration, 0);
-    const avgCal   = workoutsCount ? Math.round(calSum/workoutsCount) : 0;
-    document.getElementById('todayTime').textContent   = `${todayMin} min`;
-    document.getElementById('avgCalories').textContent = avgCal;
+    const todayMin = acts.filter(a=>a.date===todayKey).reduce((s,a)=>s+(+a.duration||0),0);
+    document.getElementById('todayTime').textContent      = `${todayMin} min`;
+    const avgCal = monthActs.length ? Math.round(totCal/monthActs.length) : 0;
+    document.getElementById('avgCalories').textContent    = avgCal;
 
-    // Goals & progress
-    const weekCount = acts.filter(a => (now - new Date(a.date))/(1000*60*60*24) <= 7).length;
-    document.getElementById('progressBar').style.width = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-    document.getElementById('goalDaily').style.width   = `${Math.min(100,Math.round(todayMin/30*100))}%`;
-    document.getElementById('goalWeekly').style.width  = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-    document.getElementById('goalMonthly').style.width = `${Math.min(100,Math.round(workoutsCount/20*100))}%`;
+    // — Goals bars
+    const weekCount = acts.filter(a => (now - new Date(a.date)) / (1000*60*60*24) <= 7).length;
+    document.getElementById('progressBar').style.width   = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    document.getElementById('goalDaily').style.width     = `${Math.min(100,Math.round(todayMin/30*100))}%`;
+    document.getElementById('goalWeekly').style.width    = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    document.getElementById('goalMonthly').style.width   = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
 
-    // Update charts
+    // — Activity over time
     const labels = [], data7 = [];
-    for (let i=6; i>=0; i--) {
-      const d = new Date(); d.setDate(d.getDate()-i);
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
       labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
-      data7.push(acts.filter(a=>a.date===d.toISOString().slice(0,10)).reduce((s,a)=>s+a.duration,0));
+      data7.push(acts.filter(a=>a.date===d.toISOString().slice(0,10))
+                     .reduce((s,a)=>s+(+a.duration||0),0));
     }
-    activityChart.data.labels = labels;
-    activityChart.data.datasets[0].data = data7;
+    activityChart.data.labels            = labels;
+    activityChart.data.datasets[0].data  = data7;
     activityChart.update();
 
+    // — Distribution pie
     distributionChart.data.datasets[0].data = [
       monthActs.filter(a=>a.type==='Cardio').length,
       monthActs.filter(a=>a.type==='Strength').length,
@@ -925,7 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     distributionChart.update();
 
-    // Recent activities table
+    // — Recent Activities (first 7 workouts only)
     recentBody.innerHTML = '';
     acts.slice(0,7).forEach(e => {
       recentBody.insertAdjacentHTML('beforeend', `
@@ -933,40 +892,40 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${e.date}</td>
           <td>${e.type}</td>
           <td>${e.duration}</td>
-          <td>${e.distance || '–'}</td>
-          <td>${e.calories || '–'}</td>
-          <td>${e.notes || '–'}</td>
-        </tr>
-      `);
+          <td>${e.distance||'–'}</td>
+          <td>${e.calories||'–'}</td>
+          <td>${e.notes||'–'}</td>
+        </tr>`);
     });
 
-    // Leaderboard top 5
+    // — Top 5 Leaderboard
+    const rawLB = Storage.get('ft_leaderboard', []).map(u => ({
+      ...u,
+      score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2)
+    }));
+    const top5 = rawLB.sort((a,b)=>b.score-a.score).slice(0,5);
     miniList.innerHTML = '';
-    Storage.get('ft_leaderboard', [])
-      .map(u => ({ ...u, score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2) }))
-      .sort((a,b)=>b.score-a.score)
-      .slice(0,5)
-      .forEach(u => {
-        miniList.insertAdjacentHTML('beforeend', `<li><span>${u.name}</span><strong>${u.score}</strong></li>`);
-      });
+    top5.forEach(u => {
+      miniList.insertAdjacentHTML('beforeend', `<li><span>${u.name}</span><strong>${u.score}</strong></li>`);
+    });
 
-    // Achievements
-    achGrid.innerHTML = '';
+    // — Achievements badges
     const total = acts.length;
-    [
+    const badges = [
       {n:1,  icon:'fas fa-star',   txt:'First Workout'},
       {n:5,  icon:'fas fa-medal',  txt:'5 Workouts'},
       {n:10, icon:'fas fa-trophy', txt:'10 Workouts'},
       {n:30, icon:'fas fa-award',  txt:'30 Workouts'}
-    ].forEach(b => {
+    ];
+    achGrid.innerHTML = '';
+    badges.forEach(b => {
       achGrid.insertAdjacentHTML('beforeend', `
         <div class="achievement-badge${total>=b.n?' unlocked':''}">
           <i class="${b.icon}"></i><p>${b.txt}</p>
-        </div>
-      `);
+        </div>`);
     });
 
-    // Live sessions
+    // —— Upcoming Live Sessions
     liveGrid.innerHTML = '';
     const sessions = Storage.get('ft_liveSessions', []);
     const schedIds  = Storage.get('ft_mySchedules', []);
@@ -979,70 +938,65 @@ document.addEventListener('DOMContentLoaded', () => {
                        : '🔴 LIVE';
       liveGrid.insertAdjacentHTML('beforeend', `
         <div class="live-card">
-          <img src="${s.img}" alt="${s.title}" />
+          <img src="${s.img}" alt="${s.title}"/>
           <span class="session-date">${start.toLocaleString(undefined,{
             month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'
           })}</span>
           <h3>${s.title}</h3>
           <p class="host-name">${s.host}</p>
           <button data-id="${s.id}" class="live-btn">${btnTxt}</button>
-        </div>
-      `);
+        </div>`);
     });
-    liveGrid.querySelectorAll('.live-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
+    document.querySelectorAll('.live-btn').forEach(btn => {
+      btn.onclick = e => {
         const id = +e.currentTarget.dataset.id;
         let arr = Storage.get('ft_mySchedules', []);
-        if (e.currentTarget.textContent.includes('Schedule') && !arr.includes(id)) {
-          arr.push(id);
+        if (e.currentTarget.textContent.includes('Schedule')) {
+          if (!arr.includes(id)) arr.push(id);
           alert('Session scheduled!');
-        } else if (!e.currentTarget.textContent.includes('Schedule')) {
+        } else {
           alert('Enjoy the live session!');
         }
         Storage.set('ft_mySchedules', arr);
         updateDashboard();
-      });
+      };
     });
 
-    // Community feed
-    let feed = Storage.get('ft_feed', []);
-    if (!feed.length) {
-      feed = [
-        "Alice smashed a 5 km run!",
-        "Bob just completed 3 HIIT sessions!",
-        "Cara hit her 10th workout milestone!",
-        "Dan improved his plank time!",
-        "Eve joined the 7-Day Abs challenge!"
-      ];
-    }
+    // —— Community feed
+    const feed = Storage.get('ft_feed', [
+      "Alice smashed a 5 km run!",
+      "Bob just completed 3 HIIT sessions!",
+      "Cara hit her 10th workout milestone!",
+      "Dan improved his plank time!",
+      "Eve joined the 7-Day Abs challenge!"
+    ]);
     communityFeed.innerHTML = '';
     feed.forEach(text => {
       const minsAgo = Math.floor(Math.random()*59)+1;
       communityFeed.insertAdjacentHTML('beforeend', `
-        <li class="feed-item">
+        <li class="feed-item animate__animated animate__fadeInUp">
           ${text}
           <span class="feed-time">${minsAgo}m ago</span>
           <button class="comment-btn"><i class="fas fa-comment"></i></button>
           <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
-        </li>
-      `);
+        </li>`);
     });
-    communityFeed.querySelectorAll('.like-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
+    document.querySelectorAll('.like-btn').forEach(btn => {
+      btn.onclick = e => {
         const span = e.currentTarget.querySelector('.like-count');
         span.textContent = +span.textContent + 1;
-      });
+      };
     });
-    postBtn.addEventListener('click', () => {
+    postBtn.onclick = () => {
       const txt = postInput.value.trim();
       if (!txt) return;
       feed.unshift(txt);
       Storage.set('ft_feed', feed);
       postInput.value = '';
       updateDashboard();
-    });
+    };
 
-    // Tip of the day
+    // —— Tip of the day
     const tips = [
       "Stay hydrated—drink 250 ml water before workouts.",
       "Warm up 5 min to activate muscles.",
@@ -1053,14 +1007,22 @@ document.addEventListener('DOMContentLoaded', () => {
     tipEl.textContent = tips[Math.floor(Math.random()*tips.length)];
   }
 
-  // —— Chatbot Q&A wiring
+  // —— Chatbot wiring
+  const chatBox    = document.getElementById('chatbot');
+  const chatToggle = document.getElementById('chatToggle');
+  const chatClose  = document.getElementById('chatClose');
+  const chatMsgs   = document.getElementById('chatMessages');
+  const qSelect    = document.getElementById('questionSelect');
+  const chatInput  = document.getElementById('chatInput');
+  const askBtn     = document.getElementById('askBtn');
+
   const qaList = [
-    { q: "What's my monthly total?",       a: () => `${document.getElementById('workoutsCount').textContent} workouts.` },
+    { q: "What's my monthly total?",       a: () => document.getElementById('workoutsCount').textContent + " workouts." },
     { q: "How many km did I run?",         a: () => document.getElementById('distanceCount').textContent },
     { q: "What's my best day?",            a: () => {
         const acts = Storage.get('ft_activities', []);
         const counts = {};
-        acts.forEach(a => counts[a.date] = (counts[a.date]||0) + a.duration);
+        acts.forEach(a=>counts[a.date]=(counts[a.date]||0)+a.duration);
         const best = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
         return best ? `Best: ${best[1]} min on ${best[0]}` : "No data yet";
       }
@@ -1089,41 +1051,42 @@ document.addEventListener('DOMContentLoaded', () => {
     { q: "Where to go next?",              a: "Try adding a new workout now!" },
     { q: "How to toggle sidebar?",         a: "Tap the ☰ hamburger icon." }
   ];
+
   qaList.forEach((item,i) => qSelect.add(new Option(item.q, i)));
 
-  chatToggle.addEventListener('click', () => {
-    chatBox.style.display = 'flex';
-    chatToggle.style.display = 'none';
-  });
-  chatClose.addEventListener('click', () => {
-    chatBox.style.display = 'none';
-    chatToggle.style.display = 'flex';
+  chatToggle.onclick = () => {
+    chatBox.style.display='flex';
+    chatToggle.style.display='none';
+  };
+  chatClose.onclick  = () => {
+    chatBox.style.display='none';
+    chatToggle.style.display='flex';
     chatMsgs.innerHTML = `<div class="msg bot">Hi! Ask me about your dashboard…</div>`;
-  });
-  askBtn.addEventListener('click', () => {
+  };
+  askBtn.onclick = () => {
     const text = chatInput.value.trim();
     if (!text) return;
-    chatMsgs.insertAdjacentHTML('beforeend', `<div class="msg user">${text}</div>`);
+    chatMsgs.innerHTML += `<div class="msg user">${text}</div>`;
     let answer = "Sorry, I don't know that one.";
     const idx = qSelect.value;
     if (idx !== '') {
       const fn = qaList[idx].a;
       answer = typeof fn === 'function' ? fn() : fn;
     }
-    chatMsgs.insertAdjacentHTML('beforeend', `<div class="msg bot">${answer}</div>`);
+    chatMsgs.innerHTML += `<div class="msg bot">${answer}</div>`;
     chatMsgs.scrollTop = chatMsgs.scrollHeight;
     chatInput.value = '';
     qSelect.selectedIndex = 0;
-  });
+  };
 
-  // —— Initialize dashboard
+  // —— Initialize
   updateDashboard();
-  Storage.onChange(
-    ['ft_activities','ft_leaderboard','ft_mySchedules','ft_liveSessions','ft_feed'],
-    updateDashboard
-  );
+  Storage.onChange(['ft_activities','ft_leaderboard','ft_mySchedules','ft_liveSessions','ft_feed'], updateDashboard);
+  Storage.onChange('ft_current', syncProfileDisplay);
 });
 </script>
 
+
+  
 </body>
 </html>
