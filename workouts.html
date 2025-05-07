@@ -653,8 +653,7 @@
     </div>
   </div>
 
-  <!-- Chatbot -->
-
+   <!-- Chatbot -->
   <div id="chatbot">
     <header>
       <i class="fas fa-comments"></i> Chat Coach
@@ -664,16 +663,16 @@
       <div class="msg bot">Welcome! Choose a question…</div>
     </div>
     <div class="input">
-     <input list="questions" id="chatInput" placeholder="Ask me…"/>
-<datalist id="questions">
-  <!-- JS will inject <option value="..."> here -->
-</datalist>
-
-      <input type="text" id="chatInput" placeholder="Your question…"/>
+      <!-- single input for both typing & datalist suggestions -->
+      <input list="questions" id="chatInput" placeholder="Your question…" />
+      <datalist id="questions">
+        <!-- JS will inject <option value="..."> here -->
+      </datalist>
       <button id="askBtn"><i class="fas fa-paper-plane"></i></button>
     </div>
   </div>
   <button id="chatToggle"><i class="fas fa-comments"></i></button>
+
 
 
 <script type="module">
@@ -1098,14 +1097,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('body > video').forEach(v=>v.remove());
   };
 
-  // — Chatbot Q&A (20 items)
+   // — Chatbot Q&A (20 items)
   const chatBox       = document.getElementById('chatbot'),
         chatToggleBtn = document.getElementById('chatToggle'),
         chatCloseBtn  = document.getElementById('chatClose'),
         chatMessages  = document.getElementById('chatMessages'),
-        questionSelect= document.getElementById('questionSelect'),
         chatInput     = document.getElementById('chatInput'),
-        askBtn        = document.getElementById('askBtn');
+        askBtn        = document.getElementById('askBtn'),
+        dataList      = document.getElementById('questions');
 
   const qaList = [
     { q: "What's the WOD today?",            a: "Click Randomize to see today's Workout of the Day." },
@@ -1130,10 +1129,17 @@ document.addEventListener('DOMContentLoaded', () => {
     { q: "How to report a bug?",              a: "Email bugs@fittrack.com with details and screenshots." }
   ];
 
-  // populate dropdown
-  qaList.forEach((item,i) => {
-    questionSelect.add(new Option(item.q, i));
+  // Populate <datalist> with options
+  qaList.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.q;
+    dataList.appendChild(opt);
   });
+
+  function postBotMessage(text) {
+    chatMessages.innerHTML += `<div class="msg bot">${text}</div>`;
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
 
   chatToggleBtn.onclick = () => {
     chatBox.style.display = 'flex';
@@ -1142,24 +1148,25 @@ document.addEventListener('DOMContentLoaded', () => {
   chatCloseBtn.onclick = () => {
     chatBox.style.display = 'none';
     chatToggleBtn.style.display = 'flex';
-    chatMessages.innerHTML = `<div class="msg bot">Welcome! Ask me anything…</div>`;
+    chatMessages.innerHTML = `<div class="msg bot">Welcome! Choose a question…</div>`;
   };
 
   askBtn.onclick = () => {
     const text = chatInput.value.trim();
     if (!text) return;
+    // Echo user
     chatMessages.innerHTML += `<div class="msg user">${text}</div>`;
-    let answer = "Sorry, I don't know that one. Try selecting from the list.";
-    if (questionSelect.value !== "") {
-      answer = qaList[questionSelect.value].a;
+    // Find matching answer
+    const found = qaList.find(item => item.q.toLowerCase() === text.toLowerCase());
+    if (found) {
+      postBotMessage(found.a);
+    } else {
+      postBotMessage("Sorry, I don't know that one. Please choose from the list.");
     }
-    chatMessages.innerHTML += `<div class="msg bot">${answer}</div>`;
-    chatMessages.scrollTop = chatMessages.scrollHeight;
     chatInput.value = '';
-    questionSelect.selectedIndex = 0;
   };
 
-  // — Initial render
+  // … at the end of your DOMContentLoaded handler, remember to re‐render everything:
   function syncAll() {
     renderFeatured();
     renderLibrary();
@@ -1170,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   syncAll();
 
-  // — Watch storage changes
+  // And re‐watch storage:
   [
     'ft_activities',
     'ft_plans',
