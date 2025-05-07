@@ -229,7 +229,7 @@
       table th, table td { padding:.5rem; font-size:.8rem; }
     }
     /* Chatbot */
-#chatbot {
+#lb-chatbot {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -247,7 +247,7 @@
   z-index: 400;
 }
 
-#chatbot header {
+#lb-chatbot header {
   padding: .75rem 1rem;
   background: #f5f5f5;
   border-bottom: 1px solid #e0e0e0;
@@ -258,14 +258,14 @@
   font-size: 1rem;
 }
 
-#chatbot .messages {
+#lb-chatbot .messages {
   flex: 1;
   overflow-y: auto;
   background: #fff;
   padding: 1rem;
 }
 
-#chatbot .msg {
+#lb-chatbot .msg {
   margin-bottom: .6rem;
   padding: .6rem .8rem;
   border-radius: 12px;
@@ -274,19 +274,19 @@
   word-break: break-word;
 }
 
-#chatbot .user {
+#lb-chatbot .user {
   align-self: flex-end;
   background: #e8e8e8;
   color: #111;
 }
 
-#chatbot .bot {
+#lb-chatbot .bot {
   align-self: flex-start;
   background: #f1f1f1;
   border: 1px solid #ececec;
 }
 
-#chatbot .input {
+#lb-chatbot .input {
   display: flex;
   border-top: 1px solid #e0e0e0;
   padding: .5rem;
@@ -294,8 +294,8 @@
   background: #fafafa;
 }
 
-#chatbot .input select,
-#chatbot .input input {
+#lb-chatbot .input select,
+#lb-chatbot .input input {
   flex: 1;
   font-size: .9rem;
   background: #fff;
@@ -305,7 +305,7 @@
   padding: .5rem;
 }
 
-#chatbot .input button {
+#lb-chatbot .input button {
   padding: .5rem .8rem;
   border: none;
   background: #222;
@@ -315,11 +315,11 @@
   transition: background .2s;
 }
 
-#chatbot .input button:hover {
+#lb-chatbot .input button:hover {
   background: #000;
 }
 
-#chatToggle {
+#lb-chat-toggle {
   position: fixed;
   bottom: 20px;
   right: 20px;
