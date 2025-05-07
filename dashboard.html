@@ -586,7 +586,8 @@
       <!-- Charts -->
       <section class="charts">
         <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Activity Over Time</h3><canvas id="activityChart"></canvas></div>
-        <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Workout Distribution</h3><canvas id="distributionChart"></canvas></div>
+       <div class="chart-card"><h3 style="color:var(--gold);margin-bottom:.5rem;"><i class="fas fa-chart-pie"></i> Workout Distribution</h3><canvas id="distributionChart"></canvas></div>
+      
       </section>
 
       <!-- Recent Activities -->
@@ -787,34 +788,15 @@ document.addEventListener('DOMContentLoaded', () => {
     options: { responsive: true, maintainAspectRatio: false }
   });
 
-  const distributionChart = new Chart(distributionCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Cardio', 'Strength', 'Flexibility', 'Other'],
-      datasets: [{
-        data: [],
-        backgroundColor: ['#ff9800', '#e91e63', '#4caf50', '#2196f3'],
-        hoverOffset: 8,
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '50%',
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { font: { size: 14, weight: 'bold' } }
+ const distributionChart = new Chart(distCtx,{
+        type:'pie',
+        data:{
+          labels:['Cardio','Strength','Flexibility','Other'],
+          datasets:[{data:[],backgroundColor:['rgba(255,152,0,0.8)','rgba(255,87,34,0.8)','rgba(76,175,80,0.8)','rgba(3,169,244,0.8)']}]
         },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.label}: ${ctx.parsed} workouts`
-          }
-        }
-      }
-    }
-  });
+        options:{responsive:true,maintainAspectRatio:false}
+      });
+
 
   // —— Update avatars & name
   function syncProfileDisplay(){
@@ -876,13 +858,18 @@ document.addEventListener('DOMContentLoaded', () => {
     activityChart.update();
 
     // — Distribution pie
-    distributionChart.data.datasets[0].data = [
-      monthActs.filter(a=>a.type==='Cardio').length,
-      monthActs.filter(a=>a.type==='Strength').length,
-      monthActs.filter(a=>a.type==='Flexibility').length,
-      monthActs.filter(a=>a.type==='Other').length
-    ];
-    distributionChart.update();
+   const thisMonth = acts.filter(a=>{
+          const d=new Date(a.date);
+          return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+        });
+        const cnt={Cardio:0,Strength:0,Flexibility:0,Other:0};
+        thisMonth.forEach(a=>{
+          if(cnt[a.type]!==undefined) cnt[a.type]++;
+          else cnt.Other++;
+        });
+        distributionChart.data.datasets[0].data = [cnt.Cardio,cnt.Strength,cnt.Flexibility,cnt.Other];
+        distributionChart.update();
+      }
 
     // — Recent Activities (first 7 workouts only)
     recentBody.innerHTML = '';
