@@ -798,6 +798,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const postInput    = document.getElementById('newFeedInput');
   const postBtn      = document.getElementById('postFeedBtn');
   const tipEl        = document.getElementById('tip-of-day');
+  const communityFeed = document.getElementById('communityFeed');
+  const postInput     = document.getElementById('newFeedInput');
+  const postBtn       = document.getElementById('postFeedBtn');
+  const workoutModal  = document.getElementById('workout-modal');
+
+   // ── 1) Post button: prepend & re-render ──
+   postBtn.addEventListener('click', () => {
+     const txt = postInput.value.trim();
+     if (!txt) return;
+     const feed = Storage.get('ft_feed');
+     feed.unshift({ text: txt, timestamp: Date.now() });
+     Storage.set('ft_feed', feed);
+     postInput.value = '';
+     updateDashboard();
+   });
 
   // ── Show/hide notification bar ──
   function syncNotif() {
@@ -846,6 +861,30 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   pseudoToast.addEventListener('click', () => pseudoToast.classList.remove('active'));
 
+   // ── 2) Delegate Like & Comment (only once!) ──
+   communityFeed.addEventListener('click', e => {
+     const item = e.target.closest('.feed-item');
+     if (!item) return;
+     const idx = Number(item.dataset.index);
+
+     // Like
+     if (e.target.closest('.like-btn')) {
+       const span = item.querySelector('.like-count');
+       span.textContent = parseInt(span.textContent) + 1;
+       return;
+     }
+
+     // Comment
+     if (e.target.closest('.comment-btn')) {
+       const reply = prompt('Add a comment:');
+       if (!reply) return;
+       const allC = Storage.get('ft_comments');
+       allC[idx].push(reply);
+       Storage.set('ft_comments', allC);
+       item.insertAdjacentHTML('beforeend', `
+         <div class="pseudo-comment"><small>— You: ${reply}</small></div>`);
+     }
+   });
  // —— Workout modal
   newWorkoutBtn.onclick     = () => workoutModal.classList.add('active');
   wCancel.onclick           = () => workoutModal.classList.remove('active');
@@ -1104,13 +1143,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const minsAgo = Math.floor((Date.now() - post.timestamp) / 60000);
       communityFeed.insertAdjacentHTML('beforeend', `
         <li class="feed-item" data-index="${idx}">
-          <div>${post.text}</div>
-          <div class="feed-controls">
-            <span class="feed-time">${minsAgo}m ago</span>
-            <button class="comment-btn"><i class="fas fa-comment"></i></button>
-            <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
-          </div>
-        </li>`);
+           <div>${post.text}</div>
+           <div class="feed-controls">
+             <span class="feed-time">${minsAgo}m ago</span>
+             <button class="comment-btn"><i class="fas fa-comment"></i></button>
+             <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
+           </div>
+         </li>`);
       comments[idx].forEach(c => {
         communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
           <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
