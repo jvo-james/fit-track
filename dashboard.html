@@ -31,7 +31,9 @@
       --z-header: 200;
       --mobile-w: 240px;
     }
+    
     * { margin:0; padding:0; box-sizing:border-box; }
+    
     body {
       display:flex; min-height:100vh;
       background:var(--bg); color:var(--white);
@@ -819,7 +821,6 @@ document.addEventListener('DOMContentLoaded', () => {
     all.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
     Storage.set('ft_activities', all);
     updateDashboard();
-    distributionChart.update();
     workoutModal.classList.remove('active');
   };
 
@@ -844,7 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
     data: {
       labels: ['Cardio', 'Strength', 'Flexibility', 'Other'],
       datasets: [{
-        data: [],
+        data: [0,0,0,0],
        backgroundColor: [
           '#ff9800',  // orange
           '#2196f3',  // blue
@@ -974,12 +975,13 @@ document.addEventListener('DOMContentLoaded', () => {
    top5.forEach(u => {
       miniList.insertAdjacentHTML('beforeend', `
         <li style="display:flex;align-items:center;gap:.5rem;">
-          <img src="${
-          u.avatarDataUrl
-          || Storage.get('ft_current', {}).avatarDataUrl
-          || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`
-       }"
-            class="avatar" style="width:24px;height:24px;border-radius:50%;"
+         <img src="${
+       // if this leaderboard entry is the current user, use their profile avatar
+       (u.id === Storage.get('ft_current', {}).id)
+         ? Storage.get('ft_current').avatarDataUrl
+         // otherwise, use each user’s own avatarDataUrl or fallback pravatar
+         : (u.avatarDataUrl || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`)
+     }" class="avatar" style="width:24px;height:24px;border-radius:50%;"
           />
           <span>${u.name}</span>
           <strong style="margin-left:auto;">${u.score}</strong>
