@@ -255,12 +255,13 @@
     <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
   </div>
 
-  <script type="module">
-    import { Storage } from './storage.js';
+ <!-- load storage.js as a normal script -->
+  <script src="./storage.js"></script>
+  <script>
 
     document.addEventListener('DOMContentLoaded', () => {
      // 1) Ensure we have a “current user” for dev
-      let cur = Storage.get('ft_current', null);
+    let cur = window.Storage.get('ft_current', null);
       if (!cur || !cur.name) {
         cur = { name: 'Guest', email: 'guest@example.com' };
         Storage.set('ft_current', cur);
