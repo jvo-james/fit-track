@@ -104,13 +104,7 @@
     left: 0;
   }
 }
-@media (max-width: 600px) {
 
-  header .new-workout,
-  header #profile-btn {
-    display: none;
-  }
- }
      
     .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item, .sidebar button.profile-menu {
@@ -543,14 +537,6 @@ header h1 { margin:0 auto; }
   opacity: 0.8;
   margin-bottom: 0.6rem;
 }
-#chatToggle {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;  /* above all overlays */
-  display: flex;  /* ensure it’s visible */
-  /* …existing styles… */
-}
 
   </style>
 </head>
@@ -573,7 +559,7 @@ header h1 { margin:0 auto; }
  
  <!-- Sidebar -->
 
- <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+  <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
@@ -838,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
     data: {
       labels: ['Cardio', 'Strength', 'Flexibility', 'Other'],
       datasets: [{
-       data: [1,1,1,1], 
+        data: [],
        backgroundColor: [
           '#ff9800',  // orange
           '#2196f3',  // blue
@@ -885,19 +871,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateDashboard(){
     const acts = Storage.get('ft_activities', []);
     const now  = new Date();
-    
-// —— Summary stats for Recent Activities
-const recent = acts.slice(0,7);
-const totalDur = recent.reduce((sum,a) => sum + (a.duration||0), 0);
-const totalDist= recent.reduce((sum,a) => sum + (a.distance||0), 0);
-const totalCal = recent.reduce((sum,a) => sum + (a.calories||0), 0);
-
-document.getElementById('avg-dur').textContent  =
-  recent.length ? Math.round(totalDur/recent.length) : 0;
-document.getElementById('tot-dist').textContent =
-  totalDist.toFixed(1);
-document.getElementById('tot-cal').textContent  =
-  totalCal;
 
     // — Monthly stats
     const monthActs = acts.filter(a => {
