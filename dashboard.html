@@ -622,426 +622,379 @@
 </div>
 <button id="chatToggle"><i class="fas fa-comments"></i></button>
 
-  <script type="module">
-    import { Storage } from './storage.js';
+<script type="module">
+import { Storage } from './storage.js';
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // Redirect if not logged in
-      const cur = Storage.get('ft_current', null);
-      if (!cur || !cur.name) return location.replace('home.html');
+document.addEventListener('DOMContentLoaded', () => {
+  // —— Redirect if not logged in
+  const cur = Storage.get('ft_current', null);
+  if (!cur || !cur.name) return location.replace('home.html');
 
-      // Elements
-      const notifBar    = document.getElementById('notif-bar');
-      const notifClose  = document.getElementById('notif-close');
-      const pseudoToast = document.getElementById('pseudo-toast');
-      const hamburger   = document.getElementById('hamburger');
-      const sidebar     = document.getElementById('sidebar');
-      const overlay     = document.getElementById('overlay');
-      const sidebarClose= document.getElementById('sidebar-close');
-      const profileBtn  = document.getElementById('profile-btn');
-      const profileMenu = document.querySelector('.profile-menu');
-      const newWorkout  = document.querySelector('.new-workout');
-      const workoutModal= document.getElementById('workout-modal');
-      const wCancel     = document.getElementById('w-cancel');
-      const wSave       = document.getElementById('w-save');
-      const greetEl     = document.getElementById('greeting');
+  // —— Grab DOM elements
+  const notifBar       = document.getElementById('notif-bar');
+  const notifClose     = document.getElementById('notif-close');
+  const pseudoToast    = document.getElementById('pseudo-toast');
+  const hamburger      = document.getElementById('hamburger');
+  const sidebar        = document.getElementById('sidebar');
+  const overlay        = document.getElementById('overlay');
+  const sidebarClose   = document.getElementById('sidebar-close');
+  const profileBtn     = document.getElementById('profile-btn');
+  const profileMenu    = document.querySelector('.profile-menu');
+  const newWorkoutBtn  = document.querySelector('.new-workout');
+  const workoutModal   = document.getElementById('workout-modal');
+  const wCancel        = document.getElementById('w-cancel');
+  const wSave          = document.getElementById('w-save');
+  const greetingEl     = document.getElementById('greeting');
+  const activityCtx    = document.getElementById('activityChart').getContext('2d');
+  const distributionCtx= document.getElementById('distributionChart').getContext('2d');
+  const recentBody     = document.getElementById('recent-acts');
+  const miniList       = document.getElementById('miniLeaderboard');
+  const achGrid        = document.getElementById('yourAchievements');
+  const liveGrid       = document.getElementById('liveSessionsGrid');
+  const communityFeed  = document.getElementById('communityFeed');
+  const postInput      = document.getElementById('newFeedInput');
+  const postBtn        = document.getElementById('postFeedBtn');
+  const tipEl          = document.getElementById('tip-of-day');
 
-      // Notification: hide when profileComplete true
-      function syncNotif() {
-        const p = Storage.get('ft_current', {});
-        if (p.profileComplete) notifBar.classList.add('hidden');
-        else                   notifBar.classList.remove('hidden');
-      }
-      Storage.onChange('ft_current', syncNotif);
-      syncNotif();
-      notifClose.addEventListener('click', ()=> notifBar.classList.add('hidden'));
+  // —— Show/hide notification bar
+  function syncNotif() {
+    const p = Storage.get('ft_current', {});
+    notifBar.classList.toggle('hidden', !!p.profileComplete);
+  }
+  Storage.onChange('ft_current', syncNotif);
+  syncNotif();
+  notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
-      // ————————————————————————————————
-  // Sidebar toggle (mobile)
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-  window.toggleSidebar = () => {
+  // —— Sidebar mobile toggle
+  function toggleSidebar() {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
+  }
+  hamburger.onclick = toggleSidebar;
+  sidebarClose.onclick = toggleSidebar;
+  overlay.onclick = toggleSidebar;
+  window.toggleSidebar = toggleSidebar;
+
+  // —— Profile nav
+  profileBtn.onclick  = () => location.replace('profile.html');
+  profileMenu.onclick = () => location.replace('profile.html');
+
+  // —— Seed sample workout for new users
+  if (cur.isNew) {
+    greetingEl.textContent = `Hello, ${cur.name}!`;
+    let acts = Storage.get('ft_activities', []);
+    if (!acts.length) {
+      acts = [{
+        id: 'sample',
+        date: new Date().toISOString().slice(0,10),
+        type: 'Cardio', duration: 20, distance: 2, calories: 150, notes: 'Welcome sample workout!'
+      }];
+      Storage.set('ft_activities', acts);
+    }
+    setTimeout(() => pseudoToast.classList.add('active'), 5000);
+    cur.isNew = false;
+    Storage.set('ft_current', cur);
+  } else {
+    greetingEl.textContent = `Welcome back, ${cur.name}!`;
+  }
+  pseudoToast.onclick = () => pseudoToast.classList.remove('active');
+
+  // —— Workout modal
+  newWorkoutBtn.onclick     = () => workoutModal.classList.add('active');
+  wCancel.onclick           = () => workoutModal.classList.remove('active');
+  wSave.onclick             = () => {
+    const date     = document.getElementById('w-date').value;
+    const type     = document.getElementById('w-type').value;
+    const duration = +document.getElementById('w-duration').value;
+    if (!date || !duration) return alert('Date & duration required');
+    const distance = +document.getElementById('w-distance').value;
+    const calories = +document.getElementById('w-calories').value;
+    const notes    = document.getElementById('w-notes').value.trim();
+    const all      = Storage.get('ft_activities', []);
+    all.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
+    Storage.set('ft_activities', all);
+    workoutModal.classList.remove('active');
   };
 
-
-      // Profile nav
-      profileBtn.onclick = ()=> location.replace('profile.html');
-      profileMenu.onclick= ()=> location.replace('profile.html');
-
-      // Seed sample workout & pseudo-toast for new users
-      if (cur.isNew) {
-        greetEl.textContent = `Hello, ${cur.name}!`;
-        const acts = Storage.get('ft_activities', []);
-        if (!acts.length) {
-          Storage.set('ft_activities',[{
-            id:'sample', date:new Date().toISOString().slice(0,10),
-            type:'Cardio', duration:20, distance:2, calories:150, notes:'Welcome sample workout!'
-          }]);
-        }
-        setTimeout(()=> pseudoToast.classList.add('active'), 5000);
-        cur.isNew = false; Storage.set('ft_current',cur);
-      } else {
-        greetEl.textContent = `Welcome back, ${cur.name}!`;
-      }
-      pseudoToast.onclick = ()=> pseudoToast.classList.remove('active');
-
-      // Workout modal handlers
-      newWorkout.onclick = ()=> workoutModal.classList.add('active');
-      wCancel.onclick    = ()=> workoutModal.classList.remove('active');
-      wSave.onclick      = ()=>{
-        const date     = document.getElementById('w-date').value;
-        const type     = document.getElementById('w-type').value;
-        const duration = +document.getElementById('w-duration').value;
-        if (!date||!duration) return alert('Date & duration required');
-        const distance = +document.getElementById('w-distance').value;
-        const calories = +document.getElementById('w-calories').value;
-        const notes    = document.getElementById('w-notes').value.trim();
-        const all = Storage.get('ft_activities', []);
-        all.unshift({id:Date.now().toString(), date,type,duration,distance,calories,notes});
-        Storage.set('ft_activities',all);
-        workoutModal.classList.remove('active');
-      };
-
-      // Charts
-      const ctxA = document.getElementById('activityChart').getContext('2d');
-      const ctxD = document.getElementById('distributionChart').getContext('2d');
-      const activityChart = new Chart(ctxA,{
-        type:'line',
-        data:{labels:[],datasets:[{data:[],borderColor:'rgba(255,152,0,1)',backgroundColor:'rgba(255,152,0,0.3)',fill:true,tension:0.3}]},
-        options:{responsive:true,maintainAspectRatio:false}
-      });
-      const distributionChart = new Chart(ctxD,{
-        type:'pie',
-        data:{
-          labels:['Cardio','Strength','Flexibility','Other'],
-          datasets:[{data:[],backgroundColor:['rgba(255,152,0,0.8)','rgba(244,67,54,0.8)','rgba(76,175,80,0.8)','rgba(33,150,243,0.8)']}]
-        },
-        options:{responsive:true,maintainAspectRatio:false}
-      });
-
-      // Update sidebar & header avatar + name
-      function syncProfileDisplay(){
-        const p = Storage.get('ft_current', {});
-        const url = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${p.email}`;
-        ['dash-avatar','side-avatar','top-avatar'].forEach(id=>{
-          const old = document.getElementById(id);
-          if (!old) return;
-          const img = document.createElement('img');
-          img.id = id; img.className='avatar'; img.src=url; img.alt='Avatar';
-          old.replaceWith(img);
-        });
-        document.getElementById('dash-name').textContent = p.name;
-      }
-     // Avatar swapping
- function updateAvatars() {
-  const p = Storage.get('ft_current', {});
-  const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
-  ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id=>{
-    const oldEl = document.getElementById(id);
-    if (!oldEl) return;
-    const img = document.createElement('img');
-    img.id        = id;
-    img.className = 'avatar';
-    img.src       = src;
-    oldEl.replaceWith(img);
+  // —— Charts instances
+  const activityChart = new Chart(activityCtx, {
+    type: 'line',
+    data: { labels: [], datasets:[{ data: [], borderColor: 'rgba(255,152,0,1)', backgroundColor:'rgba(255,152,0,0.3)', fill:true, tension:0.3 }] },
+    options: { responsive:true, maintainAspectRatio:false }
   });
-}
+  const distributionChart = new Chart(distributionCtx, {
+    type: 'pie',
+    data: {
+      labels: ['Cardio','Strength','Flexibility','Other'],
+      datasets: [{
+        data: [], 
+        backgroundColor:['rgba(255,152,0,0.8)','rgba(244,67,54,0.8)','rgba(76,175,80,0.8)','rgba(33,150,243,0.8)'],
+        borderColor: ['#000','#000','#000','#000'],
+        borderWidth: 1
+      }]
+    },
+    options: { responsive:true, maintainAspectRatio:false }
+  });
 
-  updateAvatars();
-      // Master update function
-      function updateDashboard(){
-        const acts = Storage.get('ft_activities', []);
-        const now = new Date();
+  // —— Update avatars & name
+  function syncProfileDisplay(){
+    const p = Storage.get('ft_current', {});
+    const url = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
+    ['dash-avatar','side-avatar','top-avatar','hdrAvatarIcon'].forEach(id => {
+      const old = document.getElementById(id);
+      if (!old) return;
+      const img = document.createElement('img');
+      img.id = id; img.className = 'avatar'; img.src = url; img.alt = 'Avatar';
+      old.replaceWith(img);
+    });
+    document.getElementById('dash-name').textContent = p.name;
+  }
+  syncProfileDisplay();
 
-        // Monthly stats
-        const monthActs = acts.filter(a=>{
-          const d=new Date(a.date);
-          return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
-        });
-        document.getElementById('workoutsCount').textContent = monthActs.length;
-        const totDist = monthActs.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
-        document.getElementById('distanceCount').textContent = totDist+' km';
-        const totCal  = monthActs.reduce((s,a)=>s+(+a.calories||0),0);
-        document.getElementById('caloriesCount').textContent = totCal;
-        const activeDays = new Set(monthActs.map(a=>a.date)).size;
-        document.getElementById('activeDaysCount').textContent = activeDays;
+  // —— Main render
+  function updateDashboard(){
+    const acts       = Storage.get('ft_activities', []);
+    const now        = new Date();
 
-        // Today & average
-        const todayKey = now.toISOString().slice(0,10);
-        const todayMin = acts.filter(a=>a.date===todayKey).reduce((s,a)=>s+(+a.duration||0),0);
-        document.getElementById('todayTime').textContent = todayMin+' min';
-        const avgCal = monthActs.length? Math.round(totCal/monthActs.length):0;
-        document.getElementById('avgCalories').textContent = avgCal;
+    // — Monthly stats
+    const monthActs = acts.filter(a => {
+      const d = new Date(a.date);
+      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+    });
+    document.getElementById('workoutsCount').textContent    = monthActs.length;
+    const totDist = monthActs.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+    document.getElementById('distanceCount').textContent    = `${totDist} km`;
+    const totCal  = monthActs.reduce((s,a)=>s+(+a.calories||0),0);
+    document.getElementById('caloriesCount').textContent    = totCal;
+    const activeDays = new Set(monthActs.map(a=>a.date)).size;
+    document.getElementById('activeDaysCount').textContent  = activeDays;
 
-        // Progress bars
-        const weekCount = acts.filter(a=>{
-          const d=new Date(a.date);
-          return (now-d)/(1000*60*60*24)<=7;
-        }).length;
-        document.getElementById('progressBar').style.width = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-        document.getElementById('goalDaily').style.width   = `${Math.min(100,Math.round(todayMin/30*100))}%`;
-        document.getElementById('goalWeekly').style.width  = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-        document.getElementById('goalMonthly').style.width = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
+    // — Today & Avg
+    const todayKey = now.toISOString().slice(0,10);
+    const todayMin = acts.filter(a=>a.date===todayKey).reduce((s,a)=>s+(+a.duration||0),0);
+    document.getElementById('todayTime').textContent       = `${todayMin} min`;
+    const avgCal = monthActs.length ? Math.round(totCal/monthActs.length) : 0;
+    document.getElementById('avgCalories').textContent     = avgCal;
 
-        // Activity-over-time chart
-        const labels = [], data7 = [];
-        for(let i=6;i>=0;i--){
-          const d=new Date(); d.setDate(d.getDate()-i);
-          labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
-          data7.push(acts.filter(a=>a.date===d.toISOString().slice(0,10))
-                         .reduce((s,a)=>s+(+a.duration||0),0));
+    // — Goals bars
+    const weekCount = acts.filter(a => (now - new Date(a.date))/(1000*60*60*24) <= 7 ).length;
+    document.getElementById('progressBar').style.width    = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    document.getElementById('goalDaily').style.width      = `${Math.min(100,Math.round(todayMin/30*100))}%`;
+    document.getElementById('goalWeekly').style.width     = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    document.getElementById('goalMonthly').style.width    = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
+
+    // — Activity over time
+    const labels = [], data7 = [];
+    for(let i=6;i>=0;i--){
+      const d=new Date(); d.setDate(d.getDate()-i);
+      labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
+      data7.push(acts.filter(a=>a.date===d.toISOString().slice(0,10)).reduce((s,a)=>s+(+a.duration||0),0));
+    }
+    activityChart.data.labels              = labels;
+    activityChart.data.datasets[0].data    = data7;
+    activityChart.update();
+
+    // — Distribution pie
+    distributionChart.data.datasets[0].data = [
+      monthActs.filter(a=>a.type==='Cardio').length,
+      monthActs.filter(a=>a.type==='Strength').length,
+      monthActs.filter(a=>a.type==='Flexibility').length,
+      monthActs.filter(a=>a.type==='Other').length
+    ];
+    distributionChart.update();
+
+    // — Recent Activities (+2 creative rows)
+    const combined = [];
+    // scheduled
+    const schedIds = Storage.get('ft_mySchedules', []);
+    const sessions = Storage.get('ft_liveSessions', []);
+    schedIds.forEach(id => {
+      const s = sessions.find(x=>x.id===id);
+      if (s) combined.push({ date: now.toISOString().slice(0,10), type:`Scheduled: ${s.title}`, duration:'—', distance:'—' });
+    });
+    // actual
+    acts.forEach(a => combined.push({ date:a.date, type:a.type, duration:a.duration, distance:a.distance||'—' }));
+    // two extra rows (your own creativity!)
+    combined.unshift(
+      { date: '🎉 Bonus: You’ve unlocked a new skill!', type:'Achievement', duration:'—', distance:'—' },
+      { date: '💡 Tip logged', type:'Read Tip of the Day', duration:'—', distance:'—' }
+    );
+    combined.slice(0,7).forEach((e,i) => {
+      if (i>=7) return;
+    });
+    recentBody.innerHTML = '';
+    combined.slice(0,7).forEach(e => {
+      recentBody.insertAdjacentHTML('beforeend', `<tr>
+        <td>${e.date}</td><td>${e.type}</td><td>${e.duration}</td><td>${e.distance}</td>
+      </tr>`);
+    });
+
+    // — Top 5 Leaderboard
+    const rawLB = Storage.get('ft_leaderboard', []).map(u => {
+      return { ...u, score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2) };
+    });
+    const top5 = rawLB.sort((a,b)=>b.score-a.score).slice(0,5);
+    miniList.innerHTML = '';
+    top5.forEach(u => {
+      miniList.insertAdjacentHTML('beforeend', `<li><span>${u.name}</span><strong>${u.score}</strong></li>`);
+    });
+
+    // — Achievements badges
+    const total = acts.length;
+    const badges = [
+      {n:1,  icon:'fas fa-star',     txt:'First Workout'},
+      {n:5,  icon:'fas fa-medal',    txt:'5 Workouts'},
+      {n:10, icon:'fas fa-trophy',   txt:'10 Workouts'},
+      {n:30, icon:'fas fa-award',    txt:'30 Workouts'}
+    ];
+    achGrid.innerHTML = '';
+    badges.forEach(b => {
+      achGrid.insertAdjacentHTML('beforeend', `
+        <div class="achievement-badge${total>=b.n?' unlocked':''}">
+          <i class="${b.icon}"></i><p>${b.txt}</p>
+        </div>`);
+    });
+
+    // —— Live Sessions (carried from workouts.html)
+    liveGrid.innerHTML = '';
+    sessions.forEach(s => {
+      const start    = new Date(s.date||s.start);
+      const isFuture = start > new Date();
+      const joined   = schedIds.includes(s.id);
+      const btnTxt   = isFuture ? (joined ? '✔ Scheduled' : '⏱ Schedule') : '🔴 LIVE';
+      liveGrid.insertAdjacentHTML('beforeend', `
+        <div class="live-card">
+          <img src="${s.img}" alt="${s.title}"/><h3>${s.title}</h3>
+          <p>${s.host} • ${start.toLocaleString()}</p>
+          <button data-id="${s.id}" class="live-btn">${btnTxt}</button>
+        </div>
+      `);
+    });
+    document.querySelectorAll('.live-btn').forEach(btn => {
+      btn.onclick = e => {
+        const id = +e.currentTarget.dataset.id;
+        const arr = Storage.get('ft_mySchedules', []);
+        if (e.currentTarget.textContent.includes('Schedule')) {
+          if (!arr.includes(id)) arr.push(id);
+          alert('Session scheduled!');
+        } else {
+          alert('Enjoy the live session!');
         }
-        activityChart.data.labels = labels;
-        activityChart.data.datasets[0].data = data7;
-        activityChart.update();
-
-        // Distribution pie
-distributionChart.data.datasets[0].backgroundColor = [
-  'rgba(255,152,0,0.8)',  // Cardio
-  'rgba(244,67,54,0.8)',  // Strength
-  'rgba(76,175,80,0.8)',  // Flexibility
-  'rgba(33,150,243,0.8)'  // Other
-];
-distributionChart.data.datasets[0].borderColor = [
-  '#000','#000','#000','#000'
-];
-distributionChart.data.datasets[0].borderWidth = 1;
-distributionChart.update();
-
-        // Recent activities + scheduled
-        const combined = [];
-        const schedIds = Storage.get('ft_mySchedules', []);
-        const sessions = Storage.get('ft_liveSessions', []);
-        schedIds.forEach(id=>{
-          const s = sessions.find(x=>x.id===id);
-          if (s) combined.push({date:now.toISOString().slice(0,10),type:`Scheduled: ${s.title}`,duration:'–',distance:'–'});
-        });
-        acts.forEach(a=>{
-          combined.push({date:a.date,type:a.type,duration:a.duration,distance:a.distance||'–'});
-        });
-        combined.sort((a,b)=>b.date.localeCompare(a.date));
-        const tbody = document.getElementById('recent-acts');
-        tbody.innerHTML = '';
-        combined.slice(0,5).forEach(e=>{
-          tbody.insertAdjacentHTML('beforeend',`<tr><td>${e.date}</td><td>${e.type}</td><td>${e.duration}</td><td>${e.distance}</td></tr>`);
-        });
-        document.getElementById('avg-dur').textContent = acts.length? Math.round(acts.reduce((s,a)=>s+(+a.duration||0),0)/acts.length):0;
-        document.getElementById('tot-dist').textContent = totDist;
-        document.getElementById('tot-cal').textContent  = totCal;
-
-        // Top 5 from leaderboard
-        const rawLB = Storage.get('ft_leaderboard', []);
-rawLB.forEach(u => {
-  u.score = (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2);
-});
-const lb = rawLB.sort((a,b)=>b.score - a.score).slice(0,5);
-
-        
-        const ol = document.getElementById('miniLeaderboard');
-        ol.innerHTML = '';
-        lb.forEach(u=>{
-          ol.insertAdjacentHTML('beforeend',`<li><span>${u.name}</span><strong>${u.score}</strong></li>`);
-        });
-
-        // Achievements
-        const total = acts.length;
-        const badges = [
-          {n:1, icon:'fas fa-star', txt:'First Workout'},
-          {n:5, icon:'fas fa-medal',txt:'5 Workouts'},
-          {n:10,icon:'fas fa-trophy',txt:'10 Workouts'},
-          {n:30,icon:'fas fa-award', txt:'30 Workouts'}
-        ];
-        const achGrid = document.getElementById('yourAchievements');
-        achGrid.innerHTML = '';
-        badges.forEach(b=>{
-          const div = document.createElement('div');
-          div.className = 'achievement-badge'+(total>=b.n?' unlocked':'');
-          div.innerHTML = `<i class="${b.icon}"></i><p>${b.txt}</p>`;
-          achGrid.append(div);
-        });
-
-        // Live sessions
-        const grid = document.getElementById('liveSessionsGrid');
-        grid.innerHTML = '';
-        sessions.forEach(s=>{
-          const start = new Date(s.start);
-          const future = start>new Date();
-          const scheduled = schedIds.includes(s.id);
-          const btnTxt = future? (scheduled?'✔ Scheduled':'Schedule') : 'Join Now';
-          grid.insertAdjacentHTML('beforeend',`
-            <div class="live-card">
-              <img src="${s.img}" alt="${s.title}"/>
-              <h3>${s.title}</h3>
-              <p>${s.host} • ${start.toLocaleString()}</p>
-             <div class="card-body">
-   <h3>${s.title}</h3>
-   <p class="info">${s.host} • ${start.toLocaleString()}</p>
-   <p class="desc">${s.desc}</p>
-   <button data-id="${s.id}" class="live-btn">${btnTxt}</button>
- </div>
-            </div>`);
-        });
-document.querySelectorAll('.live-btn').forEach(btn => {
-  btn.onclick = e => {
-    const id = +e.currentTarget.dataset.id;
-    // same join/cancel/prompt logic you wrote in workouts.html…
-  };
-});
-
-        // Community feed (interactive)
-        const feed = Storage.get('ft_feed',[
-          "Alice smashed a 5 km run!", 
-          "Bob just completed 3 HIIT sessions!", 
-          "Cara hit her 10th workout milestone!",
-          "Dan improved his plank time!",
-          "Eve joined the 7‑Day Abs challenge!"
-        ]);
-        const ul = document.getElementById('communityFeed');
-        ul.innerHTML = '';
-        feed.forEach(text=>{
-          const minsAgo = Math.floor(Math.random()*59)+1;
-          const li = document.createElement('li');
-          li.className = 'feed-item animate__animated animate__fadeInUp';
-          li.innerHTML = `
-            ${text}
-            <span class="feed-time">${minsAgo}m ago</span>
-            <button class="comment-btn"><i class="fas fa-comment"></i></button>
-            <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
-          `;
-          // like button handler
-          li.querySelector('.like-btn').onclick = e=>{
-            e.currentTarget.querySelector('.like-count').textContent++;
-          };
-          ul.append(li);
-        });
-        // allow posting new feed items
-document.getElementById('postFeedBtn').onclick = () => {
-  const txt = document.getElementById('newFeedInput').value.trim();
-  if (!txt) return;
-  const feed = Storage.get('ft_feed', []);
-  feed.unshift(txt);
-  Storage.set('ft_feed', feed);
-  updateDashboard();  // re-renders the feed
-  document.getElementById('newFeedInput').value = '';
-};
-
-        // Tip of Day
-        const tips = [
-          "Stay hydrated—drink 250 ml water before workouts.",
-          "Warm up 5 min to activate muscles.",
-          "Focus on form; quality reps build strength.",
-          "Cool down & stretch after each session.",
-          "Try a fun activity weekly to stay motivated."
-        ];
-        document.getElementById('tip-of-day').textContent = tips[Math.floor(Math.random()*tips.length)];
-      }
-
-      // Live session button handlers
-      document.getElementById('liveSessionsGrid').onclick = e=>{
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        const card = btn.closest('.live-card');
-        const idx  = Array.from(card.parentNode.children).indexOf(card);
-        const sessions = Storage.get('ft_liveSessions', []);
-        const s = sessions[idx];
-        if (btn.textContent.includes('Schedule')) {
-          const arr = Storage.get('ft_mySchedules', []);
-          if (!arr.includes(s.id)) arr.push(s.id);
-          Storage.set('ft_mySchedules', arr);
-        } else if (btn.textContent.includes('Join')) {
-          location.replace(`live.html?session=${s.id}`);
-        }
+        Storage.set('ft_mySchedules', arr);
         updateDashboard();
       };
-
-      // Initial sync
-      syncProfileDisplay();
-      updateDashboard();
-// — Chatbot
-const chatBox      = document.getElementById('chatbot'),
-      chatToggle   = document.getElementById('chatToggle'),
-      chatClose    = document.getElementById('chatClose'),
-      chatMsgs     = document.getElementById('chatMessages'),
-      qSelect      = document.getElementById('questionSelect'),
-      chatInput    = document.getElementById('chatInput'),
-      askBtn       = document.getElementById('askBtn');
-
-const qaList = [
- { 
-  q: "What's my monthly total?",
-  a: () => document.getElementById('workoutsCount').textContent + " workouts logged this month." 
-},
-{ 
-  q: "How many km did I run?",
-  a: () => document.getElementById('distanceCount').textContent 
-},
-
-  {q:"What's my best day?",               a:()=>{
-      const counts = {};
-      acts.forEach(a=>counts[a.date]=(counts[a.date]||0)+a.duration);
-      const best = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
-      return `Your best was ${best[1]} min on ${best[0]}.`;
-    }},
-  {q:"How do I log a workout?",           a:"Click “New Workout” button at the top."},
-  {q:"How to schedule a live?",           a:"Scroll to Upcoming Live Sessions and hit Schedule."},
-  {q:"How to see my top 5?",             a:"Check the Top 5 panel on this page."},
-  {q:"What's today’s tip?",               a:()=>document.getElementById('tip-of-day').textContent},
-  {q:"How to set a goal?",                a:"Goals are hard-coded for now; coming soon!"},
-  {q:"Can I post in community?",          a:"Yes—type in the box above the feed and hit Post."},
-  {q:"How to filter stats?",              a:"Stats update automatically based on your data."},
-  {q:"How to clear my data?",             a:"Use Clear Data in your Profile page."},
-  {q:"Profile isn’t complete—what’s next?",a:"Fill out your profile on the Profile page so we can personalize tips."},
-  {q:"How to change avatar?",             a:"Hit Profile in the sidebar, then upload new picture."},
-  {q:"How are badges unlocked?",          a:"Complete workouts: 1, 5, 10, 30 respectively."},
-  {q:"What’s a pseudo-toast?",            a:"That’s a sample workout we drop for new users."},
-  {q:"How to view all my activities?",    a:"Go to Log page—this is just Dashboard’s summary."},
-  {q:"How to see my scheduled lives?",    a:"Scheduled lives appear in Upcoming Live Sessions."},
-  {q:"What’s the weekly goal?",           a:"It’s set to 5 workouts—progress bar shows your %."},
-  {q:"Why is my pie chart blank?",        a:"Only categories with data show—you may need to log more types."},
-  {q:"How often does tip change?",        a:"Random on each page load; refresh for a new tip."}
-];
-
-// populate question dropdown
-qaList.forEach((item,i)=>{
-  qSelect.add(new Option(item.q,i));
-});
-
-// toggle open/close
-chatToggle.onclick = ()=>{
-  chatBox.style.display='flex';
-  chatToggle.style.display='none';
-};
-chatClose.onclick = ()=>{
-  chatBox.style.display='none';
-  chatToggle.style.display='flex';
-  chatMsgs.innerHTML=`<div class="msg bot">Hi! Ask me about your dashboard…</div>`;
-};
-
-// ask button
-askBtn.onclick = ()=>{
-  const text = chatInput.value.trim();
-  if(!text) return;
-  chatMsgs.innerHTML += `<div class="msg user">${text}</div>`;
-  let answer = "Sorry, I don't know that one.";
-  if(qSelect.value!=='') {
-    const fn = qaList[qSelect.value].a;
-    answer = (typeof fn==='function') ? fn() : fn;
-  }
-  chatMsgs.innerHTML += `<div class="msg bot">${answer}</div>`;
-  chatMsgs.scrollTop = chatMsgs.scrollHeight;
-  chatInput.value=''; qSelect.selectedIndex=0;
-};
-
-      // Watch storage changes
-      ['ft_current','ft_activities','ft_leaderboard','ft_liveSessions','ft_mySchedules','ft_feed']
-        .forEach(key => Storage.onChange(key, ()=>{
-          syncNotif();
-          syncProfileDisplay();
-          updateDashboard();
-        }));
     });
-  </script>
+
+    // —— Community feed
+    const feed = Storage.get('ft_feed', [
+      "Alice smashed a 5 km run!",
+      "Bob just completed 3 HIIT sessions!",
+      "Cara hit her 10th workout milestone!",
+      "Dan improved his plank time!",
+      "Eve joined the 7-Day Abs challenge!"
+    ]);
+    communityFeed.innerHTML = '';
+    feed.forEach(text => {
+      const minsAgo = Math.floor(Math.random()*59)+1;
+      communityFeed.insertAdjacentHTML('beforeend', `
+        <li class="feed-item animate__animated animate__fadeInUp">
+          ${text}
+          <span class="feed-time">${minsAgo}m ago</span>
+          <button class="comment-btn"><i class="fas fa-comment"></i></button>
+          <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
+        </li>
+      `);
+    });
+    document.querySelectorAll('.like-btn').forEach(btn => {
+      btn.onclick = e => {
+        const span = e.currentTarget.querySelector('.like-count');
+        span.textContent = +span.textContent + 1;
+      };
+    });
+    postBtn.onclick = () => {
+      const txt = postInput.value.trim();
+      if (!txt) return;
+      feed.unshift(txt);
+      Storage.set('ft_feed', feed);
+      postInput.value = '';
+      updateDashboard();
+    };
+
+    // —— Tip of the day
+    const tips = [
+      "Stay hydrated—drink 250 ml water before workouts.",
+      "Warm up 5 min to activate muscles.",
+      "Focus on form; quality reps build strength.",
+      "Cool down & stretch after each session.",
+      "Try a fun activity weekly to stay motivated."
+    ];
+    tipEl.textContent = tips[Math.floor(Math.random()*tips.length)];
+  }
+
+  // —— Chatbot wiring
+  const chatBox    = document.getElementById('chatbot'),
+        chatToggle = document.getElementById('chatToggle'),
+        chatClose  = document.getElementById('chatClose'),
+        chatMsgs   = document.getElementById('chatMessages'),
+        qSelect    = document.getElementById('questionSelect'),
+        chatInput  = document.getElementById('chatInput'),
+        askBtn     = document.getElementById('askBtn');
+
+  const qaList = [
+    { q: "What's my monthly total?",   a: () => document.getElementById('workoutsCount').textContent + " workouts." },
+    { q: "How many km did I run?",     a: () => document.getElementById('distanceCount').textContent },
+    { q: "What's my best day?",        a: () => {
+        // recompute best day
+        const acts = Storage.get('ft_activities', []);
+        const counts = {};
+        acts.forEach(a=>counts[a.date]=(counts[a.date]||0)+a.duration);
+        const best = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+        return best ? `Best: ${best[1]} min on ${best[0]}` : "No data yet";
+      }
+    },
+    { q: "How do I log a workout?",    a: "Click 'New Workout' at the top." },
+    { q: "How to schedule a live?",    a: "Use Upcoming Live Sessions → Schedule." },
+    { q: "How to see my top 5?",      a: "Check the Top 5 panel on Dashboard." },
+    { q: "What's today’s tip?",        a: () => document.getElementById('tip-of-day').textContent },
+    { q: "Can I post in community?",    a: "Yes—type above feed and hit Post." },
+    { q: "How to clear data?",         a: "Use 'Clear Data' in Profile page." },
+    { q: "How often does tip change?", a: "Random each load—refresh for new tip." },
+    // … add up to 20 as needed …
+  ];
+  qaList.forEach((item,i) => qSelect.add(new Option(item.q, i)));
+
+  chatToggle.onclick = () => {
+    chatBox.style.display='flex';
+    chatToggle.style.display='none';
+  };
+  chatClose.onclick  = () => {
+    chatBox.style.display='none';
+    chatToggle.style.display='flex';
+    chatMsgs.innerHTML = `<div class="msg bot">Hi! Ask me about your dashboard…</div>`;
+  };
+  askBtn.onclick = () => {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatMsgs.innerHTML += `<div class="msg user">${text}</div>`;
+    let answer = "Sorry, I don't know that one.";
+    const idx = qSelect.value;
+    if (idx !== "") {
+      const fn = qaList[idx].a;
+      answer = typeof fn === 'function' ? fn() : fn;
+    }
+    chatMsgs.innerHTML += `<div class="msg bot">${answer}</div>`;
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    chatInput.value = '';
+    qSelect.selectedIndex = 0;
+  };
+
+  // —— Initialize
+  updateDashboard();
+  Storage.onChange(['ft_activities','ft_leaderboard','ft_mySchedules','ft_liveSessions','ft_feed'], updateDashboard);
+  Storage.onChange('ft_current', syncProfileDisplay);
+});
+</script>
+
+  
 </body>
 </html>
