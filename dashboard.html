@@ -401,53 +401,57 @@ header h1 { margin:0 auto; }
 
     /* Community Feed */
     .community {
-      grid-column:1/-1; background:rgba(255,255,255,0.05);
-      padding:1rem; border-radius:8px; margin-top:1rem;
+      background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
     }
     .community h2 {
       display:flex; align-items:center; gap:.5rem;
       font-size:1.1rem; color:var(--gold); margin-bottom:.6rem;
     }
-    .feed-list {
-
-     list-style: none;
-     padding: 0;
-     margin: 0;
+    .feed-list { list-style: none; padding: 0; margin: 0;
     }
-    .feed-item {
- .feed-item:hover { transform: translateY(-3px); }
-   .feed-controls {
-     display: flex;
-     align-items: center;
-     gap: .5rem;
-     margin-top: .5rem;
-     font-size: .9rem;
-     color: #666;
-   }
-   .feed-controls button {
-     background: none;
-     border: none;
-     cursor: pointer;
-     font-weight: bold;
-     color: #007bff;
-   }
-   .feed-controls button:hover { text-decoration: underline; }
-   .like-btn i { color: #e0245e; }
-   .comments-container {
-     max-height: 0;
-     overflow: hidden;
-     transition: max-height .3s ease;
-     margin-top: .5rem;
-     border-top: 1px solid #eee;
-     padding-top: .5rem;
-   }
-   .comments-container.open {
-     max-height: 500px; /* enough for several comments */
-   }
-   .pseudo-comment {
-     padding: .3rem 0;
-     border-bottom: 1px solid #f0f0f0;
-   }
+    +/* CARD */
+.feed-item {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+  padding: 1rem;
+  position: relative;
+  transition: transform .2s;
+}
+.feed-item:hover { transform: translateY(-3px); }
+  /* CONTROLS BAR */
+
+.feed-controls {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-top: .75rem;
+}
+.feed-controls button {
+  background: none; border: none;
+  cursor: pointer; font-weight: 600;
+  color: #007bff;
+}
+.feed-controls button:hover { text-decoration: underline; }
+ .like-btn i { color: #e0245e; margin-right: .25rem; }
+
+.comments-container {
+  max-height: 0; overflow: hidden;
+  transition: max-height .3s ease;
+  margin-top: .5rem; padding-top: .5rem;
+  border-top: 1px solid #eee;
+}
+.comments-container.open {
+  max-height: 400px; /* enough to show comments */
+}
+  .pseudo-comment {
+  padding: .5rem 0; font-size: .9rem;
+  border-bottom: 1px solid #f0f0f0;
+}
    .pseudo-comment:last-child { border-bottom: none; }
     background: #fff;
      border-radius: 8px;
@@ -458,10 +462,15 @@ header h1 { margin:0 auto; }
      overflow: hidden;
    }
     .feed-item:hover { background:rgba(255,255,255,0.2); }
-    .feed-item .feed-time {
-      position:absolute; top:.6rem; right:5.5rem;
-      font-size:.75rem; opacity:.7;
-    }
+   /* TIMESTAMP */
+
+.feed-item .feed-time {
+  font-size: .8rem; color: #555;
+}
+
+/* LIKE ICON */
+
+.like-btn i { color: #e0245e; margin-right: .25rem; }
     .feed-item .like-btn, .feed-item .comment-btn {
       position:absolute; top:.6rem; 
       background:none; border:none; color:var(--gold);
@@ -1195,19 +1204,19 @@ document.addEventListener('DOMContentLoaded', () => {
     feed.forEach((post, idx) => {
       const minsAgo = Math.floor((Date.now() - post.timestamp) / 60000);
       communityFeed.insertAdjacentHTML('beforeend', `
-        <li class="feed-item" data-index="${idx}">
-           <div>${post.text}</div>
-           <div class="feed-controls">
-            <span class="feed-time">${minsAgo}m ago</span>
-           <button class="toggle-comments">▼ ${comments[idx].length} comments</button>
-            <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">${post.likes}</span></button>
-          </div>
-         <div class="comments-container hidden">
-           ${comments[idx].map(c => `
-             <div class="pseudo-comment"><strong>${c.user}:</strong> ${c.text}</div>
-           `).join('')}
-         </div>
-         </li>`);
+       <li class="feed-item" data-index="${idx}">
+      <p>${post.text}</p>
+      <div class="feed-controls">
+        <span class="feed-time">${minsAgo}m ago</span>
+        <button class="toggle-comments">▼ ${comments[idx].length} comments</button>
+        <button class="like-btn"><i class="fas fa-heart"></i><span class="like-count">${post.likes}</span></button>
+      </div>
+      <div class="comments-container">
+        ${comments[idx].map(c => `
+          <div class="pseudo-comment"><strong>${c.user}:</strong> ${c.text}</div>
+        `).join('')}
+      </div>
+    </li>`);
       comments[idx].forEach(c => {
         communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
           <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
