@@ -800,6 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const all      = Storage.get('ft_activities', []);
     all.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
     Storage.set('ft_activities', all);
+    updateDashboard();
     workoutModal.classList.remove('active');
   };
 
