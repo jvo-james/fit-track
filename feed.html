@@ -259,28 +259,34 @@
   <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
 
 
-  <!-- storage.js helper (plain script, defines global Storage) -->
+   <!-- storage.js helper (plain script, defines global Storage) -->
   <script src="storage.js"></script>
 
-  <!-- page script (plain, uses global Storage) -->
+  <!-- community page logic -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const feedEl   = document.getElementById('communityFeed');
-      const input    = document.getElementById('newFeedInput');
-      const postBtn  = document.getElementById('postFeedBtn');
-      const me       = (Storage.get('ft_current') || {}).name || 'You';
+      // ── 1) Redirect if not logged in ──
+      const cur = Storage.get('ft_current', null);
+      if (!cur || !cur.name) {
+        return location.replace('home.html');
+      }
 
+      // ── Sidebar toggle (mobile) ──
+      window.toggleSidebar = () => {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+      };
 
-      // ↕ mobile sidebar toggle
-window.toggleSidebar = () => {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('active');
-};
+      // ── Element refs ──
+      const feedEl    = document.getElementById('communityFeed');
+      const input     = document.getElementById('newFeedInput');
+      const postBtn   = document.getElementById('postFeedBtn');
+      const me        = cur.name;
 
-      // 0) Seed 15 Posts × ≥5 Comments each, ≥15 likes
+      // ── Seed demo feed exactly once ──
       if (!Storage.get('ft_feed')) {
-        const users    = ['Alice','Bob','Cara','Dan','Eve','Finn','Gina','Hank','Ivy','Jack','Kara','Liam','Mia','Noah','Olive'];
-        const texts    = [
+        const users   = ['Alice','Bob','Cara','Dan','Eve','Finn','Gina','Hank','Ivy','Jack','Kara','Liam','Mia','Noah','Olive'];
+        const texts   = [
           "Just crushed 10k steps today!",
           "Morning HIIT session was 🔥",
           "Yoga helped my flexibility so much!",
@@ -302,6 +308,7 @@ window.toggleSidebar = () => {
           "🔥🔥", "Nice work!", "Goals!", "Legend!", "💪", "Woo!", "Amazing!"
         ];
 
+        // build posts
         const feed = texts.map((txt,i) => ({
           user: users[i],
           avatar: `https://i.pravatar.cc/40?u=${users[i]}`,
@@ -310,8 +317,8 @@ window.toggleSidebar = () => {
           likes: Math.floor(Math.random()*20)+15
         }));
 
-        const comments = feed.map((_,i) => {
-          // 5–8 comments
+        // build comments (5–8 each)
+        const comments = feed.map(() => {
           const n = 5 + Math.floor(Math.random()*4);
           return Array.from({length:n}).map(() => {
             const u = users[Math.floor(Math.random()*users.length)];
@@ -327,16 +334,17 @@ window.toggleSidebar = () => {
         Storage.set('ft_comments', comments);
       }
 
-      // Render function
+      // ── Render feed ──
       function render() {
-        const feed   = Storage.get('ft_feed');
-        const cmnts  = Storage.get('ft_comments');
+        const feed  = Storage.get('ft_feed');
+        const cmnts = Storage.get('ft_comments');
         feedEl.innerHTML = '';
-        feed.forEach((post,idx) => {
-          const ago = Math.floor((Date.now()-post.timestamp)/60000);
+
+        feed.forEach((post, idx) => {
+          const ago = Math.floor((Date.now() - post.timestamp)/60000);
           const li = document.createElement('li');
-          li.className = 'feed-item';
-          li.dataset.index = idx;
+          li.className    = 'feed-item';
+          li.dataset.index= idx;
           li.innerHTML = `
             <div class="feed-header">
               <img class="feed-avatar" src="${post.avatar}" />
@@ -347,8 +355,13 @@ window.toggleSidebar = () => {
             </div>
             <div class="feed-text">${post.text}</div>
             <div class="feed-controls">
-              <button class="like-btn"><i class="fas fa-heart"></i><span class="like-count">${post.likes}</span></button>
-              <button class="toggle-comments">▼ ${cmnts[idx].length} comments</button>
+              <button class="like-btn">
+                <i class="fas fa-heart"></i>
+                <span class="like-count">${post.likes}</span>
+              </button>
+              <button class="toggle-comments">
+                ▼ ${cmnts[idx].length} comments
+              </button>
             </div>
             <div class="comments-container">
               ${cmnts[idx].map(c => `
@@ -365,8 +378,8 @@ window.toggleSidebar = () => {
         });
       }
 
-      // New post
-      postBtn.onclick = () => {
+      // ── New post handler ──
+      postBtn.addEventListener('click', () => {
         const text = input.value.trim();
         if (!text) return input.focus();
         const feed = Storage.get('ft_feed');
@@ -379,13 +392,14 @@ window.toggleSidebar = () => {
         Storage.set('ft_comments', [[], ...Storage.get('ft_comments')]);
         input.value = '';
         render();
-      };
+      });
 
-      // Delegate feed events
+      // ── Delegated feed events ──
       feedEl.addEventListener('click', e => {
         const item = e.target.closest('.feed-item');
         if (!item) return;
         const idx = +item.dataset.index;
+
         // Like
         if (e.target.closest('.like-btn')) {
           const feed = Storage.get('ft_feed');
@@ -394,6 +408,7 @@ window.toggleSidebar = () => {
           item.querySelector('.like-count').textContent = feed[idx].likes;
           return;
         }
+
         // Toggle comments
         if (e.target.closest('.toggle-comments')) {
           const cont = item.querySelector('.comments-container');
@@ -403,17 +418,23 @@ window.toggleSidebar = () => {
           btn.textContent = `${open?'▲':'▼'} ${Storage.get('ft_comments')[idx].length} comments`;
           return;
         }
-        // Add comment
+
+        // Add comment (click on text)
         if (e.target.closest('.feed-text')) {
           const reply = prompt('Add a comment:');
           if (!reply) return;
           const allC = Storage.get('ft_comments');
-          allC[idx].push({ user: me, avatar:`https://i.pravatar.cc/40?u=${me}`, text: reply });
+          allC[idx].push({
+            user: me,
+            avatar:`https://i.pravatar.cc/40?u=${me + Math.random()}`,
+            text: reply
+          });
           Storage.set('ft_comments', allC);
           render();
         }
       });
-  // chatbot wiring
+
+      // ── Chatbot wiring ──
       const chatBox    = document.getElementById('lb-chatbot');
       const chatToggle = document.getElementById('lb-chat-toggle');
       const chatClose  = document.getElementById('lb-chat-close');
@@ -426,9 +447,13 @@ window.toggleSidebar = () => {
         chatToggle.style.display = 'flex';
       });
 
-      // Initial render
+      // ── Watch storage for external changes ──
+      Storage.onChange(['ft_feed','ft_comments'], render);
+
+      // ── Initial paint ──
       render();
     });
   </script>
+
 </body>
 </html>
