@@ -259,10 +259,12 @@
     import { Storage } from './storage.js';
 
     document.addEventListener('DOMContentLoaded', () => {
-      // 1) Redirect if not logged in
-      const cur = Storage.get('ft_current', null);
-      // comment out redirect while developing:
-      // if (!cur || !cur.name) return location.replace('home.html');
+     // 1) Ensure we have a “current user” for dev
+      let cur = Storage.get('ft_current', null);
+      if (!cur || !cur.name) {
+        cur = { name: 'Guest', email: 'guest@example.com' };
+        Storage.set('ft_current', cur);
+      }
 
       // Avatar sync
       function updateAvatars() {
