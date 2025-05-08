@@ -748,23 +748,6 @@ header h1 { margin:0 auto; }
   
 <script type="module">
 import { Storage } from './storage.js';
- // ——— 0) Seed community feed + comments exactly once ———
- if (!Storage.get('ft_feed')) {
-   const texts = [
-     "Alice smashed a 5 km run!",
-     "Bob just completed 3 HIIT sessions!",
-     "Cara hit her 10th workout milestone!",
-     "Dan improved his plank time!",
-     "Eve joined the 7-Day Abs challenge!"
-   ];
-   const demo = texts.map(t => ({
-     text: t,
-     timestamp: Date.now() - Math.floor(Math.random()*60)*60000
-   }));
-   Storage.set('ft_feed', demo);
-   Storage.set('ft_comments', demo.map(() => []));
- }
-
 document.addEventListener('DOMContentLoaded', () => {
 
   // —— Redirect if not logged in
@@ -1120,14 +1103,14 @@ document.addEventListener('DOMContentLoaded', () => {
    communityFeed.insertAdjacentHTML('beforeend', `
      <li class="feed-item">
        ${item.text}
-       <span class="feed-time">${minsAgo}m ago</span>
-       <button class="comment-btn">💬</button>
-       <button class="like-btn">❤️ <span class="like-count">0</span></button>
+        <span class="feed-time">${minsAgo}m ago</span>
+        <button class="comment-btn"><i class="fas fa-comment"></i></button>
+        <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
      </li>`);
    // render stored comments
    (Storage.get('ft_comments')[i]||[]).forEach(c => {
-     communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
-       <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
+      communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
+        <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
    });
 });
     document.querySelectorAll('.like-btn').forEach(btn => {
