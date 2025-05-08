@@ -754,20 +754,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── 0) Seed demo community posts & comments exactly once ──
   if (!Storage.get('ft_feed')) {
-    const texts = [
-      "Alice smashed a 5 km run!",
-      "Bob just completed 3 HIIT sessions!",
-      "Cara hit her 10th workout milestone!",
-      "Dan improved his plank time!",
-      "Eve joined the 7-Day Abs challenge!"
-    ];
-    const feed = texts.map(t => ({
-      text: t,
-      timestamp: Date.now() - Math.floor(Math.random() * 60) * 60000
-    }));
-    Storage.set('ft_feed', feed);
-    Storage.set('ft_comments', feed.map(() => []));
-  }
+   const texts = [
+     "Alice smashed a 5 km run!",
+     "Bob just completed 3 HIIT sessions!",
+     "Cara hit her 10th workout milestone!",
+     "Dan improved his plank time!",
+     "Eve joined the 7-Day Abs challenge!"
+   ];
+   // ➕ seed likes & comments
+   const feed = texts.map(t => ({
+     text: t,
+     timestamp: Date.now() - Math.floor(Math.random() * 60) * 60000,
+     likes: Math.floor(Math.random() * 100)      // random initial likes
+   }));
+   const sampleNames = ['Alice','Bob','Cara','Dan','Eve'];
+   const initialComments = feed.map(() => {
+     // 1–3 random pseudo-comments per post
+     return Array.from({length: Math.floor(Math.random()*3)+1}).map(() => ({
+       user: sampleNames[Math.floor(Math.random()*sampleNames.length)],
+       text: "Nice work!"
+     }));
+   });
+   Storage.set('ft_feed', feed);
+   Storage.set('ft_comments', initialComments);
+ }
 
   // ── Redirect if not logged in ──
   const cur = Storage.get('ft_current', null);
@@ -1142,10 +1152,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <li class="feed-item" data-index="${idx}">
            <div>${post.text}</div>
            <div class="feed-controls">
-             <span class="feed-time">${minsAgo}m ago</span>
-             <button class="comment-btn"><i class="fas fa-comment"></i></button>
-             <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
-           </div>
+            <span class="feed-time">${minsAgo}m ago</span>
+            <button class="toggle-comments">View ${comments[idx].length} comments</button>
+            <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">${post.likes}</span></button>
+          </div>
+         <div class="comments-container hidden">
+           ${comments[idx].map(c => `
+             <div class="pseudo-comment"><strong>${c.user}:</strong> ${c.text}</div>
+           `).join('')}
+         </div>
          </li>`);
       comments[idx].forEach(c => {
         communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
@@ -1154,26 +1169,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ── Delegate like + comment ──
-    communityFeed.onclick = e => {
-      const item = e.target.closest('.feed-item');
-      if (!item) return;
-      const idx = Number(item.dataset.index);
+    communityFeed.addEventListener('click', e => {
+    const item = e.target.closest('.feed-item');
+    if (!item) return;
+    const idx = Number(item.dataset.index);
 
-      if (e.target.closest('.like-btn')) {
-        const span = item.querySelector('.like-count');
-        span.textContent = parseInt(span.textContent) + 1;
-        return;
-      }
-      if (e.target.closest('.comment-btn')) {
-        const reply = prompt('Add a comment:');
-        if (!reply) return;
-        const allC = Storage.get('ft_comments');
-        allC[idx].push(reply);
-        Storage.set('ft_comments', allC);
-        item.insertAdjacentHTML('beforeend', `
-          <div class="pseudo-comment"><small>— You: ${reply}</small></div>`);
-      }
-    };
+    // 👍 Like
+    if (e.target.closest('.like-btn')) {
+      const feed = Storage.get('ft_feed');
+      feed[idx].likes++;
+      Storage.set('ft_feed', feed);
+      item.querySelector('.like-count').textContent = feed[idx].likes;
+      return;
+    }
+
+    // 💬 Toggle comments accordion
+    if (e.target.closest('.toggle-comments')) {
+      item.querySelector('.comments-container').classList.toggle('hidden');
+      return;
+    }
+
+    // 📝 Add comment
+    if (e.target.closest('.comment-btn') || e.target.closest('.toggle-comments+button')) {
+      const reply = prompt('Add a comment:');
+      if (!reply) return;
+      const allC = Storage.get('ft_comments');
+      allC[idx].push({ user: Storage.get('ft_current').name, text: reply });
+      Storage.set('ft_comments', allC);
+      const container = item.querySelector('.comments-container');
+      container.insertAdjacentHTML('beforeend', `
+        <div class="pseudo-comment"><strong>${Storage.get('ft_current').name}:</strong> ${reply}</div>
+      `);
+      // update toggle text:
+      const btn = item.querySelector('.toggle-comments');
+      btn.textContent = `View ${allC[idx].length} comments`;
+    }
+  });
 
     // — Tip of the day
     const tips = [
