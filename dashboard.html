@@ -748,28 +748,25 @@ header h1 { margin:0 auto; }
   
 <script type="module">
 import { Storage } from './storage.js';
+ // ——— 0) Seed community feed + comments exactly once ———
+ if (!Storage.get('ft_feed')) {
+   const texts = [
+     "Alice smashed a 5 km run!",
+     "Bob just completed 3 HIIT sessions!",
+     "Cara hit her 10th workout milestone!",
+     "Dan improved his plank time!",
+     "Eve joined the 7-Day Abs challenge!"
+   ];
+   const demo = texts.map(t => ({
+     text: t,
+     timestamp: Date.now() - Math.floor(Math.random()*60)*60000
+   }));
+   Storage.set('ft_feed', demo);
+   Storage.set('ft_comments', demo.map(() => []));
+ }
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // —— 0) Seed 5 demo community posts only once
-  if (!Storage.get('ft_feed')) {
-    const demo = [
-      "Alice smashed a 5 km run!",
-      "Bob just completed 3 HIIT sessions!",
-      "Cara hit her 10th workout milestone!",
-      "Dan improved his plank time!",
-      "Eve joined the 7-Day Abs challenge!"
-    ].map(text => ({
-      text,
-      timestamp: Date.now() - Math.floor(Math.random()*60)*60000
-    }));
-    Storage.set('ft_feed', demo);
-     // also seed some pseudo-comments
-    Storage.set('ft_comments', demo.map((_,i) => ([
-      `Great job!`,
-      `Keep it up!`
-    ])));
-  }
   // —— Redirect if not logged in
   const cur = Storage.get('ft_current', null);
   if (!cur || !cur.name) return location.replace('home.html');
@@ -1022,19 +1019,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const top5 = rawLB.sort((a,b)=>b.score-a.score).slice(0,5);
     miniList.innerHTML = '';
    top5.forEach(u => {
-      miniList.insertAdjacentHTML('beforeend', `
-        <li style="display:flex;align-items:center;gap:.5rem;">
-         <img src="${
-        // if this entry is *you*, show your profile-avatar
-        (u.id === Storage.get('ft_current', {}).id)
-          ? Storage.get('ft_current').avatarDataUrl
-          // otherwise: each user’s own or pravatar fallback
-          : (u.avatarDataUrl || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`)
-      }" class="avatar" style="width:24px;height:24px;border-radius:50%;"
-          />
-          <span>${u.name}</span>
-          <strong style="margin-left:auto;">${u.score}</strong>
-        </li>`);
+       miniList.insertAdjacentHTML('beforeend', `
+   <li style="display:flex;align-items:center;justify-content:space-between;">
+     <span>${u.name}</span>
+     <strong>${u.score}</strong>
+   </li>`);
     });
 
     // — Achievements badges
@@ -1125,23 +1114,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // —— Community feed: render current array
    const feed = Storage.get('ft_feed', []);
-   communityFeed.innerHTML = '';
-   feed.forEach((item, i) => {
-    const minsAgo = Math.floor((Date.now() - item.timestamp) / 60000);
-    communityFeed.insertAdjacentHTML('beforeend', `
-      <li class="feed-item animate__animated animate__fadeInUp">
-        ${item.text}
-        <span class="feed-time">${minsAgo}m ago</span>
-          <button class="comment-btn"><i class="fas fa-comment"></i></button>
-          <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
-        </li>`);
-    // now render any stored comments
-   const comments = Storage.get('ft_comments')[i]||[];
-   comments.forEach(c => {
+ communityFeed.innerHTML = '';
+ feed.forEach((item, i) => {
+   const minsAgo = Math.floor((Date.now() - item.timestamp) / 60000);
+   communityFeed.insertAdjacentHTML('beforeend', `
+     <li class="feed-item">
+       ${item.text}
+       <span class="feed-time">${minsAgo}m ago</span>
+       <button class="comment-btn">💬</button>
+       <button class="like-btn">❤️ <span class="like-count">0</span></button>
+     </li>`);
+   // render stored comments
+   (Storage.get('ft_comments')[i]||[]).forEach(c => {
      communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
        <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
    });
-    });
+});
     document.querySelectorAll('.like-btn').forEach(btn => {
       btn.onclick = e => {
         const span = e.currentTarget.querySelector('.like-count');
@@ -1161,21 +1149,21 @@ document.addEventListener('DOMContentLoaded', () => {
      updateDashboard();
    };
 
- // —— Commenting support
+ // —— Commenting support — click 💬 to reply
  communityFeed.addEventListener('click', e => {
    if (!e.target.closest('.comment-btn')) return;
    const item  = e.target.closest('.feed-item');
    const reply = prompt('Add a comment:');
    if (!reply) return;
-   // store it
+   // persist
    const idx = Array.from(communityFeed.children).indexOf(item);
    const allC = Storage.get('ft_comments');
    allC[idx].push(reply);
    Storage.set('ft_comments', allC);
-   // render under this post
+   // display
    item.insertAdjacentHTML('beforeend', `
      <div class="pseudo-comment"><small>— You: ${reply}</small></div>`);
- });
+});
 
     // —— Tip of the day
     const tips = [
