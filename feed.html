@@ -186,6 +186,12 @@
     }
     .comment-content .author { color:var(--gold); font-weight:600; margin-bottom:.2rem; }
     .comment-content .text  { line-height:1.3; }
+    /* Chatbot starts hidden */
+.chatbot { display: none !important; }
+
+/* when active we’ll flip it inline via JS */
+.chatbot.active { display: flex !important; }
+
   </style>
 </head>
 
@@ -253,8 +259,12 @@
   <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
 
 
- 
+ <!-- storage.js helper as a real ES module -->
+  <script type="module" src="storage.js"></script>
+
+  <!-- page script that *imports* Storage from storage.js -->
   <script type="module">
+  
     import { Storage } from './storage.js';
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -399,6 +409,19 @@
           render();
         }
       });
+const chatBox    = document.getElementById('lb-chatbot');
+const chatToggle = document.getElementById('lb-chat-toggle');
+const chatClose  = document.getElementById('lb-chat-close');
+
+chatToggle.addEventListener('click', () => {
+  chatBox.classList.add('active');
+  chatToggle.style.display = 'none';
+});
+
+chatClose.addEventListener('click', () => {
+  chatBox.classList.remove('active');
+  chatToggle.style.display = 'flex';
+});
 
       // Initial render
       render();
