@@ -259,19 +259,23 @@
   <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
 
 
- <!-- storage.js helper as a real ES module -->
-  <script type="module" src="storage.js"></script>
+  <!-- storage.js helper (plain script, defines global Storage) -->
+  <script src="storage.js"></script>
 
-  <!-- page script that *imports* Storage from storage.js -->
-  <script type="module">
-  
-    import { Storage } from './storage.js';
-
+  <!-- page script (plain, uses global Storage) -->
+  <script>
     document.addEventListener('DOMContentLoaded', () => {
       const feedEl   = document.getElementById('communityFeed');
       const input    = document.getElementById('newFeedInput');
       const postBtn  = document.getElementById('postFeedBtn');
-      const me       = Storage.get('ft_current')?.name || 'You';
+      const me       = (Storage.get('ft_current') || {}).name || 'You';
+
+
+      // ↕ mobile sidebar toggle
+window.toggleSidebar = () => {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('active');
+};
 
       // 0) Seed 15 Posts × ≥5 Comments each, ≥15 likes
       if (!Storage.get('ft_feed')) {
@@ -409,19 +413,18 @@
           render();
         }
       });
-const chatBox    = document.getElementById('lb-chatbot');
-const chatToggle = document.getElementById('lb-chat-toggle');
-const chatClose  = document.getElementById('lb-chat-close');
-
-chatToggle.addEventListener('click', () => {
-  chatBox.classList.add('active');
-  chatToggle.style.display = 'none';
-});
-
-chatClose.addEventListener('click', () => {
-  chatBox.classList.remove('active');
-  chatToggle.style.display = 'flex';
-});
+  // chatbot wiring
+      const chatBox    = document.getElementById('lb-chatbot');
+      const chatToggle = document.getElementById('lb-chat-toggle');
+      const chatClose  = document.getElementById('lb-chat-close');
+      chatToggle.addEventListener('click', () => {
+        chatBox.classList.add('active');
+        chatToggle.style.display = 'none';
+      });
+      chatClose.addEventListener('click', () => {
+        chatBox.classList.remove('active');
+        chatToggle.style.display = 'flex';
+      });
 
       // Initial render
       render();
