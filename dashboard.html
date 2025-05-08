@@ -992,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
         (u.id === Storage.get('ft_current', {}).id)
           ? Storage.get('ft_current').avatarDataUrl
           // otherwise: each user’s own or pravatar fallback
-          : (u.avatarDataUrl || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`)
+          : (u.avatarDataUrl || u.avatar || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`)
       }" class="avatar" style="width:24px;height:24px;border-radius:50%;"
           />
           <span>${u.name}</span>
@@ -1069,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── 0) Seed demo feed **once** on first load ──
-  let initialFeed = Storage.get('ft_feed', null);
+ let initialFeed = Storage.get('ft_feed'); 
   if (!initialFeed) {
     const demoTexts = [
       "Alice smashed a 5 km run!",
