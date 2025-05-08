@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>FitTrack | Community</title>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
+
+  <script src="storage.js"></script>
+  <style>
+    :root {
+      --bg: #1e1e2f;
+      --fg: #f5f5f5;
+      --gold: #ff9800;
+      --card: #2a2a3d;
+      --muted: #888;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; font-family: 'Raleway', sans-serif; background: var(--bg); color: var(--fg); min-height: 100vh; }
+    /* Sidebar */
+    aside.sidebar { width: 220px; background: #19192a; display: flex; flex-direction: column; padding: 1rem 0; }
+    .logo { text-align: center; font-size: 1.4rem; color: var(--gold); margin-bottom: 1rem; }
+    .menu-item { display: flex; align-items: center; gap: .75rem; padding: .7rem 1rem; color: var(--fg); text-decoration: none; font-weight: 500; transition: background .2s; }
+    .menu-item.active, .menu-item:hover { background: #252536; }
+    .menu-item i { width: 1.2rem; text-align: center; }
+    /* Main */
+    .main { flex: 1; display: flex; flex-direction: column; }
+    header { background: var(--card); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
+    header h1 { font-size: 1.5rem; color: var(--gold); }
+    header .shortcut { background: none; border: none; color: var(--fg); font-size: .9rem; cursor: pointer; }
+    header .shortcut:hover { color: var(--gold); }
+    .content { flex: 1; overflow-y: auto; padding: 1.5rem; }
+    /* Trending */
+    .trending { display: flex; gap: .6rem; overflow-x: auto; margin-bottom: 1rem; }
+    .trend { background: var(--card); padding: .4rem .8rem; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: background .2s; }
+    .trend:hover { background: var(--gold); color: var(--bg); }
+    /* New Post */
+    .post-box { background: var(--card); padding: 1rem; border-radius: 8px; display: flex; gap: .75rem; margin-bottom: 1.5rem; }
+    .post-box input { flex: 1; padding: .6rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--fg); }
+    .post-box button { background: var(--gold); border: none; color: var(--bg); padding: .6rem 1.2rem; border-radius: 20px; cursor: pointer; }
+    .post-box button:hover { background: #e68a00; }
+    /* Feed */
+    .feed-list { list-style: none; }
+    .feed-item { background: var(--card); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.4); transition: transform .2s; position: relative; }
+    .feed-item:hover { transform: translateY(-3px); }
+    .feed-header { display: flex; align-items: center; gap: .75rem; }
+    .feed-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #555; }
+    .feed-meta { display: flex; flex-direction: column; }
+    .feed-meta .user { font-weight: 600; color: var(--gold); }
+    .feed-meta .time { font-size: .8rem; color: var(--muted); }
+    .feed-text { margin: .75rem 0; line-height: 1.4; }
+    .feed-controls { display: flex; align-items: center; gap: 1.2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: .75rem; }
+    .feed-controls button { background: none; border: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: .4rem; }
+    .feed-controls i { font-size: 1.1rem; }
+    .feed-controls button:hover { color: var(--gold); }
+    /* Accordion */
+    .comments-container { max-height: 0; overflow: hidden; transition: max-height .3s ease; margin-top: .75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: .75rem; }
+    .comments-container.open { max-height: 600px; }
+    .comment-item { display: flex; align-items: flex-start; gap: .6rem; margin-bottom: .6rem; }
+    .comment-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #777; }
+    .comment-content { background: rgba(255,255,255,0.05); padding: .5rem .75rem; border-radius: 6px; flex: 1; }
+    .comment-content .author { font-weight: 600; color: var(--gold); margin-bottom: .2rem; }
+    .comment-content .text { line-height: 1.3; }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo"><i class="fas fa-heartbeat"></i> FitTrack</div>
+    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="log.html" class="menu-item"><i class="fas fa-pen"></i> Log</a>
+    <a href="workouts.html" class="menu-item"><i class="fas fa-dumbbell"></i> Workouts</a>
+    <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i> Board</a>
+    <a href="community.html" class="menu-item active"><i class="fas fa-users"></i> Community</a>
+    <button class="menu-item" onclick="location.replace('profile.html')">
+      <i class="fas fa-user-circle"></i> Profile
+    </button>
+    <a href="signout.html" class="menu-item"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header>
+      <h1>Community Feed</h1>
+      <button class="shortcut" onclick="location.href='dashboard.html'">
+        ← Back to Dashboard
+      </button>
+    </header>
+    <div class="content">
+
+      <!-- Trending Topics -->
+      <div class="trending">
+        <div class="trend">#5KRun</div>
+        <div class="trend">#HIIT</div>
+        <div class="trend">#YogaChallenge</div>
+        <div class="trend">#Fitspiration</div>
+        <div class="trend">#ProteinShake</div>
+        <div class="trend">#StrengthGoals</div>
+      </div>
+
+      <!-- New Post Box -->
+      <div class="post-box">
+        <input type="text" id="newFeedInput" placeholder="What's on your mind?" />
+        <button id="postFeedBtn"><i class="fas fa-paper-plane"></i> Post</button>
+      </div>
+
+      <!-- Feed List -->
+      <ul class="feed-list" id="communityFeed"></ul>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { Storage } from './storage.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const feedEl   = document.getElementById('communityFeed');
+      const input    = document.getElementById('newFeedInput');
+      const postBtn  = document.getElementById('postFeedBtn');
+      const me       = Storage.get('ft_current')?.name || 'You';
+
+      // 0) Seed 15 Posts × ≥5 Comments each, ≥15 likes
+      if (!Storage.get('ft_feed')) {
+        const users    = ['Alice','Bob','Cara','Dan','Eve','Finn','Gina','Hank','Ivy','Jack','Kara','Liam','Mia','Noah','Olive'];
+        const texts    = [
+          "Just crushed 10k steps today!",
+          "Morning HIIT session was 🔥",
+          "Yoga helped my flexibility so much!",
+          "Hit a new PR on deadlift: 120kg!",
+          "Tried a new smoothie recipe 🍓🥤",
+          "Weekend trail run was epic!",
+          "Group class at 6am? Count me in!",
+          "Leg day left me walking funny 😂",
+          "Protein pancakes for breakfast!",
+          "Hit my weekly goal: 5 workouts!",
+          "Cooldown stretches are underrated.",
+          "First 50 pushups in a row!",
+          "Beat my plank time: 2 minutes!",
+          "Joined the 30-day squat challenge!",
+          "Early bird workout = best mood!"
+        ];
+        const replies = [
+          "Awesome!", "Keep going!", "You rock!", "So inspiring!", "Well done!",
+          "🔥🔥", "Nice work!", "Goals!", "Legend!", "💪", "Woo!", "Amazing!"
+        ];
+
+        const feed = texts.map((txt,i) => ({
+          user: users[i],
+          avatar: `https://i.pravatar.cc/40?u=${users[i]}`,
+          text: txt,
+          timestamp: Date.now() - Math.random()*3_600_000,
+          likes: Math.floor(Math.random()*20)+15
+        }));
+
+        const comments = feed.map((_,i) => {
+          // 5–8 comments
+          const n = 5 + Math.floor(Math.random()*4);
+          return Array.from({length:n}).map(() => {
+            const u = users[Math.floor(Math.random()*users.length)];
+            return {
+              user: u,
+              avatar: `https://i.pravatar.cc/40?u=${u+Math.random()}`,
+              text: replies[Math.floor(Math.random()*replies.length)]
+            };
+          });
+        });
+
+        Storage.set('ft_feed', feed);
+        Storage.set('ft_comments', comments);
+      }
+
+      // Render function
+      function render() {
+        const feed   = Storage.get('ft_feed');
+        const cmnts  = Storage.get('ft_comments');
+        feedEl.innerHTML = '';
+        feed.forEach((post,idx) => {
+          const ago = Math.floor((Date.now()-post.timestamp)/60000);
+          const li = document.createElement('li');
+          li.className = 'feed-item';
+          li.dataset.index = idx;
+          li.innerHTML = `
+            <div class="feed-header">
+              <img class="feed-avatar" src="${post.avatar}" />
+              <div class="feed-meta">
+                <span class="user">${post.user}</span>
+                <span class="time">${ago}m ago</span>
+              </div>
+            </div>
+            <div class="feed-text">${post.text}</div>
+            <div class="feed-controls">
+              <button class="like-btn"><i class="fas fa-heart"></i><span class="like-count">${post.likes}</span></button>
+              <button class="toggle-comments">▼ ${cmnts[idx].length} comments</button>
+            </div>
+            <div class="comments-container">
+              ${cmnts[idx].map(c => `
+                <div class="comment-item">
+                  <img class="comment-avatar" src="${c.avatar}"/>
+                  <div class="comment-content">
+                    <div class="author">${c.user}</div>
+                    <div class="text">${c.text}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>`;
+          feedEl.appendChild(li);
+        });
+      }
+
+      // New post
+      postBtn.onclick = () => {
+        const text = input.value.trim();
+        if (!text) return input.focus();
+        const feed = Storage.get('ft_feed');
+        feed.unshift({
+          user: me,
+          avatar: `https://i.pravatar.cc/40?u=${me}`,
+          text, timestamp: Date.now(), likes: 0
+        });
+        Storage.set('ft_feed', feed);
+        Storage.set('ft_comments', [[], ...Storage.get('ft_comments')]);
+        input.value = '';
+        render();
+      };
+
+      // Delegate feed events
+      feedEl.addEventListener('click', e => {
+        const item = e.target.closest('.feed-item');
+        if (!item) return;
+        const idx = +item.dataset.index;
+        // Like
+        if (e.target.closest('.like-btn')) {
+          const feed = Storage.get('ft_feed');
+          feed[idx].likes++;
+          Storage.set('ft_feed', feed);
+          item.querySelector('.like-count').textContent = feed[idx].likes;
+          return;
+        }
+        // Toggle comments
+        if (e.target.closest('.toggle-comments')) {
+          const cont = item.querySelector('.comments-container');
+          const btn  = item.querySelector('.toggle-comments');
+          cont.classList.toggle('open');
+          const open = cont.classList.contains('open');
+          btn.textContent = `${open?'▲':'▼'} ${Storage.get('ft_comments')[idx].length} comments`;
+          return;
+        }
+        // Add comment
+        if (e.target.closest('.feed-text')) {
+          const reply = prompt('Add a comment:');
+          if (!reply) return;
+          const allC = Storage.get('ft_comments');
+          allC[idx].push({ user: me, avatar:`https://i.pravatar.cc/40?u=${me}`, text: reply });
+          Storage.set('ft_comments', allC);
+          render();
+        }
+      });
+
+      // Initial render
+      render();
+    });
+  </script>
+</body>
+</html>
