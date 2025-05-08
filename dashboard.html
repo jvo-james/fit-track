@@ -79,6 +79,17 @@
       background:rgba(0,0,0,0.5); z-index:var(--z-overlay);
     }
     .overlay.active { display:block; }
+/* The transparent overlay that closes the sidebar on tap */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+}
+#overlay.active {
+  display: block;
+}
 
     /* SIDEBAR */
     .sidebar {
@@ -201,6 +212,16 @@ header h1 { margin:0 auto; }
       display:flex; align-items:center; gap:.4rem; background:var(--gold);
       color:var(--bg); padding:.6rem 1rem; border-radius:30px;
     }
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 1.2rem;
+  }
+  /* hide the “New Workout” text, leave just the plus icon */
+  .new-workout span { display: none; }
+  .new-workout { padding: 0.4rem; }
+  /* hide the top-right profile avatar on super small */
+  #profile-btn { display: none; }
+}
 
     /* Profile summary */
     .profile-summary {
@@ -622,7 +643,7 @@ header h1 { margin:0 auto; }
       <section class="quick-log">
         <h2><i class="fas fa-history"></i> Recent Activities</h2>
         <table><thead><tr><th>Date</th><th>Type</th><th>Duration</th><th>Km</th><th>Calories</th>      
-+        <th>Notes</th></tr></thead><tbody id="recent-acts"></tbody></table>
+        <th>Notes</th></tr></thead><tbody id="recent-acts"></tbody></table>
         <div class="fast-stats">
           <div><strong id="avg-dur">0</strong> min avg</div>
           <div><strong id="tot-dist">0</strong> km</div>
@@ -798,6 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
     all.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
     Storage.set('ft_activities', all);
     updateDashboard();
+    distributionChart.update();
     workoutModal.classList.remove('active');
   };
 
@@ -807,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
     data: {
       labels: [],
       datasets: [{
-        data: [],
+        data: [0,0,0,0],
         borderColor: 'rgba(255,152,0,1)',
         backgroundColor: 'rgba(255,152,0,0.3)',
         fill: true,
@@ -952,8 +974,11 @@ document.addEventListener('DOMContentLoaded', () => {
    top5.forEach(u => {
       miniList.insertAdjacentHTML('beforeend', `
         <li style="display:flex;align-items:center;gap:.5rem;">
-          <img
-            src="${u.avatarDataUrl||`https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`}"
+          <img src="${
+          u.avatarDataUrl
+          || Storage.get('ft_current', {}).avatarDataUrl
+          || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`
+       }"
             class="avatar" style="width:24px;height:24px;border-radius:50%;"
           />
           <span>${u.name}</span>
