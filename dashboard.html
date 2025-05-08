@@ -746,10 +746,13 @@ header h1 { margin:0 auto; }
 </div>
 <button id="chatToggle"><i class="fas fa-comments"></i></button>
   
-<script type="module">
+
+  <script type="module">
 import { Storage } from './storage.js';
+
 document.addEventListener('DOMContentLoaded', () => {
-//━━ 0) Seed feed & comments exactly once ━━
+
+  // ── 0) Seed demo community posts & comments exactly once ──
   if (!Storage.get('ft_feed')) {
     const texts = [
       "Alice smashed a 5 km run!",
@@ -758,44 +761,45 @@ document.addEventListener('DOMContentLoaded', () => {
       "Dan improved his plank time!",
       "Eve joined the 7-Day Abs challenge!"
     ];
-    const demo = texts.map(t => ({
+    const feed = texts.map(t => ({
       text: t,
-      timestamp: Date.now() - Math.floor(Math.random()*60)*60000
+      timestamp: Date.now() - Math.floor(Math.random() * 60) * 60000
     }));
-    Storage.set('ft_feed', demo);
-    Storage.set('ft_comments', demo.map(() => []));
+    Storage.set('ft_feed', feed);
+    Storage.set('ft_comments', feed.map(() => []));
   }
-  // —— Redirect if not logged in
+
+  // ── Redirect if not logged in ──
   const cur = Storage.get('ft_current', null);
   if (!cur || !cur.name) return location.replace('home.html');
 
-  // —— Grab DOM elements
-  const notifBar       = document.getElementById('notif-bar');
-  const notifClose     = document.getElementById('notif-close');
-  const pseudoToast    = document.getElementById('pseudo-toast');
-  const hamburger      = document.getElementById('hamburger');
-  const sidebar        = document.getElementById('sidebar');
-  const overlay        = document.getElementById('overlay');
-  const sidebarClose   = document.getElementById('sidebar-close');
-  const profileBtn     = document.getElementById('profile-btn');
-  const profileMenu    = document.querySelector('.profile-menu');
-  const newWorkoutBtn  = document.querySelector('.new-workout');
-  const workoutModal   = document.getElementById('workout-modal');
-  const wCancel        = document.getElementById('w-cancel');
-  const wSave          = document.getElementById('w-save');
-  const greetingEl     = document.getElementById('greeting');
-  const activityCtx    = document.getElementById('activityChart').getContext('2d');
-  const distributionCtx= document.getElementById('distributionChart').getContext('2d');
-  const recentBody     = document.getElementById('recent-acts');
-  const miniList       = document.getElementById('miniLeaderboard');
-  const achGrid        = document.getElementById('yourAchievements');
-  const liveGrid       = document.getElementById('liveSessionsGrid');
-  const communityFeed  = document.getElementById('communityFeed');
-  const postInput      = document.getElementById('newFeedInput');
-  const postBtn        = document.getElementById('postFeedBtn');
-  const tipEl          = document.getElementById('tip-of-day');
+  // ── Grab DOM elements ──
+  const notifBar     = document.getElementById('notif-bar');
+  const notifClose   = document.getElementById('notif-close');
+  const pseudoToast  = document.getElementById('pseudo-toast');
+  const hamburger    = document.getElementById('hamburger');
+  const sidebar      = document.getElementById('sidebar');
+  const overlay      = document.getElementById('overlay');
+  const sidebarClose = document.getElementById('sidebar-close');
+  const profileBtn   = document.getElementById('profile-btn');
+  const profileMenu  = document.querySelector('.profile-menu');
+  const newWorkoutBtn= document.querySelector('.new-workout');
+  const workoutModal = document.getElementById('workout-modal');
+  const wCancel      = document.getElementById('w-cancel');
+  const wSave        = document.getElementById('w-save');
+  const greetingEl   = document.getElementById('greeting');
+  const activityCtx  = document.getElementById('activityChart').getContext('2d');
+  const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+  const recentBody   = document.getElementById('recent-acts');
+  const miniList     = document.getElementById('miniLeaderboard');
+  const achGrid      = document.getElementById('yourAchievements');
+  const liveGrid     = document.getElementById('liveSessionsGrid');
+  const communityFeed= document.getElementById('communityFeed');
+  const postInput    = document.getElementById('newFeedInput');
+  const postBtn      = document.getElementById('postFeedBtn');
+  const tipEl        = document.getElementById('tip-of-day');
 
-  // —— Show/hide notification bar
+  // ── Show/hide notification bar ──
   function syncNotif() {
     const p = Storage.get('ft_current', {});
     notifBar.classList.toggle('hidden', !!p.profileComplete);
@@ -804,21 +808,21 @@ document.addEventListener('DOMContentLoaded', () => {
   syncNotif();
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
-  // —— Sidebar mobile toggle
+  // ── Sidebar toggle ──
   function toggleSidebar() {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
   }
-  hamburger.onclick = toggleSidebar;
-  sidebarClose.onclick = toggleSidebar;
-  overlay.onclick = toggleSidebar;
+  hamburger.addEventListener('click', toggleSidebar);
+  sidebarClose.addEventListener('click', toggleSidebar);
+  overlay.addEventListener('click', toggleSidebar);
   window.toggleSidebar = toggleSidebar;
 
-  // —— Profile nav
-  profileBtn.onclick  = () => location.replace('profile.html');
-  profileMenu.onclick = () => location.replace('profile.html');
+  // ── Profile navigation ──
+  profileBtn.addEventListener('click', () => location.replace('profile.html'));
+  profileMenu.addEventListener('click', () => location.replace('profile.html'));
 
-  // —— Seed sample workout for new users
+  // ── Seed sample workout for new users ──
   if (cur.isNew) {
     greetingEl.textContent = `Hello, ${cur.name}!`;
     let acts = Storage.get('ft_activities', []);
@@ -833,22 +837,19 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => pseudoToast.classList.add('active'), 5000);
     cur.isNew = false;
     Storage.set('ft_current', cur);
-     // → announce new user in feed
-   const joinFeed = Storage.get('ft_feed', []);
-   joinFeed.unshift({
-     text: `${cur.name} joined the community!`,
-     timestamp: Date.now()
-   });
-   Storage.set('ft_feed', joinFeed);
+    // announce in feed
+    const joinFeed = Storage.get('ft_feed');
+    joinFeed.unshift({ text: `${cur.name} joined the community!`, timestamp: Date.now() });
+    Storage.set('ft_feed', joinFeed);
   } else {
     greetingEl.textContent = `Welcome back, ${cur.name}!`;
   }
-  pseudoToast.onclick = () => pseudoToast.classList.remove('active');
+  pseudoToast.addEventListener('click', () => pseudoToast.classList.remove('active'));
 
-  // —— Workout modal
-  newWorkoutBtn.onclick     = () => workoutModal.classList.add('active');
-  wCancel.onclick           = () => workoutModal.classList.remove('active');
-  wSave.onclick             = () => {
+  // ── Workout modal ──
+  newWorkoutBtn.addEventListener('click', () => workoutModal.classList.add('active'));
+  wCancel.addEventListener('click', () => workoutModal.classList.remove('active'));
+  wSave.addEventListener('click', () => {
     const date     = document.getElementById('w-date').value;
     const type     = document.getElementById('w-type').value;
     const duration = +document.getElementById('w-duration').value;
@@ -857,66 +858,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const calories = +document.getElementById('w-calories').value;
     const notes    = document.getElementById('w-notes').value.trim();
     const all      = Storage.get('ft_activities', []);
-    all.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
+    all.unshift({ id: Date.now().toString(), date, type, duration, distance, calories, notes });
     Storage.set('ft_activities', all);
     updateDashboard();
     workoutModal.classList.remove('active');
-  };
-
-  // —— Charts instances
-  const activityChart = new Chart(activityCtx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        data: [0,0,0,0],
-        borderColor: 'rgba(255,152,0,1)',
-        backgroundColor: 'rgba(255,152,0,0.3)',
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: { responsive: true, maintainAspectRatio: false }
   });
 
+  // ── Initialize Chart.js instances ──
+  const activityChart = new Chart(activityCtx, {
+    type: 'line',
+    data: { labels: [], datasets: [{ data: [], borderColor: '#ff9800', backgroundColor: 'rgba(255,152,0,0.3)', fill: true, tension: 0.3 }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
   const distributionChart = new Chart(distributionCtx, {
     type: 'pie',
-    data: {
-      labels: ['Cardio', 'Strength', 'Flexibility', 'Other'],
-      datasets: [{
-        data: [0,0,0,0],
-       backgroundColor: [
-          '#ff9800',  // orange
-          '#2196f3',  // blue
-          '#4caf50',  // green
-          '#e91e63'   // pink
-        ],
-        hoverOffset: 8,
-        borderWidth: 2
-      }]
-    },
+    data: { labels: [], datasets: [{ data: [], backgroundColor: ['#ff9800','#2196f3','#4caf50','#e91e63'], hoverOffset:8, borderWidth:2 }] },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { font: { size: 14, weight: 'bold' } }
-        },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.label}: ${ctx.parsed} workouts`
-          }
-        }
+        legend: { position: 'bottom', labels: { font: { size:14, weight:'bold' } } },
+        tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed} workouts` } }
       }
     }
   });
 
-  // —— Update avatars & name
+  // ── Profile avatar sync ──
   function syncProfileDisplay(){
     const p = Storage.get('ft_current', {});
     const url = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
-    ['dash-avatar','side-avatar','top-avatar','hdrAvatarIcon'].forEach(id => {
+    ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id => {
       const old = document.getElementById(id);
       if (!old) return;
       const img = document.createElement('img');
@@ -926,8 +897,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('dash-name').textContent = p.name;
   }
   syncProfileDisplay();
+  Storage.onChange('ft_current', syncProfileDisplay);
 
-  // —— Main render
+  // ── Main render function ──
   function updateDashboard(){
     const acts = Storage.get('ft_activities', []);
     const now  = new Date();
@@ -938,99 +910,78 @@ document.addEventListener('DOMContentLoaded', () => {
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     });
     document.getElementById('workoutsCount').textContent   = monthActs.length;
-    const totDist = monthActs.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+    const totDist = monthActs.reduce((s,a)=>s + (+a.distance||0),0).toFixed(1);
     document.getElementById('distanceCount').textContent   = `${totDist} km`;
-    const totCal = monthActs.reduce((s,a)=>s+(+a.calories||0),0);
+    const totCal = monthActs.reduce((s,a)=>s + (+a.calories||0),0);
     document.getElementById('caloriesCount').textContent   = totCal;
-    const activeDays = new Set(monthActs.map(a=>a.date)).size;
-    document.getElementById('activeDaysCount').textContent = activeDays;
+    document.getElementById('activeDaysCount').textContent = new Set(monthActs.map(a=>a.date)).size;
 
     // — Today & Avg
     const todayKey = now.toISOString().slice(0,10);
     const todayMin = acts.filter(a=>a.date===todayKey).reduce((s,a)=>s+(+a.duration||0),0);
-    document.getElementById('todayTime').textContent      = `${todayMin} min`;
-    const avgCal = monthActs.length ? Math.round(totCal/monthActs.length) : 0;
-    document.getElementById('avgCalories').textContent    = avgCal;
+    document.getElementById('todayTime').textContent = `${todayMin} min`;
+    document.getElementById('avgCalories').textContent = monthActs.length ? Math.round(totCal/monthActs.length) : 0;
 
     // — Goals bars
-    const weekCount = acts.filter(a => (now - new Date(a.date)) / (1000*60*60*24) <= 7).length;
-    document.getElementById('progressBar').style.width   = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-    document.getElementById('goalDaily').style.width     = `${Math.min(100,Math.round(todayMin/30*100))}%`;
-    document.getElementById('goalWeekly').style.width    = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-    document.getElementById('goalMonthly').style.width   = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
+    const weekCount = acts.filter(a=>(now - new Date(a.date))/(1000*60*60*24) <= 7).length;
+    document.getElementById('progressBar').style.width = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    document.getElementById('goalDaily').style.width   = `${Math.min(100,Math.round(todayMin/30*100))}%`;
+    document.getElementById('goalWeekly').style.width  = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    document.getElementById('goalMonthly').style.width = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
 
-    // — Activity over time
+    // — Activity chart
     const labels = [], data7 = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
+    for (let i=6; i>=0; i--){
+      const d = new Date(); d.setDate(d.getDate()-i);
       labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
-      data7.push(acts.filter(a=>a.date===d.toISOString().slice(0,10))
-                     .reduce((s,a)=>s+(+a.duration||0),0));
+      data7.push(acts.filter(a=>a.date===d.toISOString().slice(0,10)).reduce((s,a)=>s+(+a.duration||0),0));
     }
-    activityChart.data.labels            = labels;
-    activityChart.data.datasets[0].data  = data7;
+    activityChart.data.labels = labels;
+    activityChart.data.datasets[0].data = data7;
     activityChart.update();
 
-  // — Distribution pie (dynamic)
-  // 1) Count each workout type in this month
-  const countsByType = monthActs.reduce((acc, a) => {
-    acc[a.type] = (acc[a.type] || 0) + 1;
-    return acc;
-  }, {});
-  // 2) Build labels & data arrays
-  const types  = Object.keys(countsByType);
-  const counts = types.map(t => countsByType[t]);
-  // 3) Feed into Chart.js
-  distributionChart.data.labels           = types;
-  distributionChart.data.datasets[0].data = counts;
-  distributionChart.update();
+    // — Distribution pie
+    const countsByType = monthActs.reduce((acc,a)=>{ acc[a.type]=(acc[a.type]||0)+1; return acc; }, {});
+    distributionChart.data.labels = Object.keys(countsByType);
+    distributionChart.data.datasets[0].data = Object.values(countsByType);
+    distributionChart.update();
 
-   // — Summary stats for Recent Activities (min avg / km / cal)
-  const recent = acts.slice(0,7);
-  let sumDur=0, sumDist=0, sumCal=0;
-  recent.forEach(a => {
-    sumDur  += (+a.duration  || 0);
-    sumDist += (+a.distance  || 0);
-    sumCal  += (+a.calories  || 0);
-  });
-  document.getElementById('avg-dur').textContent  = recent.length ? Math.round(sumDur/recent.length) : 0;
-  document.getElementById('tot-dist').textContent = sumDist.toFixed(1);
-  document.getElementById('tot-cal').textContent  = sumCal;
+    // — Recent activities
+    const recent = acts.slice(0,7);
+    let sumDur=0,sumDist=0,sumCal=0;
+    recent.forEach(a=>{ sumDur+=+a.duration; sumDist+=+a.distance; sumCal+=+a.calories; });
+    document.getElementById('avg-dur').textContent = recent.length ? Math.round(sumDur/recent.length) : 0;
+    document.getElementById('tot-dist').textContent = sumDist.toFixed(1);
+    document.getElementById('tot-cal').textContent  = sumCal;
     recentBody.innerHTML = '';
-    acts.slice(0,7).forEach(e => {
+    recent.forEach(e => {
       recentBody.insertAdjacentHTML('beforeend', `
         <tr>
-          <td>${e.date}</td>
-          <td>${e.type}</td>
-          <td>${e.duration}</td>
-          <td>${e.distance||'–'}</td>
-          <td>${e.calories||'–'}</td>
-          <td>${e.notes||'–'}</td>
+          <td>${e.date}</td><td>${e.type}</td><td>${e.duration}</td>
+          <td>${e.distance||'–'}</td><td>${e.calories||'–'}</td><td>${e.notes||'–'}</td>
         </tr>`);
     });
 
-   // — Top 5 Leaderboard
-    const rawLB = Storage.get('ft_leaderboard', []).map(u => ({
-      ...u,
-      score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2)
+    // — Top-5 leaderboard (names + scores only)
+    const rawLB = Storage.get('ft_leaderboard', []).map(u=>({
+      ...u, score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2)
     }));
     const top5 = rawLB.sort((a,b)=>b.score-a.score).slice(0,5);
     miniList.innerHTML = '';
-   top5.forEach(u => {
-       miniList.insertAdjacentHTML('beforeend', `
-   <li style="display:flex;align-items:center;justify-content:space-between;">
-     <span>${u.name}</span>
-     <strong>${u.score}</strong>
-   </li>`);
+    top5.forEach(u => {
+      miniList.insertAdjacentHTML('beforeend', `
+        <li style="display:flex;justify-content:space-between;">
+          <span>${u.name}</span><strong>${u.score}</strong>
+        </li>`);
     });
 
     // — Achievements badges
     const total = acts.length;
     const badges = [
-      {n:1,  icon:'fas fa-star',   txt:'First Workout'},
-      {n:5,  icon:'fas fa-medal',  txt:'5 Workouts'},
-      {n:10, icon:'fas fa-trophy', txt:'10 Workouts'},
-      {n:30, icon:'fas fa-award',  txt:'30 Workouts'}
+      {n:1, icon:'fas fa-star',   txt:'First Workout'},
+      {n:5, icon:'fas fa-medal',  txt:'5 Workouts'},
+      {n:10,icon:'fas fa-trophy', txt:'10 Workouts'},
+      {n:30,icon:'fas fa-award',  txt:'30 Workouts'}
     ];
     achGrid.innerHTML = '';
     badges.forEach(b => {
@@ -1040,30 +991,27 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`);
     });
 
-    // —— Upcoming Live Sessions
+    // — Upcoming live sessions
     liveGrid.innerHTML = '';
     const sessions = Storage.get('ft_liveSessions', []);
     const schedIds  = Storage.get('ft_mySchedules', []);
     sessions.forEach(s => {
-      const start    = new Date(s.date||s.start);
+      const start = new Date(s.date||s.start);
       const isFuture = start > new Date();
       const joined   = schedIds.includes(s.id);
-      const btnTxt   = isFuture
-                       ? (joined ? '✔ Scheduled' : '⏱ Schedule')
-                       : '🔴 LIVE';
+      const btnTxt   = isFuture ? (joined ? '✔ Scheduled' : '⏱ Schedule') : '🔴 LIVE';
       liveGrid.insertAdjacentHTML('beforeend', `
         <div class="live-card">
           <img src="${s.img}" alt="${s.title}"/>
           <span class="session-date">${start.toLocaleString(undefined,{
             month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'
           })}</span>
-          <h3>${s.title}</h3>
-          <p class="host-name">${s.host}</p>
+          <h3>${s.title}</h3><p class="host-name">${s.host}</p>
           <button data-id="${s.id}" class="live-btn">${btnTxt}</button>
         </div>`);
     });
-    document.querySelectorAll('.live-btn').forEach(btn => {
-      btn.onclick = e => {
+    liveGrid.querySelectorAll('.live-btn').forEach(btn=>{
+      btn.onclick = e=>{
         const id = +e.currentTarget.dataset.id;
         let arr = Storage.get('ft_mySchedules', []);
         if (e.currentTarget.textContent.includes('Schedule')) {
@@ -1076,110 +1024,51 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDashboard();
       };
     });
-// —— Delegate live-session clicks (schedule / join)
-  liveGrid.addEventListener('click', e => {
-    const btn = e.target.closest('button.live-btn');
-    if (!btn) return;
-    const id = +btn.dataset.id;
-    let sched = Storage.get('ft_mySchedules', []);
-    if (btn.textContent.includes('Schedule')) {
-      if (!sched.includes(id)) sched.push(id);
-      btn.textContent = '✔ Scheduled';
-    } else if (btn.textContent.includes('LIVE')) {
-      alert('Joining live session…');
-    }
-    Storage.set('ft_mySchedules', sched);
-    updateDashboard();
-  });
 
-
-
-
-    // —— Community feed: render current array
-   const feed = Storage.get('ft_feed', []);
-   const comments = Storage.get('ft_comments', []);
-   communityFeed.innerHTML = '';
-   feed.forEach((post, idx) => {
-     const minsAgo = Math.floor((Date.now() - post.timestamp) / 60000);
-     // render post
-     communityFeed.insertAdjacentHTML('beforeend', `
-       <li class="feed-item" data-index="${idx}">
-         <div>${post.text}</div>
-         <div>
+    // — Community feed: posts + comments
+    const feed = Storage.get('ft_feed', []);
+    const comments = Storage.get('ft_comments', []);
+    communityFeed.innerHTML = '';
+    feed.forEach((post, idx) => {
+      const minsAgo = Math.floor((Date.now() - post.timestamp) / 60000);
+      communityFeed.insertAdjacentHTML('beforeend', `
+        <li class="feed-item" data-index="${idx}">
+          <div>${post.text}</div>
+          <div class="feed-controls">
             <span class="feed-time">${minsAgo}m ago</span>
-          <button class="comment-btn"><i class="fas fa-comment"></i></button>
-          <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
-         </div>
-       </li>`);
-     // render its comments
-     comments[idx].forEach(c => {
-       communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
-         <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
-     });
-   });
-      // —— Delegated handlers for 👍 & 💬
-  communityFeed.addEventListener('click', e => {
-    const item = e.target.closest('.feed-item');
-    if (!item) return;
-    const idx = parseInt(item.dataset.index, 10);
-
-    // Like button
-    if (e.target.closest('.like-btn')) {
-      const span = item.querySelector('.like-count');
-      span.textContent = parseInt(span.textContent) + 1;
-      return;
-    }
-
-    // Comment button
-    if (e.target.closest('.comment-btn')) {
-      const reply = prompt('Add a comment:');
-      if (!reply) return;
-      // persist
-      const allC = Storage.get('ft_comments');
-      allC[idx].push(reply);
-      Storage.set('ft_comments', allC);
-      // render under this post
-      item.insertAdjacentHTML('beforeend', `
-        <div class="pseudo-comment"><small>— You: ${reply}</small></div>`);
-    }
-  });
-
-    document.querySelectorAll('.like-btn').forEach(btn => {
-      btn.onclick = e => {
-        const span = e.currentTarget.querySelector('.like-count');
-        span.textContent = +span.textContent + 1;
-      };
+            <button class="comment-btn"><i class="fas fa-comment"></i></button>
+            <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
+          </div>
+        </li>`);
+      comments[idx].forEach(c => {
+        communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
+          <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
+      });
     });
- postBtn.onclick = () => {
-     const txt = postInput.value.trim();
-     if (!txt) return;
-     const feed = Storage.get('ft_feed', []);
-     feed.unshift({
-       text: txt,
-       timestamp: Date.now()
-     });
-     Storage.set('ft_feed', feed);
-     postInput.value = '';
-     updateDashboard();
-   };
 
- // —— Commenting support — click 💬 to reply
- communityFeed.addEventListener('click', e => {
-   if (!e.target.closest('.comment-btn')) return;
-   const item  = e.target.closest('.feed-item');
-   const reply = prompt('Add a comment:');
-   if (!reply) return;
-   // persist
-   const idx = Array.from(communityFeed.children).indexOf(item);
-   const allC = Storage.get('ft_comments');
-   allC[idx].push(reply);
-   Storage.set('ft_comments', allC);
-   // display
-   item.insertAdjacentHTML('beforeend', `
-     <div class="pseudo-comment"><small>— You: ${reply}</small></div>`);
-});
+    // ── Delegate like + comment ──
+    communityFeed.onclick = e => {
+      const item = e.target.closest('.feed-item');
+      if (!item) return;
+      const idx = Number(item.dataset.index);
 
-    // —— Tip of the day
+      if (e.target.closest('.like-btn')) {
+        const span = item.querySelector('.like-count');
+        span.textContent = parseInt(span.textContent) + 1;
+        return;
+      }
+      if (e.target.closest('.comment-btn')) {
+        const reply = prompt('Add a comment:');
+        if (!reply) return;
+        const allC = Storage.get('ft_comments');
+        allC[idx].push(reply);
+        Storage.set('ft_comments', allC);
+        item.insertAdjacentHTML('beforeend', `
+          <div class="pseudo-comment"><small>— You: ${reply}</small></div>`);
+      }
+    };
+
+    // — Tip of the day
     const tips = [
       "Stay hydrated—drink 250 ml water before workouts.",
       "Warm up 5 min to activate muscles.",
@@ -1190,115 +1079,17 @@ document.addEventListener('DOMContentLoaded', () => {
     tipEl.textContent = tips[Math.floor(Math.random()*tips.length)];
   }
 
-  // —— Chatbot wiring
-  const chatBox    = document.getElementById('chatbot');
-  const chatToggle = document.getElementById('chatToggle');
-  const chatClose  = document.getElementById('chatClose');
-  const chatMsgs   = document.getElementById('chatMessages');
-  const qSelect    = document.getElementById('questionSelect');
-  const chatInput  = document.getElementById('chatInput');
-  const askBtn     = document.getElementById('askBtn');
-
-  const qaList = [
-    { q: "What's my monthly total?",       a: () => document.getElementById('workoutsCount').textContent + " workouts." },
-    { q: "How many km did I run?",         a: () => document.getElementById('distanceCount').textContent },
-    { q: "What's my best day?",            a: () => {
-        const acts = Storage.get('ft_activities', []);
-        const counts = {};
-        acts.forEach(a=>counts[a.date]=(counts[a.date]||0)+a.duration);
-        const best = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
-        return best ? `Best: ${best[1]} min on ${best[0]}` : "No data yet";
-      }
-    },
-    { q: "How do I log a workout?",        a: "Click 'New Workout' at the top." },
-    { q: "How to schedule a live?",        a: "Use Upcoming Live Sessions → Schedule." },
-    { q: "How to see my top 5?",           a: "Check the Top 5 panel on Dashboard." },
-    { q: "What's today’s tip?",            a: () => document.getElementById('tip-of-day').textContent },
-    { q: "Can I post in community?",        a: "Yes—type above feed and hit Post." },
-    { q: "How to clear data?",             a: "Use 'Clear Data' in Profile page." },
-    { q: "How often does tip change?",     a: "Random each load—refresh for new tip." },
-    { q: "What's my weekly goal progress?",a: () => document.getElementById('progressBar').style.width },
-    { q: "How many active days?",          a: () => document.getElementById('activeDaysCount').textContent },
-    { q: "What’s the busiest day?",        a: () => "Check your activity chart for the tallest bar." },
-    { q: "Show me top achievement",        a: () => "Your First Workout badge!" },
-    { q: "How many calories this month?",  a: () => document.getElementById('caloriesCount').textContent + " cal" },
-    { q: "How to log notes?",              a: "Type in the Notes field when adding a workout." },
-    { q: "Can I edit a session?",          a: "Not yet—coming soon!" },
-    { q: "How to view leaderboard?",       a: "Go to the Board tab in the sidebar." },
-    { q: "What’s the pie chart show?",     a: "Your workout type distribution for this month." },
-    { q: "How to contact support?",        a: "Email support@fittrack.app." },
-    { q: "What’s the footer date?",        a: () => new Date().getFullYear() },
-    { q: "What fonts are used?",           a: "Raleway for body, Poppins for headings." },
-    { q: "How do I sign out?",             a: "Click the Sign Out icon in the sidebar." },
-    { q: "Can I change my avatar?",        a: "Upload on the Profile page." },
-    { q: "Where to go next?",              a: "Try adding a new workout now!" },
-    { q: "How to toggle sidebar?",         a: "Tap the ☰ hamburger icon." }
-  ];
-
-  qaList.forEach((item,i) => qSelect.add(new Option(item.q, i)));
-
-  chatToggle.onclick = () => {
-    chatBox.style.display='flex';
-    chatToggle.style.display='none';
-  };
-  chatClose.onclick  = () => {
-    chatBox.style.display='none';
-    chatToggle.style.display='flex';
-    chatMsgs.innerHTML = `<div class="msg bot">Hi! Ask me about your dashboard…</div>`;
-  };
-  askBtn.onclick = () => {
-    const text = chatInput.value.trim();
-    if (!text) return;
-    chatMsgs.innerHTML += `<div class="msg user">${text}</div>`;
-    let answer = "Sorry, I don't know that one.";
-    const idx = qSelect.value;
-    if (idx !== '') {
-      const fn = qaList[idx].a;
-      answer = typeof fn === 'function' ? fn() : fn;
-    }
-    chatMsgs.innerHTML += `<div class="msg bot">${answer}</div>`;
-    chatMsgs.scrollTop = chatMsgs.scrollHeight;
-    chatInput.value = '';
-    qSelect.selectedIndex = 0;
-  };
-  document.getElementById('chatClose').onclick = () => {
-  chatBox.style.display = 'none';
-  chatToggle.style.display = 'flex';
-  /* reset messages if you like */
-};
-
-// —— Chatbot show/hide & “ask” wiring
-  chatToggle.addEventListener('click', () => {
-    chatBox.style.display    = 'flex';
-    chatToggle.style.display = 'none';
-  });
-  chatClose.addEventListener('click', () => {
-    chatBox.style.display    = 'none';
-    chatToggle.style.display = 'flex';
-    chatMsgs.innerHTML       = `<div class="msg bot">Hi! Ask me about your dashboard…</div>`;
-  });
-  askBtn.addEventListener('click', () => {
-    const text = chatInput.value.trim();
-    if (!text) return;
-    chatMsgs.innerHTML += `<div class="msg user">${text}</div>`;
-    let answer = "Sorry, I don't know that one.";
-    if (qSelect.value !== '') {
-      const fn = qaList[qSelect.value].a;
-      answer = typeof fn === 'function' ? fn() : fn;
-    }
-    chatMsgs.innerHTML += `<div class="msg bot">${answer}</div>`;
-    chatMsgs.scrollTop = chatMsgs.scrollHeight;
-    chatInput.value   = '';
-    qSelect.selectedIndex = 0;
-  });
-  // —— Initialize
+  // ── Initialize & react to data changes ──
   updateDashboard();
-  Storage.onChange(['ft_activities','ft_leaderboard','ft_mySchedules','ft_liveSessions','ft_feed'], updateDashboard);
-  Storage.onChange('ft_current', syncProfileDisplay);
+  Storage.onChange([
+    'ft_activities',
+    'ft_leaderboard',
+    'ft_mySchedules',
+    'ft_liveSessions',
+    'ft_feed'
+  ], updateDashboard);
 });
 </script>
 
-
-  
 </body>
 </html>
