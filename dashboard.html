@@ -912,15 +912,25 @@ document.addEventListener('DOMContentLoaded', () => {
     activityChart.update();
 
     // — Distribution pie
-    distributionChart.data.datasets[0].data = [
+   distributionChart.data.datasets[0].data = [
       monthActs.filter(a=>a.type==='Cardio').length,
       monthActs.filter(a=>a.type==='Strength').length,
       monthActs.filter(a=>a.type==='Flexibility').length,
       monthActs.filter(a=>a.type==='Other').length
     ];
-    distributionChart.update();
+     distributionChart.update(); 
 
-    // — Recent Activities (first 7 workouts only)
+   // — Summary stats for Recent Activities (min avg / km / cal)
+  const recent = acts.slice(0,7);
+  let sumDur=0, sumDist=0, sumCal=0;
+  recent.forEach(a => {
+    sumDur  += (+a.duration  || 0);
+    sumDist += (+a.distance  || 0);
+    sumCal  += (+a.calories  || 0);
+  });
+  document.getElementById('avg-dur').textContent  = recent.length ? Math.round(sumDur/recent.length) : 0;
+  document.getElementById('tot-dist').textContent = sumDist.toFixed(1);
+  document.getElementById('tot-cal').textContent  = sumCal;
     recentBody.innerHTML = '';
     acts.slice(0,7).forEach(e => {
       recentBody.insertAdjacentHTML('beforeend', `
@@ -941,8 +951,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
     const top5 = rawLB.sort((a,b)=>b.score-a.score).slice(0,5);
     miniList.innerHTML = '';
-    top5.forEach(u => {
-      miniList.insertAdjacentHTML('beforeend', `<li><span>${u.name}</span><strong>${u.score}</strong></li>`);
+   top5.forEach(u => {
+      miniList.insertAdjacentHTML('beforeend', `
+        <li style="display:flex;align-items:center;gap:.5rem;">
+          <img
+            src="${u.avatarDataUrl||`https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`}"
+            class="avatar" style="width:24px;height:24px;border-radius:50%;"
+          />
+          <span>${u.name}</span>
+          <strong style="margin-left:auto;">${u.score}</strong>
+        </li>`);
     });
 
     // — Achievements badges
@@ -997,6 +1015,21 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDashboard();
       };
     });
+// —— Delegate live-session clicks (schedule / join)
+  liveGrid.addEventListener('click', e => {
+    const btn = e.target.closest('button.live-btn');
+    if (!btn) return;
+    const id = +btn.dataset.id;
+    let sched = Storage.get('ft_mySchedules', []);
+    if (btn.textContent.includes('Schedule')) {
+      if (!sched.includes(id)) sched.push(id);
+      btn.textContent = '✔ Scheduled';
+    } else if (btn.textContent.includes('LIVE')) {
+      alert('Joining live session…');
+    }
+    Storage.set('ft_mySchedules', sched);
+    updateDashboard();
+  });
 
     // —— Community feed
     const feed = Storage.get('ft_feed', [
@@ -1120,7 +1153,30 @@ document.addEventListener('DOMContentLoaded', () => {
   /* reset messages if you like */
 };
 
-
+// —— Chatbot show/hide & “ask” wiring
+  chatToggle.addEventListener('click', () => {
+    chatBox.style.display    = 'flex';
+    chatToggle.style.display = 'none';
+  });
+  chatClose.addEventListener('click', () => {
+    chatBox.style.display    = 'none';
+    chatToggle.style.display = 'flex';
+    chatMsgs.innerHTML       = `<div class="msg bot">Hi! Ask me about your dashboard…</div>`;
+  });
+  askBtn.addEventListener('click', () => {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatMsgs.innerHTML += `<div class="msg user">${text}</div>`;
+    let answer = "Sorry, I don't know that one.";
+    if (qSelect.value !== '') {
+      const fn = qaList[qSelect.value].a;
+      answer = typeof fn === 'function' ? fn() : fn;
+    }
+    chatMsgs.innerHTML += `<div class="msg bot">${answer}</div>`;
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    chatInput.value   = '';
+    qSelect.selectedIndex = 0;
+  });
   // —— Initialize
   updateDashboard();
   Storage.onChange(['ft_activities','ft_leaderboard','ft_mySchedules','ft_liveSessions','ft_feed'], updateDashboard);
