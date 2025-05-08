@@ -428,7 +428,7 @@ header h1 { margin:0 auto; }
       cursor:pointer; font-size:1rem;
     }
    .feed-item .comment-btn {
-  right:2.5rem;
+  right:3.5rem;
 }
 .feed-item .like-btn {
  right:1rem;  
@@ -505,25 +505,25 @@ header h1 { margin:0 auto; }
     }
     #chatbot .input button:hover { background:#000; }
 
-    #chatToggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background: #fff;
-      color: #222;
-      border: none;
-      border-radius: 50%;
-      box-shadow: 0 0 8px rgba(0,0,0,0.2), 0 0 12px rgba(255,255,255,0.6);
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      cursor: pointer;
-      animation: pulse 2s infinite;
-      z-index: 9999;
-    }
+  #chatToggle {
+     position: fixed;
+     bottom: 20px;
+     right: 20px;
+     width: 50px;
+     height: 50px;
+     background: #fff;
+     color: #222;
+     border: none;
+     border-radius: 50%;
+     box-shadow: 0 0 8px rgba(0,0,0,0.2), 0 0 12px rgba(255,255,255,0.6);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 1.4rem;
+     cursor: pointer;
+     animation: pulse 2s infinite;
+     z-index: 9999;
+   }
 
     /* Footer */
     footer {
@@ -570,6 +570,14 @@ header h1 { margin:0 auto; }
   font-size: 0.8rem;
   opacity: 0.8;
   margin-bottom: 0.6rem;
+}
+
+
+.pseudo-comment {
+  margin-top: .5rem;
+  padding-left: 1rem;
+  font-size: .8rem;
+  color: var(--light-gray);
 }
 
   </style>
@@ -740,12 +748,32 @@ header h1 { margin:0 auto; }
     <input type="text" id="chatInput" placeholder="Or type your own…"/>
     <button type="button" id="askBtn"><i class="fas fa-paper-plane"></i></button>
 </div>
-<button id="chatToggle" class="chatToggle"><i class="fas fa-comments"></i></button>
-
+<button id="chatToggle"><i class="fas fa-comments"></i></button>
+  
 <script type="module">
 import { Storage } from './storage.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // —— 0) Seed 5 demo community posts only once
+  if (!Storage.get('ft_feed')) {
+    const demo = [
+      "Alice smashed a 5 km run!",
+      "Bob just completed 3 HIIT sessions!",
+      "Cara hit her 10th workout milestone!",
+      "Dan improved his plank time!",
+      "Eve joined the 7-Day Abs challenge!"
+    ].map(text => ({
+      text,
+      timestamp: Date.now() - Math.floor(Math.random()*60)*60000
+    }));
+    Storage.set('ft_feed', demo);
+     // also seed some pseudo-comments
+    Storage.set('ft_comments', demo.map((_,i) => ([
+      `Great job!`,
+      `Keep it up!`
+    ])));
+  }
   // —— Redirect if not logged in
   const cur = Storage.get('ft_current', null);
   if (!cur || !cur.name) return location.replace('home.html');
@@ -1006,11 +1034,11 @@ document.addEventListener('DOMContentLoaded', () => {
           ? Storage.get('ft_current').avatarDataUrl
           // otherwise: each user’s own or pravatar fallback
           : (
-     u.avatarDataUrl  // your own DataURL from profile
-     || u.avatar     // maybe your property is named avatar
-     || u.avatarUrl  // or avatarUrl
-     || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`
-   )
+       u.avatarDataUrl      // the logged-in user’s DataURL
+       || u.avatar          // if your leaderboard items use `.avatar`
+       || u.avatarUrl       // or `.avatarUrl`
+       || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`
+     )
       }" class="avatar" style="width:24px;height:24px;border-radius:50%;"
           />
           <span>${u.name}</span>
@@ -1116,6 +1144,13 @@ if (!existing) {
           <button class="comment-btn"><i class="fas fa-comment"></i></button>
           <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
         </li>`);
+     // now render any stored comments for index i
+    const comments = Storage.get('ft_comments')[i] || [];
+    comments.forEach(c => {
+      communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
+        <div class="pseudo-comment"><small>&#8212; Friend: ${c}</small></div>
+      `);
+    });
     });
     document.querySelectorAll('.like-btn').forEach(btn => {
       btn.onclick = e => {
@@ -1136,6 +1171,18 @@ if (!existing) {
      updateDashboard();
    };
 
+    // —— Commenting support
+communityFeed.addEventListener('click', e => {
+  if (!e.target.closest('.comment-btn')) return;
+  const item = e.target.closest('.feed-item');
+  const reply = prompt('Add a comment:');
+  if (!reply) return;
+  // attach it as a small <div> under this item
+  item.insertAdjacentHTML('beforeend', `
+    <div class="pseudo-comment">
+      <small>&#8212; You: ${reply}</small>
+    </div>`);
+});
     // —— Tip of the day
     const tips = [
       "Stay hydrated—drink 250 ml water before workouts.",
