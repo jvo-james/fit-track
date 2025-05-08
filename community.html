@@ -267,6 +267,28 @@
       const cur = Storage.get('ft_current', null);
       if (!cur || !cur.name) return location.replace('home.html');
 
+    
+// ── Avatar sync ──
+function updateAvatars() {
+  const p = Storage.get('ft_current', {}) || {};
+  // profile.html should be storing avatarDataUrl on ft_current
+  const url = p.avatarDataUrl
+    || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
+  ['side-avatar','hdrAvatarIcon'].forEach(id => {
+    const old = document.getElementById(id);
+    if (!old) return;
+    // create a new <img> to replace the <i> icon
+    const img = document.createElement('img');
+    img.id        = id;
+    img.className = 'avatar';
+    img.src       = url;
+    img.alt       = 'Avatar';
+    old.replaceWith(img);
+  });
+}
+updateAvatars();
+Storage.onChange('ft_current', updateAvatars);
+
       // Sidebar toggle
       window.toggleSidebar = () => {
         document.getElementById('sidebar').classList.toggle('open');
