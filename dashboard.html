@@ -29,6 +29,7 @@
       --z-overlay: 90;
       --z-sidebar: 100;
       --z-header: 200;
+      --mobile-w: 240px;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -103,12 +104,14 @@
     left: 0;
   }
 }
+@media (max-width: 600px) {
 
-      @media(max-width:600px){
-      .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
-      .sidebar.open { left:0; }
-    }
-   
+  header .new-workout,
+  header #profile-btn {
+    display: none;
+  }
+ }
+     
     .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item, .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
@@ -135,9 +138,24 @@
       flex:1; display:flex; flex-direction:column;
       margin-left:calc(var(--sidebar-w)-2px);
     }
-    @media(max-width: var(--mobile-break)) { .main { margin-left:0; } }
+
+    @media (max-width: 600px) {
+      .main { margin-left:0; }
+      .sidebar {
+        position: fixed;
+        left: -100%;
+        width: var(--mobile-w);
+        z-index: var(--z-sidebar);
+      }
+      .sidebar.open { left: 0; }
+      /* show hamburger & profile buttons on mobile */
+      .hamburger, .profile-btn { display: block; position: fixed; top: 1rem; }
+      .hamburger { left: 1rem; }
+      .profile-btn { right: 1rem; }
+      header h1 { margin: 0 auto; }
+    }
     header {
-      display:flex; align-items:center; justify-content:space-between;
+      display: flex; align-items: center; justify-content: space-between;
       padding:1rem 1.5rem;
       background:linear-gradient(135deg,#111,#222);
       box-shadow:0 4px 12px rgba(0,0,0,0.7);
@@ -148,11 +166,43 @@
       display:none; background:transparent; border:none;
       color:var(--white); font-size:1.5rem; cursor:pointer;
     }
-    @media(max-width: var(--mobile-break)) {
-      .hamburger, .profile-btn { display:block; position:fixed; top:1rem; }
-      .hamburger { left:1rem; } .profile-btn { right:1rem; }
-      header h1 { margin:0 auto; }
-    }
+   @media (max-width: 600px) {
+  .hamburger, .profile-btn {
+    display: block;
+    position: fixed;
+    top: 1rem;
+  }
+  .hamburger { left: 1rem; }
+  .profile-btn { right: 1rem; }
+  header h1 { margin: 0 auto; }
+}
+    /* hide sidebar-close on desktop */
+#sidebar-close {
+  display: none;
+}
+
+/* show it under 600px only */
+@media (max-width: 600px) {
+  #sidebar-close {
+    display: block;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: transparent;
+    color: var(--white);
+    font-size: 1.5rem;
+    border: none;
+    cursor: pointer;
+  }
+}
+#chatToggle {
+  z-index: 9999;    /* above everything */
+  display: flex;    /* ensure it’s visible */
+
+}
+
+header h1 { margin:0 auto; }
+    
     header h1 {
       font-size:1.6rem; flex:1; text-align:center;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -453,6 +503,55 @@
       border-top:1px solid rgba(255,255,255,0.2);
       font-size:.9rem; opacity:.7;
     }
+    .post-update {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.post-update input {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.post-update button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  border: none;
+  background: var(--gold);
+  color: var(--bg);
+  font-weight: bold;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.post-update button:hover {
+  background: #e68a00;
+}
+.session-date {
+  display: inline-block;
+  background: var(--gold);
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  color: var(--bg);
+  margin-bottom: 0.4rem;
+}
+.host-name {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-bottom: 0.6rem;
+}
+#chatToggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;  /* above all overlays */
+  display: flex;  /* ensure it’s visible */
+  /* …existing styles… */
+}
+
   </style>
 </head>
 
@@ -474,7 +573,7 @@
  
  <!-- Sidebar -->
 
-  <div id="overlay" onclick="toggleSidebar()"></div>
+ <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">&times;</button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
@@ -492,11 +591,11 @@
   <!-- Main content -->
   <div class="main">
     <header>
-       <button id="hamburger" class="hamburger" onclick="toggleSidebar()">
+     <button id="hamburger" class="hamburger" onclick="toggleSidebar()">
 <i class="fas fa-bars"></i></button>
       <h1 id="greeting">Loading…</h1>
       <button class="new-workout"><i class="fas fa-plus"></i><span>New Workout</span></button>
-         <button id="profile-btn" class="avatar-btn" id="hdrAvatarBtn">
+       <button id="profile-btn" class="profile-btn">
           <i class="fas fa-user-circle avatar" id="hdrAvatarIcon"></i>
           </button>
     </header>
@@ -539,7 +638,8 @@
       <!-- Recent Activities -->
       <section class="quick-log">
         <h2><i class="fas fa-history"></i> Recent Activities</h2>
-        <table><thead><tr><th>Date</th><th>Type</th><th>Dur.</th><th>Km</th></tr></thead><tbody id="recent-acts"></tbody></table>
+        <table><thead><tr><th>Date</th><th>Type</th><th>Duration</th><th>Km</th><th>Calories</th>      
++        <th>Notes</th></tr></thead><tbody id="recent-acts"></tbody></table>
         <div class="fast-stats">
           <div><strong id="avg-dur">0</strong> min avg</div>
           <div><strong id="tot-dist">0</strong> km</div>
@@ -619,9 +719,8 @@
   <div class="input">
     <select id="questionSelect"><option disabled selected>Pick a question…</option></select>
     <input type="text" id="chatInput" placeholder="Or type your own…"/>
-    <button id="askBtn"><i class="fas fa-paper-plane"></i></button>
-  </div>
-</div>
+    <button type="button" id="askBtn"><i class="fas fa-paper-plane"></i></button>
+</div></div>
 <button id="chatToggle"><i class="fas fa-comments"></i></button>
 
 <script type="module">
@@ -636,11 +735,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const notifBar       = document.getElementById('notif-bar');
   const notifClose     = document.getElementById('notif-close');
   const pseudoToast    = document.getElementById('pseudo-toast');
-  const hamburger      = document.getElementById('.hamburger');
+  const hamburger      = document.getElementById('hamburger');
   const sidebar        = document.getElementById('sidebar');
   const overlay        = document.getElementById('overlay');
   const sidebarClose   = document.getElementById('sidebar-close');
-  const profileBtn     = document.getElementById('hdrAvatarBtn');
+  const profileBtn     = document.getElementById('profile-btn');
   const profileMenu    = document.querySelector('.profile-menu');
   const newWorkoutBtn  = document.querySelector('.new-workout');
   const workoutModal   = document.getElementById('workout-modal');
@@ -721,21 +820,50 @@ document.addEventListener('DOMContentLoaded', () => {
   // —— Charts instances
   const activityChart = new Chart(activityCtx, {
     type: 'line',
-    data: { labels: [], datasets:[{ data: [], borderColor: 'rgba(255,152,0,1)', backgroundColor:'rgba(255,152,0,0.3)', fill:true, tension:0.3 }] },
-    options: { responsive:true, maintainAspectRatio:false }
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        borderColor: 'rgba(255,152,0,1)',
+        backgroundColor: 'rgba(255,152,0,0.3)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
   });
+
   const distributionChart = new Chart(distributionCtx, {
     type: 'pie',
     data: {
-      labels: ['Cardio','Strength','Flexibility','Other'],
+      labels: ['Cardio', 'Strength', 'Flexibility', 'Other'],
       datasets: [{
-        data: [], 
-        backgroundColor:['rgba(255,152,0,0.8)','rgba(244,67,54,0.8)','rgba(76,175,80,0.8)','rgba(33,150,243,0.8)'],
-        borderColor: ['#000','#000','#000','#000'],
-        borderWidth: 1
+       data: [1,1,1,1], 
+       backgroundColor: [
+          '#ff9800',  // orange
+          '#2196f3',  // blue
+          '#4caf50',  // green
+          '#e91e63'   // pink
+        ],
+        hoverOffset: 8,
+        borderWidth: 2
       }]
     },
-    options: { responsive:true, maintainAspectRatio:false }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { size: 14, weight: 'bold' } }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.label}: ${ctx.parsed} workouts`
+          }
+        }
+      }
+    }
   });
 
   // —— Update avatars & name
@@ -755,45 +883,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // —— Main render
   function updateDashboard(){
-    const acts       = Storage.get('ft_activities', []);
-    const now        = new Date();
+    const acts = Storage.get('ft_activities', []);
+    const now  = new Date();
+    
+// —— Summary stats for Recent Activities
+const recent = acts.slice(0,7);
+const totalDur = recent.reduce((sum,a) => sum + (a.duration||0), 0);
+const totalDist= recent.reduce((sum,a) => sum + (a.distance||0), 0);
+const totalCal = recent.reduce((sum,a) => sum + (a.calories||0), 0);
+
+document.getElementById('avg-dur').textContent  =
+  recent.length ? Math.round(totalDur/recent.length) : 0;
+document.getElementById('tot-dist').textContent =
+  totalDist.toFixed(1);
+document.getElementById('tot-cal').textContent  =
+  totalCal;
 
     // — Monthly stats
     const monthActs = acts.filter(a => {
       const d = new Date(a.date);
-      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     });
-    document.getElementById('workoutsCount').textContent    = monthActs.length;
+    document.getElementById('workoutsCount').textContent   = monthActs.length;
     const totDist = monthActs.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
-    document.getElementById('distanceCount').textContent    = `${totDist} km`;
-    const totCal  = monthActs.reduce((s,a)=>s+(+a.calories||0),0);
-    document.getElementById('caloriesCount').textContent    = totCal;
+    document.getElementById('distanceCount').textContent   = `${totDist} km`;
+    const totCal = monthActs.reduce((s,a)=>s+(+a.calories||0),0);
+    document.getElementById('caloriesCount').textContent   = totCal;
     const activeDays = new Set(monthActs.map(a=>a.date)).size;
-    document.getElementById('activeDaysCount').textContent  = activeDays;
+    document.getElementById('activeDaysCount').textContent = activeDays;
 
     // — Today & Avg
     const todayKey = now.toISOString().slice(0,10);
     const todayMin = acts.filter(a=>a.date===todayKey).reduce((s,a)=>s+(+a.duration||0),0);
-    document.getElementById('todayTime').textContent       = `${todayMin} min`;
+    document.getElementById('todayTime').textContent      = `${todayMin} min`;
     const avgCal = monthActs.length ? Math.round(totCal/monthActs.length) : 0;
-    document.getElementById('avgCalories').textContent     = avgCal;
+    document.getElementById('avgCalories').textContent    = avgCal;
 
     // — Goals bars
-    const weekCount = acts.filter(a => (now - new Date(a.date))/(1000*60*60*24) <= 7 ).length;
-    document.getElementById('progressBar').style.width    = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-    document.getElementById('goalDaily').style.width      = `${Math.min(100,Math.round(todayMin/30*100))}%`;
-    document.getElementById('goalWeekly').style.width     = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-    document.getElementById('goalMonthly').style.width    = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
+    const weekCount = acts.filter(a => (now - new Date(a.date)) / (1000*60*60*24) <= 7).length;
+    document.getElementById('progressBar').style.width   = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    document.getElementById('goalDaily').style.width     = `${Math.min(100,Math.round(todayMin/30*100))}%`;
+    document.getElementById('goalWeekly').style.width    = `${Math.min(100,Math.round(weekCount/5*100))}%`;
+    document.getElementById('goalMonthly').style.width   = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
 
     // — Activity over time
     const labels = [], data7 = [];
-    for(let i=6;i>=0;i--){
-      const d=new Date(); d.setDate(d.getDate()-i);
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
       labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
-      data7.push(acts.filter(a=>a.date===d.toISOString().slice(0,10)).reduce((s,a)=>s+(+a.duration||0),0));
+      data7.push(acts.filter(a=>a.date===d.toISOString().slice(0,10))
+                     .reduce((s,a)=>s+(+a.duration||0),0));
     }
-    activityChart.data.labels              = labels;
-    activityChart.data.datasets[0].data    = data7;
+    activityChart.data.labels            = labels;
+    activityChart.data.datasets[0].data  = data7;
     activityChart.update();
 
     // — Distribution pie
@@ -805,36 +947,25 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     distributionChart.update();
 
-    // — Recent Activities (+2 creative rows)
-    const combined = [];
-    // scheduled
-    const schedIds = Storage.get('ft_mySchedules', []);
-    const sessions = Storage.get('ft_liveSessions', []);
-    schedIds.forEach(id => {
-      const s = sessions.find(x=>x.id===id);
-      if (s) combined.push({ date: now.toISOString().slice(0,10), type:`Scheduled: ${s.title}`, duration:'—', distance:'—' });
-    });
-    // actual
-    acts.forEach(a => combined.push({ date:a.date, type:a.type, duration:a.duration, distance:a.distance||'—' }));
-    // two extra rows (your own creativity!)
-    combined.unshift(
-      { date: '🎉 Bonus: You’ve unlocked a new skill!', type:'Achievement', duration:'—', distance:'—' },
-      { date: '💡 Tip logged', type:'Read Tip of the Day', duration:'—', distance:'—' }
-    );
-    combined.slice(0,7).forEach((e,i) => {
-      if (i>=7) return;
-    });
+    // — Recent Activities (first 7 workouts only)
     recentBody.innerHTML = '';
-    combined.slice(0,7).forEach(e => {
-      recentBody.insertAdjacentHTML('beforeend', `<tr>
-        <td>${e.date}</td><td>${e.type}</td><td>${e.duration}</td><td>${e.distance}</td>
-      </tr>`);
+    acts.slice(0,7).forEach(e => {
+      recentBody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td>${e.date}</td>
+          <td>${e.type}</td>
+          <td>${e.duration}</td>
+          <td>${e.distance||'–'}</td>
+          <td>${e.calories||'–'}</td>
+          <td>${e.notes||'–'}</td>
+        </tr>`);
     });
 
     // — Top 5 Leaderboard
-    const rawLB = Storage.get('ft_leaderboard', []).map(u => {
-      return { ...u, score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2) };
-    });
+    const rawLB = Storage.get('ft_leaderboard', []).map(u => ({
+      ...u,
+      score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2)
+    }));
     const top5 = rawLB.sort((a,b)=>b.score-a.score).slice(0,5);
     miniList.innerHTML = '';
     top5.forEach(u => {
@@ -844,10 +975,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // — Achievements badges
     const total = acts.length;
     const badges = [
-      {n:1,  icon:'fas fa-star',     txt:'First Workout'},
-      {n:5,  icon:'fas fa-medal',    txt:'5 Workouts'},
-      {n:10, icon:'fas fa-trophy',   txt:'10 Workouts'},
-      {n:30, icon:'fas fa-award',    txt:'30 Workouts'}
+      {n:1,  icon:'fas fa-star',   txt:'First Workout'},
+      {n:5,  icon:'fas fa-medal',  txt:'5 Workouts'},
+      {n:10, icon:'fas fa-trophy', txt:'10 Workouts'},
+      {n:30, icon:'fas fa-award',  txt:'30 Workouts'}
     ];
     achGrid.innerHTML = '';
     badges.forEach(b => {
@@ -857,25 +988,32 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`);
     });
 
-    // —— Live Sessions (carried from workouts.html)
+    // —— Upcoming Live Sessions
     liveGrid.innerHTML = '';
+    const sessions = Storage.get('ft_liveSessions', []);
+    const schedIds  = Storage.get('ft_mySchedules', []);
     sessions.forEach(s => {
       const start    = new Date(s.date||s.start);
       const isFuture = start > new Date();
       const joined   = schedIds.includes(s.id);
-      const btnTxt   = isFuture ? (joined ? '✔ Scheduled' : '⏱ Schedule') : '🔴 LIVE';
+      const btnTxt   = isFuture
+                       ? (joined ? '✔ Scheduled' : '⏱ Schedule')
+                       : '🔴 LIVE';
       liveGrid.insertAdjacentHTML('beforeend', `
         <div class="live-card">
-          <img src="${s.img}" alt="${s.title}"/><h3>${s.title}</h3>
-          <p>${s.host} • ${start.toLocaleString()}</p>
+          <img src="${s.img}" alt="${s.title}"/>
+          <span class="session-date">${start.toLocaleString(undefined,{
+            month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'
+          })}</span>
+          <h3>${s.title}</h3>
+          <p class="host-name">${s.host}</p>
           <button data-id="${s.id}" class="live-btn">${btnTxt}</button>
-        </div>
-      `);
+        </div>`);
     });
     document.querySelectorAll('.live-btn').forEach(btn => {
       btn.onclick = e => {
         const id = +e.currentTarget.dataset.id;
-        const arr = Storage.get('ft_mySchedules', []);
+        let arr = Storage.get('ft_mySchedules', []);
         if (e.currentTarget.textContent.includes('Schedule')) {
           if (!arr.includes(id)) arr.push(id);
           alert('Session scheduled!');
@@ -904,8 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="feed-time">${minsAgo}m ago</span>
           <button class="comment-btn"><i class="fas fa-comment"></i></button>
           <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
-        </li>
-      `);
+        </li>`);
     });
     document.querySelectorAll('.like-btn').forEach(btn => {
       btn.onclick = e => {
@@ -934,19 +1071,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // —— Chatbot wiring
-  const chatBox    = document.getElementById('chatbot'),
-        chatToggle = document.getElementById('chatToggle'),
-        chatClose  = document.getElementById('chatClose'),
-        chatMsgs   = document.getElementById('chatMessages'),
-        qSelect    = document.getElementById('questionSelect'),
-        chatInput  = document.getElementById('chatInput'),
-        askBtn     = document.getElementById('askBtn');
+  const chatBox    = document.getElementById('chatbot');
+  const chatToggle = document.getElementById('chatToggle');
+  const chatClose  = document.getElementById('chatClose');
+  const chatMsgs   = document.getElementById('chatMessages');
+  const qSelect    = document.getElementById('questionSelect');
+  const chatInput  = document.getElementById('chatInput');
+  const askBtn     = document.getElementById('askBtn');
 
   const qaList = [
-    { q: "What's my monthly total?",   a: () => document.getElementById('workoutsCount').textContent + " workouts." },
-    { q: "How many km did I run?",     a: () => document.getElementById('distanceCount').textContent },
-    { q: "What's my best day?",        a: () => {
-        // recompute best day
+    { q: "What's my monthly total?",       a: () => document.getElementById('workoutsCount').textContent + " workouts." },
+    { q: "How many km did I run?",         a: () => document.getElementById('distanceCount').textContent },
+    { q: "What's my best day?",            a: () => {
         const acts = Storage.get('ft_activities', []);
         const counts = {};
         acts.forEach(a=>counts[a.date]=(counts[a.date]||0)+a.duration);
@@ -954,15 +1090,31 @@ document.addEventListener('DOMContentLoaded', () => {
         return best ? `Best: ${best[1]} min on ${best[0]}` : "No data yet";
       }
     },
-    { q: "How do I log a workout?",    a: "Click 'New Workout' at the top." },
-    { q: "How to schedule a live?",    a: "Use Upcoming Live Sessions → Schedule." },
-    { q: "How to see my top 5?",      a: "Check the Top 5 panel on Dashboard." },
-    { q: "What's today’s tip?",        a: () => document.getElementById('tip-of-day').textContent },
-    { q: "Can I post in community?",    a: "Yes—type above feed and hit Post." },
-    { q: "How to clear data?",         a: "Use 'Clear Data' in Profile page." },
-    { q: "How often does tip change?", a: "Random each load—refresh for new tip." }
-  
+    { q: "How do I log a workout?",        a: "Click 'New Workout' at the top." },
+    { q: "How to schedule a live?",        a: "Use Upcoming Live Sessions → Schedule." },
+    { q: "How to see my top 5?",           a: "Check the Top 5 panel on Dashboard." },
+    { q: "What's today’s tip?",            a: () => document.getElementById('tip-of-day').textContent },
+    { q: "Can I post in community?",        a: "Yes—type above feed and hit Post." },
+    { q: "How to clear data?",             a: "Use 'Clear Data' in Profile page." },
+    { q: "How often does tip change?",     a: "Random each load—refresh for new tip." },
+    { q: "What's my weekly goal progress?",a: () => document.getElementById('progressBar').style.width },
+    { q: "How many active days?",          a: () => document.getElementById('activeDaysCount').textContent },
+    { q: "What’s the busiest day?",        a: () => "Check your activity chart for the tallest bar." },
+    { q: "Show me top achievement",        a: () => "Your First Workout badge!" },
+    { q: "How many calories this month?",  a: () => document.getElementById('caloriesCount').textContent + " cal" },
+    { q: "How to log notes?",              a: "Type in the Notes field when adding a workout." },
+    { q: "Can I edit a session?",          a: "Not yet—coming soon!" },
+    { q: "How to view leaderboard?",       a: "Go to the Board tab in the sidebar." },
+    { q: "What’s the pie chart show?",     a: "Your workout type distribution for this month." },
+    { q: "How to contact support?",        a: "Email support@fittrack.app." },
+    { q: "What’s the footer date?",        a: () => new Date().getFullYear() },
+    { q: "What fonts are used?",           a: "Raleway for body, Poppins for headings." },
+    { q: "How do I sign out?",             a: "Click the Sign Out icon in the sidebar." },
+    { q: "Can I change my avatar?",        a: "Upload on the Profile page." },
+    { q: "Where to go next?",              a: "Try adding a new workout now!" },
+    { q: "How to toggle sidebar?",         a: "Tap the ☰ hamburger icon." }
   ];
+
   qaList.forEach((item,i) => qSelect.add(new Option(item.q, i)));
 
   chatToggle.onclick = () => {
@@ -980,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatMsgs.innerHTML += `<div class="msg user">${text}</div>`;
     let answer = "Sorry, I don't know that one.";
     const idx = qSelect.value;
-    if (idx !== "") {
+    if (idx !== '') {
       const fn = qaList[idx].a;
       answer = typeof fn === 'function' ? fn() : fn;
     }
@@ -989,6 +1141,12 @@ document.addEventListener('DOMContentLoaded', () => {
     chatInput.value = '';
     qSelect.selectedIndex = 0;
   };
+  document.getElementById('chatClose').onclick = () => {
+  chatBox.style.display = 'none';
+  chatToggle.style.display = 'flex';
+  /* reset messages if you like */
+};
+
 
   // —— Initialize
   updateDashboard();
@@ -996,6 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   Storage.onChange('ft_current', syncProfileDisplay);
 });
 </script>
+
 
   
 </body>
