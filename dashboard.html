@@ -404,15 +404,12 @@ header h1 { margin:0 auto; }
       background: #f9f9f9;
   padding: 1rem;
   border-radius: 8px;
-  margin-top: 1rem;
-    }
+  margin-top: 1rem; }
     .community h2 {
       display:flex; align-items:center; gap:.5rem;
-      font-size:1.1rem; color:var(--gold); margin-bottom:.6rem;
-    }
-    .feed-list { list-style: none; padding: 0; margin: 0;
-    }
-    +/* CARD */
+      font-size:1.1rem; color:var(--gold); margin-bottom:.6rem; }
+  
+    /* CARD */
 .feed-item {
   background: #fff;
   border-radius: 8px;
@@ -453,14 +450,7 @@ header h1 { margin:0 auto; }
   border-bottom: 1px solid #f0f0f0;
 }
    .pseudo-comment:last-child { border-bottom: none; }
-    background: #fff;
-     border-radius: 8px;
-     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-     margin-bottom: 1rem;
-     padding: 1rem;
-     transition: transform .2s;
-     overflow: hidden;
-   }
+   
     .feed-item:hover { background:rgba(255,255,255,0.2); }
    /* TIMESTAMP */
 
@@ -1239,7 +1229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
    // ▼ Toggle comments accordion
-    if (e.target.closest('.toggle-comments')) {
+    if (e.target.matches('.toggle-comments')) {
       const container = item.querySelector('.comments-container');
       const btn       = item.querySelector('.toggle-comments');
       container.classList.toggle('open');
