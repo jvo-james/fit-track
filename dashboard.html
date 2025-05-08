@@ -749,7 +749,22 @@ header h1 { margin:0 auto; }
 <script type="module">
 import { Storage } from './storage.js';
 document.addEventListener('DOMContentLoaded', () => {
-
+//━━ 0) Seed feed & comments exactly once ━━
+  if (!Storage.get('ft_feed')) {
+    const texts = [
+      "Alice smashed a 5 km run!",
+      "Bob just completed 3 HIIT sessions!",
+      "Cara hit her 10th workout milestone!",
+      "Dan improved his plank time!",
+      "Eve joined the 7-Day Abs challenge!"
+    ];
+    const demo = texts.map(t => ({
+      text: t,
+      timestamp: Date.now() - Math.floor(Math.random()*60)*60000
+    }));
+    Storage.set('ft_feed', demo);
+    Storage.set('ft_comments', demo.map(() => []));
+  }
   // —— Redirect if not logged in
   const cur = Storage.get('ft_current', null);
   if (!cur || !cur.name) return location.replace('home.html');
@@ -1077,42 +1092,58 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDashboard();
   });
 
- // —— 0) Seed 5 demo community posts only once
- if (!Storage.get('ft_feed')) {
-   const demo = [
-     "Alice smashed a 5 km run!",
-     "Bob just completed 3 HIIT sessions!",
-     "Cara hit her 10th workout milestone!",
-     "Dan improved his plank time!",
-     "Eve joined the 7-Day Abs challenge!"
-   ].map(text => ({
-     text,
-     timestamp: Date.now() - Math.floor(Math.random()*60)*60000
-   }));
-   Storage.set('ft_feed', demo);
-   // seed empty comments arrays
-   Storage.set('ft_comments', demo.map(() => []));
- }
+
 
 
     // —— Community feed: render current array
    const feed = Storage.get('ft_feed', []);
- communityFeed.innerHTML = '';
- feed.forEach((item, i) => {
-   const minsAgo = Math.floor((Date.now() - item.timestamp) / 60000);
-   communityFeed.insertAdjacentHTML('beforeend', `
-     <li class="feed-item">
-       ${item.text}
-        <span class="feed-time">${minsAgo}m ago</span>
-        <button class="comment-btn"><i class="fas fa-comment"></i></button>
-        <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
-     </li>`);
-   // render stored comments
-   (Storage.get('ft_comments')[i]||[]).forEach(c => {
-      communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
-        <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
+   const comments = Storage.get('ft_comments', []);
+   communityFeed.innerHTML = '';
+   feed.forEach((post, idx) => {
+     const minsAgo = Math.floor((Date.now() - post.timestamp) / 60000);
+     // render post
+     communityFeed.insertAdjacentHTML('beforeend', `
+       <li class="feed-item" data-index="${idx}">
+         <div>${post.text}</div>
+         <div>
+            <span class="feed-time">${minsAgo}m ago</span>
+          <button class="comment-btn"><i class="fas fa-comment"></i></button>
+          <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
+         </div>
+       </li>`);
+     // render its comments
+     comments[idx].forEach(c => {
+       communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
+         <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
+     });
    });
-});
+      // —— Delegated handlers for 👍 & 💬
+  communityFeed.addEventListener('click', e => {
+    const item = e.target.closest('.feed-item');
+    if (!item) return;
+    const idx = parseInt(item.dataset.index, 10);
+
+    // Like button
+    if (e.target.closest('.like-btn')) {
+      const span = item.querySelector('.like-count');
+      span.textContent = parseInt(span.textContent) + 1;
+      return;
+    }
+
+    // Comment button
+    if (e.target.closest('.comment-btn')) {
+      const reply = prompt('Add a comment:');
+      if (!reply) return;
+      // persist
+      const allC = Storage.get('ft_comments');
+      allC[idx].push(reply);
+      Storage.set('ft_comments', allC);
+      // render under this post
+      item.insertAdjacentHTML('beforeend', `
+        <div class="pseudo-comment"><small>— You: ${reply}</small></div>`);
+    }
+  });
+
     document.querySelectorAll('.like-btn').forEach(btn => {
       btn.onclick = e => {
         const span = e.currentTarget.querySelector('.like-count');
