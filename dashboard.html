@@ -801,6 +801,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => pseudoToast.classList.add('active'), 5000);
     cur.isNew = false;
     Storage.set('ft_current', cur);
+     // → announce new user in feed
+   const joinFeed = Storage.get('ft_feed', []);
+   joinFeed.unshift({
+     text: `${cur.name} joined the community!`,
+     timestamp: Date.now()
+   });
+   Storage.set('ft_feed', joinFeed);
   } else {
     greetingEl.textContent = `Welcome back, ${cur.name}!`;
   }
@@ -932,14 +939,19 @@ document.addEventListener('DOMContentLoaded', () => {
     activityChart.data.datasets[0].data  = data7;
     activityChart.update();
 
-    // — Distribution pie
-   distributionChart.data.datasets[0].data = [
-      monthActs.filter(a=>a.type==='Cardio').length,
-      monthActs.filter(a=>a.type==='Strength').length,
-      monthActs.filter(a=>a.type==='Flexibility').length,
-      monthActs.filter(a=>a.type==='Other').length
-    ];
-     distributionChart.update(); 
+  // — Distribution pie (dynamic)
+  // 1) Count each workout type in this month
+  const countsByType = monthActs.reduce((acc, a) => {
+    acc[a.type] = (acc[a.type] || 0) + 1;
+    return acc;
+  }, {});
+  // 2) Build labels & data arrays
+  const types  = Object.keys(countsByType);
+  const counts = types.map(t => countsByType[t]);
+  // 3) Feed into Chart.js
+  distributionChart.data.labels           = types;
+  distributionChart.data.datasets[0].data = counts;
+  distributionChart.update();
 
    // — Summary stats for Recent Activities (min avg / km / cal)
   const recent = acts.slice(0,7);
@@ -976,12 +988,12 @@ document.addEventListener('DOMContentLoaded', () => {
       miniList.insertAdjacentHTML('beforeend', `
         <li style="display:flex;align-items:center;gap:.5rem;">
          <img src="${
-       // if this leaderboard entry is the current user, use their profile avatar
-       (u.id === Storage.get('ft_current', {}).id)
-         ? Storage.get('ft_current').avatarDataUrl
-         // otherwise, use each user’s own avatarDataUrl or fallback pravatar
-         : (u.avatarDataUrl || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`)
-     }" class="avatar" style="width:24px;height:24px;border-radius:50%;"
+        // if this entry is *you*, show your profile-avatar
+        (u.id === Storage.get('ft_current', {}).id)
+          ? Storage.get('ft_current').avatarDataUrl
+          // otherwise: each user’s own or pravatar fallback
+          : (u.avatarDataUrl || `https://i.pravatar.cc/40?u=${encodeURIComponent(u.email||u.name)}`)
+      }" class="avatar" style="width:24px;height:24px;border-radius:50%;"
           />
           <span>${u.name}</span>
           <strong style="margin-left:auto;">${u.score}</strong>
@@ -1056,21 +1068,22 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDashboard();
   });
 
-    // —— Community feed
-    const feed = Storage.get('ft_feed', [
-      "Alice smashed a 5 km run!",
-      "Bob just completed 3 HIIT sessions!",
-      "Cara hit her 10th workout milestone!",
-      "Dan improved his plank time!",
-      "Eve joined the 7-Day Abs challenge!"
-    ]);
+   // —— Community feed (with real timestamps)
+  const feed = Storage.get('ft_feed', [
+    { text: "Alice smashed a 5 km run!",                timestamp: Date.now() - 1000*60*10 },
+    { text: "Bob just completed 3 HIIT sessions!",      timestamp: Date.now() - 1000*60*25 },
+    { text: "Cara hit her 10th workout milestone!",     timestamp: Date.now() - 1000*60*40 },
+    { text: "Dan improved his plank time!",             timestamp: Date.now() - 1000*60*55 },
+    { text: "Eve joined the 7-Day Abs challenge!",      timestamp: Date.now() - 1000*60*75 }
+  ]);
     communityFeed.innerHTML = '';
-    feed.forEach(text => {
-      const minsAgo = Math.floor(Math.random()*59)+1;
-      communityFeed.insertAdjacentHTML('beforeend', `
-        <li class="feed-item animate__animated animate__fadeInUp">
-          ${text}
-          <span class="feed-time">${minsAgo}m ago</span>
+     feed.forEach(item => {
+    // compute minutes since item.timestamp
+    const minsAgo = Math.floor((Date.now() - item.timestamp) / 60000);
+    communityFeed.insertAdjacentHTML('beforeend', `
+      <li class="feed-item animate__animated animate__fadeInUp">
+        ${item.text}
+        <span class="feed-time">${minsAgo}m ago</span>
           <button class="comment-btn"><i class="fas fa-comment"></i></button>
           <button class="like-btn"><i class="fas fa-heart"></i> <span class="like-count">0</span></button>
         </li>`);
@@ -1081,14 +1094,18 @@ document.addEventListener('DOMContentLoaded', () => {
         span.textContent = +span.textContent + 1;
       };
     });
-    postBtn.onclick = () => {
-      const txt = postInput.value.trim();
-      if (!txt) return;
-      feed.unshift(txt);
-      Storage.set('ft_feed', feed);
-      postInput.value = '';
-      updateDashboard();
-    };
+   postBtn.onclick = () => {
+    const txt = postInput.value.trim();
+    if (!txt) return;
+    // prepend with timestamp
+    feed.unshift({
+      text: txt,
+      timestamp: Date.now()
+    });
+    Storage.set('ft_feed', feed);
+    postInput.value = '';
+    updateDashboard();
+  };
 
     // —— Tip of the day
     const tips = [
