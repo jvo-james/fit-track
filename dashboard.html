@@ -1068,17 +1068,27 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDashboard();
   });
 
-   // —— Community feed (with real timestamps)
- const feed = Storage.get('ft_feed', [
-   "Alice smashed a 5 km run!",
-   "Bob just completed 3 HIIT sessions!",
-   "Cara hit her 10th workout milestone!",
-   "Dan improved his plank time!",
-   "Eve joined the 7-Day Abs challenge!"
- ]);
-    communityFeed.innerHTML = '';
-     feed.forEach(item => {
-    // compute minutes since item.timestamp
+  // ── 0) Seed demo feed **once** on first load ──
+  let initialFeed = Storage.get('ft_feed', null);
+  if (!initialFeed) {
+    const demoTexts = [
+      "Alice smashed a 5 km run!",
+      "Bob just completed 3 HIIT sessions!",
+      "Cara hit her 10th workout milestone!",
+      "Dan improved his plank time!",
+      "Eve joined the 7-Day Abs challenge!"
+    ];
+    initialFeed = demoTexts.map(text => ({
+      text,
+      timestamp: Date.now() - Math.floor(Math.random() * 60) * 60000
+    }));
+    Storage.set('ft_feed', initialFeed);
+  }
+
+    // —— Community feed: render current array
+   const feed = Storage.get('ft_feed', []);
+   communityFeed.innerHTML = '';
+   feed.forEach(item => {
     const minsAgo = Math.floor((Date.now() - item.timestamp) / 60000);
     communityFeed.insertAdjacentHTML('beforeend', `
       <li class="feed-item animate__animated animate__fadeInUp">
@@ -1094,18 +1104,18 @@ document.addEventListener('DOMContentLoaded', () => {
         span.textContent = +span.textContent + 1;
       };
     });
-   postBtn.onclick = () => {
-    const txt = postInput.value.trim();
-    if (!txt) return;
-    // prepend with timestamp
-    feed.unshift({
-      text: txt,
-      timestamp: Date.now()
-    });
-    Storage.set('ft_feed', feed);
-    postInput.value = '';
-    updateDashboard();
-  };
+ postBtn.onclick = () => {
+     const txt = postInput.value.trim();
+     if (!txt) return;
+     const feed = Storage.get('ft_feed', []);
+     feed.unshift({
+       text: txt,
+       timestamp: Date.now()
+     });
+     Storage.set('ft_feed', feed);
+     postInput.value = '';
+     updateDashboard();
+   };
 
     // —— Tip of the day
     const tips = [
