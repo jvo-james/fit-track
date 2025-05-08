@@ -259,29 +259,25 @@
   <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
 
 
-   <!-- storage.js helper (plain script, defines global Storage) -->
-  <script src="storage.js"></script>
+  <script type="module">
+    import { Storage } from './storage.js';
 
-  <!-- community page logic -->
-  <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // ── 1) Redirect if not logged in ──
+      // 1) Redirect if not logged in
       const cur = Storage.get('ft_current', null);
-      if (!cur || !cur.name) {
-        return location.replace('home.html');
-      }
+      if (!cur || !cur.name) return location.replace('home.html');
 
-      // ── Sidebar toggle (mobile) ──
+      // Sidebar toggle
       window.toggleSidebar = () => {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('overlay').classList.toggle('active');
       };
 
-      // ── Element refs ──
-      const feedEl    = document.getElementById('communityFeed');
-      const input     = document.getElementById('newFeedInput');
-      const postBtn   = document.getElementById('postFeedBtn');
-      const me        = cur.name;
+      const feedEl   = document.getElementById('communityFeed');
+      const input    = document.getElementById('newFeedInput');
+      const postBtn  = document.getElementById('postFeedBtn');
+      const me       = cur.name;
+
 
       // ── Seed demo feed exactly once ──
       if (!Storage.get('ft_feed')) {
