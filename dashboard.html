@@ -11,9 +11,7 @@
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="storage.js"></script>
-
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg: #000;
@@ -731,21 +729,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const cur = Storage.get('ft_current', null);
   if (!cur || !cur.name) return location.replace('home.html');
 
-  // —— Grab DOM elements
-  const notifBar       = document.getElementById('notif-bar');
-  const notifClose     = document.getElementById('notif-close');
-  const pseudoToast    = document.getElementById('pseudo-toast');
-  const hamburger      = document.getElementById('hamburger');
-  const sidebar        = document.getElementById('sidebar');
-  const overlay        = document.getElementById('overlay');
-  const sidebarClose   = document.getElementById('sidebar-close');
-  const profileBtn     = document.getElementById('profile-btn');
-  const profileMenu    = document.querySelector('.profile-menu');
-  const newWorkoutBtn  = document.querySelector('.new-workout');
-  const workoutModal   = document.getElementById('workout-modal');
-  const wCancel        = document.getElementById('w-cancel');
-  const wSave          = document.getElementById('w-save');
-  const greetingEl     = document.getElementById('greeting');
+  // —— Grab DOM elements (IDs must match exactly!)
+  const notifBar    = document.getElementById('notif-bar');
+  const notifClose  = document.getElementById('notif-close');
+  const pseudoToast = document.getElementById('pseudo-toast');
+  const hamburger   = document.getElementById('hamburger');
+  const sidebar     = document.getElementById('sidebar');
+  const overlay     = document.getElementById('overlay');
+  const sidebarClose= document.getElementById('sidebar-close');
+  const profileBtn  = document.getElementById('profile-btn');
+  const profileMenu = document.querySelector('.profile-menu');
+  const newWorkout  = document.querySelector('.new-workout');
+  const workoutModal= document.getElementById('workout-modal');
+  const wCancel     = document.getElementById('w-cancel');
+  const wSave       = document.getElementById('w-save');
+  const greetingEl  = document.getElementById('greeting');
   const activityCtx    = document.getElementById('activityChart').getContext('2d');
   const distributionCtx= document.getElementById('distributionChart').getContext('2d');
   const recentBody     = document.getElementById('recent-acts');
