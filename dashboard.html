@@ -11,7 +11,9 @@
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="storage.js"></script>
+
   <style>
     :root {
       --bg: #000;
@@ -200,7 +202,7 @@
 }
 
 header h1 { margin:0 auto; }
-    
+    }
     header h1 {
       font-size:1.6rem; flex:1; text-align:center;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -637,7 +639,7 @@ header h1 { margin:0 auto; }
       <section class="quick-log">
         <h2><i class="fas fa-history"></i> Recent Activities</h2>
         <table><thead><tr><th>Date</th><th>Type</th><th>Duration</th><th>Km</th><th>Calories</th>      
-        <th>Notes</th></tr></thead><tbody id="recent-acts"></tbody></table>
++        <th>Notes</th></tr></thead><tbody id="recent-acts"></tbody></table>
         <div class="fast-stats">
           <div><strong id="avg-dur">0</strong> min avg</div>
           <div><strong id="tot-dist">0</strong> km</div>
@@ -718,7 +720,7 @@ header h1 { margin:0 auto; }
     <select id="questionSelect"><option disabled selected>Pick a question…</option></select>
     <input type="text" id="chatInput" placeholder="Or type your own…"/>
     <button type="button" id="askBtn"><i class="fas fa-paper-plane"></i></button>
-</div></div>
+</div>
 <button id="chatToggle"><i class="fas fa-comments"></i></button>
 
 <script type="module">
@@ -729,21 +731,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const cur = Storage.get('ft_current', null);
   if (!cur || !cur.name) return location.replace('home.html');
 
-  // —— Grab DOM elements (IDs must match exactly!)
-  const notifBar    = document.getElementById('notif-bar');
-  const notifClose  = document.getElementById('notif-close');
-  const pseudoToast = document.getElementById('pseudo-toast');
-  const hamburger   = document.getElementById('hamburger');
-  const sidebar     = document.getElementById('sidebar');
-  const overlay     = document.getElementById('overlay');
-  const sidebarClose= document.getElementById('sidebar-close');
-  const profileBtn  = document.getElementById('profile-btn');
-  const profileMenu = document.querySelector('.profile-menu');
-  const newWorkout  = document.querySelector('.new-workout');
-  const workoutModal= document.getElementById('workout-modal');
-  const wCancel     = document.getElementById('w-cancel');
-  const wSave       = document.getElementById('w-save');
-  const greetingEl  = document.getElementById('greeting');
+  // —— Grab DOM elements
+  const notifBar       = document.getElementById('notif-bar');
+  const notifClose     = document.getElementById('notif-close');
+  const pseudoToast    = document.getElementById('pseudo-toast');
+  const hamburger      = document.getElementById('hamburger');
+  const sidebar        = document.getElementById('sidebar');
+  const overlay        = document.getElementById('overlay');
+  const sidebarClose   = document.getElementById('sidebar-close');
+  const profileBtn     = document.getElementById('profile-btn');
+  const profileMenu    = document.querySelector('.profile-menu');
+  const newWorkoutBtn  = document.querySelector('.new-workout');
+  const workoutModal   = document.getElementById('workout-modal');
+  const wCancel        = document.getElementById('w-cancel');
+  const wSave          = document.getElementById('w-save');
+  const greetingEl     = document.getElementById('greeting');
   const activityCtx    = document.getElementById('activityChart').getContext('2d');
   const distributionCtx= document.getElementById('distributionChart').getContext('2d');
   const recentBody     = document.getElementById('recent-acts');
