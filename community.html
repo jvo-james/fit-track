@@ -186,17 +186,15 @@
     }
     .comment-content .author { color:var(--gold); font-weight:600; margin-bottom:.2rem; }
     .comment-content .text  { line-height:1.3; }
-    /* Chatbot starts hidden */
-.chatbot { display: none !important; }
 
-/* when active we’ll flip it inline via JS */
-.chatbot.active { display: flex !important; }
-
+    /* Chatbot */
+    .chatbot { display: none !important; }
+    .chatbot.active { display: flex !important; }
   </style>
 </head>
 
 <body>
-  <!-- Profile-completion banner -->
+  <!-- Profile‐completion banner -->
   <div id="completeProfileBanner">
     👋 Don’t forget to <a href="profile.html">complete your profile</a>!
   </div>
@@ -236,29 +234,26 @@
         <input id="newFeedInput" placeholder="Share something…"/>
         <button id="postFeedBtn"><i class="fas fa-paper-plane"></i> Post</button>
       </div>
-
       <!-- Feed list -->
       <ul class="feed-list" id="communityFeed"></ul>
     </div>
-      <!-- Chatbot for Community -->
-  <div id="lb-chatbot" class="chatbot">
-    <header><i class="fas fa-comments"></i> Community Bot
-      <button id="lb-chat-close">&times;</button>
-    </header>
-    <div class="messages" id="lb-chat-messages">
-      <div class="msg bot">Hi! Ask me about the feed…</div>
+
+    <!-- Chatbot for Community -->
+    <div id="lb-chatbot" class="chatbot">
+      <header><i class="fas fa-comments"></i> Community Bot
+        <button id="lb-chat-close">&times;</button>
+      </header>
+      <div class="messages" id="lb-chat-messages">
+        <div class="msg bot">Hi! Ask me about the feed…</div>
+      </div>
+      <div class="input">
+        <input list="lb-questions" id="lb-chat-input" placeholder="Your question…"/>
+        <datalist id="lb-questions"></datalist>
+        <button id="lb-ask-btn"><i class="fas fa-paper-plane"></i></button>
+      </div>
     </div>
-    <div class="input">
-      <input list="lb-questions" id="lb-chat-input" placeholder="Your question…"/>
-      <datalist id="lb-questions"></datalist>
-      <button id="lb-ask-btn"><i class="fas fa-paper-plane"></i></button>
-    </div>
+    <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
   </div>
-  <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
-  </div>
-
-
-
 
   <script type="module">
     import { Storage } from './storage.js';
@@ -266,29 +261,27 @@
     document.addEventListener('DOMContentLoaded', () => {
       // 1) Redirect if not logged in
       const cur = Storage.get('ft_current', null);
-      if (!cur || !cur.name) return location.replace('home.html');
+      // comment out redirect while developing:
+      // if (!cur || !cur.name) return location.replace('home.html');
 
-    
-// ── Avatar sync ──
-function updateAvatars() {
-  const p = Storage.get('ft_current', {}) || {};
-  // profile.html should be storing avatarDataUrl on ft_current
-  const url = p.avatarDataUrl
-    || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
-  ['side-avatar','hdrAvatarIcon'].forEach(id => {
-    const old = document.getElementById(id);
-    if (!old) return;
-    // create a new <img> to replace the <i> icon
-    const img = document.createElement('img');
-    img.id        = id;
-    img.className = 'avatar';
-    img.src       = url;
-    img.alt       = 'Avatar';
-    old.replaceWith(img);
-  });
-}
-updateAvatars();
-Storage.onChange('ft_current', updateAvatars);
+      // Avatar sync
+      function updateAvatars() {
+        const p = Storage.get('ft_current', {}) || {};
+        const url = p.avatarDataUrl
+          || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
+        ['side-avatar','hdrAvatarIcon'].forEach(id => {
+          const old = document.getElementById(id);
+          if (!old) return;
+          const img = document.createElement('img');
+          img.id        = id;
+          img.className = 'avatar';
+          img.src       = url;
+          img.alt       = 'Avatar';
+          old.replaceWith(img);
+        });
+      }
+      updateAvatars();
+      Storage.onChange('ft_current', updateAvatars);
 
       // Sidebar toggle
       window.toggleSidebar = () => {
@@ -299,10 +292,9 @@ Storage.onChange('ft_current', updateAvatars);
       const feedEl   = document.getElementById('communityFeed');
       const input    = document.getElementById('newFeedInput');
       const postBtn  = document.getElementById('postFeedBtn');
-      const me       = cur.name;
+      const me       = (cur && cur.name) || 'You';
 
-
-      // ── Seed demo feed exactly once ──
+        // ── Seed demo feed exactly once ──
       if (!Storage.get('ft_feed')) {
         const users   = ['Alice','Bob','Cara','Dan','Eve','Finn','Gina','Hank','Ivy','Jack','Kara','Liam','Mia','Noah','Olive'];
         const texts   = [
@@ -469,10 +461,9 @@ Storage.onChange('ft_current', updateAvatars);
       // ── Watch storage for external changes ──
       Storage.onChange(['ft_feed','ft_comments'], render);
 
-      // ── Initial paint ──
+      // Initial paint
       render();
     });
   </script>
-
 </body>
 </html>
