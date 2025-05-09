@@ -18,38 +18,46 @@
       --gold: #ff9800;
       --font-base: 'Raleway', sans-serif;
       --font-head: 'Poppins', sans-serif;
+      --sidebar-w: 80px;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body { display:flex; min-height:100vh; background:var(--bg); color:var(--fg); font-family:var(--font-base); }
-    a { color:inherit; text-decoration:none; }
+
+    /* Overlay for mobile sidebar */
+    #overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      opacity:0; visibility:hidden; transition:opacity .3s;
+      z-index:90;
+    }
+    #overlay.active { opacity:1; visibility:visible; }
 
     /* Sidebar */
     .sidebar {
-      width:80px; background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center; padding:1rem 0;
-      position:sticky; top:0; height:100vh;
-      transition:transform .3s ease;
-      z-index:100;
+      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding:1rem 0; position:sticky; top:0; height:100vh;
+      transition:transform .3s ease; z-index:1000;
+    }
+    .sidebar.open { transform:translateX(0); }
+    @media(max-width:800px){
+      .sidebar { position:fixed; left:-100%; transform:translateX(-100%); }
     }
     .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar button, .sidebar a {
       background:none; border:none; color:var(--fg);
       display:flex; flex-direction:column; align-items:center; gap:.25rem;
-      margin-bottom:1.5rem; font-family:var(--font-head); font-size:.75rem; cursor:pointer;
+      margin-bottom:1.5rem; cursor:pointer; text-decoration:none;
+      font-family:var(--font-head); font-size:.75rem;
     }
-    .sidebar i.avatar { font-size:2rem; }
+    .sidebar i.avatar { font-size:2.2rem; }
     .sidebar button:hover, .sidebar a:hover { background:var(--accent); border-radius:8px; }
-
-    @media(max-width:800px){
-      .sidebar { position:fixed; transform:translateX(-100%); }
-      .sidebar.open { transform:translateX(0); }
-    }
 
     /* Main & header */
     .main { flex:1; display:flex; flex-direction:column; }
     header {
       background:rgba(0,0,0,0.9); padding:1rem; display:flex; align-items:center; justify-content:space-between;
-      border-bottom:2px solid var(--gold); position:sticky; top:0; z-index:90;
+      border-bottom:2px solid var(--gold); position:sticky; top:0; z-index:900;
     }
     .hamburger { display:none; background:none; border:none; color:var(--fg); font-size:1.5rem; }
     @media(max-width:800px){ .hamburger { display:block; } }
@@ -57,7 +65,7 @@
     .header-controls { display:flex; align-items:center; gap:1rem; }
     .header-controls button { background:none; border:none; color:var(--fg); font-size:1.3rem; cursor:pointer; }
 
-    /* Form container */
+    /* Profile panel */
     .container { flex:1; overflow-y:auto; padding:1rem; }
     .profile-panel { max-width:900px; margin:0 auto; }
 
@@ -68,7 +76,6 @@
     }
     @media(max-width:600px){ #profileForm { grid-template-columns:1fr; } }
 
-    /* Avatar section */
     .avatar-section {
       display:flex; flex-direction:column; align-items:center; gap:1rem;
     }
@@ -84,7 +91,6 @@
     }
     input[type=file] { display:none; }
 
-    /* Fields */
     .fields { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
     @media(max-width:600px){ .fields { grid-template-columns:1fr; } }
     .field { display:flex; flex-direction:column; }
@@ -93,26 +99,28 @@
     }
     .field input, .field select, .field textarea {
       background:var(--input-bg); border:none; border-radius:6px;
-      padding:.6rem; color:var(--fg); font-size:1rem;
+      padding:.6rem; color:var(--fg);
     }
     .field textarea { min-height:80px; resize:vertical; }
 
-    /* Completion bar */
-    .completion { grid-column:1/-1; margin-top:1rem; }
+    .completion {
+      grid-column:1/-1; margin-top:1rem;
+    }
     .completion-bar {
       background:rgba(255,255,255,0.2); border-radius:6px; height:10px; overflow:hidden;
     }
     #completionFill { width:0; height:100%; background:var(--gold); transition:width .5s; }
 
-    /* Actions */
-    .actions { grid-column:1/-1; display:flex; justify-content:flex-end; margin-top:1rem; }
+    .actions {
+      grid-column:1/-1; display:flex; justify-content:flex-end; margin-top:1rem;
+    }
     .actions button {
       background:var(--gold); border:none; border-radius:30px;
       padding:.6rem 1.2rem; cursor:pointer; color:var(--bg);
       font-family:var(--font-head); font-weight:600;
     }
 
-    /* Extras */
+    /* Interactive extras */
     .extras { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.5rem; }
     @media(max-width:600px){ .extras { grid-template-columns:1fr; } }
     .card {
@@ -120,7 +128,7 @@
     }
     .card h3 { font-family:var(--font-head); color:var(--gold); margin-bottom:.5rem; }
     .badges { display:flex; flex-wrap:wrap; gap:.5rem; }
-    .badges .badge {
+    .badge {
       background:var(--gold); color:var(--bg);
       padding:.3rem .6rem; border-radius:12px; font-size:.75rem;
     }
@@ -128,16 +136,20 @@
     .activity-list li { display:flex; justify-content:space-between; margin-bottom:.4rem; }
 
     /* Summary */
-    #profileSummary { background:var(--accent); border-radius:8px; padding:1rem; margin-top:1.5rem; }
+    #profileSummary {
+      background:var(--accent); border-radius:8px; padding:1rem; margin-top:1.5rem;
+    }
     #profileSummary h2 { font-family:var(--font-head); color:var(--gold); margin-bottom:.5rem; }
     #profileSummary ul { list-style:none; }
     #profileSummary li { margin-bottom:.4rem; }
 
   </style>
 </head>
+
 <body>
 
-  <div id="overlay"></div>
+  <div id="overlay" onclick="toggleSidebar()"></div>
+
   <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
@@ -168,21 +180,21 @@
               <button type="button" id="changeAvatarBtn">Change</button>
               <button type="button" id="removeAvatarBtn">Remove</button>
             </div>
-            <input type="file" id="avatarInput" accept="image/*"/>
+            <input type="file" id="avatarInput" accept="image/*">
           </div>
 
           <!-- Fields -->
           <div class="fields">
-            <div class="field"><label for="fullName">Full Name *</label><input id="fullName" type="text" required/></div>
-            <div class="field"><label for="email">Email</label><input id="email" type="email" disabled/></div>
+            <div class="field"><label for="fullName">Full Name *</label><input id="fullName" type="text" required></div>
+            <div class="field"><label for="email">Email</label><input id="email" type="email" disabled></div>
             <div class="field"><label for="bio">Bio</label><textarea id="bio"></textarea></div>
-            <div class="field"><label for="location">Location</label><input id="location" type="text"/></div>
-            <div class="field"><label for="age">Age</label><input id="age" type="number" min="0"/></div>
+            <div class="field"><label for="location">Location</label><input id="location" type="text"></div>
+            <div class="field"><label for="age">Age</label><input id="age" type="number" min="0"></div>
             <div class="field"><label for="gender">Gender</label>
               <select id="gender"><option value="">Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option></select>
             </div>
-            <div class="field"><label for="height">Height (cm)</label><input id="height" type="number" min="0"/></div>
-            <div class="field"><label for="weight">Weight (kg)</label><input id="weight" type="number" min="0"/></div>
+            <div class="field"><label for="height">Height (cm)</label><input id="height" type="number" min="0"></div>
+            <div class="field"><label for="weight">Weight (kg)</label><input id="weight" type="number" min="0"></div>
             <div class="field"><label for="favorite">Favorite Workout</label>
               <select id="favorite"><option>Running</option><option>Cycling</option><option>Swimming</option><option>HIIT</option><option>Yoga</option></select>
             </div>
@@ -204,12 +216,13 @@
         <!-- Extras -->
         <div class="extras">
           <div class="card">
-            <h3>Your Badges</h3>
+            <h3>Achievements</h3>
             <div class="badges" id="badgeContainer"></div>
           </div>
           <div class="card">
-            <h3>Recent Activity</h3>
-            <ul class="activity-list" id="activityList"></ul>
+            <h3>Quick Settings</h3>
+            <p><button style="background:var(--gold);border:none;padding:.4rem .8rem;border-radius:6px;cursor:pointer;color:var(--bg);">Change Password</button></p>
+            <p><button style="background:var(--gold);border:none;padding:.4rem .8rem;border-radius:6px;cursor:pointer;color:var(--bg);">Privacy</button></p>
           </div>
         </div>
 
@@ -234,29 +247,44 @@
     </div>
   </div>
 
-  <!-- storage.js -->
+  <!-- storage.js helper -->
   <script type="module" src="storage.js"></script>
   <script type="module">
     import { Storage } from './storage.js';
-    document.addEventListener('DOMContentLoaded', ()=>{
-      const avatarInput    = document.getElementById('avatarInput');
-      const avatarPreview  = document.getElementById('avatarPreview');
-      const changeBtn      = document.getElementById('changeAvatarBtn');
-      const removeBtn      = document.getElementById('removeAvatarBtn');
-      const saveBtn        = document.getElementById('saveBtn');
-      const logoutBtn      = document.getElementById('logoutBtn');
-      const completionFill = document.getElementById('completionFill');
-      const badgeContainer = document.getElementById('badgeContainer');
-      const activityList   = document.getElementById('activityList');
-      const fields         = ['fullName','bio','location','age','gender','height','weight','favorite','goals'];
-      const summaryIds     = ['sumName','sumEmail','sumBio','sumLocation','sumAgeGender','sumHW','sumFavorite','sumGoals','sumWorkouts','sumDistance','sumCalories'];
 
-      // toggle sidebar
-      window.toggleSidebar = ()=>{
-        document.getElementById('sidebar').classList.toggle('open');
-        document.getElementById('overlay').classList.toggle('active');
+    document.addEventListener('DOMContentLoaded', () => {
+      const avatarInput   = document.getElementById('avatarInput');
+      const avatarPreview = document.getElementById('avatarPreview');
+      const changeBtn     = document.getElementById('changeAvatarBtn');
+      const removeBtn     = document.getElementById('removeAvatarBtn');
+      const saveBtn       = document.getElementById('saveBtn');
+      const logoutBtn     = document.getElementById('logoutBtn');
+      const completionFill= document.getElementById('completionFill');
+      const badgeContainer= document.getElementById('badgeContainer');
+      const fields        = ['fullName','bio','location','age','gender','height','weight','favorite','goals'];
+      const summaryMap    = {
+        sumName:    u=>u.name||'—',
+        sumEmail:   u=>u.email||'—',
+        sumBio:     u=>u.bio||'—',
+        sumLocation:u=>u.location||'—',
+        sumAgeGender: u=>`${u.age||'—'}/${u.gender||'—'}`,
+        sumHW:      u=>`${u.height||'—'} cm/${u.weight||'—'} kg`,
+        sumFavorite:u=>u.favorite||'—',
+        sumGoals:   u=>u.goals||'—',
+        sumWorkouts:u=>Storage.get('ft_activities',[]).length,
+        sumDistance: u=>Storage.get('ft_activities',[]).reduce((a,x)=>a+(+x.distance||0),0).toFixed(1)+' km',
+        sumCalories: u=>Storage.get('ft_activities',[]).reduce((a,x)=>a+(+x.calories||0),0)
       };
 
+      // Sidebar toggle
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+      window.toggleSidebar = () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+      };
+
+      // Avatar sync
       function updateAvatars(){
         const cur = Storage.get('ft_current',{})||{};
         const url = cur.avatarDataUrl||'';
@@ -275,13 +303,14 @@
         });
       }
 
+      // Populate form
       function populate(){
         const cur = Storage.get('ft_current',{})||{};
-        fields.forEach(f=>{
-          const el=document.getElementById(f);
+        fields.forEach(f=> {
+          const el = document.getElementById(f);
           if(el) el.value=cur[f]||'';
         });
-        // preview
+        // avatar preview
         if(cur.avatarDataUrl){
           avatarPreview.style.backgroundImage=`url(${cur.avatarDataUrl})`;
           avatarPreview.innerHTML='';
@@ -289,71 +318,51 @@
           avatarPreview.style.backgroundImage='';
           avatarPreview.innerHTML='<i class="fas fa-user-circle"></i>';
         }
-        updateCompletion();
-        updateSummary();
-        renderBadges();
-        renderActivities();
+        updateCompletion(); updateSummary(); renderBadges();
       }
 
+      // Completion bar
       function updateCompletion(){
         const cur=Storage.get('ft_current',{})||{};
         let filled=0;
-        [...fields,'avatarDataUrl'].forEach(k=>{if(cur[k])filled++;});
-        completionFill.style.width=Math.round(filled/(fields.length+1)*100)+'%';
+        [...fields,'avatarDataUrl'].forEach(k=>{ if(cur[k]) filled++ });
+        completionFill.style.width = Math.round(filled/(fields.length+1)*100) + '%';
       }
 
+      // Summary
       function updateSummary(){
         const cur=Storage.get('ft_current',{})||{};
-        summaryIds.forEach((id,i)=>{
-          let txt='—';
-          switch(id){
-            case 'sumName': txt=cur.name||'—'; break;
-            case 'sumEmail': txt=cur.email||'—'; break;
-            case 'sumBio': txt=cur.bio||'—'; break;
-            case 'sumLocation': txt=cur.location||'—'; break;
-            case 'sumAgeGender': txt=(cur.age||'—')+' / '+(cur.gender||'—'); break;
-            case 'sumHW': txt=(cur.height||'—')+' cm / '+(cur.weight||'—')+' kg'; break;
-            case 'sumWorkouts': txt=Storage.get('ft_activities',[]).length; break;
-            case 'sumDistance': txt=Storage.get('ft_activities',[]).reduce((a,x)=>a+(+x.distance||0),0).toFixed(1)+' km'; break;
-            case 'sumCalories': txt=Storage.get('ft_activities',[]).reduce((a,x)=>a+(+x.calories||0),0); break;
-            case 'sumFavorite': txt=cur.favorite||'—'; break;
-            case 'sumGoals': txt=cur.goals||'—'; break;
-          }
-          document.getElementById(id).textContent=txt;
+        Object.entries(summaryMap).forEach(([id,fn])=>{
+          document.getElementById(id).textContent = fn(cur);
         });
       }
 
+      // Badges
       function renderBadges(){
-        const badges = Storage.get('ft_current',{}).badges||['Welcome'];
-        badgeContainer.innerHTML=badges.map(b=>`<div class="badge">${b}</div>`).join('');
-      }
-      function renderActivities(){
-        const acts = Storage.get('ft_activities',[]).slice(-5).reverse();
-        activityList.innerHTML=acts.map(a=>`<li>${new Date(a.date).toLocaleDateString()} — ${a.type} (${a.distance||0} km)</li>`).join('')||'<li>No recent activities</li>';
+        const bad=Storage.get('ft_current',{}).badges||['Welcome'];
+        badgeContainer.innerHTML = bad.map(b=>`<div class="badge">${b}</div>`).join('');
       }
 
-      changeBtn.onclick = ()=>avatarInput.click();
-      removeBtn.onclick = ()=>{
-        const cur=Storage.get('ft_current',{})||{};
-        delete cur.avatarDataUrl; Storage.set('ft_current',cur);
+      // Handlers
+      changeBtn.onclick  = ()=>avatarInput.click();
+      removeBtn.onclick  = ()=>{
+        const c=Storage.get('ft_current',{})||{};
+        delete c.avatarDataUrl; Storage.set('ft_current',c);
       };
       avatarInput.onchange = e=>{
-        const file=e.target.files[0]; if(!file) return;
+        const f=e.target.files[0]; if(!f) return;
         const r=new FileReader();
-        r.onload=()=>{ const cur=Storage.get('ft_current',{})||{}; cur.avatarDataUrl=r.result; Storage.set('ft_current',cur); };
-        r.readAsDataURL(file);
+        r.onload=()=>{ const c=Storage.get('ft_current',{})||{}; c.avatarDataUrl=r.result; Storage.set('ft_current',c) };
+        r.readAsDataURL(f);
       };
-
       saveBtn.onclick = ()=>{
-        const cur=Storage.get('ft_current',{})||{};
-        const fn=document.getElementById('fullName').value.trim();
-        if(!fn) return alert('Full name required');
-        cur.name=fn; fields.slice(1).forEach(f=>cur[f]=document.getElementById(f).value);
-        Storage.set('ft_current',cur); alert('Saved!');
+        const cur = Storage.get('ft_current',{})||{};
+        const name= document.getElementById('fullName').value.trim();
+        if(!name) return alert('Full Name is required');
+        cur.name=name; fields.slice(1).forEach(f=>cur[f]=document.getElementById(f).value);
+        Storage.set('ft_current',cur); alert('Profile saved!');
       };
-      logoutBtn.onclick = ()=>{
-        Storage.set('ft_current',{}); location.replace('home.html');
-      };
+      logoutBtn.onclick = ()=>{ Storage.set('ft_current',{}); location.replace('home.html') };
 
       Storage.onChange('ft_current',()=>{
         populate(); updateAvatars();
