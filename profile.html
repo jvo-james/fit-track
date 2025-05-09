@@ -241,109 +241,138 @@
     </div>
   </div>
 
-  <!-- storage.js helper -->
-  <script type="module" src="storage.js"></script>
-  <script type="module">
-    import { Storage } from './storage.js';
+<script type="module">
+  import { Storage } from './storage.js';
 
-    // Elements
+  document.addEventListener('DOMContentLoaded', () => {
+    // — INITIAL SETUP & HELPERS —
     const form           = document.getElementById('profileForm');
-    const fields         = ['fullName','bio','location','age','gender','height','weight','favorite','goals'];
     const avatarInput    = document.getElementById('avatarInput');
     const avatarPreview  = document.getElementById('avatarPreview');
+    const changeBtn      = document.getElementById('changeAvatarBtn');
+    const removeBtn      = document.getElementById('removeAvatarBtn');
+    const saveBtn        = document.getElementById('saveBtn');
+    const logoutBtn      = document.getElementById('logoutBtn');
     const completionFill = document.getElementById('completionFill');
     const sum            = {
-      name:    document.getElementById('sumName'),
-      email:   document.getElementById('sumEmail'),
-      bio:     document.getElementById('sumBio'),
-      location:document.getElementById('sumLocation'),
+      name:     document.getElementById('sumName'),
+      email:    document.getElementById('sumEmail'),
+      bio:      document.getElementById('sumBio'),
+      location: document.getElementById('sumLocation'),
       ageGender:document.getElementById('sumAgeGender'),
-      hw:      document.getElementById('sumHW'),
-      favorite:document.getElementById('sumFavorite'),
-      goals:   document.getElementById('sumGoals'),
-      workouts:document.getElementById('sumWorkouts'),
-      distance:document.getElementById('sumDistance'),
-      calories:document.getElementById('sumCalories')
+      hw:       document.getElementById('sumHW'),
+      favorite: document.getElementById('sumFavorite'),
+      goals:    document.getElementById('sumGoals'),
+      workouts: document.getElementById('sumWorkouts'),
+      distance: document.getElementById('sumDistance'),
+      calories: document.getElementById('sumCalories')
     };
 
-    // Update sidebar & header avatars
-    function updateAvatars(url) {
-      const imgHTML = `<img src="${url}" class="avatar-small" />`;
-      document.getElementById('sideAvatar').outerHTML = imgHTML;
-      document.getElementById('hdrAvatarIcon').outerHTML = imgHTML;
+    // Return formatted “time ago”
+    function timeAgo(ts) {
+      if (!ts || isNaN(ts)) return '';
+      const d = Date.now() - ts;
+      const s = Math.floor(d/1000);
+      if (s < 60) return `${s}s ago`;
+      const m = Math.floor(s/60);
+      if (m < 60) return `${m}m ago`;
+      const h = Math.floor(m/60);
+      if (h < 24) return `${h}h ago`;
+      const D = Math.floor(h/24);
+      if (D < 7) return `${D}d ago`;
+      const W = Math.floor(D/7);
+      if (W < 5) return `${W}w ago`;
+      const M = Math.floor(D/30);
+      if (M < 12) return `${M}mo ago`;
+      return `${Math.floor(D/365)}y ago`;
     }
 
-    // Populate form & preview
+    // — AVATAR SYNC — show icon if no avatarDataUrl
+    function updateAvatars() {
+      const cur = Storage.get('ft_current', {}) || {};
+      const url = cur.avatarDataUrl || '';
+      ['sideAvatar','hdrAvatarIcon'].forEach(id => {
+        const old = document.getElementById(id);
+        if (!old) return;
+        if (url) {
+          const img = document.createElement('img');
+          img.id        = id;
+          img.className = 'avatar-small';
+          img.src       = url;
+          img.alt       = 'Avatar';
+          old.replaceWith(img);
+        } else {
+          const icon = document.createElement('i');
+          icon.id            = id;
+          icon.className     = 'fas fa-user-circle avatar-small';
+          old.replaceWith(icon);
+        }
+      });
+    }
+
+    // — PROFILE FORM POPULATION —
     function populate() {
       const cur = Storage.get('ft_current', {});
-      document.getElementById('fullName').value = cur.name || '';
-      document.getElementById('email').value    = cur.email || '';
-      document.getElementById('bio').value      = cur.bio || '';
-      document.getElementById('location').value = cur.location || '';
-      document.getElementById('age').value      = cur.age || '';
-      document.getElementById('gender').value   = cur.gender || '';
-      document.getElementById('height').value   = cur.height || '';
-      document.getElementById('weight').value   = cur.weight || '';
-      document.getElementById('favorite').value = cur.favorite || 'Running';
-      document.getElementById('goals').value     = cur.goals || '';
+      document.getElementById('fullName').value    = cur.name || '';
+      document.getElementById('email').value       = cur.email || '';
+      document.getElementById('bio').value         = cur.bio || '';
+      document.getElementById('location').value    = cur.location || '';
+      document.getElementById('age').value         = cur.age || '';
+      document.getElementById('gender').value      = cur.gender || '';
+      document.getElementById('height').value      = cur.height || '';
+      document.getElementById('weight').value      = cur.weight || '';
+      document.getElementById('favorite').value    = cur.favorite || 'Running';
+      document.getElementById('goals').value       = cur.goals || '';
+
       if (cur.avatarDataUrl) {
         avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
         avatarPreview.innerHTML = '';
       } else {
         avatarPreview.style.backgroundImage = '';
-        avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
+        avatarPreview.innerHTML = '<i class="fas fa-user-circle"></i>';
       }
       updateCompletion();
       updateSummary();
     }
 
-    // Compute & update completion bar
+    // — PROFILE COMPLETION BAR —
     function updateCompletion() {
       const cur = Storage.get('ft_current', {});
-      let count = 0;
-      if (cur.name) count++;
-      if (cur.bio) count++;
-      if (cur.location) count++;
-      if (cur.age) count++;
-      if (cur.gender) count++;
-      if (cur.height) count++;
-      if (cur.weight) count++;
-      if (cur.favorite) count++;
-      if (cur.goals) count++;
-      if (cur.avatarDataUrl) count++;
-      const pct = Math.round(count / 10 * 100);
+      let filled = 0;
+      ['name','bio','location','age','gender','height','weight','favorite','goals','avatarDataUrl'].forEach(k => {
+        if (cur[k]) filled++;
+      });
+      const pct = Math.round((filled/10)*100);
       completionFill.style.width = pct + '%';
     }
 
-    // Populate profile summary & stats
+    // — PROFILE SUMMARY & STATS —
     function updateSummary() {
       const cur = Storage.get('ft_current', {});
-      sum.name.textContent = cur.name || '—';
-      sum.email.textContent= cur.email || '—';
-      sum.bio.textContent = cur.bio || '—';
-      sum.location.textContent = cur.location || '—';
-      sum.ageGender.textContent = ((cur.age||'')+' / '+(cur.gender||'—')).replace(/\/\s*—$/,'');
-      sum.hw.textContent = ((cur.height||'')+' cm / '+(cur.weight||'')+' kg').replace(/\/\s*kg$/,'');
-      sum.favorite.textContent = cur.favorite || '—';
-      sum.goals.textContent = cur.goals || '—';
+      sum.name.textContent      = cur.name || '—';
+      sum.email.textContent     = cur.email || '—';
+      sum.bio.textContent       = cur.bio || '—';
+      sum.location.textContent  = cur.location || '—';
+      sum.ageGender.textContent = (cur.age||'—') + ' / ' + (cur.gender||'—');
+      sum.hw.textContent        = (cur.height||'—') + ' cm / ' + (cur.weight||'—') + ' kg';
+      sum.favorite.textContent  = cur.favorite || '—';
+      sum.goals.textContent     = cur.goals || '—';
 
-      // stats from activities
       const acts = Storage.get('ft_activities', []);
       const totalWorkouts = acts.length;
-      const totalDistance = acts.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
-      const totalCalories = acts.reduce((s,a)=>s+(+a.calories||0),0);
+      const totalDistance = acts.reduce((a,x)=>a+(+x.distance||0),0).toFixed(1);
+      const totalCalories = acts.reduce((a,x)=>a+(+x.calories||0),0);
       sum.workouts.textContent = totalWorkouts;
       sum.distance.textContent = totalDistance + ' km';
       sum.calories.textContent = totalCalories;
     }
 
-    // Bind avatar change/remove
-    document.getElementById('changeAvatarBtn').onclick = ()=> avatarInput.click();
-    document.getElementById('removeAvatarBtn').onclick = () => {
+    // — AVATAR INPUT HANDLERS —
+    changeBtn.onclick = () => avatarInput.click();
+    removeBtn.onclick = () => {
       const cur = Storage.get('ft_current', {});
       delete cur.avatarDataUrl;
       Storage.set('ft_current', cur);
-      Storage.set('ft_profile', {...cur, avatarDataUrl: undefined, profileComplete:cur.profileComplete});
     };
     avatarInput.onchange = e => {
       const file = e.target.files[0];
@@ -353,52 +382,45 @@
         const cur = Storage.get('ft_current', {});
         cur.avatarDataUrl = reader.result;
         Storage.set('ft_current', cur);
-        Storage.set('ft_profile', {...cur, avatarDataUrl:cur.avatarDataUrl, profileComplete:cur.profileComplete});
       };
       reader.readAsDataURL(file);
     };
 
-    // Bind save button
-    document.getElementById('saveBtn').onclick = () => {
+    // — SAVE BUTTON —
+    saveBtn.onclick = () => {
       const cur = Storage.get('ft_current', {});
-      cur.name      = document.getElementById('fullName').value.trim();
-      if (!cur.name) return alert('Full Name is required');
-      cur.bio       = document.getElementById('bio').value;
-      cur.location  = document.getElementById('location').value;
-      cur.age       = document.getElementById('age').value;
-      cur.gender    = document.getElementById('gender').value;
-      cur.height    = document.getElementById('height').value;
-      cur.weight    = document.getElementById('weight').value;
-      cur.favorite  = document.getElementById('favorite').value;
-      cur.goals     = document.getElementById('goals').value;
-      cur.profileComplete = true;
+      const name = document.getElementById('fullName').value.trim();
+      if (!name) return alert('Full Name is required');
+      cur.name     = name;
+      cur.bio      = document.getElementById('bio').value;
+      cur.location = document.getElementById('location').value;
+      cur.age      = document.getElementById('age').value;
+      cur.gender   = document.getElementById('gender').value;
+      cur.height   = document.getElementById('height').value;
+      cur.weight   = document.getElementById('weight').value;
+      cur.favorite = document.getElementById('favorite').value;
+      cur.goals    = document.getElementById('goals').value;
       Storage.set('ft_current', cur);
-      Storage.set('ft_profile', {
-        name: cur.name,
-        avatarDataUrl: cur.avatarDataUrl,
-        profileComplete: true
-      });
       alert('Profile saved!');
     };
 
-    // Update on storage changes
-    Storage.onChange('ft_current', () => {
-      populate();
-      updateAvatars(Storage.get('ft_current').avatarDataUrl || '');
-    });
-
-    // Initial populate
-    document.addEventListener('DOMContentLoaded', () => {
-      populate();
-      updateAvatars(Storage.get('ft_current').avatarDataUrl || '');
-    });
-
-    // Logout button
-    document.getElementById('logoutBtn').onclick = () => {
-      // Clear current user & redirect
+    // — LOGOUT —
+    logoutBtn.onclick = () => {
       Storage.set('ft_current', {});
       location.replace('home.html');
     };
-  </script>
+
+    // — RESPOND TO STORAGE CHANGES —
+    Storage.onChange('ft_current', () => {
+      populate();
+      updateAvatars();
+    });
+
+    // — INITIAL POPULATE —
+    populate();
+    updateAvatars();
+  });
+</script>
+
 </body>
 </html>
