@@ -827,131 +827,105 @@ header h1 { margin:0 auto; }
 <button id="chatToggle"><i class="fas fa-comments"></i></button>
   
 
-  <script type="module">
+ <script type="module">
 import { Storage } from './storage.js';
+import Chart from 'chart.js/auto';
 
 document.addEventListener('DOMContentLoaded', () => {
+  // ─── HELPERS & STATE ─────────────────────────────────
+  function getCurrent() {
+    const c = Storage.get('ft_current') || {};
+    return {
+      name: c.name || '',
+      avatarUrl: c.avatarDataUrl || '',
+      profileComplete: !!c.profileComplete,
+      isNew: c.isNew
+    };
+  }
+  function timeAgo(ts) {
+    const diff = Date.now() - ts;
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m/60);
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h/24)}d ago`;
+  }
 
-  // ── Redirect if not logged in ──
-  const cur = Storage.get('ft_current', null);
-  if (!cur || !cur.name) return location.replace('home.html');
+  // ── AUTH GUARD & CURRENT USER ──
+  const cur = getCurrent();
+  if (!cur.name) return location.replace('home.html');
+  const { name: me, avatarUrl: myAvatar } = cur;
 
-  // ── Grab DOM elements ──
-  const notifBar     = document.getElementById('notif-bar');
-  const notifClose   = document.getElementById('notif-close');
-  const pseudoToast  = document.getElementById('pseudo-toast');
-  const hamburger    = document.getElementById('hamburger');
-  const sidebar      = document.getElementById('sidebar');
-  const overlay      = document.getElementById('overlay');
-  const sidebarClose = document.getElementById('sidebar-close');
-  const profileBtn   = document.getElementById('profile-btn');
-  const profileMenu  = document.querySelector('.profile-menu');
-  const newWorkoutBtn= document.querySelector('.new-workout');
-  const workoutModal = document.getElementById('workout-modal');
-  const wCancel      = document.getElementById('w-cancel');
-  const wSave        = document.getElementById('w-save');
-  const greetingEl   = document.getElementById('greeting');
-  const activityCtx  = document.getElementById('activityChart').getContext('2d');
+  // ── DOM REFS ─────────────────────────────────────────
+  const notifBar      = document.getElementById('notif-bar');
+  const notifClose    = document.getElementById('notif-close');
+  const pseudoToast   = document.getElementById('pseudo-toast');
+  const hamburger     = document.getElementById('hamburger');
+  const sidebar       = document.getElementById('sidebar');
+  const overlay       = document.getElementById('overlay');
+  const sidebarClose  = document.getElementById('sidebar-close');
+  const profileBtn    = document.getElementById('profile-btn');
+  const profileMenu   = document.querySelector('.profile-menu');
+  const newWorkoutBtn = document.querySelector('.new-workout');
+  const workoutModal  = document.getElementById('workout-modal');
+  const wCancel       = document.getElementById('w-cancel');
+  const wSave         = document.getElementById('w-save');
+  const greetingEl    = document.getElementById('greeting');
+  const activityCtx   = document.getElementById('activityChart').getContext('2d');
   const distributionCtx = document.getElementById('distributionChart').getContext('2d');
-  const recentBody   = document.getElementById('recent-acts');
-  const miniList     = document.getElementById('miniLeaderboard');
-  const achGrid      = document.getElementById('yourAchievements');
-  const liveGrid     = document.getElementById('liveSessionsGrid');
-  const communityFeed= document.getElementById('communityFeed');
-  const postInput    = document.getElementById('newFeedInput');
-  const postBtn      = document.getElementById('postFeedBtn');
-  const tipEl        = document.getElementById('tip-of-day');
-  
+  const recentBody    = document.getElementById('recent-acts');
+  const miniList      = document.getElementById('miniLeaderboard');
+  const achGrid       = document.getElementById('yourAchievements');
+  const liveGrid      = document.getElementById('liveSessionsGrid');
+  const postInput     = document.getElementById('newFeedInput');
+  const postBtn       = document.getElementById('postFeedBtn');
+  const tipEl         = document.getElementById('tip-of-day');
+  const communityFeed = document.getElementById('communityFeed');
+  const tagButtons    = Array.from(document.querySelectorAll('.tag-btn'));
+  let   currentTag    = 'All';  // ← initial filter
 
-   // ── 1) Post button: prepend & re-render ──
-   postBtn.addEventListener('click', () => {
-     const txt = postInput.value.trim();
-     if (!txt) return;
-     const feed = Storage.get('ft_feed');
-     feed.unshift({ text: txt, timestamp: Date.now() });
-     Storage.set('ft_feed', feed);
-     postInput.value = '';
-     updateDashboard();
-   });
-
-  // ── Show/hide notification bar ──
+  // ── NOTIFICATION BAR ─────────────────────────────────
   function syncNotif() {
-    const p = Storage.get('ft_current', {});
-    notifBar.classList.toggle('hidden', !!p.profileComplete);
+    notifBar.classList.toggle('hidden', cur.profileComplete);
   }
   Storage.onChange('ft_current', syncNotif);
   syncNotif();
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
-  // ─── Sidebar Profile button ─────────────────────────
-    document.getElementById('profileBtn').onclick = () => {
-      location.replace('profile.html');
-    };
-    // — AVATAR SYNC —
-    function updateAvatars() {
-       const { avatarUrl } = getCurrent();
-      ['side-avatar','hdrAvatarIcon'].forEach(id => {
-        const old = document.getElementById(id);
-        if (!old) return;
-        if (avatarUrl) {
-          const img = document.createElement('img');
-          img.id = id;
-          img.className = 'avatar';
-          img.src = avatarUrl;
-          img.alt = 'Avatar';
-          old.replaceWith(img);
-        } else {
-          const icon = document.createElement('i');
-          icon.id = id;
-          icon.className = 'fas fa-user-circle avatar';
-          old.replaceWith(icon);
-        }
-      });
-    }
-    updateAvatars();
-    Storage.onChange('ft_current', () => {
-      ({name: me, avatarUrl: myAvatar} = getCurrent());
-      updateAvatars();
-        render(); 
-    });
+  // ── SIDEBAR TOGGLE ──────────────────────────────────
+  function toggleSidebar() {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+  }
+  hamburger.addEventListener('click', toggleSidebar);
+  sidebarClose.addEventListener('click', toggleSidebar);
+  overlay.addEventListener('click', toggleSidebar);
+  window.toggleSidebar = toggleSidebar;
 
-    // — SIDEBAR TOGGLE —
-    window.toggleSidebar = () => {
-      document.getElementById('sidebar').classList.toggle('open');
-      document.getElementById('overlay').classList.toggle('active');
-    };
+  // ── PROFILE NAVIGATION ──────────────────────────────
+  profileBtn.addEventListener('click', () => location.replace('profile.html'));
+  profileMenu.addEventListener('click', () => location.replace('profile.html'));
 
-
-  // ── Seed sample workout for new users ──
+  // ── WELCOME NEW USER & PSEUDO-TOAST ─────────────────
   if (cur.isNew) {
-    greetingEl.textContent = `Hello, ${cur.name}!`;
-    let acts = Storage.get('ft_activities', []);
-    if (!acts.length) {
-      acts = [{
-        id: 'sample',
-        date: new Date().toISOString().slice(0,10),
-        type: 'Cardio', duration: 20, distance: 2, calories: 150, notes: 'Welcome sample workout!'
-      }];
-      Storage.set('ft_activities', acts);
-    }
+    greetingEl.textContent = `Hello, ${me}!`;
     setTimeout(() => pseudoToast.classList.add('active'), 5000);
     cur.isNew = false;
-    Storage.set('ft_current', cur);
-    // announce in feed
-    const joinFeed = Storage.get('ft_feed');
-    joinFeed.unshift({ text: `${cur.name} joined the community!`, timestamp: Date.now() });
-    Storage.set('ft_feed', joinFeed);
+    Storage.set('ft_current', { ...Storage.get('ft_current'), isNew: false });
+    // announce in community feed
+    const feed0 = Storage.get('ft_feed') || [];
+    feed0.unshift({ user: me, avatarUrl: myAvatar, text: `${me} joined the community!`, timestamp: Date.now(), likes: 0, likedBy: [] });
+    Storage.set('ft_feed', feed0);
   } else {
-    greetingEl.textContent = `Welcome back, ${cur.name}!`;
+    greetingEl.textContent = `Welcome back, ${me}!`;
   }
   pseudoToast.addEventListener('click', () => pseudoToast.classList.remove('active'));
 
- 
-
- // —— Workout modal
-  newWorkoutBtn.onclick     = () => workoutModal.classList.add('active');
-  wCancel.onclick           = () => workoutModal.classList.remove('active');
-  wSave.onclick             = () => {
+  // ── WORKOUT MODAL ───────────────────────────────────
+  newWorkoutBtn.onclick = () => workoutModal.classList.add('active');
+  wCancel.onclick       = () => workoutModal.classList.remove('active');
+  wSave.onclick = () => {
     const date     = document.getElementById('w-date').value;
     const type     = document.getElementById('w-type').value;
     const duration = +document.getElementById('w-duration').value;
@@ -959,64 +933,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const distance = +document.getElementById('w-distance').value;
     const calories = +document.getElementById('w-calories').value;
     const notes    = document.getElementById('w-notes').value.trim();
-    const all      = Storage.get('ft_activities', []);
-    all.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
+    const all      = Storage.get('ft_activities', []) || [];
+    all.unshift({ id: Date.now().toString(), date, type, duration, distance, calories, notes });
     Storage.set('ft_activities', all);
-    updateDashboard();
     workoutModal.classList.remove('active');
+    updateDashboard();
   };
 
- // —— Charts instances
+  // ── CHARTS SETUP ────────────────────────────────────
   const activityChart = new Chart(activityCtx, {
     type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        data: [0,0,0,0],
-        borderColor: 'rgba(255,152,0,1)',
-        backgroundColor: 'rgba(255,152,0,0.3)',
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: { responsive: true, maintainAspectRatio: false }
+    data: { labels: [], datasets: [{ data: [], borderColor: 'rgba(255,152,0,1)', backgroundColor: 'rgba(255,152,0,0.3)', fill:true, tension:0.3 }] },
+    options: { responsive:true, maintainAspectRatio:false }
   });
-
   const distributionChart = new Chart(distributionCtx, {
     type: 'pie',
     data: {
-      labels: ['Cardio', 'Strength', 'Flexibility', 'Other'],
-      datasets: [{
-        data: [0,0,0,0],
-       backgroundColor: [
-          '#ff9800',  // orange
-          '#2196f3',  // blue
-          '#4caf50',  // green
-          '#e91e63'   // pink
-        ],
-        hoverOffset: 8,
-        borderWidth: 2
-      }]
+      labels: ['Cardio','Strength','Flexibility','Other'],
+      datasets: [{ data:[0,0,0,0], backgroundColor:['#ff9800','#2196f3','#4caf50','#e91e63'], hoverOffset:8, borderWidth:2 }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { font: { size: 14, weight: 'bold' } }
-        },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.label}: ${ctx.parsed} workouts`
-          }
-        }
-      }
-    }
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
   });
 
+  // ── PROFILE AVATAR SYNC ─────────────────────────────
+  function syncAvatars() {
+    const p = getCurrent();
+    ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id => {
+      const old = document.getElementById(id);
+      if (!old) return;
+      if (p.avatarUrl) {
+        const img = document.createElement('img');
+        img.id = id; img.className = 'avatar'; img.src = p.avatarUrl; img.alt = 'Avatar';
+        old.replaceWith(img);
+      } else {
+        const icon = document.createElement('i');
+        icon.id = id; icon.className = 'fas fa-user-circle avatar';
+        old.replaceWith(icon);
+      }
+    });
+    document.getElementById('dash-name').textContent = p.name;
+  }
+  syncAvatars();
+  Storage.onChange('ft_current', syncAvatars);
 
+  // ── SEED DEMO COMMUNITY DATA ONCE ────────────────────
+  if (!Storage.get('ft_feed')) {
+    const users  = ['Alice','Bob','Cara','Dan','Eve'];
+    const texts  = ['5km run!','#HIIT session!','Hit PR deadlift!','#Yoga stretch','New smoothie recipe'];
+    const feed   = texts.map((t,i) => ({ user:users[i], avatarUrl:'', text:t, timestamp:Date.now()-i*600000, likes:Math.floor(Math.random()*20), likedBy:[] }));
+    const cmnts  = feed.map(_ => [{ user:'Friend', text:'Nice!', timestamp:Date.now(), likes:2, likedBy:[] }]);
+    Storage.set('ft_feed', feed);
+    Storage.set('ft_comments', cmnts);
+  }
 
+ 
   // ── Main render function ──
   function updateDashboard(){
     const acts = Storage.get('ft_activities', []);
@@ -1179,289 +1149,146 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     Storage.set('ft_mySchedules', sched);
     updateDashboard();
+    renderCommunity();
   });
   // — LOAD OR SEED DATA —
     let feed  = Storage.get('ft_feed')     || [];
     let cmnts = Storage.get('ft_comments') || [];
 
-    function seedData() {
-      const users  = ['Alice','Bob','Cara','Dan','Eve','Finn','Gina','Hank','Ivy','Jack','Kara','Liam','Mia','Noah','Olive'];
-      const texts  = [
-        "Just crushed 10k steps today! #Running","Morning #HIIT session was 🔥","Yoga helped my flexibility so much! #Yoga",
-        "Hit a new PR on deadlift: 120kg! #Strength","Tried a new smoothie recipe 🍓🥤 #Nutrition","Weekend trail run was epic! #Running",
-        "Group class at 6am? Count me in! #HIIT","Leg day left me walking funny 😂 #Strength","Protein pancakes for breakfast! #Nutrition",
-        "Hit my weekly goal: 5 workouts! #Fitness","Cooldown stretches are underrated. #Yoga","First 50 pushups in a row! #Strength",
-        "Beat my plank time: 2 minutes! #HIIT","Joined the 30-day squat challenge! #Strength","Early bird workout = best mood! #Morning"
-      ];
-      const replies= ["Awesome!","Keep going!","You rock!","So inspiring!","Well done!","🔥","Nice work!","Goals!"];
-      feed = texts.map((t,i) => ({
-        user: users[i],
-        avatar: `https://i.pravatar.cc/40?u=${encodeURIComponent(users[i])}`,
-        text: t,
-        timestamp: Date.now() - Math.random()*3.6e6,
-        likes: Math.floor(Math.random()*20)+5,
-        likedBy: []
-      }));
-      cmnts = feed.map(() => {
-        const n = 2 + Math.floor(Math.random()*4);
-        return Array.from({length:n}).map(() => ({
-          user: users[Math.floor(Math.random()*users.length)],
-          avatar: `https://i.pravatar.cc/40?u=${encodeURIComponent(users[Math.floor(Math.random()*users.length)])}`,
-          text: replies[Math.floor(Math.random()*replies.length)],
-          timestamp: Date.now() - Math.random()*3.6e6,
-          likes: Math.floor(Math.random()*5),
-          likedBy: []
-        }));
-      });
-      Storage.set('ft_feed', feed);
-      Storage.set('ft_comments', cmnts);
-    }
-   
-    if (!feed.length || feed.length !== cmnts.length) seedData();
 
-    // ─── 1. Auto-welcome once per session ───
- if (!sessionStorage.getItem('welcome_done_' + me)) {
-   const wf = Storage.get('ft_feed');
-   const wc = Storage.get('ft_comments');
-   wf.unshift({
-     user: me,
-     avatar: myAvatar || '',  
-     text: '🎉 I just signed up! Excited to be here.',
-     timestamp: Date.now(),
-     likes: 0,
-     likedBy: []
-   });
-   wc.unshift([]);
-   Storage.set('ft_feed', wf);
-   Storage.set('ft_comments', wc);
-   sessionStorage.setItem('welcome_done_' + me, '1');
- }
-
-    // — RENDER FUNCTION —
-    const feedEl = document.getElementById('communityFeed');
-    let currentTag = 'All';
-    function render() {
-      const { avatarUrl } = getCurrent();
-      const f = Storage.get('ft_feed')     || [];
-      const c = Storage.get('ft_comments') || [];
-      feedEl.innerHTML = '';
-      f.forEach((post, i) => {
-         // decide which avatar to show for this post
-      const postAvatarHtml = post.user === me
-        ? (avatarUrl
-            ? `<img class="feed-avatar" src="${avatarUrl}"/>`
-            : `<i class="fas fa-user-circle feed-avatar avatar"></i>`)
-        : (post.avatar
-            ? `<img class="feed-avatar" src="${post.avatar}"/>`
-            : `<i class="fas fa-user-circle feed-avatar avatar"></i>`);
-        if (currentTag !== 'All' && !post.text.includes(currentTag)) return;
-        const commentsHtml = (c[i]||[]).map((cm,j) => `
-          <div class="comment-item" data-post="${i}" data-cidx="${j}">
-                   ${
-            cm.user === me
-              // your own comment: use your current avatar or fallback
-              ? (avatarUrl
-                  ? `<img class="comment-avatar" src="${avatarUrl}"/>`
-                  : `<i class="fas fa-user-circle comment-avatar avatar"></i>`)
-              // someone else's comment: use their stored avatar or fallback
-              : (cm.avatar
-                  ? `<img class="comment-avatar" src="${cm.avatar}"/>`
-                  : `<i class="fas fa-user-circle comment-avatar avatar"></i>`)
-          }
-            <div class="comment-content">
-              <span class="author">${cm.user}</span>
-              <span class="time">${timeAgo(cm.timestamp)}</span>
-              <p class="text">${cm.text}</p>
-              <button class="c-like-btn"><i class="fas fa-heart${cm.likedBy.includes(me)?' active':''}"></i> <span>${cm.likes}</span></button>
+  // ── COMMUNITY FEED RENDER (TOP 5 + FILTER) ───────────
+  function renderCommunity() {
+    const feed = Storage.get('ft_feed') || [];
+    const cmnts = Storage.get('ft_comments') || [];
+    communityFeed.innerHTML = '';
+    feed.slice(0,5).forEach((post,i) => {
+      if (currentTag !== 'All' && !post.text.includes(currentTag)) return;
+      // choose avatar
+      const avatarHtml = post.user === me
+        ? (myAvatar ? `<img class="feed-avatar" src="${myAvatar}"/>` : `<i class="fas fa-user-circle feed-avatar avatar"></i>`)
+        : (post.avatarUrl ? `<img class="feed-avatar" src="${post.avatarUrl}"/>` : `<i class="fas fa-user-circle feed-avatar avatar"></i>`);
+      const commentsHtml = (cmnts[i]||[]).map(c => `
+        <div class="comment-item">
+          ${c.user===me && myAvatar
+            ? `<img class="comment-avatar" src="${myAvatar}"/>`
+            : (c.avatarUrl ? `<img class="comment-avatar" src="${c.avatarUrl}"/>` : `<i class="fas fa-user-circle comment-avatar avatar"></i>`)}
+          <div class="comment-content">
+            <span class="author">${c.user}</span>
+            <span class="time">${timeAgo(c.timestamp)}</span>
+            <p class="text">${c.text}</p>
+          </div>
+        </div>
+      `).join('');
+      communityFeed.insertAdjacentHTML('beforeend', `
+        <li class="feed-item">
+          <div class="feed-header">
+            ${avatarHtml}
+            <div class="feed-meta">
+              <span class="user">${post.user}</span>
+              <span class="time">${timeAgo(post.timestamp)}</span>
             </div>
           </div>
-        `).join('');
-        feedEl.insertAdjacentHTML('beforeend', `
-          <li class="feed-item" data-index="${i}" id="post-${i}">
-            <div class="feed-header">
-                        ${postAvatarHtml}
-
-              <div class="feed-meta">
-                <span class="user">${post.user}</span>
-                <span class="time">${timeAgo(post.timestamp)}</span>
-              </div>
+          <p class="feed-text">${post.text}</p>
+          <div class="feed-controls">
+            <button class="toggle-comments">▼ ${ (cmnts[i]||[]).length } comments</button>
+            <button class="like-btn"><i class="fas fa-heart${post.likedBy.includes(me)?' active':''}"></i> <span>${post.likes}</span></button>
+          </div>
+          <div class="comments-container">
+            ${commentsHtml}
+            <div class="add-comment">
+              ${ myAvatar ? `<img class="comment-avatar" src="${myAvatar}"/>` : `<i class="fas fa-user-circle comment-avatar avatar"></i>` }
+              <input class="new-comment-input" placeholder="Add a comment…"/>
+              <button class="new-comment-btn">Post</button>
             </div>
-            <p class="feed-text">${post.text}</p>
-            <div class="feed-controls">
-              <button class="like-btn"><i class="fas fa-heart${post.likedBy.includes(me)?' active':''}"></i> <span>${post.likes}</span></button>
-              <button class="toggle-comments">▼ ${c[i]?.length||0} comments</button>
-              <button class="share-btn"><i class="fas fa-share"></i> Share</button>
-            </div>
-            <div class="comments-container">
-              ${commentsHtml}
-              <div class="add-comment">
-                <img class="comment-avatar" src="${myAvatar}"/>
-                <input class="new-comment-input" placeholder="Add a comment…"/>
-                <button class="new-comment-btn">Post</button>
-              </div>
-            </div>
-          </li>
-        `);
-      });
-    }
-
-    // — EVENT HANDLERS —
-    document.getElementById('postFeedBtn').onclick = () => {
-      const txt = document.getElementById('newFeedInput').value.trim();
-      if (!txt) return;
-      const f = Storage.get('ft_feed');
-      f.unshift({ user:me, avatar:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
-      Storage.set('ft_feed', f);
-      const c = Storage.get('ft_comments');
-      c.unshift([]);
-      Storage.set('ft_comments', c);
-      document.getElementById('newFeedInput').value = '';
-      render();
-    };
-
-    feedEl.onclick = async e => {
-      const item = e.target.closest('.feed-item');
-      if (!item) return;
-      const i = +item.dataset.index;
-      let f = Storage.get('ft_feed');
-      let c = Storage.get('ft_comments');
-
-       // ─── Inline comment Post button ───
-   if (e.target.closest('button.new-comment-btn')) {
-     const input = item.querySelector('.new-comment-input');
-     const txt   = input.value.trim();
-     if (!txt) return;
-     c[i].push({
-       user: me,
-       avatar: myAvatar,
-       text: txt,
-       timestamp: Date.now(),
-       likes: 0,
-       likedBy: []
-     });
-     Storage.set('ft_comments', c);
-     
-      const commentsContainer = item.querySelector('.comments-container');
-    commentsContainer.insertAdjacentHTML('beforeend', `
-      <div class="comment-item" data-post="${i}" data-cidx="${c[i].length-1}">
-        ${
-         myAvatar
-           ? `<img class="comment-avatar" src="${myAvatar}"/>`
-           : `<i class="fas fa-user-circle comment-avatar avatar"></i>`
-       }
-        <div class="comment-content">
-          <span class="author">${me}</span>
-          <span class="time">just now</span>
-          <p class="text">${txt}</p>
-        </div>
-        <button class="c-like-btn"><i class="fas fa-heart"></i> <span>0</span></button>
-      </div>`);
-    input.value = '';
-    // update comment count badge
-    item.querySelector('.toggle-comments').textContent = `▼ ${c[i].length} comments`;
-    return;
-   }
-
-
-      // Like/unlike post
-      const postBtn = e.target.closest('.like-btn');
-      if (postBtn) {
-        const p = f[i];
-        const idx = p.likedBy.indexOf(me);
-        if (idx >= 0) { p.likedBy.splice(idx,1); p.likes--; }
-        else          { p.likedBy.push(me);    p.likes++; }
-        Storage.set('ft_feed', f);
-        // update UI
-        const heartIcon = postBtn.querySelector('i.fa-heart');
-        const countSpan = postBtn.querySelector('span');
-        heartIcon.classList.toggle('active', p.likedBy.includes(me));
-        countSpan.textContent = p.likes;
-        return;
-      }
-
-      // Toggle comments
-      if (e.target.closest('.toggle-comments')) {
-        item.querySelector('.comments-container').classList.toggle('open');
-        return;
-      }
-
-      // Share post
-      if (e.target.closest('.share-btn')) {
-        const link = `${location.origin}${location.pathname}#post-${i}`;
-        await navigator.clipboard.writeText(link);
-        alert('Link copied!');
-        return;
-      }
-
-      // Like/unlike comment
-      const cmBtn = e.target.closest('.c-like-btn');
-      if (cmBtn) {
-        const cmLi = cmBtn.closest('.comment-item');
-        const j    = +cmLi.dataset.cidx;
-        const cm   = c[i][j];
-        const idx2 = cm.likedBy.indexOf(me);
-        if (idx2 >= 0) { cm.likedBy.splice(idx2,1); cm.likes--; }
-        else           { cm.likedBy.push(me);      cm.likes++; }
-        Storage.set('ft_comments', c);
-        const icon = cmBtn.querySelector('i.fa-heart');
-        const span = cmBtn.querySelector('span');
-        icon.classList.toggle('active', cm.likedBy.includes(me));
-        span.textContent = cm.likes;
-        return;
-      }
-
-      // Post inline comment
-      if (e.target.closest('.new-comment-btn')) {
-        const input = item.querySelector('.new-comment-input');
-        const txt   = input.value.trim();
-        if (!txt) return;
-        c[i].push({ user:me, avatar:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
-        Storage.set('ft_comments', c);
-        return render();
-      }
-    };
-
-  
-    // — TRENDING TAGS —
-    document.querySelectorAll('.tag-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        currentTag = btn.dataset.tag;
-        render();
-      };
+          </div>
+        </li>
+      `);
     });
-
-
-
-    // ── Chatbot toggle ──
-    document.getElementById('chatToggle').addEventListener('click', () => {
-      document.getElementById('chatbot').classList.add('active');
-    });
-    document.getElementById('chatClose').addEventListener('click', () => {
-      document.getElementById('chatbot').classList.remove('active');
-    });
-    // — Tip of the day
-    const tips = [
-      "Stay hydrated—drink 250 ml water before workouts.",
-      "Warm up 5 min to activate muscles.",
-      "Focus on form; quality reps build strength.",
-      "Cool down & stretch after each session.",
-      "Try a fun activity weekly to stay motivated."
-    ];
-    tipEl.textContent = tips[Math.floor(Math.random()*tips.length)];
   }
 
-  // ── Initialize & react to data changes ──
+  // ── EVENT BINDINGS FOR COMMUNITY ────────────────────
+  // Post new feed item
+  postBtn.addEventListener('click', () => {
+    const txt = postInput.value.trim();
+    if (!txt) return;
+    const f = Storage.get('ft_feed') || [];
+    const c = Storage.get('ft_comments') || [];
+    f.unshift({ user:me, avatarUrl:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
+    c.unshift([]);
+    Storage.set('ft_feed', f);
+    Storage.set('ft_comments', c);
+    postInput.value = '';
+    renderCommunity();
+  });
+  // Like / toggle / comment
+  communityFeed.addEventListener('click', e => {
+    const li = e.target.closest('.feed-item');
+    if (!li) return;
+    const idx = Array.from(communityFeed.children).indexOf(li);
+    const f = Storage.get('ft_feed');
+    const c = Storage.get('ft_comments');
+    // like post
+    if (e.target.closest('.like-btn')) {
+      const p = f[idx];
+      const pos = p.likedBy.indexOf(me);
+      if (pos >= 0) { p.likedBy.splice(pos,1); p.likes--; }
+      else          { p.likedBy.push(me); p.likes++; }
+      Storage.set('ft_feed', f);
+      renderCommunity();
+      return;
+    }
+    // toggle comments
+    if (e.target.closest('.toggle-comments')) {
+      li.querySelector('.comments-container').classList.toggle('open');
+      return;
+    }
+    // post inline comment
+    if (e.target.closest('.new-comment-btn')) {
+      const inp = li.querySelector('.new-comment-input');
+      const txt = inp.value.trim();
+      if (!txt) return;
+      c[idx].push({ user:me, avatarUrl:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
+      Storage.set('ft_comments', c);
+      renderCommunity();
+      return;
+    }
+  });
+
+  // ── TRENDING TAG BUTTONS ─────────────────────────────
+  tagButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tagButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTag = btn.dataset.tag;
+      renderCommunity();
+    });
+  });
+
+  // ── CHATBOT TOGGLE ──────────────────────────────────
+  document.getElementById('chatToggle').addEventListener('click', () => {
+    document.getElementById('chatbot').classList.add('active');
+  });
+  document.getElementById('chatClose').addEventListener('click', () => {
+    document.getElementById('chatbot').classList.remove('active');
+  });
+
+  // ── TIP OF THE DAY ──────────────────────────────────
+  const tips = [
+    "Stay hydrated—drink 250 ml before workouts.",
+    "Warm up 5 min to activate muscles.",
+    "Focus on form; quality reps build strength.",
+    "Cool down & stretch after each session.",
+    "Try a fun activity weekly to stay motivated."
+  ];
+  tipEl.textContent = tips[Math.floor(Math.random()*tips.length)];
+
+  // ── INITIALIZE EVERYTHING ───────────────────────────
   updateDashboard();
-  Storage.onChange([
-    'ft_activities',
-    'ft_leaderboard',
-    'ft_mySchedules',
-    'ft_liveSessions',
-    'ft_feed'
-  ], updateDashboard);
-});
+ Storage.onChange(
+  ['ft_activities','ft_leaderboard','ft_mySchedules','ft_liveSessions','ft_feed','ft_comments'],
+  updateDashboard
+);
+  });
 </script>
 
 </body>
