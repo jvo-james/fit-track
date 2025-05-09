@@ -101,30 +101,17 @@
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
       padding:1rem 0; position:sticky; top:0; height:100vh;
-      z-index:var(--z-sidebar);
+      z-index:1000;
     }
-   .sidebar {
-
-  z-index: 1000; 
-}
-@media(max-width:600px){
-  .sidebar {
-    position: fixed;
-    left: -100%;
-    width: var(--mobile-w);
-    z-index: 1000; /* also here */
-  }
-  .sidebar.open {
-    left: 0;
-  }
-}
-
-     
+    @media(max-width:600px){
+      .sidebar { position: fixed; left: -100%; width: var(--mobile-w); }
+      .sidebar.open { left: 0; }
+    }
     .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item, .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
       display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      background:transparent; border:none; color:var(--white);
+      background:transparent; color:var(--white);
       transition:background var(--transition);
     }
     .sidebar a.menu-item.active,
@@ -141,6 +128,7 @@
       width:32px; height:32px; border-radius:50%;
       object-fit:cover; border:2px solid var(--white);
     }
+
     /* Main & header */
     .main {
       flex:1; display:flex; flex-direction:column;
@@ -155,56 +143,42 @@
         width: var(--mobile-w);
         z-index: var(--z-sidebar);
       }
-      .sidebar.open { left: 0; }
-      /* show hamburger & profile buttons on mobile */
-      .hamburger, .profile-btn { display: block; position: fixed; top: 1rem; }
-      .hamburger { left: 1rem; }
-      .profile-btn { right: 1rem; }
-      header h1 { margin: 0 auto; }
-    }
     header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding:1rem 1.5rem;
-      background:linear-gradient(135deg,#111,#222);
-      box-shadow:0 4px 12px rgba(0,0,0,0.7);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
-      position:sticky; top:0; z-index:var(--z-header);
+      position:sticky; top:0; width:100%; z-index:200;
     }
-    .hamburger, .profile-btn {
-      display:none; background:transparent; border:none;
-      color:var(--white); font-size:1.5rem; cursor:pointer;
+    .hamburger { display:none; font-size:1.4rem; color: white; }
+    .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
+    .search input {
+      padding:.4rem .6rem; background:var(--accent);
+      border:1px solid var(--accent); border-radius:6px; color:var(--white);
     }
-   @media (max-width: 600px) {
-  .hamburger, .profile-btn {
-    display: block;
-    position: fixed;
-    top: 1rem;
-  }
-  .hamburger { left: 1rem; }
-  .profile-btn { right: 1rem; }
-  header h1 { margin: 0 auto; }
-}
-    /* hide sidebar-close on desktop */
-#sidebar-close {
-  display: none;
-}
+    .controls { display:flex; align-items:center; gap:.5rem; }
+    .controls select, .controls button {
+      padding:.4rem .6rem; background:var(--accent);
+      border:1px solid var(--accent); border-radius:6px; color:var(--white);
+    }
+    .avatar-btn img { width:32px; height:32px; border-radius:50%; object-fit:cover; }
+    @media(max-width:600px){
+      .hamburger { display:block; }
+      .search, .controls select { display:none; }
+    }
+img.avatar, i.avatar {
+    width:32px; height:32px; border-radius:50%;
+       object-fit:cover; border:2px solid var(--white);
+    }
 
-/* show it under 600px only */
-@media (max-width: 600px) {
-  #sidebar-close {
-    display: block;
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: transparent;
-    color: var(--white);
-    font-size: 1.5rem;
-    border: none;
-    cursor: pointer;
-  }
-}
-
-
+     i.avatar {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 1.2rem;  
+     width:32px;
+     height:32px;
+   }
+ 
 header h1 { margin:0 auto; }
     
     header h1 {
@@ -422,7 +396,7 @@ header h1 { margin:0 auto; }
     .modal {
       background:var(--bg); border:2px solid var(--gold);
       border-radius:8px; padding:1.5rem; max-width:360px; width:90%;
-      color:var(--white);
+      color:var(--white); max-height: 90vh;  overflow-y: auto;
     }
     .modal h2 {
       color:var(--gold); margin-bottom:1rem; font-size:1.2rem;
@@ -760,16 +734,7 @@ document.addEventListener('DOMContentLoaded', () => {
   syncNotif();
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
-  // ── Sidebar toggle ──
-  function toggleSidebar() {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-  }
-  hamburger.addEventListener('click', toggleSidebar);
-  sidebarClose.addEventListener('click', toggleSidebar);
-  overlay.addEventListener('click', toggleSidebar);
-  window.toggleSidebar = toggleSidebar;
-
+  
   // ── Profile navigation ──
   profileBtn.addEventListener('click', () => location.replace('profile.html'));
   profileMenu.addEventListener('click', () => location.replace('profile.html'));
@@ -867,24 +832,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // ── Profile avatar sync ──
-  function syncProfileDisplay(){
-    const p = Storage.get('ft_current', {});
-    const url = p.avatarDataUrl 
-      // default to profile-icon if no custom avatar
-      ? p.avatarDataUrl
-      : '';
-    ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id => {
-      const old = document.getElementById(id);
-      if (!old) return;
-      const img = document.createElement('img');
-      img.id = id; img.className = 'avatar'; img.src = url; img.alt = 'Avatar';
-      old.replaceWith(img);
+ // — AVATAR SYNC —
+    function updateAvatars() {
+       const { avatarUrl } = getCurrent();
+      ['side-avatar','hdrAvatarIcon'].forEach(id => {
+        const old = document.getElementById(id);
+        if (!old) return;
+        if (avatarUrl) {
+          const img = document.createElement('img');
+          img.id = id;
+          img.className = 'avatar';
+          img.src = avatarUrl;
+          img.alt = 'Avatar';
+          old.replaceWith(img);
+        } else {
+          const icon = document.createElement('i');
+          icon.id = id;
+          icon.className = 'fas fa-user-circle avatar';
+          old.replaceWith(icon);
+        }
+      });
+    }
+    updateAvatars();
+    Storage.onChange('ft_current', () => {
+      ({name: me, avatarUrl: myAvatar} = getCurrent());
+      updateAvatars();
+        render(); 
     });
-    document.getElementById('dash-name').textContent = p.name;
-  }
-  syncProfileDisplay();
-  Storage.onChange('ft_current', syncProfileDisplay);
+
+    // — SIDEBAR TOGGLE —
+    window.toggleSidebar = () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('active');
+    };
+
 
   // ── Main render function ──
   function updateDashboard(){
