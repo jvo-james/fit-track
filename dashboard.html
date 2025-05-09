@@ -559,15 +559,13 @@ header h1 { margin:0 auto; }
 
 #chatToggle {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 20px; right: 20px;
   width: 50px; height: 50px;
-  background: #fff; color: #222;
-  border: none; border-radius: 50%;
-  display: flex !important;     /* ensure it isn’t being overridden */
-  align-items: center; justify-content: center;
-  font-size: 1.4rem; cursor: pointer;
-  animation: pulse 2s infinite;
+  background: var(--white); color: var(--dark-gray);
+  border: none; border-radius:50%;
+  display: flex;                
+  align-items: center; justify-content:center;
+  font-size:1.4rem; cursor:pointer;
   z-index: 9999;
 }
 
@@ -748,21 +746,27 @@ header h1 { margin:0 auto; }
         <div class="achievements-grid" id="yourAchievements"></div>
       </section>
 
-      <!-- Community Feed -->
+    <!-- Community Feed  -->
       <section class="community">
         <h2><i class="fas fa-users"></i> Community Feed</h2>
-        <div class="post-update">
-  <input id="newFeedInput" placeholder="Share something…"/>
-  <button id="postFeedBtn">Post</button>
-</div>
-
-       <ul class="feed-list" id="communityFeed"></ul>
-        <!-- View more posts -->
+        <div class="post-box">
+          <input id="newFeedInput" placeholder="Share something…"/>
+          <button id="postFeedBtn"><i class="fas fa-paper-plane"></i> Post</button>
+        </div>
+        <div id="trending-topics" class="trending" style="margin:1rem 0;">
+          <!-- same trending buttons as community.html -->
+          <button class="tag-btn active" data-tag="All">All</button>
+          <button class="tag-btn" data-tag="#HIIT">#HIIT</button>
+          <button class="tag-btn" data-tag="#Yoga">#Yoga</button>
+          <button class="tag-btn" data-tag="#Nutrition">#Nutrition</button>
+          <button class="tag-btn" data-tag="#Running">#Running</button>
+          <button class="tag-btn" data-tag="#Strength">#Strength</button>
+        </div>
+        <ul class="feed-list" id="communityFeed"></ul>
         <div class="view-more-posts" style="text-align:center;margin-top:1rem;">
           <a href="community.html">View more posts →</a>
         </div>
       </section>
-
       <footer>&copy; 2025 FitTrack. All rights reserved.</footer>
     </div>
   </div>
@@ -804,162 +808,83 @@ header h1 { margin:0 auto; }
 </div>
 <button id="chatToggle"><i class="fas fa-comments"></i></button>
   
-
-  <script type="module">
+<script type="module">
 import { Storage } from './storage.js';
+import Chart from 'chart.js/auto';
 
 document.addEventListener('DOMContentLoaded', () => {
+  // ─── HELPERS ──────────────────────────────────────
+  function getCurrent() {
+    const c = Storage.get('ft_current') || {};
+    return {
+      name: c.name || '',
+      avatarUrl: c.avatarDataUrl || '',
+      profileComplete: !!c.profileComplete
+    };
+  }
+  function timeAgo(ts) {
+    const d = Date.now() - ts;
+    const m = Math.floor(d/60000);
+    return m < 1 ? 'just now' : `${m}m ago`;
+  }
 
-  // ── 0) Seed demo community posts & comments exactly once ──
- if (!Storage.get('ft_feed')) {
-   const texts = [
-     "Alice smashed a 5 km run!",
-     "Bob crushed 3 HIIT sessions!",
-     "Cara hit her 10th workout milestone!",
-     "Dan improved his plank by 30s!",
-     "Eve joined the 7-Day Abs challenge!"
-   ];
-   const sampleUsers = ['Alice','Bob','Cara','Dan','Eve'];
-   const sampleReplies = [
-     "Amazing job!",
-     "Keep it up 💪",
-     "You're killing it!",
-     "So inspiring!",
-     "Wow, congrats!"
-   ];
-   // seed posts
-   const feed = texts.map((t,i) => ({
-     text: t,
-     timestamp: Date.now() - Math.random()*3600000,
-     likes: Math.floor(Math.random()*50)+1
-   }));
-   // seed 1–3 realistic comments
-   const initialComments = feed.map((_,i) => {
-     return Array.from({length: Math.floor(Math.random()*3)+1}).map(() => ({
-       user: sampleUsers[Math.floor(Math.random()*sampleUsers.length)],
-       text: sampleReplies[Math.floor(Math.random()*sampleReplies.length)]
-     }));
-   });
-   Storage.set('ft_feed', feed);
-   Storage.set('ft_comments', initialComments);
- }
-  // ── Redirect if not logged in ──
-  const cur = Storage.get('ft_current', null);
-  if (!cur || !cur.name) return location.replace('home.html');
-
-  // ── Grab DOM elements ──
+  // ─── DOM NODES ────────────────────────────────────
+  const sidebar      = document.getElementById('sidebar');
+  const overlay      = document.getElementById('overlay');
+  const hamb         = document.getElementById('hamburger');
+  const sbClose      = document.getElementById('sidebar-close');
   const notifBar     = document.getElementById('notif-bar');
   const notifClose   = document.getElementById('notif-close');
   const pseudoToast  = document.getElementById('pseudo-toast');
-  const hamburger    = document.getElementById('hamburger');
-  const sidebar      = document.getElementById('sidebar');
-  const overlay      = document.getElementById('overlay');
-  const sidebarClose = document.getElementById('sidebar-close');
-  const profileBtn   = document.getElementById('profile-btn');
-  const profileMenu  = document.querySelector('.profile-menu');
-  const newWorkoutBtn= document.querySelector('.new-workout');
+  const newWorkout   = document.querySelector('.new-workout');
   const workoutModal = document.getElementById('workout-modal');
   const wCancel      = document.getElementById('w-cancel');
   const wSave        = document.getElementById('w-save');
   const greetingEl   = document.getElementById('greeting');
-  const activityCtx  = document.getElementById('activityChart').getContext('2d');
-  const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+  const dashAvatar   = document.getElementById('dash-avatar');
+  const dashName     = document.getElementById('dash-name');
+  const profileBtn   = document.getElementById('profile-btn');
+  const profileMenu  = document.querySelector('.profile-menu');
+  const chartLine    = document.getElementById('activityChart').getContext('2d');
+  const chartPie     = document.getElementById('distributionChart').getContext('2d');
   const recentBody   = document.getElementById('recent-acts');
   const miniList     = document.getElementById('miniLeaderboard');
   const achGrid      = document.getElementById('yourAchievements');
   const liveGrid     = document.getElementById('liveSessionsGrid');
-  const communityFeed= document.getElementById('communityFeed');
   const postInput    = document.getElementById('newFeedInput');
   const postBtn      = document.getElementById('postFeedBtn');
-  const tipEl        = document.getElementById('tip-of-day');
-  
+  const tagButtons   = document.querySelectorAll('.tag-btn');
+  const communityFeed= document.getElementById('communityFeed');
+  const chatToggle   = document.getElementById('chatToggle');
+  const chatClose    = document.getElementById('chatClose');
+  const chatBot      = document.getElementById('chatbot');
 
-   // ── 1) Post button: prepend & re-render ──
-   postBtn.addEventListener('click', () => {
-     const txt = postInput.value.trim();
-     if (!txt) return;
-     const feed = Storage.get('ft_feed');
-     feed.unshift({ text: txt, timestamp: Date.now() });
-     Storage.set('ft_feed', feed);
-     postInput.value = '';
-     updateDashboard();
-   });
-
-  // ── Show/hide notification bar ──
+  // ─── NOTIFICATION BAR ────────────────────────────
   function syncNotif() {
-    const p = Storage.get('ft_current', {});
-    notifBar.classList.toggle('hidden', !!p.profileComplete);
+    const { profileComplete } = getCurrent();
+    notifBar.classList.toggle('hidden', profileComplete);
   }
   Storage.onChange('ft_current', syncNotif);
-  syncNotif();
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
+  syncNotif();
 
-  // ── Sidebar toggle ──
+  // ─── SIDEBAR TOGGLE ──────────────────────────────
   function toggleSidebar() {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
   }
-  hamburger.addEventListener('click', toggleSidebar);
-  sidebarClose.addEventListener('click', toggleSidebar);
+  hamb.addEventListener('click', toggleSidebar);
+  sbClose.addEventListener('click', toggleSidebar);
   overlay.addEventListener('click', toggleSidebar);
-  window.toggleSidebar = toggleSidebar;
 
-  // ── Profile navigation ──
-  profileBtn.addEventListener('click', () => location.replace('profile.html'));
-  profileMenu.addEventListener('click', () => location.replace('profile.html'));
+  // ─── PROFILE NAVIGATION ──────────────────────────
+  profileBtn.addEventListener('click', ()=>location.replace('profile.html'));
+  profileMenu.addEventListener('click', ()=>location.replace('profile.html'));
 
-  // ── Seed sample workout for new users ──
-  if (cur.isNew) {
-    greetingEl.textContent = `Hello, ${cur.name}!`;
-    let acts = Storage.get('ft_activities', []);
-    if (!acts.length) {
-      acts = [{
-        id: 'sample',
-        date: new Date().toISOString().slice(0,10),
-        type: 'Cardio', duration: 20, distance: 2, calories: 150, notes: 'Welcome sample workout!'
-      }];
-      Storage.set('ft_activities', acts);
-    }
-    setTimeout(() => pseudoToast.classList.add('active'), 5000);
-    cur.isNew = false;
-    Storage.set('ft_current', cur);
-    // announce in feed
-    const joinFeed = Storage.get('ft_feed');
-    joinFeed.unshift({ text: `${cur.name} joined the community!`, timestamp: Date.now() });
-    Storage.set('ft_feed', joinFeed);
-  } else {
-    greetingEl.textContent = `Welcome back, ${cur.name}!`;
-  }
-  pseudoToast.addEventListener('click', () => pseudoToast.classList.remove('active'));
-
-   // ── 2) Delegate Like & Comment (only once!) ──
-   communityFeed.addEventListener('click', e => {
-     const item = e.target.closest('.feed-item');
-     if (!item) return;
-     const idx = Number(item.dataset.index);
-
-     // Like
-     if (e.target.closest('.like-btn')) {
-       const span = item.querySelector('.like-count');
-       span.textContent = parseInt(span.textContent) + 1;
-       return;
-     }
-
-     // Comment
-     if (e.target.closest('.comment-btn')) {
-       const reply = prompt('Add a comment:');
-       if (!reply) return;
-       const allC = Storage.get('ft_comments');
-       allC[idx].push(reply);
-       Storage.set('ft_comments', allC);
-       item.insertAdjacentHTML('beforeend', `
-         <div class="pseudo-comment"><small>— You: ${reply}</small></div>`);
-     }
-   });
- // —— Workout modal
-  newWorkoutBtn.onclick     = () => workoutModal.classList.add('active');
-  wCancel.onclick           = () => workoutModal.classList.remove('active');
-  wSave.onclick             = () => {
+  // ─── WORKOUT MODAL ────────────────────────────────
+  newWorkout.addEventListener('click', ()=>workoutModal.classList.add('active'));
+  wCancel.addEventListener('click', ()=>workoutModal.classList.remove('active'));
+  wSave.addEventListener('click', ()=>{
     const date     = document.getElementById('w-date').value;
     const type     = document.getElementById('w-type').value;
     const duration = +document.getElementById('w-duration').value;
@@ -967,153 +892,99 @@ document.addEventListener('DOMContentLoaded', () => {
     const distance = +document.getElementById('w-distance').value;
     const calories = +document.getElementById('w-calories').value;
     const notes    = document.getElementById('w-notes').value.trim();
-    const all      = Storage.get('ft_activities', []);
-    all.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
-    Storage.set('ft_activities', all);
+    const acts = Storage.get('ft_activities', []);
+    acts.unshift({ id:Date.now().toString(), date, type, duration, distance, calories, notes });
+    Storage.set('ft_activities', acts);
     updateDashboard();
     workoutModal.classList.remove('active');
-  };
-
- // —— Charts instances
-  const activityChart = new Chart(activityCtx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        data: [0,0,0,0],
-        borderColor: 'rgba(255,152,0,1)',
-        backgroundColor: 'rgba(255,152,0,0.3)',
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: { responsive: true, maintainAspectRatio: false }
   });
 
-  const distributionChart = new Chart(distributionCtx, {
-    type: 'pie',
-    data: {
-      labels: ['Cardio', 'Strength', 'Flexibility', 'Other'],
-      datasets: [{
-        data: [0,0,0,0],
-       backgroundColor: [
-          '#ff9800',  // orange
-          '#2196f3',  // blue
-          '#4caf50',  // green
-          '#e91e63'   // pink
-        ],
-        hoverOffset: 8,
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { font: { size: 14, weight: 'bold' } }
-        },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.label}: ${ctx.parsed} workouts`
-          }
-        }
-      }
-    }
+  // ─── CHARTS SETUP ─────────────────────────────────
+  const activityChart = new Chart(chartLine, {
+    type: 'line', data:{ labels:[], datasets:[{ data:[], borderColor:'#ff9800', backgroundColor:'rgba(255,152,0,0.3)', fill:true }]},
+    options:{responsive:true,maintainAspectRatio:false}
+  });
+  const distributionChart = new Chart(chartPie, {
+    type:'pie',
+    data:{ labels:['Cardio','Strength','Flexibility','Other'], datasets:[{ data:[0,0,0,0], backgroundColor:['#ff9800','#2196f3','#4caf50','#e91e63'] }]},
+    options:{responsive:true,maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}
   });
 
+  // ─── CHATBOT TOGGLE ──────────────────────────────
+  chatToggle.addEventListener('click', ()=>chatBot.classList.add('active'));
+  chatClose.addEventListener('click', ()=>chatBot.classList.remove('active'));
 
-  // ── Profile avatar sync ──
-  function syncProfileDisplay(){
-    const p = Storage.get('ft_current', {});
-    const url = p.avatarDataUrl 
-      // default to profile-icon if no custom avatar
-      ? p.avatarDataUrl
-      : '';
-    ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id => {
+  // ─── SEED SAMPLE FEED & COMMENTS ONCE ────────────
+  if (!Storage.get('ft_feed')) {
+    const sampleTexts = ["Alice ran 5 km!","Bob did 3 HIIT sessions!","Cara hit 10 workouts!","Dan improved plank by 30s!","Eve joined abs challenge!"];
+    const sampleUsers = ['Alice','Bob','Cara','Dan','Eve'];
+    const sampleReplies= ["Amazing!","Keep it up!","So inspiring!"];
+    const feed = sampleTexts.map((t,i)=>({
+      user: sampleUsers[i], avatar:``, text:t, timestamp:Date.now()-Math.random()*3600000, likes:Math.floor(Math.random()*20)
+    }));
+    const comments = feed.map(_=>Array.from({length:2},()=>({
+      user: sampleUsers[Math.floor(Math.random()*5)], text: sampleReplies[Math.floor(Math.random()*3)]
+    })));
+    Storage.set('ft_feed', feed);
+    Storage.set('ft_comments', comments);
+  }
+
+  // ─── RENDER & UPDATE ALL DASHBOARD SECTIONS ──────
+  function updateDashboard(){
+    const cur = getCurrent();
+    // — Greeting & Profile —
+    greetingEl.textContent = cur.name ? `Welcome back, ${cur.name}!` : 'Loading…';
+    dashName.textContent = cur.name;
+    // avatar sync with fallback to icon
+    ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id=>{
       const old = document.getElementById(id);
       if (!old) return;
-      const img = document.createElement('img');
-      img.id = id; img.className = 'avatar'; img.src = url; img.alt = 'Avatar';
-      old.replaceWith(img);
+      const node = cur.avatarUrl
+        ? Object.assign(document.createElement('img'),{ id, className:'avatar', src:cur.avatarUrl })
+        : Object.assign(document.createElement('i'),{ id, className:'fas fa-user-circle avatar' });
+      old.replaceWith(node);
     });
-    document.getElementById('dash-name').textContent = p.name;
-  }
-  syncProfileDisplay();
-  Storage.onChange('ft_current', syncProfileDisplay);
 
-  // ── Main render function ──
-  function updateDashboard(){
+    // — Activities stats & charts —
     const acts = Storage.get('ft_activities', []);
-    const now  = new Date();
-
-  // — Monthly stats
-    const monthActs = acts.filter(a => {
-      const d = new Date(a.date);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    const now = new Date();
+    // monthly
+    const monthActs = acts.filter(a=>{
+      const d=new Date(a.date);
+      return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
     });
-    document.getElementById('workoutsCount').textContent   = monthActs.length;
-    const totDist = monthActs.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
-    document.getElementById('distanceCount').textContent   = `${totDist} km`;
-    const totCal = monthActs.reduce((s,a)=>s+(+a.calories||0),0);
-    document.getElementById('caloriesCount').textContent   = totCal;
-    const activeDays = new Set(monthActs.map(a=>a.date)).size;
-    document.getElementById('activeDaysCount').textContent = activeDays;
-
-    // — Today & Avg
-    const todayKey = now.toISOString().slice(0,10);
-    const todayMin = acts.filter(a=>a.date===todayKey).reduce((s,a)=>s+(+a.duration||0),0);
-    document.getElementById('todayTime').textContent      = `${todayMin} min`;
-    const avgCal = monthActs.length ? Math.round(totCal/monthActs.length) : 0;
-    document.getElementById('avgCalories').textContent    = avgCal;
-
-    // — Goals bars
-    const weekCount = acts.filter(a => (now - new Date(a.date)) / (1000*60*60*24) <= 7).length;
-    document.getElementById('progressBar').style.width   = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-    document.getElementById('goalDaily').style.width     = `${Math.min(100,Math.round(todayMin/30*100))}%`;
-    document.getElementById('goalWeekly').style.width    = `${Math.min(100,Math.round(weekCount/5*100))}%`;
-    document.getElementById('goalMonthly').style.width   = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
-
-    // — Activity over time
-    const labels = [], data7 = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
+    document.getElementById('workoutsCount').textContent = monthActs.length;
+    const totalDist = monthActs.reduce((s,a)=>s+(+a.distance||0),0).toFixed(1);
+    document.getElementById('distanceCount').textContent = `${totalDist} km`;
+    const totalCal = monthActs.reduce((s,a)=>s+(+a.calories||0),0);
+    document.getElementById('caloriesCount').textContent = totalCal;
+    document.getElementById('activeDaysCount').textContent = new Set(monthActs.map(a=>a.date)).size;
+    // today & avg
+    const today = now.toISOString().slice(0,10);
+    const todayMin = acts.filter(a=>a.date===today).reduce((s,a)=>s+(+a.duration||0),0);
+    document.getElementById('todayTime').textContent = `${todayMin} min`;
+    document.getElementById('avgCalories').textContent = monthActs.length
+      ? Math.round(totalCal/monthActs.length) : 0;
+    // chart line
+    const labels = [], dataLine = [];
+    for(let i=6;i>=0;i--){
+      const d = new Date(); d.setDate(d.getDate()-i);
       labels.push(d.toLocaleDateString(undefined,{weekday:'short'}));
-      data7.push(acts.filter(a=>a.date===d.toISOString().slice(0,10))
-                     .reduce((s,a)=>s+(+a.duration||0),0));
+      dataLine.push(acts.filter(a=>a.date===d.toISOString().slice(0,10))
+        .reduce((s,a)=>s+(+a.duration||0),0));
     }
-    activityChart.data.labels            = labels;
-    activityChart.data.datasets[0].data  = data7;
+    activityChart.data.labels = labels;
+    activityChart.data.datasets[0].data = dataLine;
     activityChart.update();
+    // chart pie
+    const countsByType = monthActs.reduce((acc,a)=>(acc[a.type]=(acc[a.type]||0)+1,acc),{});
+    distributionChart.data.labels = Object.keys(countsByType);
+    distributionChart.data.datasets[0].data = Object.values(countsByType);
+    distributionChart.update();
 
-  // — Distribution pie (dynamic)
-  // 1) Count each workout type in this month
-  const countsByType = monthActs.reduce((acc, a) => {
-    acc[a.type] = (acc[a.type] || 0) + 1;
-    return acc;
-  }, {});
-  // 2) Build labels & data arrays
-  const types  = Object.keys(countsByType);
-  const counts = types.map(t => countsByType[t]);
-  // 3) Feed into Chart.js
-  distributionChart.data.labels           = types;
-  distributionChart.data.datasets[0].data = counts;
-  distributionChart.update();
-
-   // — Summary stats for Recent Activities (min avg / km / cal)
-  const recent = acts.slice(0,7);
-  let sumDur=0, sumDist=0, sumCal=0;
-  recent.forEach(a => {
-    sumDur  += (+a.duration  || 0);
-    sumDist += (+a.distance  || 0);
-    sumCal  += (+a.calories  || 0);
-  });
-  document.getElementById('avg-dur').textContent  = recent.length ? Math.round(sumDur/recent.length) : 0;
-  document.getElementById('tot-dist').textContent = sumDist.toFixed(1);
-  document.getElementById('tot-cal').textContent  = sumCal;
+    // — Recent Activities Table —
     recentBody.innerHTML = '';
-    acts.slice(0,7).forEach(e => {
+    acts.slice(0,7).forEach(e=>{
       recentBody.insertAdjacentHTML('beforeend', `
         <tr>
           <td>${e.date}</td>
@@ -1125,47 +996,49 @@ document.addEventListener('DOMContentLoaded', () => {
         </tr>`);
     });
 
-
-    // — Top-5 leaderboard (names + scores only)
-    const rawLB = Storage.get('ft_leaderboard', []).map(u=>({
-      ...u, score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2)
-    }));
-    const top5 = rawLB.sort((a,b)=>b.score-a.score).slice(0,5);
+    // — Mini Leaderboard —
+    const lbRaw = Storage.get('ft_leaderboard', []);
+    const top5 = lbRaw.map(u=>({
+        ...u,
+        score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2)
+      }))
+      .sort((a,b)=>b.score-a.score)
+      .slice(0,5);
     miniList.innerHTML = '';
-    top5.forEach(u => {
+    top5.forEach(u=>{
       miniList.insertAdjacentHTML('beforeend', `
-        <li style="display:flex;justify-content:space-between;">
+        <li style="display:flex;justify-content:space-between">
           <span>${u.name}</span><strong>${u.score}</strong>
         </li>`);
     });
 
-    // — Achievements badges
+    // — Achievements —
     const total = acts.length;
     const badges = [
-      {n:1, icon:'fas fa-star',   txt:'First Workout'},
-      {n:5, icon:'fas fa-medal',  txt:'5 Workouts'},
-      {n:10,icon:'fas fa-trophy', txt:'10 Workouts'},
-      {n:30,icon:'fas fa-award',  txt:'30 Workouts'}
+      {n:1, icon:'fas fa-star', txt:'First Workout'},
+      {n:5, icon:'fas fa-medal', txt:'5 Workouts'},
+      {n:10,icon:'fas fa-trophy',txt:'10 Workouts'},
+      {n:30,icon:'fas fa-award', ptxt:'30 Workouts'}
     ];
     achGrid.innerHTML = '';
-    badges.forEach(b => {
+    badges.forEach(b=>{
       achGrid.insertAdjacentHTML('beforeend', `
         <div class="achievement-badge${total>=b.n?' unlocked':''}">
           <i class="${b.icon}"></i><p>${b.txt}</p>
         </div>`);
     });
 
-   // —— Upcoming Live Sessions
+    // — Upcoming Live Sessions —
     liveGrid.innerHTML = '';
     const sessions = Storage.get('ft_liveSessions', []);
-    const schedIds  = Storage.get('ft_mySchedules', []);
-    sessions.forEach(s => {
-      const start    = new Date(s.date||s.start);
+    const schedIds = Storage.get('ft_mySchedules', []);
+    sessions.forEach(s=>{
+      const start = new Date(s.date||s.start);
       const isFuture = start > new Date();
-      const joined   = schedIds.includes(s.id);
-      const btnTxt   = isFuture
-                       ? (joined ? '✔ Scheduled' : '⏱ Schedule')
-                       : '🔴 LIVE';
+      const joined = schedIds.includes(s.id);
+      const btnTxt = isFuture
+        ? (joined ? '✔ Scheduled':'⏱ Schedule')
+        : '🔴 LIVE';
       liveGrid.insertAdjacentHTML('beforeend', `
         <div class="live-card">
           <img src="${s.img}" alt="${s.title}"/>
@@ -1177,136 +1050,130 @@ document.addEventListener('DOMContentLoaded', () => {
           <button data-id="${s.id}" class="live-btn">${btnTxt}</button>
         </div>`);
     });
-    document.querySelectorAll('.live-btn').forEach(btn => {
-      btn.onclick = e => {
+    liveGrid.querySelectorAll('.live-btn').forEach(btn=>{
+      btn.addEventListener('click', e=>{
         const id = +e.currentTarget.dataset.id;
         let arr = Storage.get('ft_mySchedules', []);
         if (e.currentTarget.textContent.includes('Schedule')) {
           if (!arr.includes(id)) arr.push(id);
           alert('Session scheduled!');
         } else {
-          alert('Enjoy the live session!');
+          alert('Enjoy your live session!');
         }
         Storage.set('ft_mySchedules', arr);
         updateDashboard();
-      };
-    });
-// —— Delegate live-session clicks (schedule / join)
-  liveGrid.addEventListener('click', e => {
-    const btn = e.target.closest('button.live-btn');
-    if (!btn) return;
-    const id = +btn.dataset.id;
-    let sched = Storage.get('ft_mySchedules', []);
-    if (btn.textContent.includes('Schedule')) {
-      if (!sched.includes(id)) sched.push(id);
-      btn.textContent = '✔ Scheduled';
-    } else if (btn.textContent.includes('LIVE')) {
-      alert('Joining live session…');
-    }
-    Storage.set('ft_mySchedules', sched);
-    updateDashboard();
-  });
-
-
-
-    // — Community feed: posts + comments
-    const feed = Storage.get('ft_feed', []);
-    const comments = Storage.get('ft_comments', []);
-    communityFeed.innerHTML = '';
-    feed.slice(0,5).forEach((post, idx) => { 
-      const minsAgo = Math.floor((Date.now() - post.timestamp) / 60000);
-      communityFeed.insertAdjacentHTML('beforeend', `
-       <li class="feed-item" data-index="${idx}">
-      <p>${post.text}</p>
-      <div class="feed-controls">
-        <span class="feed-time">${minsAgo}m ago</span>
-        <button class="toggle-comments">▼ ${comments[idx].length} comments</button>
-        <button class="like-btn"><i class="fas fa-heart"></i><span class="like-count">${post.likes}</span></button>
-      </div>
-      <div class="comments-container">
-        ${comments[idx].map(c => `
-          <div class="pseudo-comment"><strong>${c.user}:</strong> ${c.text}</div>
-        `).join('')}
-      </div>
-    </li>`);
-      comments[idx].forEach(c => {
-        communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
-          <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
       });
     });
 
-    // ── Delegate like + comment ──
-    communityFeed.addEventListener('click', e => {
-    const item = e.target.closest('.feed-item');
-    if (!item) return;
-    const idx = Number(item.dataset.index);
-
-    // 👍 Like
-    if (e.target.closest('.like-btn')) {
+    // — Community Feed (top 5) —────────────────────────
+    function renderFeed(){
+      const feed  = Storage.get('ft_feed', []);
+      const cmnts = Storage.get('ft_comments', []);
+      const tag   = currentTag;
+      communityFeed.innerHTML = '';
+      feed.slice(0,5).forEach((post,i)=>{
+        if (tag!=='All' && !post.text.includes(tag)) return;
+        communityFeed.insertAdjacentHTML('beforeend', `
+          <li class="feed-item" data-index="${i}">
+            <div class="feed-header">
+              ${ post.avatarUrl
+                  ? `<img class="feed-avatar" src="${post.avatarUrl}"/>`
+                  : `<i class="fas fa-user-circle feed-avatar avatar"></i>` }
+              <div>
+                <strong>${post.user}</strong>
+                <small>${timeAgo(post.timestamp)}</small>
+              </div>
+            </div>
+            <p class="feed-text">${post.text}</p>
+            <div class="feed-controls">
+              <button class="toggle-comments">▼ ${cmnts[i].length} comments</button>
+              <button class="like-btn"><i class="fas fa-heart${post.likedBy.includes(cur.name)?' active':''}"></i>
+                <span class="like-count">${post.likes}</span>
+              </button>
+            </div>
+            <div class="comments-container">
+              ${cmnts[i].map(c=>`
+                <div class="pseudo-comment"><strong>${c.user}:</strong> ${c.text}</div>
+              `).join('')}
+              <div class="add-comment">
+                ${ cur.avatarUrl
+                    ? `<img class="comment-avatar" src="${cur.avatarUrl}"/>`
+                    : `<i class="fas fa-user-circle comment-avatar avatar"></i>` }
+                <input class="new-comment-input" placeholder="Add a comment…"/>
+                <button class="new-comment-btn">Post</button>
+              </div>
+            </div>
+          </li>`);
+      });
+    }
+    let currentTag = 'All';
+    tagButtons.forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        tagButtons.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTag = btn.dataset.tag;
+        renderFeed();
+      });
+    });
+    postBtn.addEventListener('click',()=>{
+      const t = postInput.value.trim();
+      if (!t) return;
       const feed = Storage.get('ft_feed');
-      feed[idx].likes++;
+      feed.unshift({ user:cur.name, avatarUrl:cur.avatarUrl, text:t, timestamp:Date.now(), likes:0, likedBy:[] });
       Storage.set('ft_feed', feed);
-      item.querySelector('.like-count').textContent = feed[idx].likes;
-      return;
-    }
-
-   // ▼ Toggle comments accordion
-    if (e.target.matches('.toggle-comments')) {
-      const container = item.querySelector('.comments-container');
-      const btn       = item.querySelector('.toggle-comments');
-      container.classList.toggle('open');
-     // arrow toggle
-     btn.textContent = (container.classList.contains('open') ? '▲' : '▼')
-                     + ` ${Storage.get('ft_comments')[idx].length} comments`;
-      return;
-    }
-
-    // 📝 Add comment
-    if (e.target.closest('.comment-btn') || e.target.closest('.toggle-comments+button')) {
-      const reply = prompt('Add a comment:');
-      if (!reply) return;
-      const allC = Storage.get('ft_comments');
-      allC[idx].push({ user: Storage.get('ft_current').name, text: reply });
-      Storage.set('ft_comments', allC);
-      const container = item.querySelector('.comments-container');
-      container.insertAdjacentHTML('beforeend', `
-        <div class="pseudo-comment"><strong>${Storage.get('ft_current').name}:</strong> ${reply}</div>
-      `);
-      // update toggle text:
-      const btn = item.querySelector('.toggle-comments');
-      btn.textContent = `View ${allC[idx].length} comments`;
-    }
-  });
-// ── Mobile sidebar hook (hamburger) ──
-    document.getElementById('hamburger').addEventListener('click', toggleSidebar);
-
-    // ── Chatbot toggle ──
-    document.getElementById('chatToggle').addEventListener('click', () => {
-      document.getElementById('chatbot').classList.add('active');
+      Storage.set('ft_comments', [[],...Storage.get('ft_comments')]);
+      postInput.value = '';
+      renderFeed();
     });
-    document.getElementById('chatClose').addEventListener('click', () => {
-      document.getElementById('chatbot').classList.remove('active');
+    communityFeed.addEventListener('click',e=>{
+      const item = e.target.closest('.feed-item');
+      if (!item) return;
+      const i = +item.dataset.index;
+      const feed = Storage.get('ft_feed');
+      const cmnts= Storage.get('ft_comments');
+      // like
+      if (e.target.closest('.like-btn')){
+        const p = feed[i], idx=p.likedBy.indexOf(cur.name);
+        if (idx>=0){ p.likedBy.splice(idx,1); p.likes--; }
+        else       { p.likedBy.push(cur.name); p.likes++; }
+        Storage.set('ft_feed', feed);
+        renderFeed();
+      }
+      // toggle comments
+      if (e.target.closest('.toggle-comments')){
+        item.querySelector('.comments-container').classList.toggle('open');
+      }
+      // new comment
+      if (e.target.closest('.new-comment-btn')){
+        const inp = item.querySelector('.new-comment-input');
+        const txt = inp.value.trim();
+        if (!txt) return;
+        cmnts[i].push({ user:cur.name, text:txt });
+        Storage.set('ft_comments', cmnts);
+        renderFeed();
+      }
     });
-    // — Tip of the day
-    const tips = [
-      "Stay hydrated—drink 250 ml water before workouts.",
-      "Warm up 5 min to activate muscles.",
-      "Focus on form; quality reps build strength.",
-      "Cool down & stretch after each session.",
-      "Try a fun activity weekly to stay motivated."
-    ];
-    tipEl.textContent = tips[Math.floor(Math.random()*tips.length)];
+    Storage.onChange(['ft_feed','ft_comments'], renderFeed);
+    renderFeed();
   }
 
-  // ── Initialize & react to data changes ──
+  // ─── INITIALIZE ──────────────────────────────────
   updateDashboard();
   Storage.onChange([
     'ft_activities',
     'ft_leaderboard',
     'ft_mySchedules',
-    'ft_liveSessions',
-    'ft_feed'
+    'ft_liveSessions'
   ], updateDashboard);
+
+  // ─── PSEUDO TOAST for new users ─────────────────
+  const cur = getCurrent();
+  if (cur.name && Storage.get('ft_activities', []).length === 1 && Storage.get('ft_activities')[0].id === 'sample') {
+    greetingEl.textContent = `Hello, ${cur.name}!`;
+    setTimeout(()=>pseudoToast.classList.add('active'), 3000);
+    cur.isNew = false;
+    Storage.set('ft_current', {...Storage.get('ft_current'), isNew:false});
+  }
 });
 </script>
 
