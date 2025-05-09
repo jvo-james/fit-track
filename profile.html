@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Profile</title>
 
-  <!-- Google Fonts & Icons -->
+  <!-- Google Fonts & FontAwesome -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
@@ -20,9 +19,6 @@
     --gold: #ff9800;
     --font-base: 'Raleway', sans-serif;
     --font-head: 'Poppins', sans-serif;
-    --transition: .3s ease;
-    --sidebar-w: 80px;
-      --mobile-w: 200px;
   }
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -31,190 +27,169 @@
     font-family:var(--font-base);
   }
   a { color:inherit; text-decoration:none; }
+
+  /* Overlay (mobile sidebar) */
   #overlay {
-    position:fixed; inset:0; background:rgba(0,0,0,0.5);
-    opacity:0; visibility:hidden; transition:opacity var(--transition);
+    position:fixed; top:0; right:0; bottom:0; left:0;
+    background:rgba(0,0,0,0.5);
+    opacity:0; visibility:hidden; transition:opacity .3s;
     z-index:90;
   }
   #overlay.active { opacity:1; visibility:visible; }
 
- 
-    /* SIDEBAR */
-    .sidebar {
-      width:var(--sidebar-w);
-      background:rgba(0,0,0,0.9);
-      border-right:2px solid var(--gold);
-      display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0; position:sticky; top:0; height:100vh;
-      z-index:var(--z-sidebar);
-    }
-   .sidebar {
-
-  z-index: 1000; 
-}
-@media(max-width:600px){
+  /* SIDEBAR */
   .sidebar {
-    position: fixed;
-    left: -100%;
-    width: var(--mobile-w);
-    z-index: 1000; /* also here */
+    width:80px; background:rgba(0,0,0,0.9);
+    border-right:2px solid var(--gold);
+    display:flex; flex-direction:column; align-items:center;
+    padding-top:1rem; position:sticky; top:0; height:100vh;
+    transition:transform .3s ease;
+    z-index:100;
   }
-  .sidebar.open {
-    left: 0;
+  @media(max-width:800px){
+    .sidebar { position:fixed; transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); }
   }
-}
-
-      @media(max-width:600px){
-      .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
-      .sidebar.open { left:0; }
-    }
-   
-    .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
-    .sidebar a.menu-item, .sidebar button.profile-menu {
-      width:100%; padding:.8rem 0;
-      display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      background:transparent; border:none; color:var(--white);
-      transition:background var(--transition);
-    }
-  
-    .sidebar a.menu-item:hover
-    {
-      background:rgba(255,152,0,0.2);
-    }
-     .sidebar button.profile-menu {
-      background:rgba(255,152,0,0.2);
-    }
-    .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
-    .sidebar a.menu-item span,
-    .sidebar button.profile-menu span   { font-size:.75rem; }
-    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
-    img.avatar, i.avatar {
-      width:32px; height:32px; border-radius:50%;
-      object-fit:cover; border:2px solid var(--white);
-    }
+  .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
+  .sidebar a, .sidebar button {
+    width:100%; margin-bottom:1rem;
+    background:none; border:none; color:var(--fg);
+    display:flex; flex-direction:column; align-items:center;
+    font-family:var(--font-head); font-size:.75rem;
+    transition:background .3s;
+  }
+  .sidebar a:hover, .sidebar button:hover { background:var(--accent); }
+  .sidebar i.avatar { font-size:2rem; margin-bottom:.25rem; }
+  .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
 
   /* Main & Header */
- .main { flex:1; display:flex; flex-direction:column; }
-    @media(max-width:600px){ .main { margin-left:0; } }
-    header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
-      border-bottom:2px solid var(--gold);
-      position:sticky; top:0; width:100%; z-index:var(--header-z);
-    }
-    .hamburger { display:none; font-size:1.4rem; }
-    .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
-  header h1 { color:var(--gold); font-family:var(--font-head); font-size:1.6rem; }
+  .main { flex:1; display:flex; flex-direction:column; }
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem; background:rgba(0,0,0,0.9);
+    border-bottom:2px solid var(--gold);
+    position:sticky; top:0; z-index:80;
+  }
+  .hamburger { display:none; font-size:1.5rem; background:none; border:none; color:var(--fg); }
+  @media(max-width:800px){ .hamburger { display:block; } }
+  header h1 { font-family:var(--font-head); font-size:1.5rem; color:var(--gold); }
   .header-controls { display:flex; align-items:center; gap:1rem; }
   .header-controls button {
-    background:none; border:none; color:var(--fg); cursor:pointer; font-size:1.2rem;
+    background:none; border:none; color:var(--fg); font-size:1.4rem; cursor:pointer;
   }
- .avatar-btn img { width:32px; height:32px; border-radius:50%; object-fit:cover; }
-    @media(max-width:600px){
-      .hamburger { display:block; }
-      
-    }
 
   /* Profile Form */
-  .container { flex:1; overflow-y:auto; }
-  .content { padding:2rem; }
+  .container { flex:1; overflow-y:auto; padding:1rem; }
+  .profile-panel { max-width:900px; margin:0 auto; }
   #profileForm {
-    max-width:900px; margin:0 auto; background:var(--accent);
-    border-radius:12px; padding:2rem;
-    display:grid; grid-template-columns:1fr 2fr; gap:2rem;
+    display:grid; grid-template-columns:1fr 2fr; gap:1.5rem;
+    background:var(--accent); padding:1.5rem; border-radius:12px;
   }
+  @media(max-width:600px){ #profileForm { grid-template-columns:1fr; } }
   .avatar-section {
     display:flex; flex-direction:column; align-items:center; gap:1rem;
   }
   #avatarPreview {
-    width:160px; height:160px; border-radius:50%;
+    width:140px; height:140px; border-radius:50%;
     background:var(--input-bg); display:flex; align-items:center; justify-content:center;
-    font-size:4rem; color:rgba(255,255,255,0.5); overflow:hidden;
+    font-size:3rem; color:rgba(255,255,255,0.5); overflow:hidden;
   }
-  .avatar-buttons { display:flex; gap:.5rem; }
   .avatar-buttons button {
-    background:var(--gold); color:var(--bg); padding:.4rem .8rem;
-    border:none; border-radius:6px; cursor:pointer;
+    background:var(--gold); color:var(--bg); border:none;
+    padding:.5rem 1rem; border-radius:6px; cursor:pointer;
+    font-family:var(--font-head);
   }
-  .fields { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  .fields { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @media(max-width:600px){ .fields { grid-template-columns:1fr; } }
   .field { display:flex; flex-direction:column; }
   .field label {
-    margin-bottom:.3rem; font-weight:600; font-family:var(--font-head);
+    margin-bottom:.3rem; font-family:var(--font-head); font-weight:600;
   }
   .field input, .field select, .field textarea {
-    padding:.6rem; border-radius:6px; border:1px solid rgba(255,255,255,0.3);
-    background:var(--input-bg); color:var(--fg); font-size:1rem;
+    padding:.6rem; border:none; border-radius:6px;
+    background:var(--input-bg); color:var(--fg);
+    font-size:1rem;
   }
-  .field textarea { resize:vertical; min-height:80px; grid-column:span 2; }
+  .field textarea { min-height:80px; resize:vertical; }
+
   .completion-container {
     grid-column:1/-1; margin-top:1rem;
   }
   .completion-bar {
-    background:rgba(255,255,255,0.2); border-radius:6px; overflow:hidden; height:12px;
+    height:12px; background:rgba(255,255,255,0.2); border-radius:6px; overflow:hidden;
   }
   #completionFill {
     height:100%; width:0; background:var(--gold); transition:width .5s ease;
   }
+
   .actions {
-    grid-column:span 2; display:flex; justify-content:flex-end; margin-top:1.5rem;
+    grid-column:1/-1; display:flex; justify-content:flex-end; margin-top:1rem;
   }
   .actions button {
     background:var(--gold); color:var(--bg); border:none;
-    padding:.75rem 1.5rem; border-radius:30px; cursor:pointer;
-    font-weight:600;
+    padding:.6rem 1.2rem; border-radius:30px; cursor:pointer;
+    font-family:var(--font-head); font-weight:600;
+  }
+
+  /* Extra Sections */
+  .extras {
+    margin-top:1.5rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+  }
+  @media(max-width:600px){ .extras { grid-template-columns:1fr; } }
+  .card {
+    background:var(--accent); border-radius:8px; padding:1rem;
+  }
+  .card h3 { margin-bottom:.5rem; color:var(--gold); font-family:var(--font-head);}
+  .badges { display:flex; flex-wrap:wrap; gap:.5rem; }
+  .badges .badge {
+    background:var(--gold); color:var(--bg);
+    padding:.3rem .6rem; border-radius:12px;
+    font-size:.75rem;
+  }
+  .activity-list { list-style:none; }
+  .activity-list li { margin-bottom:.4rem; display:flex; justify-content:space-between; }
+  .social-links button {
+    background:none; border:none; color:var(--fg); font-size:1.4rem; margin-right:1rem; cursor:pointer;
   }
 
   /* Profile Summary */
   #profileSummary {
-    max-width:900px; margin:2rem auto; background:var(--accent);
-    border-radius:12px; padding:1.5rem;
+    margin-top:1.5rem; background:var(--accent); border-radius:8px; padding:1rem;
   }
-  #profileSummary h2 { color:var(--gold); margin-bottom:.5rem; }
+  #profileSummary h2 { color:var(--gold); margin-bottom:.5rem; font-family:var(--font-head);}
   #profileSummary ul { list-style:none; }
   #profileSummary li { margin-bottom:.4rem; }
 
-  @media(max-width:900px) {
-    #profileForm { grid-template-columns:1fr; }
-    .fields { grid-template-columns:1fr; }
-    .field textarea { grid-column:span 1; }
-  }
   </style>
 </head>
 <body>
- 
-  <!-- Sidebar -->
 
   <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
-    <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
-    <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button class="menu-item profile-menu" id="profileBtn">
-      <i class="fas fa-user-circle avatar" id="side-avatar"></i><span>Profile</span>
-    </button>
-    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
+    <a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a>
+    <button id="profileBtn" class="profile-menu"><i id="sideAvatar" class="fas fa-user-circle avatar-small"></i><span>Profile</span></button>
+    <a href="signout.html" class="sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
   <div class="main">
-   <header>
-      <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <header>
       <h1>My Profile</h1>
       <div class="header-controls">
         <button id="logoutBtn" title="Sign Out"><i class="fas fa-sign-out-alt"></i></button>
-       <button class="avatar-btn" id="hdrAvatarBtn">
-          <i class="fas fa-user-circle avatar" id="hdrAvatarIcon"></i>
-        </button>
+        <button class="avatar-btn"><i id="hdrAvatarIcon" class="fas fa-user-circle avatar-small"></i></button>
       </div>
     </header>
 
     <div class="container">
-      <div class="content">
+      <div class="profile-panel">
         <form id="profileForm">
           <div class="avatar-section">
-            <div id="avatarPreview"><i class="fas fa-user"></i></div>
+            <div id="avatarPreview"><i class="fas fa-user-circle"></i></div>
             <div class="avatar-buttons">
               <button type="button" id="changeAvatarBtn">Change</button>
               <button type="button" id="removeAvatarBtn">Remove</button>
@@ -223,24 +198,24 @@
           </div>
 
           <div class="fields">
-            <div class="field"><label for="fullName">Full Name *</label><input id="fullName" type="text" required></div>
-            <div class="field"><label for="email">Email</label><input id="email" type="email" disabled></div>
-            <div class="field"><label for="bio">Bio</label><textarea id="bio"></textarea></div>
-            <div class="field"><label for="location">Location</label><input id="location" type="text"></div>
-            <div class="field"><label for="age">Age</label><input id="age" type="number" min="0"></div>
-            <div class="field"><label for="gender">Gender</label>
+            <div class="field"><label>Full Name *</label><input id="fullName" type="text" required></div>
+            <div class="field"><label>Email</label><input id="email" type="email" disabled></div>
+            <div class="field"><label>Bio</label><textarea id="bio"></textarea></div>
+            <div class="field"><label>Location</label><input id="location" type="text"></div>
+            <div class="field"><label>Age</label><input id="age" type="number" min="0"></div>
+            <div class="field"><label>Gender</label>
               <select id="gender">
                 <option value="">Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option>
               </select>
             </div>
-            <div class="field"><label for="height">Height (cm)</label><input id="height" type="number" min="0"></div>
-            <div class="field"><label for="weight">Weight (kg)</label><input id="weight" type="number" min="0"></div>
-            <div class="field"><label for="favorite">Favorite Workout</label>
+            <div class="field"><label>Height (cm)</label><input id="height" type="number" min="0"></div>
+            <div class="field"><label>Weight (kg)</label><input id="weight" type="number" min="0"></div>
+            <div class="field"><label>Favorite Workout</label>
               <select id="favorite">
                 <option>Running</option><option>Cycling</option><option>Swimming</option><option>HIIT</option><option>Yoga</option>
               </select>
             </div>
-            <div class="field"><label for="goals">Fitness Goals</label><textarea id="goals"></textarea></div>
+            <div class="field"><label>Goals</label><textarea id="goals"></textarea></div>
 
             <div class="completion-container">
               <label>Profile Completion:</label>
@@ -253,6 +228,23 @@
           </div>
         </form>
 
+        <!-- Extra interactive cards -->
+        <div class="extras">
+          <div class="card">
+            <h3>Your Badges</h3>
+            <div class="badges" id="badgeContainer">
+              <!-- JS will inject badges -->
+            </div>
+          </div>
+          <div class="card">
+            <h3>Recent Activity</h3>
+            <ul class="activity-list" id="activityList">
+              <!-- JS will inject activities -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Profile Summary -->
         <div id="profileSummary">
           <h2>Your Profile Summary</h2>
           <ul>
@@ -273,193 +265,151 @@
     </div>
   </div>
 
-<script type="module">
-  import { Storage } from './storage.js';
+  <!-- storage.js helper -->
+  <script type="module" src="storage.js"></script>
+  <script type="module">
+    import { Storage } from './storage.js';
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // — INITIAL SETUP & HELPERS —
-    const form           = document.getElementById('profileForm');
-    const avatarInput    = document.getElementById('avatarInput');
-    const avatarPreview  = document.getElementById('avatarPreview');
-    const changeBtn      = document.getElementById('changeAvatarBtn');
-    const removeBtn      = document.getElementById('removeAvatarBtn');
-    const saveBtn        = document.getElementById('saveBtn');
-    const logoutBtn      = document.getElementById('logoutBtn');
-    const completionFill = document.getElementById('completionFill');
-    const sum            = {
-      name:     document.getElementById('sumName'),
-      email:    document.getElementById('sumEmail'),
-      bio:      document.getElementById('sumBio'),
-      location: document.getElementById('sumLocation'),
-      ageGender:document.getElementById('sumAgeGender'),
-      hw:       document.getElementById('sumHW'),
-      favorite: document.getElementById('sumFavorite'),
-      goals:    document.getElementById('sumGoals'),
-      workouts: document.getElementById('sumWorkouts'),
-      distance: document.getElementById('sumDistance'),
-      calories: document.getElementById('sumCalories')
-    };
+    document.addEventListener('DOMContentLoaded', () => {
+      // Elements
+      const changeBtn      = document.getElementById('changeAvatarBtn');
+      const removeBtn      = document.getElementById('removeAvatarBtn');
+      const avatarInput    = document.getElementById('avatarInput');
+      const avatarPreview  = document.getElementById('avatarPreview');
+      const saveBtn        = document.getElementById('saveBtn');
+      const logoutBtn      = document.getElementById('logoutBtn');
+      const completionFill = document.getElementById('completionFill');
+      const badgeContainer = document.getElementById('badgeContainer');
+      const activityList   = document.getElementById('activityList');
+      const fields         = ['fullName','bio','location','age','gender','height','weight','favorite','goals'];
+      const summaryEls     = {
+        sumName:    'sumName',
+        sumEmail:   'sumEmail',
+        sumBio:     'sumBio',
+        sumLocation:'sumLocation',
+        sumAgeGender:'sumAgeGender',
+        sumHW:      'sumHW',
+        sumFavorite:'sumFavorite',
+        sumGoals:   'sumGoals',
+        sumWorkouts:'sumWorkouts',
+        sumDistance:'sumDistance',
+        sumCalories:'sumCalories'
+      };
 
-    // Return formatted “time ago”
-    function timeAgo(ts) {
-      if (!ts || isNaN(ts)) return '';
-      const d = Date.now() - ts;
-      const s = Math.floor(d/1000);
-      if (s < 60) return `${s}s ago`;
-      const m = Math.floor(s/60);
-      if (m < 60) return `${m}m ago`;
-      const h = Math.floor(m/60);
-      if (h < 24) return `${h}h ago`;
-      const D = Math.floor(h/24);
-      if (D < 7) return `${D}d ago`;
-      const W = Math.floor(D/7);
-      if (W < 5) return `${W}w ago`;
-      const M = Math.floor(D/30);
-      if (M < 12) return `${M}mo ago`;
-      return `${Math.floor(D/365)}y ago`;
-    }
-// ————————————————————————————————
-  // Sidebar toggle (mobile)
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-  window.toggleSidebar = () => {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-  };
-    // — AVATAR SYNC — show icon if no avatarDataUrl
-    function updateAvatars() {
-      const cur = Storage.get('ft_current', {}) || {};
-      const url = cur.avatarDataUrl || '';
-      ['sideAvatar','hdrAvatarIcon'].forEach(id => {
-        const old = document.getElementById(id);
-        if (!old) return;
-        if (url) {
-          const img = document.createElement('img');
-          img.id        = id;
-          img.className = 'avatar-small';
-          img.src       = url;
-          img.alt       = 'Avatar';
-          old.replaceWith(img);
-        } else {
-          const icon = document.createElement('i');
-          icon.id            = id;
-          icon.className     = 'fas fa-user-circle avatar-small';
-          old.replaceWith(icon);
-        }
-      });
-    }
-
-    // — PROFILE FORM POPULATION —
-    function populate() {
-      const cur = Storage.get('ft_current', {});
-      document.getElementById('fullName').value    = cur.name || '';
-      document.getElementById('email').value       = cur.email || '';
-      document.getElementById('bio').value         = cur.bio || '';
-      document.getElementById('location').value    = cur.location || '';
-      document.getElementById('age').value         = cur.age || '';
-      document.getElementById('gender').value      = cur.gender || '';
-      document.getElementById('height').value      = cur.height || '';
-      document.getElementById('weight').value      = cur.weight || '';
-      document.getElementById('favorite').value    = cur.favorite || 'Running';
-      document.getElementById('goals').value       = cur.goals || '';
-
-      if (cur.avatarDataUrl) {
-        avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
-        avatarPreview.innerHTML = '';
-      } else {
-        avatarPreview.style.backgroundImage = '';
-        avatarPreview.innerHTML = '<i class="fas fa-user-circle"></i>';
+      // Helpers
+      function updateAvatars() {
+        const cur = Storage.get('ft_current', {}) || {};
+        const url = cur.avatarDataUrl || '';
+        ['sideAvatar','hdrAvatarIcon'].forEach(id => {
+          const old = document.getElementById(id);
+          if (!old) return;
+          if (url) {
+            const img = document.createElement('img');
+            img.id = id; img.className = 'avatar-small'; img.src = url; img.alt = 'Avatar';
+            old.replaceWith(img);
+          } else {
+            const icon = document.createElement('i');
+            icon.id = id; icon.className = 'fas fa-user-circle avatar-small';
+            old.replaceWith(icon);
+          }
+        });
       }
-      updateCompletion();
-      updateSummary();
-    }
 
-    // — PROFILE COMPLETION BAR —
-    function updateCompletion() {
-      const cur = Storage.get('ft_current', {});
-      let filled = 0;
-      ['name','bio','location','age','gender','height','weight','favorite','goals','avatarDataUrl'].forEach(k => {
-        if (cur[k]) filled++;
-      });
-      const pct = Math.round((filled/10)*100);
-      completionFill.style.width = pct + '%';
-    }
-
-    // — PROFILE SUMMARY & STATS —
-    function updateSummary() {
-      const cur = Storage.get('ft_current', {});
-      sum.name.textContent      = cur.name || '—';
-      sum.email.textContent     = cur.email || '—';
-      sum.bio.textContent       = cur.bio || '—';
-      sum.location.textContent  = cur.location || '—';
-      sum.ageGender.textContent = (cur.age||'—') + ' / ' + (cur.gender||'—');
-      sum.hw.textContent        = (cur.height||'—') + ' cm / ' + (cur.weight||'—') + ' kg';
-      sum.favorite.textContent  = cur.favorite || '—';
-      sum.goals.textContent     = cur.goals || '—';
-
-      const acts = Storage.get('ft_activities', []);
-      const totalWorkouts = acts.length;
-      const totalDistance = acts.reduce((a,x)=>a+(+x.distance||0),0).toFixed(1);
-      const totalCalories = acts.reduce((a,x)=>a+(+x.calories||0),0);
-      sum.workouts.textContent = totalWorkouts;
-      sum.distance.textContent = totalDistance + ' km';
-      sum.calories.textContent = totalCalories;
-    }
-
-    // — AVATAR INPUT HANDLERS —
-    changeBtn.onclick = () => avatarInput.click();
-    removeBtn.onclick = () => {
-      const cur = Storage.get('ft_current', {});
-      delete cur.avatarDataUrl;
-      Storage.set('ft_current', cur);
-    };
-    avatarInput.onchange = e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
+      function populateForm() {
         const cur = Storage.get('ft_current', {});
-        cur.avatarDataUrl = reader.result;
+        fields.forEach(fld => {
+          const el = document.getElementById(fld);
+          el.value = cur[fld] || '';
+        });
+        if (cur.avatarDataUrl) {
+          avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
+          avatarPreview.innerHTML = '';
+        } else {
+          avatarPreview.style.backgroundImage = '';
+          avatarPreview.innerHTML = '<i class="fas fa-user-circle"></i>';
+        }
+        updateCompletion();
+        updateSummary();
+        renderBadges();
+        renderActivities();
+      }
+
+      function updateCompletion() {
+        const cur = Storage.get('ft_current', {});
+        let filled = 0;
+        [...fields, 'avatarDataUrl'].forEach(k => { if (cur[k]) filled++; });
+        completionFill.style.width = Math.round(filled/ (fields.length+1) *100) + '%';
+      }
+
+      function updateSummary() {
+        const cur = Storage.get('ft_current', {});
+        Object.entries(summaryEls).forEach(([key,id]) => {
+          document.getElementById(id).textContent =
+            key.startsWith('sumWork') || key==='sumCalories'
+              ? Storage.get('ft_activities', []).length
+              : (cur[id.replace('sum','').toLowerCase()] || '—');
+        });
+      }
+
+      // Extra content
+      function renderBadges() {
+        const badges = Storage.get('ft_current', {}).badges || ['Welcome'];
+        badgeContainer.innerHTML = badges.map(b => `<div class="badge">${b}</div>`).join('');
+      }
+      function renderActivities() {
+        const acts = Storage.get('ft_activities', []).slice(-5).reverse();
+        activityList.innerHTML = acts.map(a =>
+          `<li>${new Date(a.date).toLocaleDateString()} — ${a.type} (${a.distance || 0} km)</li>`
+        ).join('') || '<li>No recent activities</li>';
+      }
+
+      // Avatar handlers
+      changeBtn.onclick = () => avatarInput.click();
+      removeBtn.onclick = () => {
+        const cur = Storage.get('ft_current', {}); delete cur.avatarDataUrl;
         Storage.set('ft_current', cur);
       };
-      reader.readAsDataURL(file);
-    };
+      avatarInput.onchange = e => {
+        const file = e.target.files[0]; if (!file) return;
+        const r = new FileReader();
+        r.onload = () => {
+          const cur = Storage.get('ft_current', {});
+          cur.avatarDataUrl = r.result;
+          Storage.set('ft_current', cur);
+        };
+        r.readAsDataURL(file);
+      };
 
-    // — SAVE BUTTON —
-    saveBtn.onclick = () => {
-      const cur = Storage.get('ft_current', {});
-      const name = document.getElementById('fullName').value.trim();
-      if (!name) return alert('Full Name is required');
-      cur.name     = name;
-      cur.bio      = document.getElementById('bio').value;
-      cur.location = document.getElementById('location').value;
-      cur.age      = document.getElementById('age').value;
-      cur.gender   = document.getElementById('gender').value;
-      cur.height   = document.getElementById('height').value;
-      cur.weight   = document.getElementById('weight').value;
-      cur.favorite = document.getElementById('favorite').value;
-      cur.goals    = document.getElementById('goals').value;
-      Storage.set('ft_current', cur);
-      alert('Profile saved!');
-    };
+      // Save & Logout
+      saveBtn.onclick = () => {
+        const cur = Storage.get('ft_current', {});
+        const fn  = document.getElementById('fullName').value.trim();
+        if (!fn) return alert('Full Name is required');
+        fields.forEach(fld => cur[fld] = document.getElementById(fld).value);
+        Storage.set('ft_current', cur);
+        alert('Profile saved!');
+      };
+      logoutBtn.onclick = () => {
+        Storage.set('ft_current', {});
+        location.replace('home.html');
+      };
 
-    // — LOGOUT —
-    logoutBtn.onclick = () => {
-      Storage.set('ft_current', {});
-      location.replace('home.html');
-    };
+      // React to changes
+      Storage.onChange('ft_current', () => {
+        populateForm();
+        updateAvatars();
+      });
 
-    // — RESPOND TO STORAGE CHANGES —
-    Storage.onChange('ft_current', () => {
-      populate();
+      // Mobile sidebar
+      document.querySelector('.hamburger').onclick = () => {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+      };
+
+      // Initial
+      populateForm();
       updateAvatars();
     });
-
-    // — INITIAL POPULATE —
-    populate();
-    updateAvatars();
-  });
-</script>
-
+  </script>
 </body>
 </html>
