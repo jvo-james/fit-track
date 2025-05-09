@@ -86,8 +86,9 @@
      .sidebar button.profile-menu {
       background:rgba(255,152,0,0.2);
     }
-    .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:2rem;  }
+    .sidebar a.menu-item i
+   { font-size: 1.4rem;  }
+    .sidebar button.profile-menu i.avatar { font-size: 1.7rem;  }
     .sidebar a.menu-item span,
     .sidebar button.profile-menu span   { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
@@ -212,6 +213,7 @@
     <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
+       <a href="community.html" class="menu-item"><i class="fas fa-users"></i><span>Community</span></a>
     <button class="menu-item profile-menu" id="profileBtn">
       <i class="fas fa-user-circle avatar" id="side-avatar"></i><span>Profile</span>
     </button>
@@ -353,7 +355,7 @@
     function updateAvatars() {
       const cur = Storage.get('ft_current', {}) || {};
       const url = cur.avatarDataUrl || '';
-      ['sideAvatar','hdrAvatarIcon'].forEach(id => {
+      ['side-avatar','hdrAvatarIcon'].forEach(id => {
         const old = document.getElementById(id);
         if (!old) return;
         if (url) {
