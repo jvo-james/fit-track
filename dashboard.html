@@ -880,6 +880,7 @@ header h1 { margin:0 auto; }
 
   <script type="module">
 import { Storage } from './storage.js';
+import Chart from 'chart.js/auto';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -927,7 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const postInput    = document.getElementById('newFeedInput');
   const postBtn      = document.getElementById('postFeedBtn');
   const tipEl        = document.getElementById('tip-of-day');
-  
+  const tagButtons    = Array.from(document.querySelectorAll('.tag-btn'));
 
 
   // ── Show/hide notification bar ──
@@ -1059,7 +1060,8 @@ document.addEventListener('DOMContentLoaded', () => {
         old.replaceWith(img);
       } else {
         const icon = document.createElement('i');
-        icon.id = id; icon.className = 'fas fa-user-circle avatar';
+       icon.id = id;
+       icon.className = 'fas fa-user-circle avatar';
         old.replaceWith(icon);
       }
     });
