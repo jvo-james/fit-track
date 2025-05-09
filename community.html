@@ -464,7 +464,7 @@ img.avatar, i.avatar {
    const wc = Storage.get('ft_comments');
    wf.unshift({
      user: me,
-     avatar: myAvatar,
+     avatar: myAvatar || '',  
      text: '🎉 I just signed up! Excited to be here.',
      timestamp: Date.now(),
      likes: 0,
@@ -487,7 +487,12 @@ img.avatar, i.avatar {
         if (currentTag !== 'All' && !post.text.includes(currentTag)) return;
         const commentsHtml = (c[i]||[]).map((cm,j) => `
           <div class="comment-item" data-post="${i}" data-cidx="${j}">
-            <img class="comment-avatar" src="${cm.avatar}"/>
+                    ${
+            cm.avatar
+              ? `<img class="comment-avatar" src="${cm.avatar}"/>`
+              : `<i class="fas fa-user-circle comment-avatar avatar"></i>`
+          }
+
             <div class="comment-content">
               <span class="author">${cm.user}</span>
               <span class="time">${timeAgo(cm.timestamp)}</span>
@@ -499,7 +504,12 @@ img.avatar, i.avatar {
         feedEl.insertAdjacentHTML('beforeend', `
           <li class="feed-item" data-index="${i}" id="post-${i}">
             <div class="feed-header">
-              <img class="feed-avatar" src="${post.avatar}"/>
+                       ${
+            post.avatar
+              ? `<img class="feed-avatar" src="${post.avatar}"/>`
+              : `<i class="fas fa-user-circle feed-avatar avatar"></i>`
+          }
+
               <div class="feed-meta">
                 <span class="user">${post.user}</span>
                 <span class="time">${timeAgo(post.timestamp)}</span>
@@ -563,7 +573,11 @@ img.avatar, i.avatar {
       const commentsContainer = item.querySelector('.comments-container');
     commentsContainer.insertAdjacentHTML('beforeend', `
       <div class="comment-item" data-post="${i}" data-cidx="${c[i].length-1}">
-        <img class="comment-avatar" src="${myAvatar}"/>
+        ${
+         myAvatar
+           ? `<img class="comment-avatar" src="${myAvatar}"/>`
+           : `<i class="fas fa-user-circle comment-avatar avatar"></i>`
+       }
         <div class="comment-content">
           <span class="author">${me}</span>
           <span class="time">just now</span>
