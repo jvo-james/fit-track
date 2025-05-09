@@ -204,6 +204,11 @@
   }
 }
 
+@media (max-width: 600px) {
+  .hamburger { display: block; }
+  .sidebar { left: -100%; position: fixed; width: var(--mobile-w); }
+  .sidebar.open { left: 0; }
+}
 
 header h1 { margin:0 auto; }
     
@@ -558,7 +563,8 @@ header h1 { margin:0 auto; }
     .modal {
       background:var(--bg); border:2px solid var(--gold);
       border-radius:8px; padding:1.5rem; max-width:360px; width:90%;
-      color:var(--white);
+      color:var(--white); max-height: 90vh;
+    overflow-y: auto;
     }
     .modal h2 {
       color:var(--gold); margin-bottom:1rem; font-size:1.2rem;
@@ -1043,10 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Profile avatar sync ──
   function syncProfileDisplay(){
     const p = Storage.get('ft_current', {});
-    const url = p.avatarDataUrl 
-      // default to profile-icon if no custom avatar
-      ? p.avatarDataUrl
-      : '';
+   const url = p.avatarDataUrl || '';
     ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id => {
       const old = document.getElementById(id);
       if (!old) return;
