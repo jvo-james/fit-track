@@ -746,7 +746,27 @@ header h1 { margin:0 auto; }
         <div class="achievements-grid" id="yourAchievements"></div>
       </section>
 
-  
+    <!-- Community Feed  -->
+      <section class="community">
+        <h2><i class="fas fa-users"></i> Community Feed</h2>
+        <div class="post-box">
+          <input id="newFeedInput" placeholder="Share something…"/>
+          <button id="postFeedBtn"><i class="fas fa-paper-plane"></i> Post</button>
+        </div>
+        <div id="trending-topics" class="trending" style="margin:1rem 0;">
+          <!-- same trending buttons as community.html -->
+          <button class="tag-btn active" data-tag="All">All</button>
+          <button class="tag-btn" data-tag="#HIIT">#HIIT</button>
+          <button class="tag-btn" data-tag="#Yoga">#Yoga</button>
+          <button class="tag-btn" data-tag="#Nutrition">#Nutrition</button>
+          <button class="tag-btn" data-tag="#Running">#Running</button>
+          <button class="tag-btn" data-tag="#Strength">#Strength</button>
+        </div>
+        <ul class="feed-list" id="communityFeed"></ul>
+        <div class="view-more-posts" style="text-align:center;margin-top:1rem;">
+          <a href="community.html">View more posts →</a>
+        </div>
+      </section>
       <footer>&copy; 2025 FitTrack. All rights reserved.</footer>
     </div>
   </div>
