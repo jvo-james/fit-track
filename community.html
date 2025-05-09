@@ -483,19 +483,33 @@ img.avatar, i.avatar {
     const feedEl = document.getElementById('communityFeed');
     let currentTag = 'All';
     function render() {
+      const { avatarUrl } = getCurrent();
       const f = Storage.get('ft_feed')     || [];
       const c = Storage.get('ft_comments') || [];
       feedEl.innerHTML = '';
       f.forEach((post, i) => {
+         // decide which avatar to show for this post
+      const postAvatarHtml = post.user === me
+        ? (avatarUrl
+            ? `<img class="feed-avatar" src="${avatarUrl}"/>`
+            : `<i class="fas fa-user-circle feed-avatar avatar"></i>`)
+        : (post.avatar
+            ? `<img class="feed-avatar" src="${post.avatar}"/>`
+            : `<i class="fas fa-user-circle feed-avatar avatar"></i>`);
         if (currentTag !== 'All' && !post.text.includes(currentTag)) return;
         const commentsHtml = (c[i]||[]).map((cm,j) => `
           <div class="comment-item" data-post="${i}" data-cidx="${j}">
-                    ${
-            cm.avatar
-              ? `<img class="comment-avatar" src="${cm.avatar}"/>`
-              : `<i class="fas fa-user-circle comment-avatar avatar"></i>`
+                   ${
+            cm.user === me
+              // your own comment: use your current avatar or fallback
+              ? (avatarUrl
+                  ? `<img class="comment-avatar" src="${avatarUrl}"/>`
+                  : `<i class="fas fa-user-circle comment-avatar avatar"></i>`)
+              // someone else's comment: use their stored avatar or fallback
+              : (cm.avatar
+                  ? `<img class="comment-avatar" src="${cm.avatar}"/>`
+                  : `<i class="fas fa-user-circle comment-avatar avatar"></i>`)
           }
-
             <div class="comment-content">
               <span class="author">${cm.user}</span>
               <span class="time">${timeAgo(cm.timestamp)}</span>
@@ -507,11 +521,7 @@ img.avatar, i.avatar {
         feedEl.insertAdjacentHTML('beforeend', `
           <li class="feed-item" data-index="${i}" id="post-${i}">
             <div class="feed-header">
-                       ${
-            post.avatar
-              ? `<img class="feed-avatar" src="${post.avatar}"/>`
-              : `<i class="fas fa-user-circle feed-avatar avatar"></i>`
-          }
+                        ${postAvatarHtml}
 
               <div class="feed-meta">
                 <span class="user">${post.user}</span>
