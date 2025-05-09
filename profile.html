@@ -6,173 +6,146 @@
   <title>FitTrack | Profile</title>
 
   <!-- Google Fonts & FontAwesome -->
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
-  :root {
-    --bg: #0d0d0d;
-    --fg: #fff;
-    --accent: rgba(255,255,255,0.05);
-    --input-bg: rgba(255,255,255,0.1);
-    --gold: #ff9800;
-    --font-base: 'Raleway', sans-serif;
-    --font-head: 'Poppins', sans-serif;
-  }
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    display:flex; min-height:100vh;
-    background:var(--bg); color:var(--fg);
-    font-family:var(--font-base);
-  }
-  a { color:inherit; text-decoration:none; }
+    :root {
+      --bg: #0d0d0d;
+      --fg: #fff;
+      --accent: rgba(255,255,255,0.05);
+      --input-bg: rgba(255,255,255,0.1);
+      --gold: #ff9800;
+      --font-base: 'Raleway', sans-serif;
+      --font-head: 'Poppins', sans-serif;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { display:flex; min-height:100vh; background:var(--bg); color:var(--fg); font-family:var(--font-base); }
+    a { color:inherit; text-decoration:none; }
 
-  /* Overlay (mobile sidebar) */
-  #overlay {
-    position:fixed; top:0; right:0; bottom:0; left:0;
-    background:rgba(0,0,0,0.5);
-    opacity:0; visibility:hidden; transition:opacity .3s;
-    z-index:90;
-  }
-  #overlay.active { opacity:1; visibility:visible; }
+    /* Sidebar */
+    .sidebar {
+      width:80px; background:rgba(0,0,0,0.9); border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center; padding:1rem 0;
+      position:sticky; top:0; height:100vh;
+      transition:transform .3s ease;
+      z-index:100;
+    }
+    .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar button, .sidebar a {
+      background:none; border:none; color:var(--fg);
+      display:flex; flex-direction:column; align-items:center; gap:.25rem;
+      margin-bottom:1.5rem; font-family:var(--font-head); font-size:.75rem; cursor:pointer;
+    }
+    .sidebar i.avatar { font-size:2rem; }
+    .sidebar button:hover, .sidebar a:hover { background:var(--accent); border-radius:8px; }
 
-  /* SIDEBAR */
-  .sidebar {
-    width:80px; background:rgba(0,0,0,0.9);
-    border-right:2px solid var(--gold);
-    display:flex; flex-direction:column; align-items:center;
-    padding-top:1rem; position:sticky; top:0; height:100vh;
-    transition:transform .3s ease;
-    z-index:100;
-  }
-  @media(max-width:800px){
-    .sidebar { position:fixed; transform:translateX(-100%); }
-    .sidebar.open { transform:translateX(0); }
-  }
-  .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
-  .sidebar a, .sidebar button {
-    width:100%; margin-bottom:1rem;
-    background:none; border:none; color:var(--fg);
-    display:flex; flex-direction:column; align-items:center;
-    font-family:var(--font-head); font-size:.75rem;
-    transition:background .3s;
-  }
-  .sidebar a:hover, .sidebar button:hover { background:var(--accent); }
-  .sidebar i.avatar { font-size:2rem; margin-bottom:.25rem; }
-  .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem; }
+    @media(max-width:800px){
+      .sidebar { position:fixed; transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+    }
 
-  /* Main & Header */
-  .main { flex:1; display:flex; flex-direction:column; }
-  header {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:1rem; background:rgba(0,0,0,0.9);
-    border-bottom:2px solid var(--gold);
-    position:sticky; top:0; z-index:80;
-  }
-  .hamburger { display:none; font-size:1.5rem; background:none; border:none; color:var(--fg); }
-  @media(max-width:800px){ .hamburger { display:block; } }
-  header h1 { font-family:var(--font-head); font-size:1.5rem; color:var(--gold); }
-  .header-controls { display:flex; align-items:center; gap:1rem; }
-  .header-controls button {
-    background:none; border:none; color:var(--fg); font-size:1.4rem; cursor:pointer;
-  }
+    /* Main & header */
+    .main { flex:1; display:flex; flex-direction:column; }
+    header {
+      background:rgba(0,0,0,0.9); padding:1rem; display:flex; align-items:center; justify-content:space-between;
+      border-bottom:2px solid var(--gold); position:sticky; top:0; z-index:90;
+    }
+    .hamburger { display:none; background:none; border:none; color:var(--fg); font-size:1.5rem; }
+    @media(max-width:800px){ .hamburger { display:block; } }
+    header h1 { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
+    .header-controls { display:flex; align-items:center; gap:1rem; }
+    .header-controls button { background:none; border:none; color:var(--fg); font-size:1.3rem; cursor:pointer; }
 
-  /* Profile Form */
-  .container { flex:1; overflow-y:auto; padding:1rem; }
-  .profile-panel { max-width:900px; margin:0 auto; }
-  #profileForm {
-    display:grid; grid-template-columns:1fr 2fr; gap:1.5rem;
-    background:var(--accent); padding:1.5rem; border-radius:12px;
-  }
-  @media(max-width:600px){ #profileForm { grid-template-columns:1fr; } }
-  .avatar-section {
-    display:flex; flex-direction:column; align-items:center; gap:1rem;
-  }
-  #avatarPreview {
-    width:140px; height:140px; border-radius:50%;
-    background:var(--input-bg); display:flex; align-items:center; justify-content:center;
-    font-size:3rem; color:rgba(255,255,255,0.5); overflow:hidden;
-  }
-  .avatar-buttons button {
-    background:var(--gold); color:var(--bg); border:none;
-    padding:.5rem 1rem; border-radius:6px; cursor:pointer;
-    font-family:var(--font-head);
-  }
-  .fields { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-  @media(max-width:600px){ .fields { grid-template-columns:1fr; } }
-  .field { display:flex; flex-direction:column; }
-  .field label {
-    margin-bottom:.3rem; font-family:var(--font-head); font-weight:600;
-  }
-  .field input, .field select, .field textarea {
-    padding:.6rem; border:none; border-radius:6px;
-    background:var(--input-bg); color:var(--fg);
-    font-size:1rem;
-  }
-  .field textarea { min-height:80px; resize:vertical; }
+    /* Form container */
+    .container { flex:1; overflow-y:auto; padding:1rem; }
+    .profile-panel { max-width:900px; margin:0 auto; }
 
-  .completion-container {
-    grid-column:1/-1; margin-top:1rem;
-  }
-  .completion-bar {
-    height:12px; background:rgba(255,255,255,0.2); border-radius:6px; overflow:hidden;
-  }
-  #completionFill {
-    height:100%; width:0; background:var(--gold); transition:width .5s ease;
-  }
+    /* Profile form */
+    #profileForm {
+      background:var(--accent); padding:1.5rem; border-radius:12px;
+      display:grid; grid-template-columns:1fr 2fr; gap:1.5rem;
+    }
+    @media(max-width:600px){ #profileForm { grid-template-columns:1fr; } }
 
-  .actions {
-    grid-column:1/-1; display:flex; justify-content:flex-end; margin-top:1rem;
-  }
-  .actions button {
-    background:var(--gold); color:var(--bg); border:none;
-    padding:.6rem 1.2rem; border-radius:30px; cursor:pointer;
-    font-family:var(--font-head); font-weight:600;
-  }
+    /* Avatar section */
+    .avatar-section {
+      display:flex; flex-direction:column; align-items:center; gap:1rem;
+    }
+    #avatarPreview {
+      width:130px; height:130px; border-radius:50%;
+      background:var(--input-bg); display:flex; align-items:center; justify-content:center;
+      color:rgba(255,255,255,0.5); font-size:2.5rem; overflow:hidden;
+    }
+    .avatar-btns { display:flex; gap:.5rem; }
+    .avatar-btns button {
+      background:var(--gold); border:none; border-radius:6px;
+      padding:.4rem .8rem; cursor:pointer; color:var(--bg); font-family:var(--font-head);
+    }
+    input[type=file] { display:none; }
 
-  /* Extra Sections */
-  .extras {
-    margin-top:1.5rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem;
-  }
-  @media(max-width:600px){ .extras { grid-template-columns:1fr; } }
-  .card {
-    background:var(--accent); border-radius:8px; padding:1rem;
-  }
-  .card h3 { margin-bottom:.5rem; color:var(--gold); font-family:var(--font-head);}
-  .badges { display:flex; flex-wrap:wrap; gap:.5rem; }
-  .badges .badge {
-    background:var(--gold); color:var(--bg);
-    padding:.3rem .6rem; border-radius:12px;
-    font-size:.75rem;
-  }
-  .activity-list { list-style:none; }
-  .activity-list li { margin-bottom:.4rem; display:flex; justify-content:space-between; }
-  .social-links button {
-    background:none; border:none; color:var(--fg); font-size:1.4rem; margin-right:1rem; cursor:pointer;
-  }
+    /* Fields */
+    .fields { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    @media(max-width:600px){ .fields { grid-template-columns:1fr; } }
+    .field { display:flex; flex-direction:column; }
+    .field label {
+      margin-bottom:.3rem; font-family:var(--font-head); font-weight:600;
+    }
+    .field input, .field select, .field textarea {
+      background:var(--input-bg); border:none; border-radius:6px;
+      padding:.6rem; color:var(--fg); font-size:1rem;
+    }
+    .field textarea { min-height:80px; resize:vertical; }
 
-  /* Profile Summary */
-  #profileSummary {
-    margin-top:1.5rem; background:var(--accent); border-radius:8px; padding:1rem;
-  }
-  #profileSummary h2 { color:var(--gold); margin-bottom:.5rem; font-family:var(--font-head);}
-  #profileSummary ul { list-style:none; }
-  #profileSummary li { margin-bottom:.4rem; }
+    /* Completion bar */
+    .completion { grid-column:1/-1; margin-top:1rem; }
+    .completion-bar {
+      background:rgba(255,255,255,0.2); border-radius:6px; height:10px; overflow:hidden;
+    }
+    #completionFill { width:0; height:100%; background:var(--gold); transition:width .5s; }
+
+    /* Actions */
+    .actions { grid-column:1/-1; display:flex; justify-content:flex-end; margin-top:1rem; }
+    .actions button {
+      background:var(--gold); border:none; border-radius:30px;
+      padding:.6rem 1.2rem; cursor:pointer; color:var(--bg);
+      font-family:var(--font-head); font-weight:600;
+    }
+
+    /* Extras */
+    .extras { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.5rem; }
+    @media(max-width:600px){ .extras { grid-template-columns:1fr; } }
+    .card {
+      background:var(--accent); border-radius:8px; padding:1rem;
+    }
+    .card h3 { font-family:var(--font-head); color:var(--gold); margin-bottom:.5rem; }
+    .badges { display:flex; flex-wrap:wrap; gap:.5rem; }
+    .badges .badge {
+      background:var(--gold); color:var(--bg);
+      padding:.3rem .6rem; border-radius:12px; font-size:.75rem;
+    }
+    .activity-list { list-style:none; padding-left:0; }
+    .activity-list li { display:flex; justify-content:space-between; margin-bottom:.4rem; }
+
+    /* Summary */
+    #profileSummary { background:var(--accent); border-radius:8px; padding:1rem; margin-top:1.5rem; }
+    #profileSummary h2 { font-family:var(--font-head); color:var(--gold); margin-bottom:.5rem; }
+    #profileSummary ul { list-style:none; }
+    #profileSummary li { margin-bottom:.4rem; }
 
   </style>
 </head>
 <body>
 
-  <div id="overlay" onclick="toggleSidebar()"></div>
+  <div id="overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <button id="profileBtn"><i id="sideAvatar" class="fas fa-user-circle avatar"></i><span>Profile</span></button>
     <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
     <a href="log.html"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button id="profileBtn" class="profile-menu"><i id="sideAvatar" class="fas fa-user-circle avatar-small"></i><span>Profile</span></button>
     <a href="signout.html" class="sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
@@ -180,71 +153,67 @@
     <header>
       <h1>My Profile</h1>
       <div class="header-controls">
-        <button id="logoutBtn" title="Sign Out"><i class="fas fa-sign-out-alt"></i></button>
-        <button class="avatar-btn"><i id="hdrAvatarIcon" class="fas fa-user-circle avatar-small"></i></button>
+        <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+        <button><i id="hdrAvatarIcon" class="fas fa-user-circle avatar"></i></button>
       </div>
     </header>
 
     <div class="container">
       <div class="profile-panel">
         <form id="profileForm">
+          <!-- Avatar -->
           <div class="avatar-section">
             <div id="avatarPreview"><i class="fas fa-user-circle"></i></div>
-            <div class="avatar-buttons">
+            <div class="avatar-btns">
               <button type="button" id="changeAvatarBtn">Change</button>
               <button type="button" id="removeAvatarBtn">Remove</button>
             </div>
-            <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+            <input type="file" id="avatarInput" accept="image/*"/>
           </div>
 
+          <!-- Fields -->
           <div class="fields">
-            <div class="field"><label>Full Name *</label><input id="fullName" type="text" required></div>
-            <div class="field"><label>Email</label><input id="email" type="email" disabled></div>
-            <div class="field"><label>Bio</label><textarea id="bio"></textarea></div>
-            <div class="field"><label>Location</label><input id="location" type="text"></div>
-            <div class="field"><label>Age</label><input id="age" type="number" min="0"></div>
-            <div class="field"><label>Gender</label>
-              <select id="gender">
-                <option value="">Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option>
-              </select>
+            <div class="field"><label for="fullName">Full Name *</label><input id="fullName" type="text" required/></div>
+            <div class="field"><label for="email">Email</label><input id="email" type="email" disabled/></div>
+            <div class="field"><label for="bio">Bio</label><textarea id="bio"></textarea></div>
+            <div class="field"><label for="location">Location</label><input id="location" type="text"/></div>
+            <div class="field"><label for="age">Age</label><input id="age" type="number" min="0"/></div>
+            <div class="field"><label for="gender">Gender</label>
+              <select id="gender"><option value="">Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option></select>
             </div>
-            <div class="field"><label>Height (cm)</label><input id="height" type="number" min="0"></div>
-            <div class="field"><label>Weight (kg)</label><input id="weight" type="number" min="0"></div>
-            <div class="field"><label>Favorite Workout</label>
-              <select id="favorite">
-                <option>Running</option><option>Cycling</option><option>Swimming</option><option>HIIT</option><option>Yoga</option>
-              </select>
+            <div class="field"><label for="height">Height (cm)</label><input id="height" type="number" min="0"/></div>
+            <div class="field"><label for="weight">Weight (kg)</label><input id="weight" type="number" min="0"/></div>
+            <div class="field"><label for="favorite">Favorite Workout</label>
+              <select id="favorite"><option>Running</option><option>Cycling</option><option>Swimming</option><option>HIIT</option><option>Yoga</option></select>
             </div>
-            <div class="field"><label>Goals</label><textarea id="goals"></textarea></div>
+            <div class="field"><label for="goals">Goals</label><textarea id="goals"></textarea></div>
 
-            <div class="completion-container">
+            <!-- Completion bar -->
+            <div class="completion">
               <label>Profile Completion:</label>
               <div class="completion-bar"><div id="completionFill"></div></div>
             </div>
           </div>
 
+          <!-- Save -->
           <div class="actions">
             <button type="button" id="saveBtn">Save Changes</button>
           </div>
         </form>
 
-        <!-- Extra interactive cards -->
+        <!-- Extras -->
         <div class="extras">
           <div class="card">
             <h3>Your Badges</h3>
-            <div class="badges" id="badgeContainer">
-              <!-- JS will inject badges -->
-            </div>
+            <div class="badges" id="badgeContainer"></div>
           </div>
           <div class="card">
             <h3>Recent Activity</h3>
-            <ul class="activity-list" id="activityList">
-              <!-- JS will inject activities -->
-            </ul>
+            <ul class="activity-list" id="activityList"></ul>
           </div>
         </div>
 
-        <!-- Profile Summary -->
+        <!-- Summary -->
         <div id="profileSummary">
           <h2>Your Profile Summary</h2>
           <ul>
@@ -265,68 +234,60 @@
     </div>
   </div>
 
-  <!-- storage.js helper -->
+  <!-- storage.js -->
   <script type="module" src="storage.js"></script>
   <script type="module">
     import { Storage } from './storage.js';
-
-    document.addEventListener('DOMContentLoaded', () => {
-      // Elements
-      const changeBtn      = document.getElementById('changeAvatarBtn');
-      const removeBtn      = document.getElementById('removeAvatarBtn');
+    document.addEventListener('DOMContentLoaded', ()=>{
       const avatarInput    = document.getElementById('avatarInput');
       const avatarPreview  = document.getElementById('avatarPreview');
+      const changeBtn      = document.getElementById('changeAvatarBtn');
+      const removeBtn      = document.getElementById('removeAvatarBtn');
       const saveBtn        = document.getElementById('saveBtn');
       const logoutBtn      = document.getElementById('logoutBtn');
       const completionFill = document.getElementById('completionFill');
       const badgeContainer = document.getElementById('badgeContainer');
       const activityList   = document.getElementById('activityList');
       const fields         = ['fullName','bio','location','age','gender','height','weight','favorite','goals'];
-      const summaryEls     = {
-        sumName:    'sumName',
-        sumEmail:   'sumEmail',
-        sumBio:     'sumBio',
-        sumLocation:'sumLocation',
-        sumAgeGender:'sumAgeGender',
-        sumHW:      'sumHW',
-        sumFavorite:'sumFavorite',
-        sumGoals:   'sumGoals',
-        sumWorkouts:'sumWorkouts',
-        sumDistance:'sumDistance',
-        sumCalories:'sumCalories'
+      const summaryIds     = ['sumName','sumEmail','sumBio','sumLocation','sumAgeGender','sumHW','sumFavorite','sumGoals','sumWorkouts','sumDistance','sumCalories'];
+
+      // toggle sidebar
+      window.toggleSidebar = ()=>{
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
       };
 
-      // Helpers
-      function updateAvatars() {
-        const cur = Storage.get('ft_current', {}) || {};
-        const url = cur.avatarDataUrl || '';
-        ['sideAvatar','hdrAvatarIcon'].forEach(id => {
+      function updateAvatars(){
+        const cur = Storage.get('ft_current',{})||{};
+        const url = cur.avatarDataUrl||'';
+        ['sideAvatar','hdrAvatarIcon'].forEach(id=>{
           const old = document.getElementById(id);
-          if (!old) return;
-          if (url) {
+          if(!old) return;
+          if(url){
             const img = document.createElement('img');
-            img.id = id; img.className = 'avatar-small'; img.src = url; img.alt = 'Avatar';
+            img.id=id; img.className='avatar-small'; img.src=url; img.alt='Avatar';
             old.replaceWith(img);
           } else {
             const icon = document.createElement('i');
-            icon.id = id; icon.className = 'fas fa-user-circle avatar-small';
+            icon.id=id; icon.className='fas fa-user-circle avatar-small';
             old.replaceWith(icon);
           }
         });
       }
 
-      function populateForm() {
-        const cur = Storage.get('ft_current', {});
-        fields.forEach(fld => {
-          const el = document.getElementById(fld);
-          el.value = cur[fld] || '';
+      function populate(){
+        const cur = Storage.get('ft_current',{})||{};
+        fields.forEach(f=>{
+          const el=document.getElementById(f);
+          if(el) el.value=cur[f]||'';
         });
-        if (cur.avatarDataUrl) {
-          avatarPreview.style.backgroundImage = `url(${cur.avatarDataUrl})`;
-          avatarPreview.innerHTML = '';
+        // preview
+        if(cur.avatarDataUrl){
+          avatarPreview.style.backgroundImage=`url(${cur.avatarDataUrl})`;
+          avatarPreview.innerHTML='';
         } else {
-          avatarPreview.style.backgroundImage = '';
-          avatarPreview.innerHTML = '<i class="fas fa-user-circle"></i>';
+          avatarPreview.style.backgroundImage='';
+          avatarPreview.innerHTML='<i class="fas fa-user-circle"></i>';
         }
         updateCompletion();
         updateSummary();
@@ -334,81 +295,71 @@
         renderActivities();
       }
 
-      function updateCompletion() {
-        const cur = Storage.get('ft_current', {});
-        let filled = 0;
-        [...fields, 'avatarDataUrl'].forEach(k => { if (cur[k]) filled++; });
-        completionFill.style.width = Math.round(filled/ (fields.length+1) *100) + '%';
+      function updateCompletion(){
+        const cur=Storage.get('ft_current',{})||{};
+        let filled=0;
+        [...fields,'avatarDataUrl'].forEach(k=>{if(cur[k])filled++;});
+        completionFill.style.width=Math.round(filled/(fields.length+1)*100)+'%';
       }
 
-      function updateSummary() {
-        const cur = Storage.get('ft_current', {});
-        Object.entries(summaryEls).forEach(([key,id]) => {
-          document.getElementById(id).textContent =
-            key.startsWith('sumWork') || key==='sumCalories'
-              ? Storage.get('ft_activities', []).length
-              : (cur[id.replace('sum','').toLowerCase()] || '—');
+      function updateSummary(){
+        const cur=Storage.get('ft_current',{})||{};
+        summaryIds.forEach((id,i)=>{
+          let txt='—';
+          switch(id){
+            case 'sumName': txt=cur.name||'—'; break;
+            case 'sumEmail': txt=cur.email||'—'; break;
+            case 'sumBio': txt=cur.bio||'—'; break;
+            case 'sumLocation': txt=cur.location||'—'; break;
+            case 'sumAgeGender': txt=(cur.age||'—')+' / '+(cur.gender||'—'); break;
+            case 'sumHW': txt=(cur.height||'—')+' cm / '+(cur.weight||'—')+' kg'; break;
+            case 'sumWorkouts': txt=Storage.get('ft_activities',[]).length; break;
+            case 'sumDistance': txt=Storage.get('ft_activities',[]).reduce((a,x)=>a+(+x.distance||0),0).toFixed(1)+' km'; break;
+            case 'sumCalories': txt=Storage.get('ft_activities',[]).reduce((a,x)=>a+(+x.calories||0),0); break;
+            case 'sumFavorite': txt=cur.favorite||'—'; break;
+            case 'sumGoals': txt=cur.goals||'—'; break;
+          }
+          document.getElementById(id).textContent=txt;
         });
       }
 
-      // Extra content
-      function renderBadges() {
-        const badges = Storage.get('ft_current', {}).badges || ['Welcome'];
-        badgeContainer.innerHTML = badges.map(b => `<div class="badge">${b}</div>`).join('');
+      function renderBadges(){
+        const badges = Storage.get('ft_current',{}).badges||['Welcome'];
+        badgeContainer.innerHTML=badges.map(b=>`<div class="badge">${b}</div>`).join('');
       }
-      function renderActivities() {
-        const acts = Storage.get('ft_activities', []).slice(-5).reverse();
-        activityList.innerHTML = acts.map(a =>
-          `<li>${new Date(a.date).toLocaleDateString()} — ${a.type} (${a.distance || 0} km)</li>`
-        ).join('') || '<li>No recent activities</li>';
+      function renderActivities(){
+        const acts = Storage.get('ft_activities',[]).slice(-5).reverse();
+        activityList.innerHTML=acts.map(a=>`<li>${new Date(a.date).toLocaleDateString()} — ${a.type} (${a.distance||0} km)</li>`).join('')||'<li>No recent activities</li>';
       }
 
-      // Avatar handlers
-      changeBtn.onclick = () => avatarInput.click();
-      removeBtn.onclick = () => {
-        const cur = Storage.get('ft_current', {}); delete cur.avatarDataUrl;
-        Storage.set('ft_current', cur);
+      changeBtn.onclick = ()=>avatarInput.click();
+      removeBtn.onclick = ()=>{
+        const cur=Storage.get('ft_current',{})||{};
+        delete cur.avatarDataUrl; Storage.set('ft_current',cur);
       };
-      avatarInput.onchange = e => {
-        const file = e.target.files[0]; if (!file) return;
-        const r = new FileReader();
-        r.onload = () => {
-          const cur = Storage.get('ft_current', {});
-          cur.avatarDataUrl = r.result;
-          Storage.set('ft_current', cur);
-        };
+      avatarInput.onchange = e=>{
+        const file=e.target.files[0]; if(!file) return;
+        const r=new FileReader();
+        r.onload=()=>{ const cur=Storage.get('ft_current',{})||{}; cur.avatarDataUrl=r.result; Storage.set('ft_current',cur); };
         r.readAsDataURL(file);
       };
 
-      // Save & Logout
-      saveBtn.onclick = () => {
-        const cur = Storage.get('ft_current', {});
-        const fn  = document.getElementById('fullName').value.trim();
-        if (!fn) return alert('Full Name is required');
-        fields.forEach(fld => cur[fld] = document.getElementById(fld).value);
-        Storage.set('ft_current', cur);
-        alert('Profile saved!');
+      saveBtn.onclick = ()=>{
+        const cur=Storage.get('ft_current',{})||{};
+        const fn=document.getElementById('fullName').value.trim();
+        if(!fn) return alert('Full name required');
+        cur.name=fn; fields.slice(1).forEach(f=>cur[f]=document.getElementById(f).value);
+        Storage.set('ft_current',cur); alert('Saved!');
       };
-      logoutBtn.onclick = () => {
-        Storage.set('ft_current', {});
-        location.replace('home.html');
+      logoutBtn.onclick = ()=>{
+        Storage.set('ft_current',{}); location.replace('home.html');
       };
 
-      // React to changes
-      Storage.onChange('ft_current', () => {
-        populateForm();
-        updateAvatars();
+      Storage.onChange('ft_current',()=>{
+        populate(); updateAvatars();
       });
 
-      // Mobile sidebar
-      document.querySelector('.hamburger').onclick = () => {
-        document.getElementById('sidebar').classList.toggle('open');
-        document.getElementById('overlay').classList.toggle('active');
-      };
-
-      // Initial
-      populateForm();
-      updateAvatars();
+      populate(); updateAvatars();
     });
   </script>
 </body>
