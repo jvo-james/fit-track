@@ -880,7 +880,7 @@ header h1 { margin:0 auto; }
 
   <script type="module">
 import { Storage } from './storage.js';
-import Chart from 'chart.js/auto';
+
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -929,7 +929,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const postBtn      = document.getElementById('postFeedBtn');
   const tipEl        = document.getElementById('tip-of-day');
   const tagButtons    = Array.from(document.querySelectorAll('.tag-btn'));
-
+ if (!tagButtons.length) {
+    console.warn('No .tag-btn found—check your HTML');
+  }
 
   // ── Show/hide notification bar ──
   function syncNotif() {
@@ -1363,7 +1365,12 @@ document.addEventListener('DOMContentLoaded', () => {
     Storage.onChange(['ft_feed','ft_comments'], renderFeed);
     renderFeed();
   }
-                          
+          try {
+   renderFeed();
+   Storage.onChange(['ft_feed','ft_comments'], renderFeed);
+ } catch(err) {
+   console.error('Feed init failed:', err);
+ }                
   // ── Initialize & react to data changes ──
   updateDashboard();
   Storage.onChange([
@@ -1372,6 +1379,15 @@ document.addEventListener('DOMContentLoaded', () => {
     'ft_mySchedules',
     'ft_liveSessions'
   ], updateDashboard);
+    try {
+   updateDashboard();
+   Storage.onChange(
+      ['ft_activities','ft_leaderboard','ft_mySchedules','ft_liveSessions','ft_feed','ft_comments'],
+      updateDashboard
+   );
+ } catch(err) {
+   console.error('Dashboard init failed:', err);
+ }
 });
 </script>
 
