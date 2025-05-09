@@ -180,7 +180,7 @@
       width:28px; height:28px; border-radius:50%; object-fit:cover; background:#777;
     }
     .comment-content {
-      background: rgba(255,255,255,0.05);
+      position: relative; 
       padding:.5rem .75rem;
       border-radius:6px;
       flex:1;
@@ -230,7 +230,9 @@
 
     /* ─── Delete button on own comments ─── */
  .comment-item .delete-btn {
-   margin-left: auto;
+   position: absolute;              
+  top: 4px;
+  right: 8px;
    background: none;
    border: none;
    color: var(--white);
