@@ -105,7 +105,19 @@
       .hamburger { display:block; }
       .search, .controls select { display:none; }
     }
+img.avatar, i.avatar {
+    width:32px; height:32px; border-radius:50%;
+       object-fit:cover; border:2px solid var(--white);
+    }
 
+     i.avatar {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 1.2rem;  
+     width:32px;
+     height:32px;
+   }
     /* CONTENT WRAPPER */
     .container { flex:1; overflow-y:auto; padding:1rem; }
 
@@ -228,6 +240,23 @@
  .c-like-btn .fa-heart {
    color: var(--white);
  }
+
+      
+
+  .tag-btn {
+    background: var(--accent);
+    border: 1px solid var(--gold);
+    color: var(--white);
+    padding: .4rem .8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .3s, color .3s;
+  }
+  .tag-btn.active,
+  .tag-btn:hover {
+    background: var(--gold);
+    color: var(--bg);
+  }
 
   </style>
 
@@ -353,6 +382,10 @@
       return `${Math.floor(D/365)}y ago`;
     }
 
+    // ─── Sidebar Profile button ─────────────────────────
+    document.getElementById('profileBtn').onclick = () => {
+      location.replace('profile.html');
+    };
     // — AVATAR SYNC —
     function updateAvatars() {
        const { avatarUrl } = getCurrent();
@@ -546,17 +579,19 @@
 
 
       // Like/unlike post
-      if (e.target.closest('.like-btn')) {
+      const postBtn = e.target.closest('.like-btn');
+      if (postBtn) {
         const p = f[i];
         const idx = p.likedBy.indexOf(me);
-         e.target.querySelector('i.fa-heart').classList.toggle('active');
         if (idx >= 0) { p.likedBy.splice(idx,1); p.likes--; }
-        else { p.likedBy.push(me); p.likes++; }
+        else          { p.likedBy.push(me);    p.likes++; }
         Storage.set('ft_feed', f);
-         const heart = item.querySelector('.like-btn .fa-heart');
-    heart.classList.toggle('active');
-    item.querySelector('.like-btn span').textContent = p.likes;
-    return;
+        // update UI
+        const heartIcon = postBtn.querySelector('i.fa-heart');
+        const countSpan = postBtn.querySelector('span');
+        heartIcon.classList.toggle('active', p.likedBy.includes(me));
+        countSpan.textContent = p.likes;
+        return;
       }
 
       // Toggle comments
@@ -574,21 +609,20 @@
       }
 
       // Like/unlike comment
-      if (e.target.closest('.c-like-btn')) {
-        const cmLi = e.target.closest('.comment-item');
+      const cmBtn = e.target.closest('.c-like-btn');
+      if (cmBtn) {
+        const cmLi = cmBtn.closest('.comment-item');
         const j    = +cmLi.dataset.cidx;
         const cm   = c[i][j];
         const idx2 = cm.likedBy.indexOf(me);
-        if (idx2 >= 0) { cm.likedBy.splice(idx2,1); cm.likes--; 
-                       cmLi.querySelector('.fa-heart').classList.remove('active');   }
-        else { cm.likedBy.push(me); cm.likes++;
-               cmLi.querySelector('.fa-heart').classList.add('active');    }
+        if (idx2 >= 0) { cm.likedBy.splice(idx2,1); cm.likes--; }
+        else           { cm.likedBy.push(me);      cm.likes++; }
         Storage.set('ft_comments', c);
-        cmLi.querySelector('.c-like-btn span').textContent = cm.likes;
-        const cheart = cmLi.querySelector('.fa-heart');
-    cheart.classList.toggle('active');
-    cmLi.querySelector('.c-like-btn span').textContent = cm.likes;
-    return;
+        const icon = cmBtn.querySelector('i.fa-heart');
+        const span = cmBtn.querySelector('span');
+        icon.classList.toggle('active', cm.likedBy.includes(me));
+        span.textContent = cm.likes;
+        return;
       }
 
       // Post inline comment
