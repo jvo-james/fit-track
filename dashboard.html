@@ -878,24 +878,33 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // ── Profile avatar sync ──
-  function syncProfileDisplay(){
-    const p = Storage.get('ft_current', {});
-    const url = p.avatarDataUrl 
-      // default to profile-icon if no custom avatar
-      ? p.avatarDataUrl
-      : '';
-    ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id => {
-      const old = document.getElementById(id);
-      if (!old) return;
-      const img = document.createElement('img');
-      img.id = id; img.className = 'avatar'; img.src = url; img.alt = 'Avatar';
-      old.replaceWith(img);
+   // — AVATAR SYNC —
+    function updateAvatars() {
+       const { avatarUrl } = getCurrent();
+      ['side-avatar','hdrAvatarIcon'].forEach(id => {
+        const old = document.getElementById(id);
+        if (!old) return;
+        if (avatarUrl) {
+          const img = document.createElement('img');
+          img.id = id;
+          img.className = 'avatar';
+          img.src = avatarUrl;
+          img.alt = 'Avatar';
+          old.replaceWith(img);
+        } else {
+          const icon = document.createElement('i');
+          icon.id = id;
+          icon.className = 'fas fa-user-circle avatar';
+          old.replaceWith(icon);
+        }
+      });
+    }
+    updateAvatars();
+    Storage.onChange('ft_current', () => {
+      ({name: me, avatarUrl: myAvatar} = getCurrent());
+      updateAvatars();
+        render(); 
     });
-    document.getElementById('dash-name').textContent = p.name;
-  }
-  syncProfileDisplay();
-  Storage.onChange('ft_current', syncProfileDisplay);
 
   // ── Main render function ──
   function updateDashboard(){
