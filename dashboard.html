@@ -180,7 +180,7 @@
     position: fixed;
     top: 1rem;
   }
-  .hamburger { left: 1rem; }
+  .hamburger { left: 1rem;  z-index: calc(var(--z-overlay) + 1); }
   .profile-btn { right: 1rem; }
   header h1 { margin: 0 auto; }
 }
@@ -416,9 +416,14 @@ header h1 { margin:0 auto; }
     .modal-overlay {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.7); align-items:center; justify-content:center;
-      z-index:var(--z-overlay);
+     z-index: calc(var(--z-header) + 1);
     }
-    .modal-overlay.active { display:flex; }
+.modal-overlay.active {
+   display: flex;
+   align-items: flex-start;
+   justify-content: center;
+   padding-top: 4rem; /* room for header height */
+ }
     .modal {
       background:var(--bg); border:2px solid var(--gold);
       border-radius:8px; padding:1.5rem; max-width:360px; width:90%;
@@ -878,33 +883,31 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-   // — AVATAR SYNC —
-    function updateAvatars() {
-       const { avatarUrl } = getCurrent();
-      ['side-avatar','hdrAvatarIcon'].forEach(id => {
-        const old = document.getElementById(id);
-        if (!old) return;
-        if (avatarUrl) {
-          const img = document.createElement('img');
-          img.id = id;
-          img.className = 'avatar';
-          img.src = avatarUrl;
-          img.alt = 'Avatar';
-          old.replaceWith(img);
-        } else {
-          const icon = document.createElement('i');
-          icon.id = id;
-          icon.className = 'fas fa-user-circle avatar';
-          old.replaceWith(icon);
-        }
-      });
-    }
-    updateAvatars();
-    Storage.onChange('ft_current', () => {
-      ({name: me, avatarUrl: myAvatar} = getCurrent());
-      updateAvatars();
-        render(); 
-    });
+  // ── Profile avatar sync ──
+  function syncProfileDisplay(){
+    const p = Storage.get('ft_current', {});
+   ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id => {
+     const old = document.getElementById(id);
+     if (!old) return;
+     let newEl;
+     if (p.avatarDataUrl) {
+       // user has uploaded a picture
+       newEl = document.createElement('img');
+       newEl.src = p.avatarDataUrl;
+     } else {
+       // fallback to FontAwesome icon
+       newEl = document.createElement('i');
+       newEl.className = 'fas fa-user-circle avatar';
+     }
+     newEl.id = id;
+     newEl.classList.add('avatar');
+     newEl.alt = 'Avatar';
+     old.replaceWith(newEl);
+   });
+    document.getElementById('dash-name').textContent = p.name;
+  }
+  syncProfileDisplay();
+  Storage.onChange('ft_current', syncProfileDisplay);
 
   // ── Main render function ──
   function updateDashboard(){
@@ -1106,4 +1109,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 </body>
-</html>
+</html> 
