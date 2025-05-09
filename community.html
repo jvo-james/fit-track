@@ -552,9 +552,12 @@
         const j    = +cmLi.dataset.cidx;
         const cm   = c[i][j];
         const idx2 = cm.likedBy.indexOf(me);
-        if (idx2 >= 0) { cm.likedBy.splice(idx2,1); cm.likes--; }
-        else { cm.likedBy.push(me); cm.likes++; }
+        if (idx2 >= 0) { cm.likedBy.splice(idx2,1); cm.likes--; 
+                       cmLi.querySelector('.fa-heart').classList.remove('active');   }
+        else { cm.likedBy.push(me); cm.likes++;
+               cmLi.querySelector('.fa-heart').classList.add('active');    }
         Storage.set('ft_comments', c);
+        cmLi.querySelector('.c-like-btn span').textContent = cm.likes;
         return render();
       }
 
