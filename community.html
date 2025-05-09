@@ -89,7 +89,7 @@
       border-bottom:2px solid var(--gold);
       position:sticky; top:0; width:100%; z-index:200;
     }
-    .hamburger { display:none; font-size:1.4rem; }
+    .hamburger { display:none; font-size:1.4rem; color: white; }
     .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
     .search input {
       padding:.4rem .6rem; background:var(--accent);
@@ -162,7 +162,9 @@
     }
     .feed-controls button {
       background:none; border:none; color:var(--white);
-      cursor:pointer; display:flex; align-items:center; gap:.4rem;
+       cursor:pointer; display:flex; align-items:center; gap:.4rem;
+  padding: 0.4rem 0.6rem;       
+  border-radius:6px;
       transition:color .2s;
     }
     .feed-controls button:hover { color:var(--gold); }
@@ -279,8 +281,8 @@
 
    
   <!-- 2. Trending Topics -->
-  <div id="trending-topics" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:0 1rem 1rem;">
-    <strong style="color:var(--white);align-self:center;">Trending:</strong>
+  <div id="trending-topics" style="color: white; display:flex;gap:.5rem;flex-wrap:wrap;margin:0 1rem 1rem;">
+    <strong style="color: white; align-self:center;">Trending:</strong>
     <button class="tag-btn" data-tag="#HIIT">#HIIT</button>
     <button class="tag-btn" data-tag="#Yoga">#Yoga</button>
     <button class="tag-btn" data-tag="#Nutrition">#Nutrition</button>
@@ -289,17 +291,7 @@
     <button class="tag-btn" data-tag="All">All</button>
   </div>
 
-    <!-- 3. Quick Poll -->
-    <div id="poll-section">
-      <h3>Poll: What’s your favorite workout time?</h3>
-      <form id="pollForm">
-        <label><input type="radio" name="when" value="Morning"/>Morning 🌅</label><br/>
-        <label><input type="radio" name="when" value="Afternoon"/>Afternoon ☀️</label><br/>
-        <label><input type="radio" name="when" value="Evening"/> Evening 🌙</label><br/>
-        <button type="submit">Vote</button>
-      </form>
-      <div id="pollResults"></div>
-    </div>
+  
 
     <!-- 4. New post + feed -->
     <div class="container">
@@ -332,9 +324,14 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     // — INITIAL SETUP & HELPERS —
-    const cur      = Storage.get('ft_current') || {};
-    const me       = cur.name || '';
-    const myAvatar = cur.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(me)}`;
+   function getCurrent() {
+      const c = Storage.get('ft_current') || {};
+      return {
+        name: c.name || '',
+        avatarUrl: c.avatarDataUrl || ''
+      };
+    }
+    let {name: me, avatarUrl: myAvatar} = getCurrent();
 
     if (!me) return location.replace('home.html');
 
@@ -358,17 +355,30 @@
 
     // — AVATAR SYNC —
     function updateAvatars() {
+       const { avatarUrl } = getCurrent();
       ['side-avatar','hdrAvatarIcon'].forEach(id => {
         const old = document.getElementById(id);
         if (!old) return;
-        const img = document.createElement('img');
-        img.id = id; img.className = 'avatar';
-        img.src = myAvatar; img.alt = 'Avatar';
-        old.replaceWith(img);
+        if (avatarUrl) {
+          const img = document.createElement('img');
+          img.id = id;
+          img.className = 'avatar';
+          img.src = avatarUrl;
+          img.alt = 'Avatar';
+          old.replaceWith(img);
+        } else {
+          const icon = document.createElement('i');
+          icon.id = id;
+          icon.className = 'fas fa-user-circle avatar';
+          old.replaceWith(icon);
+        }
       });
     }
     updateAvatars();
-    Storage.onChange('ft_current', updateAvatars);
+    Storage.onChange('ft_current', () => {
+      ({name: me, avatarUrl: myAvatar} = getCurrent());
+      updateAvatars();
+    });
 
     // — SIDEBAR TOGGLE —
     window.toggleSidebar = () => {
@@ -592,30 +602,7 @@
       }
     };
 
-    // — POLL SETUP —
-    const pollForm    = document.getElementById('pollForm');
-    const pollResults = document.getElementById('pollResults');
-    const pollData    = JSON.parse(localStorage.getItem('ft_poll') || '{"Morning":0,"Afternoon":0,"Evening":0}');
-    function renderPoll() {
-      const total = pollData.Morning + pollData.Afternoon + pollData.Evening || 1;
-      pollResults.innerHTML = ['Morning','Afternoon','Evening'].map(k => `
-        <div style="margin:.4rem 0;">
-          <strong>${k}</strong> — ${pollData[k]} votes
-          <div style="background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;height:6px;margin-top:3px;">
-            <div style="width:${(pollData[k]/total)*100}%;height:100%;background:var(--gold);"></div>
-          </div>
-        </div>
-      `).join('');
-    }
-    renderPoll();
-    pollForm.onsubmit = e => {
-      e.preventDefault();
-      const choice = pollForm.when.value;
-      pollData[choice]++;
-      localStorage.setItem('ft_poll', JSON.stringify(pollData));
-      renderPoll();
-    };
-
+  
     // — TRENDING TAGS —
     document.querySelectorAll('.tag-btn').forEach(btn => {
       btn.onclick = () => {
