@@ -295,96 +295,80 @@
   import { Storage } from './storage.js';
 
   document.addEventListener('DOMContentLoaded', () => {
-    // — Helpers & State —
+    // — INITIAL SETUP & HELPERS —
     const cur      = Storage.get('ft_current') || {};
     const me       = cur.name || '';
     const myAvatar = cur.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(me)}`;
 
-    let feed       = [];
-    let cmnts      = [];
-    let currentTag = 'All';
+    if (!me) return location.replace('home.html');
 
     function timeAgo(ts) {
       if (!ts || isNaN(ts)) return '';
-      const diff = Date.now() - ts;
-      const sec  = Math.floor(diff/1000);
-      if (sec < 60) return `${sec}s`;
-      const min = Math.floor(sec/60);
-      if (min < 60) return `${min}m`;
-      const hr  = Math.floor(min/60);
-      if (hr < 24) return `${hr}h`;
-      const d   = Math.floor(hr/24);
-      if (d < 7)  return `${d}d`;
-      const wk  = Math.floor(d/7);
-      if (wk < 5) return `${wk}w`;
-      const mo  = Math.floor(d/30);
-      if (mo < 12) return `${mo}mo`;
-      return `${Math.floor(d/365)}y`;
+      const d = Date.now() - ts;
+      const s = Math.floor(d/1000);
+      if (s < 60) return `${s}s ago`;
+      const m = Math.floor(s/60);
+      if (m < 60) return `${m}m ago`;
+      const h = Math.floor(m/60);
+      if (h < 24) return `${h}h ago`;
+      const D = Math.floor(h/24);
+      if (D < 7) return `${D}d ago`;
+      const W = Math.floor(D/7);
+      if (W < 5) return `${W}w ago`;
+      const M = Math.floor(D/30);
+      if (M < 12) return `${M}mo ago`;
+      return `${Math.floor(D/365)}y ago`;
     }
 
-    // — Redirect if not logged in —
-    if (!me) return location.replace('home.html');
-
-    // — Avatar sync —
+    // — AVATAR SYNC —
     function updateAvatars() {
       ['side-avatar','hdrAvatarIcon'].forEach(id => {
         const old = document.getElementById(id);
         if (!old) return;
         const img = document.createElement('img');
-        img.id        = id;
-        img.className = 'avatar';
-        img.src       = myAvatar;
-        img.alt       = 'You';
+        img.id = id; img.className = 'avatar';
+        img.src = myAvatar; img.alt = 'Avatar';
         old.replaceWith(img);
       });
     }
     updateAvatars();
     Storage.onChange('ft_current', updateAvatars);
 
-    // — Sidebar toggle —
+    // — SIDEBAR TOGGLE —
     window.toggleSidebar = () => {
       document.getElementById('sidebar').classList.toggle('open');
       document.getElementById('overlay').classList.toggle('active');
     };
 
-    // — Seed feed & comments once or if out-of-sync —
-    function seedData() {
-      const u = ['Alice','Bob','Cara','Dan','Eve','Finn','Gina','Hank','Ivy','Jack','Kara','Liam','Mia','Noah','Olive'];
-      const t = [
-        "Just crushed 10k steps today! #Running",
-        "Morning #HIIT session was 🔥",
-        "Yoga helped my flexibility so much! #Yoga",
-        "Hit a new PR on deadlift: 120kg! #Strength",
-        "Tried a new smoothie recipe 🍓🥤 #Nutrition",
-        "Weekend trail run was epic! #Running",
-        "Group class at 6am? Count me in! #HIIT",
-        "Leg day left me walking funny 😂 #Strength",
-        "Protein pancakes for breakfast! #Nutrition",
-        "Hit my weekly goal: 5 workouts! #Fitness",
-        "Cooldown stretches are underrated. #Yoga",
-        "First 50 pushups in a row! #Strength",
-        "Beat my plank time: 2 minutes! #HIIT",
-        "Joined the 30-day squat challenge! #Strength",
-        "Early bird workout = best mood! #Morning"
-      ];
-      const r = ["Awesome!","Keep going!","You rock!","So inspiring!","Well done!","🔥","Nice work!","Goals!"];
+    // — LOAD OR SEED DATA —
+    let feed  = Storage.get('ft_feed')     || [];
+    let cmnts = Storage.get('ft_comments') || [];
 
-      feed = t.map((text,i) => ({
-        id: i,
-        user: u[i],
-        avatar: `https://i.pravatar.cc/40?u=${encodeURIComponent(u[i])}`,
-        text,
-        timestamp: Date.now() - Math.random()*3600000,
+    function seedData() {
+      const users  = ['Alice','Bob','Cara','Dan','Eve','Finn','Gina','Hank','Ivy','Jack','Kara','Liam','Mia','Noah','Olive'];
+      const texts  = [
+        "Just crushed 10k steps today! #Running","Morning #HIIT session was 🔥","Yoga helped my flexibility so much! #Yoga",
+        "Hit a new PR on deadlift: 120kg! #Strength","Tried a new smoothie recipe 🍓🥤 #Nutrition","Weekend trail run was epic! #Running",
+        "Group class at 6am? Count me in! #HIIT","Leg day left me walking funny 😂 #Strength","Protein pancakes for breakfast! #Nutrition",
+        "Hit my weekly goal: 5 workouts! #Fitness","Cooldown stretches are underrated. #Yoga","First 50 pushups in a row! #Strength",
+        "Beat my plank time: 2 minutes! #HIIT","Joined the 30-day squat challenge! #Strength","Early bird workout = best mood! #Morning"
+      ];
+      const replies= ["Awesome!","Keep going!","You rock!","So inspiring!","Well done!","🔥","Nice work!","Goals!"];
+      feed = texts.map((t,i) => ({
+        user: users[i],
+        avatar: `https://i.pravatar.cc/40?u=${encodeURIComponent(users[i])}`,
+        text: t,
+        timestamp: Date.now() - Math.random()*3.6e6,
         likes: Math.floor(Math.random()*20)+5,
         likedBy: []
       }));
       cmnts = feed.map(() => {
         const n = 2 + Math.floor(Math.random()*4);
         return Array.from({length:n}).map(() => ({
-          user: u[Math.floor(Math.random()*u.length)],
-          avatar: `https://i.pravatar.cc/40?u=${encodeURIComponent(u[Math.floor(Math.random()*u.length)])}`,
-          text: r[Math.floor(Math.random()*r.length)],
-          timestamp: Date.now() - Math.random()*3600000,
+          user: users[Math.floor(Math.random()*users.length)],
+          avatar: `https://i.pravatar.cc/40?u=${encodeURIComponent(users[Math.floor(Math.random()*users.length)])}`,
+          text: replies[Math.floor(Math.random()*replies.length)],
+          timestamp: Date.now() - Math.random()*3.6e6,
           likes: Math.floor(Math.random()*5),
           likedBy: []
         }));
@@ -393,38 +377,30 @@
       Storage.set('ft_comments', cmnts);
     }
 
-    feed  = Storage.get('ft_feed')     || [];
-    cmnts = Storage.get('ft_comments') || [];
     if (!feed.length || feed.length !== cmnts.length) seedData();
 
-    // — Render —
+    // — RENDER FUNCTION —
     const feedEl = document.getElementById('communityFeed');
+    let currentTag = 'All';
     function render() {
-      const f = Storage.get('ft_feed');
-      const c = Storage.get('ft_comments');
+      const f = Storage.get('ft_feed')     || [];
+      const c = Storage.get('ft_comments') || [];
       feedEl.innerHTML = '';
-      f.forEach(post => {
+      f.forEach((post, i) => {
         if (currentTag !== 'All' && !post.text.includes(currentTag)) return;
-        const idx = post.id;
-        const commentsHtml = (c[idx]||[]).map((cm,j) => `
-          <div class="comment-item" data-post="${idx}" data-cidx="${j}">
+        const commentsHtml = (c[i]||[]).map((cm,j) => `
+          <div class="comment-item" data-post="${i}" data-cidx="${j}">
             <img class="comment-avatar" src="${cm.avatar}"/>
             <div class="comment-content">
-              <div style="display:flex;justify-content:space-between">
-                <span class="author">${cm.user}</span>
-                <span class="time">${timeAgo(cm.timestamp)}</span>
-              </div>
+              <span class="author">${cm.user}</span>
+              <span class="time">${timeAgo(cm.timestamp)}</span>
               <p class="text">${cm.text}</p>
-              <button class="c-like-btn">
-                <i class="fas fa-heart${cm.likedBy.includes(me)?''+ ' active':''}"></i>
-                <span>${cm.likes}</span>
-              </button>
+              <button class="c-like-btn"><i class="fas fa-heart${cm.likedBy.includes(me)?' active':''}"></i> <span>${cm.likes}</span></button>
             </div>
           </div>
         `).join('');
-
         feedEl.insertAdjacentHTML('beforeend', `
-          <li class="feed-item" data-index="${idx}">
+          <li class="feed-item" data-index="${i}" id="post-${i}">
             <div class="feed-header">
               <img class="feed-avatar" src="${post.avatar}"/>
               <div class="feed-meta">
@@ -432,18 +408,12 @@
                 <span class="time">${timeAgo(post.timestamp)}</span>
               </div>
             </div>
-
             <p class="feed-text">${post.text}</p>
-
             <div class="feed-controls">
-              <button class="like-btn">
-                <i class="fas fa-heart${post.likedBy.includes(me)?' active':''}"></i>
-                <span>${post.likes}</span>
-              </button>
-              <button class="toggle-comments">▼ ${c[idx]?.length||0} comments</button>
+              <button class="like-btn"><i class="fas fa-heart${post.likedBy.includes(me)?' active':''}"></i> <span>${post.likes}</span></button>
+              <button class="toggle-comments">▼ ${c[i]?.length||0} comments</button>
               <button class="share-btn"><i class="fas fa-share"></i> Share</button>
             </div>
-
             <div class="comments-container">
               ${commentsHtml}
               <div class="add-comment">
@@ -457,14 +427,12 @@
       });
     }
 
-    // — Handlers —  
-    // Post a new feed
+    // — EVENT HANDLERS —
     document.getElementById('postFeedBtn').onclick = () => {
       const txt = document.getElementById('newFeedInput').value.trim();
       if (!txt) return;
       const f = Storage.get('ft_feed');
-      const id = f.length ? f[0].id + 1 : 0;
-      f.unshift({ id, user:me, avatar:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
+      f.unshift({ user:me, avatar:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
       Storage.set('ft_feed', f);
       const c = Storage.get('ft_comments');
       c.unshift([]);
@@ -473,95 +441,95 @@
       render();
     };
 
-    // Delegate clicks: like/unlike, toggle comments, share, comment-like, post comment
     feedEl.onclick = async e => {
-      const postLi = e.target.closest('.feed-item');
-      if (!postLi) return;
-      const idx = +postLi.dataset.index;
+      const item = e.target.closest('.feed-item');
+      if (!item) return;
+      const i = +item.dataset.index;
       let f = Storage.get('ft_feed');
       let c = Storage.get('ft_comments');
 
-      // Like post
+      // Like/unlike post
       if (e.target.closest('.like-btn')) {
-        const p = f.find(p=>p.id===idx);
-        const i = p.likedBy.indexOf(me);
-        if (i>=0) { p.likedBy.splice(i,1); p.likes--;}
-        else     { p.likedBy.push(me);    p.likes++;}
+        const p = f[i];
+        const idx = p.likedBy.indexOf(me);
+        if (idx >= 0) { p.likedBy.splice(idx,1); p.likes--; }
+        else { p.likedBy.push(me); p.likes++; }
         Storage.set('ft_feed', f);
         return render();
       }
 
       // Toggle comments
       if (e.target.closest('.toggle-comments')) {
-        postLi.querySelector('.comments-container').classList.toggle('open');
+        item.querySelector('.comments-container').classList.toggle('open');
         return;
       }
 
       // Share post
       if (e.target.closest('.share-btn')) {
-        const link = `${location.origin}${location.pathname}#post-${idx}`;
+        const link = `${location.origin}${location.pathname}#post-${i}`;
         await navigator.clipboard.writeText(link);
-        alert('Link copied to clipboard!');
+        alert('Link copied!');
         return;
       }
 
-      // Like comment
+      // Like/unlike comment
       if (e.target.closest('.c-like-btn')) {
         const cmLi = e.target.closest('.comment-item');
         const j    = +cmLi.dataset.cidx;
-        const cm   = c[idx][j];
-        const i2   = cm.likedBy.indexOf(me);
-        if (i2>=0) { cm.likedBy.splice(i2,1); cm.likes--; }
-        else       { cm.likedBy.push(me);      cm.likes++; }
+        const cm   = c[i][j];
+        const idx2 = cm.likedBy.indexOf(me);
+        if (idx2 >= 0) { cm.likedBy.splice(idx2,1); cm.likes--; }
+        else { cm.likedBy.push(me); cm.likes++; }
         Storage.set('ft_comments', c);
         return render();
       }
 
       // Post inline comment
       if (e.target.closest('.new-comment-btn')) {
-        const container = postLi.querySelector('.comments-container');
-        const input     = container.querySelector('.new-comment-input');
-        const txt       = input.value.trim();
+        const input = item.querySelector('.new-comment-input');
+        const txt   = input.value.trim();
         if (!txt) return;
-        c[idx].push({ user:me, avatar:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
+        c[i].push({ user:me, avatar:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
         Storage.set('ft_comments', c);
-        render();
+        return render();
       }
     };
 
-    // — Poll UI —
+    // — POLL SETUP —
     const pollForm    = document.getElementById('pollForm');
     const pollResults = document.getElementById('pollResults');
     const pollData    = JSON.parse(localStorage.getItem('ft_poll') || '{"Morning":0,"Afternoon":0,"Evening":0}');
     function renderPoll() {
-      pollResults.innerHTML = Object.entries(pollData).map(
-        ([k,v]) => `<div style="margin:.3rem 0">
-          <strong>${k}</strong> <span>${v} votes</span>
-          <div style="background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin-top:.2rem;">
-            <div style="width:${(v/(pollData.Morning+pollData.Afternoon+pollData.Evening)||0)*100}%;height:.6rem;background:var(--gold);"></div>
+      const total = pollData.Morning + pollData.Afternoon + pollData.Evening || 1;
+      pollResults.innerHTML = ['Morning','Afternoon','Evening'].map(k => `
+        <div style="margin:.4rem 0;">
+          <strong>${k}</strong> — ${pollData[k]} votes
+          <div style="background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;height:6px;margin-top:3px;">
+            <div style="width:${(pollData[k]/total)*100}%;height:100%;background:var(--gold);"></div>
           </div>
-        </div>`).join('');
+        </div>
+      `).join('');
     }
     renderPoll();
     pollForm.onsubmit = e => {
       e.preventDefault();
-      const ch = pollForm.when.value;
-      pollData[ch]++;
+      const choice = pollForm.when.value;
+      pollData[choice]++;
       localStorage.setItem('ft_poll', JSON.stringify(pollData));
       renderPoll();
     };
 
-    // — Trending Tags —
+    // — TRENDING TAGS —
     document.querySelectorAll('.tag-btn').forEach(btn => {
       btn.onclick = () => {
-        currentTag = btn.dataset.tag;
         document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
+        currentTag = btn.dataset.tag;
         render();
       };
     });
 
-    // — Chatbot toggle —
+    // — CHATBOT TOGGLE —
     document.getElementById('lb-chat-toggle').onclick = () => {
       document.getElementById('lb-chatbot').classList.add('active');
       document.getElementById('lb-chat-toggle').style.display = 'none';
@@ -571,10 +539,11 @@
       document.getElementById('lb-chat-toggle').style.display = 'flex';
     };
 
-    // — Initial paint —
+    // — INITIAL RENDER —
     render();
   });
 </script>
+
 
 </body>
 </html>
