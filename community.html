@@ -118,6 +118,16 @@ img.avatar, i.avatar {
      width:32px;
      height:32px;
    }
+     i.avatar,
+  .feed-avatar.avatar,
+  .comment-avatar.avatar {
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.2rem;   
+  }
     /* CONTENT WRAPPER */
     .container { flex:1; overflow-y:auto; padding:1rem; }
 
@@ -411,6 +421,7 @@ img.avatar, i.avatar {
     Storage.onChange('ft_current', () => {
       ({name: me, avatarUrl: myAvatar} = getCurrent());
       updateAvatars();
+        render(); 
     });
 
     // — SIDEBAR TOGGLE —
