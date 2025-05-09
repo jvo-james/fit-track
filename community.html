@@ -415,24 +415,24 @@
    
     if (!feed.length || feed.length !== cmnts.length) seedData();
 
-     // ───  Auto-welcome on signup ───
- Storage.onChange('ft_current', newUser => {
-   if (!newUser?.name) return;
-   const feed = Storage.get('ft_feed');
-   feed.unshift({
-     user: newUser.name,
-     avatar: newUser.avatarDataUrl || `https://i.pravatar.cc/40?u=${encodeURIComponent(newUser.name)}`,
-     text: '🎉 I just signed up! Excited to join the community.',
+    // ─── 1. Auto-welcome once per session ───
+ if (!sessionStorage.getItem('welcome_done_' + me)) {
+   const wf = Storage.get('ft_feed');
+   const wc = Storage.get('ft_comments');
+   wf.unshift({
+     user: me,
+     avatar: myAvatar,
+     text: '🎉 I just signed up! Excited to be here.',
      timestamp: Date.now(),
      likes: 0,
      likedBy: []
    });
-   const cmnts = Storage.get('ft_comments');
-   cmnts.unshift([]);
-   Storage.set('ft_feed', feed);
-   Storage.set('ft_comments', cmnts);
-   render();
- });
+   wc.unshift([]);
+   Storage.set('ft_feed', wf);
+   Storage.set('ft_comments', wc);
+   sessionStorage.setItem('welcome_done_' + me, '1');
+ }
+
     // — RENDER FUNCTION —
     const feedEl = document.getElementById('communityFeed');
     let currentTag = 'All';
@@ -503,10 +503,9 @@
       let c = Storage.get('ft_comments');
 
        // ─── Inline comment Post button ───
-   if (e.target.closest('.new-comment-btn')) {
-     const container = postLi.querySelector('.comments-container');
-     const input     = container.querySelector('.new-comment-input');
-     const txt       = input.value.trim();
+   if (e.target.closest('button.new-comment-btn')) {
+     const input = item.querySelector('.new-comment-input');
+     const txt   = input.value.trim();
      if (!txt) return;
      c[i].push({
        user: me,
@@ -518,9 +517,9 @@
      });
      Storage.set('ft_comments', c);
      input.value = '';
-     render();
-     return;
+     return render();
    }
+
 
       // Like/unlike post
       if (e.target.closest('.like-btn')) {
