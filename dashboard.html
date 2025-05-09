@@ -31,6 +31,7 @@
       --z-sidebar: 100;
       --z-header: 200;
       --mobile-w: 240px;
+       --z-hamburger: 300;
     }
     
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -76,12 +77,7 @@
     }
     .pseudo-toast a { color:var(--gold); font-weight:600; text-decoration:underline; }
 
-    /* Overlay (for sidebar & modal) */
-    .overlay {
-      display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,0.5); z-index:var(--z-overlay);
-    }
-    .overlay.active { display:block; }
+   
 /* The transparent overlay that closes the sidebar on tap */
 #overlay {
   display: none;
@@ -109,11 +105,13 @@
 }
 @media(max-width:600px){
   .sidebar {
-    position: fixed;
-    left: -100%;
-    width: var(--mobile-w);
-    z-index: 1000; /* also here */
-  }
+     position: fixed;
+     top: 0; left: -100%;
+     width: var(--mobile-w);
+     height: 100vh;
+     transition: left var(--transition);
+     z-index: var(--z-sidebar);
+   }
   .sidebar.open {
     left: 0;
   }
@@ -170,11 +168,26 @@
       }
       .sidebar.open { left: 0; }
       /* show hamburger & profile buttons on mobile */
-      .hamburger, .profile-btn { display: block; position: fixed; top: 1rem; }
+   #hamburger,
+ #sidebar-close {
+   position: fixed;
+   top: 1rem;
+   z-index: var(--z-hamburger);
+ }
       .hamburger { left: 1rem; }
       .profile-btn { right: 1rem; }
       header h1 { margin: 0 auto; }
     }
+  @media (max-width: 600px) {
+    #sidebar-close {
+
+     display: block;
+      right: 0.5rem;
+     left: auto;
+      top: 0.5rem;
+     z-index: var(--z-hamburger);
+    }
+  }
     header {
       display: flex; align-items: center; justify-content: space-between;
       padding:1rem 1.5rem;
