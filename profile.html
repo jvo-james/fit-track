@@ -22,6 +22,7 @@
     --font-head: 'Poppins', sans-serif;
     --transition: .3s ease;
     --sidebar-w: 80px;
+      --mobile-w: 200px;
   }
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -37,54 +38,83 @@
   }
   #overlay.active { opacity:1; visibility:visible; }
 
-  /* Sidebar */
+ 
+    /* SIDEBAR */
+    .sidebar {
+      width:var(--sidebar-w);
+      background:rgba(0,0,0,0.9);
+      border-right:2px solid var(--gold);
+      display:flex; flex-direction:column; align-items:center;
+      padding:1rem 0; position:sticky; top:0; height:100vh;
+      z-index:var(--z-sidebar);
+    }
+   .sidebar {
+
+  z-index: 1000; 
+}
+@media(max-width:600px){
   .sidebar {
-    width:var(--sidebar-w); background:rgba(0,0,0,0.9);
-    border-right:2px solid var(--gold);
-    display:flex; flex-direction:column; align-items:center;
-    padding-top:1rem; position:sticky; top:0; height:100vh;
-    z-index:100;
+    position: fixed;
+    left: -100%;
+    width: var(--mobile-w);
+    z-index: 1000; /* also here */
   }
-  .sidebar .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-  .sidebar a.menu-item,
-  .sidebar button.profile-menu {
-    width:100%; padding:.8rem 0;
-    display:flex; flex-direction:column; align-items:center; gap:.3rem;
-    color:var(--fg); background:none; border:none;
-    transition:background var(--transition);
+  .sidebar.open {
+    left: 0;
   }
-  .sidebar a.menu-item:hover,
-  .sidebar a.menu-item.active,
-  .sidebar button.profile-menu.active {
-    background:var(--accent);
-  }
-  .sidebar a.menu-item i,
-  .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
-  .sidebar a.menu-item span,
-  .sidebar button.profile-menu span   { font-size:.75rem; }
-  .sidebar .sign-out { margin-top:auto; margin-bottom:1rem!important; }
-  img.avatar-small, i.avatar-small {
-    width:28px; height:28px; border-radius:50%; object-fit:cover;
-  }
+}
+
+      @media(max-width:600px){
+      .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
+      .sidebar.open { left:0; }
+    }
+   
+    .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar a.menu-item, .sidebar button.profile-menu {
+      width:100%; padding:.8rem 0;
+      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      background:transparent; border:none; color:var(--white);
+      transition:background var(--transition);
+    }
+  
+    .sidebar a.menu-item:hover
+    {
+      background:rgba(255,152,0,0.2);
+    }
+     .sidebar button.profile-menu {
+      background:rgba(255,152,0,0.2);
+    }
+    .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
+    .sidebar a.menu-item span,
+    .sidebar button.profile-menu span   { font-size:.75rem; }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
+    img.avatar, i.avatar {
+      width:32px; height:32px; border-radius:50%;
+      object-fit:cover; border:2px solid var(--white);
+    }
 
   /* Main & Header */
-  .main { flex:1; display:flex; flex-direction:column; }
-  header {
-    position:sticky; top:0; background:rgba(0,0,0,0.9);
-    border-bottom:2px solid var(--gold);
-    padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between;
-    z-index:200;
-  }
+ .main { flex:1; display:flex; flex-direction:column; }
+    @media(max-width:600px){ .main { margin-left:0; } }
+    header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
+      border-bottom:2px solid var(--gold);
+      position:sticky; top:0; width:100%; z-index:var(--header-z);
+    }
+    .hamburger { display:none; font-size:1.4rem; }
+    .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
   header h1 { color:var(--gold); font-family:var(--font-head); font-size:1.6rem; }
   .header-controls { display:flex; align-items:center; gap:1rem; }
   .header-controls button {
     background:none; border:none; color:var(--fg); cursor:pointer; font-size:1.2rem;
   }
-  .avatar-btn {
-    width:36px; height:36px; border:2px solid var(--gold); border-radius:50%;
-    overflow:hidden; display:flex; align-items:center; justify-content:center;
-  }
-  .avatar-btn img { width:100%; height:100%; object-fit:cover; }
+ .avatar-btn img { width:32px; height:32px; border-radius:50%; object-fit:cover; }
+    @media(max-width:600px){
+      .hamburger { display:block; }
+      
+    }
 
   /* Profile Form */
   .container { flex:1; overflow-y:auto; }
@@ -152,28 +182,30 @@
   </style>
 </head>
 <body>
-  <div id="overlay"></div>
+ 
+  <!-- Sidebar -->
 
+  <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
-    <a href="log.html"         class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
+    <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <button id="profileSidebarBtn" class="menu-item profile-menu active">
-      <i id="sideAvatar" class="fas fa-user-circle avatar-small"></i>
-      <span>Profile</span>
+    <button class="menu-item profile-menu" id="profileBtn">
+      <i class="fas fa-user-circle avatar" id="side-avatar"></i><span>Profile</span>
     </button>
-    <a href="home.html"        class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
   <div class="main">
-    <header>
+   <header>
+      <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
       <h1>My Profile</h1>
       <div class="header-controls">
         <button id="logoutBtn" title="Sign Out"><i class="fas fa-sign-out-alt"></i></button>
-        <button class="avatar-btn" id="hdrAvatarBtn">
-          <i id="hdrAvatarIcon" class="fas fa-user-circle avatar-small"></i>
+       <button class="avatar-btn" id="hdrAvatarBtn">
+          <i class="fas fa-user-circle avatar" id="hdrAvatarIcon"></i>
         </button>
       </div>
     </header>
@@ -286,7 +318,14 @@
       if (M < 12) return `${M}mo ago`;
       return `${Math.floor(D/365)}y ago`;
     }
-
+// ————————————————————————————————
+  // Sidebar toggle (mobile)
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  window.toggleSidebar = () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+  };
     // — AVATAR SYNC — show icon if no avatarDataUrl
     function updateAvatars() {
       const cur = Storage.get('ft_current', {}) || {};
