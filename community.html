@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+<meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Community</title>
 
@@ -196,13 +195,14 @@
 
 </head>
 
+
 <body>
-   <!-- Profile‐completion banner -->
+  <!-- Profile‐completion banner -->
   <div id="completeProfileBanner">
     👋 Don’t forget to <a href="profile.html">complete your profile</a>!
   </div>
 
-  <!-- Sidebar -->
+ <!-- Sidebar -->
 
   <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
@@ -241,6 +241,7 @@
        <strong>Tip:</strong> Click on a hashtag to filter, or start your own discussion below.</p>
   </div>
 
+   
   <!-- 2. Trending Topics -->
   <div id="trending-topics" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:0 1rem 1rem;">
     <strong style="color:var(--white);align-self:center;">Trending:</strong>
@@ -252,31 +253,31 @@
     <button class="tag-btn" data-tag="All">All</button>
   </div>
 
-  <!-- 3. Quick Poll -->
-  <div id="poll-section" style="background:var(--accent);padding:1rem;border-radius:8px;margin:0 1rem 1.5rem;">
-    <h3 style="color:var(--gold);margin-bottom:.5rem;">Poll: What’s your favorite workout time?</h3>
-    <form id="pollForm">
-      <label><input type="radio" name="when" value="Morning"/> Morning 🌅</label><br/>
-      <label><input type="radio" name="when" value="Afternoon"/> Afternoon ☀️</label><br/>
-      <label><input type="radio" name="when" value="Evening"/> Evening 🌙</label><br/>
-      <button type="submit" style="margin-top:.5rem;padding:.4rem .8rem;border-radius:6px;">Vote</button>
-    </form>
-    <div id="pollResults" style="margin-top:.5rem;color:var(--white);"></div>
-  </div>
-
-  <!-- 4. New post box + feed -->
-  <div class="container">
-    <div class="post-box">
-      <input id="newFeedInput" placeholder="Share something…"/>
-      <button id="postFeedBtn"><i class="fas fa-paper-plane"></i> Post</button>
+    <!-- 3. Quick Poll -->
+    <div id="poll-section">
+      <h3>Poll: What’s your favorite workout time?</h3>
+      <form id="pollForm">
+        <label><input type="radio" name="when" value="Morning"/>Morning 🌅</label><br/>
+        <label><input type="radio" name="when" value="Afternoon"/>Afternoon ☀️</label><br/>
+        <label><input type="radio" name="when" value="Evening"/> Evening 🌙</label><br/>
+        <button type="submit">Vote</button>
+      </form>
+      <div id="pollResults"></div>
     </div>
-    <ul class="feed-list" id="communityFeed"></ul>
+
+    <!-- 4. New post + feed -->
+    <div class="container">
+      <div class="post-box">
+        <input id="newFeedInput" placeholder="Share something…"/>
+        <button id="postFeedBtn"><i class="fas fa-paper-plane"></i> Post</button>
+      </div>
+      <ul class="feed-list" id="communityFeed"></ul>
+    </div>
   </div>
 
-   </div> 
-  <!-- Chatbot for Community -->
+  <!-- Chatbot -->
   <div id="lb-chatbot" class="chatbot">
-    <header><i class="fas fa-comments"></i> Community Bot
+ <header><i class="fas fa-comments"></i> Community Bot
       <button id="lb-chat-close">&times;</button>
     </header>
     <div class="messages" id="lb-chat-messages">
@@ -290,65 +291,59 @@
   </div>
   <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
 
-
-  <!-- SINGLE MODULE SCRIPT -->
   <script type="module">
     import { Storage } from './storage.js';
 
     document.addEventListener('DOMContentLoaded', () => {
-      //── Helpers ──
+      // — Helpers —
       const cur = Storage.get('ft_current') || {};
-      const me    = cur.name;
+      const me  = cur.name || '';
       const myAvatar = cur.avatarDataUrl
-        || `https://i.pravatar.cc/150?u=${encodeURIComponent(me||'guest')}`;
+        || `https://i.pravatar.cc/150?u=${encodeURIComponent(me)}`;
 
       function timeAgo(ts) {
         const diff = Date.now() - ts;
-        const sec = Math.floor(diff/1000);
-        if (sec < 60) return sec + 's ago';
+        const sec  = Math.floor(diff/1000);
+        if (sec < 60) return `${sec}s ago`;
         const min = Math.floor(sec/60);
-        if (min < 60) return min + 'm ago';
+        if (min < 60) return `${min}m ago`;
         const hr  = Math.floor(min/60);
-        if (hr < 24) return hr + 'h ago';
+        if (hr < 24) return `${hr}h ago`;
         const d   = Math.floor(hr/24);
-        if (d < 7) return d + 'd ago';
+        if (d < 7)  return `${d}d ago`;
         const wk  = Math.floor(d/7);
-        if (wk < 5) return wk + 'w ago';
+        if (wk < 5) return `${wk}w ago`;
         const mo  = Math.floor(d/30);
-        if (mo < 12) return mo + 'mo ago';
-        const yr  = Math.floor(d/365);
-        return yr + 'y ago';
+        if (mo < 12) return `${mo}mo ago`;
+        return `${Math.floor(d/365)}y ago`;
       }
 
-      //── Redirect if not logged in ──
+      // — Redirect if not logged in —
       if (!me) return location.replace('home.html');
 
-      // ── Avatar sync for sidebar/header ──
-    function updateAvatars() {
-      const p   = Storage.get('ft_current', {}) || {};
-      const seed = encodeURIComponent(p.email || p.name);
-      const url  = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${seed}`;
-      ['side-avatar','hdrAvatarIcon'].forEach(id => {
-        const old = document.getElementById(id);
-        if (!old) return;
-        const img = document.createElement('img');
-        img.id        = id;
-        img.className = 'avatar';
-        img.src       = url;
-        img.alt       = 'Avatar';
-        old.replaceWith(img);
-      });
-    }
-    updateAvatars();
-    Storage.onChange('ft_current', updateAvatars);
+      // — Avatar sync —
+      function updateAvatars() {
+        ['side-avatar','hdrAvatarIcon'].forEach(id => {
+          const old = document.getElementById(id);
+          if (!old) return;
+          const img = document.createElement('img');
+          img.id        = id;
+          img.className = 'avatar';
+          img.src       = myAvatar;
+          img.alt       = 'You';
+          old.replaceWith(img);
+        });
+      }
+      updateAvatars();
+      Storage.onChange('ft_current', updateAvatars);
 
-      //── Sidebar toggle ──
+      // — Sidebar toggle —
       window.toggleSidebar = () => {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('overlay').classList.toggle('active');
       };
 
-      //── Seed feed/comments ──
+      // — Seed posts + comments if needed —
       let feed  = Storage.get('ft_feed')     || [];
       let cmnts = Storage.get('ft_comments') || [];
       if (!feed.length || feed.length !== cmnts.length) {
@@ -362,200 +357,192 @@
       ];
       const replies = ["Awesome!","Keep going!","You rock!","So inspiring!","Well done!","🔥🔥","Nice work!","Goals!","Legend!","💪","Woo!","Amazing!"];
 
-
         feed = texts.map((t,i) => ({
           user: users[i],
           avatar: `https://i.pravatar.cc/40?u=${encodeURIComponent(users[i])}`,
-          text: t, timestamp: Date.now() - Math.random()*3.6e6,
-          likes: Math.floor(Math.random()*20)+15, likedBy: []
+          text: t,
+          timestamp: Date.now() - Math.random()*3600000,
+          likes: Math.floor(Math.random()*20)+15,
+          likedBy: []
         }));
-
         cmnts = feed.map(() => {
           const n = 3 + Math.floor(Math.random()*5);
           return Array.from({length:n}).map(() => {
             const u = users[Math.floor(Math.random()*users.length)];
-            return { user:u,
-                     avatar:`https://i.pravatar.cc/40?u=${encodeURIComponent(u)}`,
-                     text: replies[Math.floor(Math.random()*replies.length)],
-                     timestamp: Date.now() - Math.random()*3.6e6,
-                     likes: Math.floor(Math.random()*5),
-                     likedBy: [] };
+            return {
+              user: u,
+              avatar: `https://i.pravatar.cc/40?u=${encodeURIComponent(u)}`,
+              text: replies[Math.floor(Math.random()*replies.length)],
+              timestamp: Date.now() - Math.random()*3600000,
+              likes: Math.floor(Math.random()*5),
+              likedBy: []
+            };
           });
         });
-
         Storage.set('ft_feed', feed);
         Storage.set('ft_comments', cmnts);
       }
 
       const feedEl = document.getElementById('communityFeed');
 
-      //── Render ──
+      // — Render function —
       function render(filterTag = 'All') {
-        const f = Storage.get('ft_feed');
-        const c = Storage.get('ft_comments');
+        const f = Storage.get('ft_feed')     || [];
+        const c = Storage.get('ft_comments') || [];
         feedEl.innerHTML = '';
 
-        f.forEach((post, idx) => {
-          // Skip if filtering and no tag match
-          if (filterTag!=='All' && !post.text.includes(filterTag)) return;
-
-          const li = document.createElement('li');
-          li.className = 'feed-item'; li.dataset.index = idx;
-          // Build comment-input under each post
-          li.innerHTML = `
-            <div class="feed-header">
-              <img class="feed-avatar" src="${post.avatar}"/>
-              <div class="feed-meta">
-                <span class="user">${post.user}</span>
-                <span class="time">${timeAgo(post.timestamp)}</span>
-              </div>
-            </div>
-            <div class="feed-text">${post.text}</div>
-            <div class="feed-controls">
-              <button class="like-btn"><i class="fas fa-heart"></i>
-                <span class="like-count">${post.likes}</span>
-              </button>
-              <button class="toggle-comments">▼ ${c[idx].length} comments</button>
-              <button class="share-btn"><i class="fas fa-share"></i> Share</button>
-            </div>
-            <div class="comments-container">
-              ${c[idx].map((cm,ci)=>`
-                <div class="comment-item" data-cidx="${ci}">
-                  <img class="comment-avatar" src="${cm.avatar}"/>
-                  <div class="comment-content">
-                    <div style="display:flex;justify-content:space-between">
-                      <span class="author">${cm.user}</span>
-                      <span class="time">${timeAgo(cm.timestamp)}</span>
-                    </div>
-                    <div class="text">${cm.text}</div>
-                    <div style="margin-top:.3rem;">
-                      <button class="c-like-btn"><i class="fas fa-heart"></i>
-                        <span>${cm.likes}</span>
-                      </button>
-                    </div>
-                  </div>
+        f.forEach((post, i) => {
+          if (filterTag !== 'All' && !post.text.includes(filterTag)) return;
+          const commentsHtml = (c[i]||[]).map((cm,j) => `
+            <div class="comment-item" data-cidx="${j}">
+              <img class="comment-avatar" src="${cm.avatar}"/>
+              <div class="comment-content">
+                <div style="display:flex;justify-content:space-between">
+                  <span class="author">${cm.user}</span>
+                  <span class="time">${timeAgo(cm.timestamp)}</span>
                 </div>
-              `).join('')}
-              <div class="add-comment" style="display:flex;gap:.5rem;margin-top:.5rem;">
-                <img src="${myAvatar}" class="comment-avatar"/>
-                <input class="new-comment-input" placeholder="Add a comment…"/>
-                <button class="new-comment-btn">Post</button>
+                <div class="text">${cm.text}</div>
+                <button class="c-like-btn"><i class="fas fa-heart"></i> <span>${cm.likes}</span></button>
               </div>
             </div>
-          `;
-          feedEl.appendChild(li);
+          `).join('');
+
+          feedEl.insertAdjacentHTML('beforeend', `
+            <li class="feed-item" data-index="${i}">
+              <div class="feed-header">
+                <img class="feed-avatar" src="${post.avatar}"/>
+                <div class="feed-meta">
+                  <span class="user">${post.user}</span>
+                  <span class="time">${timeAgo(post.timestamp)}</span>
+                </div>
+              </div>
+              <div class="feed-text">${post.text}</div>
+              <div class="feed-controls">
+                <button class="like-btn"><i class="fas fa-heart"></i> <span>${post.likes}</span></button>
+                <button class="toggle-comments">▼ ${c[i].length} comments</button>
+                <button class="share-btn"><i class="fas fa-share"></i> Share</button>
+              </div>
+              <div class="comments-container">
+                ${commentsHtml}
+                <div class="add-comment">
+                  <img class="comment-avatar" src="${myAvatar}"/>
+                  <input class="new-comment-input" placeholder="Add a comment…"/>
+                  <button class="new-comment-btn">Post</button>
+                </div>
+              </div>
+            </li>
+          `);
         });
       }
 
-      //── Post new feed ──
-      document.getElementById('postFeedBtn').addEventListener('click', () => {
+      // — Event handlers —
+
+      // New post
+      document.getElementById('postFeedBtn').onclick = () => {
         const txt = document.getElementById('newFeedInput').value.trim();
         if (!txt) return;
         const f = Storage.get('ft_feed');
         f.unshift({ user:me, avatar:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
         Storage.set('ft_feed', f);
         const c = Storage.get('ft_comments');
-        c.unshift([]); Storage.set('ft_comments', c);
-        document.getElementById('newFeedInput').value='';
-        render();
-      });
+        c.unshift([]);
+        Storage.set('ft_comments', c);
+        document.getElementById('newFeedInput').value = '';
+        render(currentFilter);
+      };
 
-      //── Delegated click handling ──
-      feedEl.addEventListener('click', e => {
+      // Delegated clicks
+      feedEl.onclick = e => {
         const postLi = e.target.closest('.feed-item');
         if (!postLi) return;
         const i = +postLi.dataset.index;
-        const f = Storage.get('ft_feed');
-        const c = Storage.get('ft_comments');
+        let f = Storage.get('ft_feed');
+        let c = Storage.get('ft_comments');
 
         // Like post
         if (e.target.closest('.like-btn')) {
-          const meIdx = f[i].likedBy.indexOf(me);
-          if (meIdx >= 0) f[i].likedBy.splice(meIdx,1), f[i].likes--;
-          else           f[i].likedBy.push(me),   f[i].likes++;
-          Storage.set('ft_feed',f);
+          const idx = f[i].likedBy.indexOf(me);
+          if (idx>=0) { f[i].likedBy.splice(idx,1); f[i].likes--; }
+          else       { f[i].likedBy.push(me);    f[i].likes++; }
+          Storage.set('ft_feed', f);
           return render(currentFilter);
         }
 
         // Toggle comments
         if (e.target.closest('.toggle-comments')) {
-          const cont = postLi.querySelector('.comments-container');
-          cont.classList.toggle('open');
+          postLi.querySelector('.comments-container').classList.toggle('open');
           return;
         }
 
-        // Share (just alert for demo)
+        // Share
         if (e.target.closest('.share-btn')) {
           alert('Link copied!');
           return;
         }
 
-        // Like a comment
+        // Like comment
         if (e.target.closest('.c-like-btn')) {
           const cmLi = e.target.closest('.comment-item');
-          const ci   = +cmLi.dataset.cidx;
-          const cm   = c[i][ci];
-          const idx  = cm.likedBy.indexOf(me);
-          if (idx>=0) cm.likedBy.splice(idx,1), cm.likes--;
-          else         cm.likedBy.push(me),      cm.likes++;
-          Storage.set('ft_comments',c);
+          const j    = +cmLi.dataset.cidx;
+          const cm   = c[i][j];
+          const idx2 = cm.likedBy.indexOf(me);
+          if (idx2>=0) { cm.likedBy.splice(idx2,1); cm.likes--; }
+          else         { cm.likedBy.push(me);      cm.likes++; }
+          Storage.set('ft_comments', c);
           return render(currentFilter);
         }
 
-        // Add a comment via the inline form
+        // Post inline comment
         if (e.target.closest('.new-comment-btn')) {
           const container = postLi.querySelector('.comments-container');
           const input     = container.querySelector('.new-comment-input');
-          const text      = input.value.trim();
-          if (!text) return;
-          c[i].push({
-            user:me, avatar:myAvatar,
-            text, timestamp:Date.now(),
-            likes:0, likedBy:[]
-          });
-          Storage.set('ft_comments',c);
-          input.value='';
+          const txt       = input.value.trim();
+          if (!txt) return;
+          c[i].push({ user:me, avatar:myAvatar, text:txt, timestamp:Date.now(), likes:0, likedBy:[] });
+          Storage.set('ft_comments', c);
           return render(currentFilter);
         }
-      });
+      };
 
-      //── Poll logic ──
-      document.getElementById('pollForm').addEventListener('submit', e => {
+      // Poll
+      const pollForm    = document.getElementById('pollForm');
+      const pollResults = document.getElementById('pollResults');
+      pollForm.onsubmit = e => {
         e.preventDefault();
         const choice = pollForm.when.value;
-        let results = JSON.parse(localStorage.getItem('ft_poll')||'{"Morning":0,"Afternoon":0,"Evening":0}');
+        const results = JSON.parse(localStorage.getItem('ft_poll') || '{"Morning":0,"Afternoon":0,"Evening":0}');
         results[choice]++;
         localStorage.setItem('ft_poll', JSON.stringify(results));
-        document.getElementById('pollResults').textContent =
-          `Morning: ${results.Morning}, Afternoon: ${results.Afternoon}, Evening: ${results.Evening}`;
-      });
-      // show existing poll
-      const saved = JSON.parse(localStorage.getItem('ft_poll')||'{"Morning":0,"Afternoon":0,"Evening":0}');
-      document.getElementById('pollResults').textContent =
-        `Morning: ${saved.Morning}, Afternoon: ${saved.Afternoon}, Evening: ${saved.Evening}`;
+        pollResults.textContent = `Morning: ${results.Morning} | Afternoon: ${results.Afternoon} | Evening: ${results.Evening}`;
+      };
+      // load on page load
+      {
+        const rs = JSON.parse(localStorage.getItem('ft_poll') || '{"Morning":0,"Afternoon":0,"Evening":0}');
+        pollResults.textContent = `Morning: ${rs.Morning} | Afternoon: ${rs.Afternoon} | Evening: ${rs.Evening}`;
+      }
 
-      //── Trending-topic filtering ──
+      // Trending filter
       let currentFilter = 'All';
       document.querySelectorAll('.tag-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.onclick = () => {
           currentFilter = btn.dataset.tag;
           render(currentFilter);
-        });
+        };
       });
 
-      //── Chatbot toggles & initial paint ──
+      // Chatbot toggle
       document.getElementById('lb-chat-toggle').onclick = () => {
         document.getElementById('lb-chatbot').classList.add('active');
-        lb-chat-toggle.style.display='none';
+        document.getElementById('lb-chat-toggle').style.display = 'none';
       };
       document.getElementById('lb-chat-close').onclick = () => {
         document.getElementById('lb-chatbot').classList.remove('active');
-        lb-chat-toggle.style.display='flex';
+        document.getElementById('lb-chat-toggle').style.display = 'flex';
       };
 
+      // Initial render
       render();
     });
   </script>
 </body>
-
 </html>
