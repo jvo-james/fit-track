@@ -191,6 +191,42 @@
     /* Chatbot */
     .chatbot { display: none !important; }
     .chatbot.active { display: flex !important; }
+
+    /* ─── Stylized add-comment box ─── */
+ .add-comment {
+   background: var(--accent);
+   padding: 0.6rem;
+   border-radius: 12px;
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+ }
+ .add-comment .new-comment-input {
+   flex: 1;
+   padding: 0.6rem;
+   border: none;
+   border-radius: 20px;
+   background: rgba(255,255,255,0.1);
+   color: var(--white);
+ }
+ .add-comment .new-comment-btn {
+   padding: 0.5rem 1rem;
+   border-radius: 20px;
+   background: var(--gold);
+   color: var(--bg);
+   font-weight: 600;
+   cursor: pointer;
+ }
+ /* ─── Like button active state ─── */
+ .like-btn .fa-heart.active,
+ .c-like-btn .fa-heart.active {
+   color: var(--gold);
+ }
+ .like-btn .fa-heart,
+ .c-like-btn .fa-heart {
+   color: var(--white);
+ }
+
   </style>
 
 </head>
@@ -376,9 +412,27 @@
       Storage.set('ft_feed', feed);
       Storage.set('ft_comments', cmnts);
     }
-
+   
     if (!feed.length || feed.length !== cmnts.length) seedData();
 
+     // ───  Auto-welcome on signup ───
+ Storage.onChange('ft_current', newUser => {
+   if (!newUser?.name) return;
+   const feed = Storage.get('ft_feed');
+   feed.unshift({
+     user: newUser.name,
+     avatar: newUser.avatarDataUrl || `https://i.pravatar.cc/40?u=${encodeURIComponent(newUser.name)}`,
+     text: '🎉 I just signed up! Excited to join the community.',
+     timestamp: Date.now(),
+     likes: 0,
+     likedBy: []
+   });
+   const cmnts = Storage.get('ft_comments');
+   cmnts.unshift([]);
+   Storage.set('ft_feed', feed);
+   Storage.set('ft_comments', cmnts);
+   render();
+ });
     // — RENDER FUNCTION —
     const feedEl = document.getElementById('communityFeed');
     let currentTag = 'All';
@@ -448,10 +502,31 @@
       let f = Storage.get('ft_feed');
       let c = Storage.get('ft_comments');
 
+       // ─── Inline comment Post button ───
+   if (e.target.closest('.new-comment-btn')) {
+     const container = postLi.querySelector('.comments-container');
+     const input     = container.querySelector('.new-comment-input');
+     const txt       = input.value.trim();
+     if (!txt) return;
+     c[i].push({
+       user: me,
+       avatar: myAvatar,
+       text: txt,
+       timestamp: Date.now(),
+       likes: 0,
+       likedBy: []
+     });
+     Storage.set('ft_comments', c);
+     input.value = '';
+     render();
+     return;
+   }
+
       // Like/unlike post
       if (e.target.closest('.like-btn')) {
         const p = f[i];
         const idx = p.likedBy.indexOf(me);
+         e.target.querySelector('i.fa-heart').classList.toggle('active');
         if (idx >= 0) { p.likedBy.splice(idx,1); p.likes--; }
         else { p.likedBy.push(me); p.likes++; }
         Storage.set('ft_feed', f);
