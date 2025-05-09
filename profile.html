@@ -132,7 +132,9 @@
   }
   #avatarPreview {
     width:160px; height:160px; border-radius:50%;
-    background:var(--input-bg); display:flex; align-items:center; justify-content:center;
+    background:var(--input-bg) no‐repeat center;
+    background-size: cover;
+    display:flex; align-items:center; justify-content:center;
     font-size:4rem; color:rgba(255,255,255,0.5); overflow:hidden;
   }
   .avatar-buttons { display:flex; gap:.5rem; }
@@ -358,17 +360,18 @@
       ['side-avatar','hdrAvatarIcon'].forEach(id => {
         const old = document.getElementById(id);
         if (!old) return;
+         const isSidebar = id === 'side-avatar';
         if (url) {
           const img = document.createElement('img');
-          img.id        = id;
-          img.className = 'avatar-small';
-          img.src       = url;
-          img.alt       = 'Avatar';
+          img.id = id;
+          img.className = isSidebar ? 'avatar' : 'avatar-small';
+          img.src = url;
+          img.alt = 'Avatar';
           old.replaceWith(img);
         } else {
           const icon = document.createElement('i');
-          icon.id            = id;
-          icon.className     = 'fas fa-user-circle avatar-small';
+          icon.id = id;
+          icon.className = `fas fa-user-circle ${isSidebar ? 'avatar' : 'avatar-small'}`;
           old.replaceWith(icon);
         }
       });
