@@ -262,10 +262,13 @@
   <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
 
 
-  <script src="storage.js"></script>
+ <script type="module" src="storage.js"></script>
 
-  <!-- 2) Community page logic -->
-  <script>
+  <!-- then your page logic must also be a module: -->
+  <script type="module">
+    import { Storage } from './storage.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('DOMContentLoaded', () => {
       // ── Redirect if not logged in ──
       const cur = Storage.get('ft_current', null);
