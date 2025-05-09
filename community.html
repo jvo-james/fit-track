@@ -516,8 +516,22 @@
        likedBy: []
      });
      Storage.set('ft_comments', c);
-     input.value = '';
-     return render();
+     
+      const commentsContainer = item.querySelector('.comments-container');
+    commentsContainer.insertAdjacentHTML('beforeend', `
+      <div class="comment-item" data-post="${i}" data-cidx="${c[i].length-1}">
+        <img class="comment-avatar" src="${myAvatar}"/>
+        <div class="comment-content">
+          <span class="author">${me}</span>
+          <span class="time">just now</span>
+          <p class="text">${txt}</p>
+        </div>
+        <button class="c-like-btn"><i class="fas fa-heart"></i> <span>0</span></button>
+      </div>`);
+    input.value = '';
+    // update comment count badge
+    item.querySelector('.toggle-comments').textContent = `▼ ${c[i].length} comments`;
+    return;
    }
 
 
@@ -529,7 +543,10 @@
         if (idx >= 0) { p.likedBy.splice(idx,1); p.likes--; }
         else { p.likedBy.push(me); p.likes++; }
         Storage.set('ft_feed', f);
-        return render();
+         const heart = item.querySelector('.like-btn .fa-heart');
+    heart.classList.toggle('active');
+    item.querySelector('.like-btn span').textContent = p.likes;
+    return;
       }
 
       // Toggle comments
@@ -558,7 +575,10 @@
                cmLi.querySelector('.fa-heart').classList.add('active');    }
         Storage.set('ft_comments', c);
         cmLi.querySelector('.c-like-btn span').textContent = cm.likes;
-        return render();
+        const cheart = cmLi.querySelector('.fa-heart');
+    cheart.classList.toggle('active');
+    cmLi.querySelector('.c-like-btn span').textContent = cm.likes;
+    return;
       }
 
       // Post inline comment
