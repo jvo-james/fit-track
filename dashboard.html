@@ -1204,6 +1204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </li>
       `);
     });
+    renderCommunity();
   }
 
   // ── EVENT BINDINGS FOR COMMUNITY ────────────────────
@@ -1284,10 +1285,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── INITIALIZE EVERYTHING ───────────────────────────
   updateDashboard();
- Storage.onChange(
+renderCommunity();
+
+Storage.onChange(
   ['ft_activities','ft_leaderboard','ft_mySchedules','ft_liveSessions','ft_feed','ft_comments'],
-  updateDashboard
+  () => {
+    updateDashboard();
+    renderCommunity();
+  }
 );
+
   });
 </script>
 
