@@ -411,79 +411,7 @@ header h1 { margin:0 auto; }
     .achievement-badge i { font-size:1.4rem; color:var(--gold); margin-bottom:.3rem; }
     .achievement-badge p { font-size:.8rem; margin:0; }
 
-    /* Community Feed */
-    .community {
-      background: #000;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-top: 1rem; }
-    .community h2 {
-      display:flex; align-items:center; gap:.5rem;
-      font-size:1.1rem; color:var(--gold); margin-bottom:.6rem; }
-  
-    /* CARD */
-.feed-item {
-  background: #222;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  margin-bottom: 1rem;
-  padding: 1rem;
-  position: relative;
-  transition: transform .2s;
-}
-.feed-item:hover { transform: translateY(-3px); }
-  /* CONTROLS BAR */
-
-.feed-controls {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  margin-top: .75rem;
-}
-.feed-controls button {
-  background: none; border: none;
-  cursor: pointer; font-weight: 600;
-  color: #007bff;
-}
-.feed-controls button:hover { text-decoration: underline; }
- .like-btn i { color: #e0245e; margin-right: .25rem; }
-
-.comments-container {
-  max-height: 0; overflow: hidden;
-  transition: max-height .3s ease;
-  margin-top: .5rem; padding-top: .5rem;
-  border-top: 1px solid #eee;
-}
-.comments-container.open {
-  max-height: 400px; /* enough to show comments */
-}
-  .pseudo-comment {
-  padding: .5rem 0; font-size: .9rem;
-  border-bottom: 1px solid #f0f0f0;
-}
-   .pseudo-comment:last-child { border-bottom: none; }
    
-    .feed-item:hover { background:rgba(255,255,255,0.2); }
-   /* TIMESTAMP */
-
-.feed-item .feed-time {
-  font-size: .8rem; color: #555;
-}
-
-/* LIKE ICON */
-
-.like-btn i { color: #e0245e; margin-right: .25rem; }
-    .feed-item .like-btn, .feed-item .comment-btn {
-      position:absolute; top:.6rem; 
-      background:none; border:none; color:var(--gold);
-      cursor:pointer; font-size:1rem;
-    }
-   .feed-item .comment-btn {
-  right:3.5rem;
-}
-.feed-item .like-btn {
- right:1rem;  
-}
     /* New Workout Modal */
     .modal-overlay {
       display:none; position:fixed; inset:0;
@@ -746,27 +674,7 @@ header h1 { margin:0 auto; }
         <div class="achievements-grid" id="yourAchievements"></div>
       </section>
 
-    <!-- Community Feed  -->
-      <section class="community">
-        <h2><i class="fas fa-users"></i> Community Feed</h2>
-        <div class="post-box">
-          <input id="newFeedInput" placeholder="Share something…"/>
-          <button id="postFeedBtn"><i class="fas fa-paper-plane"></i> Post</button>
-        </div>
-        <div id="trending-topics" class="trending" style="margin:1rem 0;">
-          <!-- same trending buttons as community.html -->
-          <button class="tag-btn active" data-tag="All">All</button>
-          <button class="tag-btn" data-tag="#HIIT">#HIIT</button>
-          <button class="tag-btn" data-tag="#Yoga">#Yoga</button>
-          <button class="tag-btn" data-tag="#Nutrition">#Nutrition</button>
-          <button class="tag-btn" data-tag="#Running">#Running</button>
-          <button class="tag-btn" data-tag="#Strength">#Strength</button>
-        </div>
-        <ul class="feed-list" id="communityFeed"></ul>
-        <div class="view-more-posts" style="text-align:center;margin-top:1rem;">
-          <a href="community.html">View more posts →</a>
-        </div>
-      </section>
+  
       <footer>&copy; 2025 FitTrack. All rights reserved.</footer>
     </div>
   </div>
@@ -813,40 +721,6 @@ header h1 { margin:0 auto; }
 import { Storage } from './storage.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  // ── 0) Seed demo community posts & comments exactly once ──
- if (!Storage.get('ft_feed')) {
-   const texts = [
-     "Alice smashed a 5 km run!",
-     "Bob crushed 3 HIIT sessions!",
-     "Cara hit her 10th workout milestone!",
-     "Dan improved his plank by 30s!",
-     "Eve joined the 7-Day Abs challenge!"
-   ];
-   const sampleUsers = ['Alice','Bob','Cara','Dan','Eve'];
-   const sampleReplies = [
-     "Amazing job!",
-     "Keep it up 💪",
-     "You're killing it!",
-     "So inspiring!",
-     "Wow, congrats!"
-   ];
-   // seed posts
-   const feed = texts.map((t,i) => ({
-     text: t,
-     timestamp: Date.now() - Math.random()*3600000,
-     likes: Math.floor(Math.random()*50)+1
-   }));
-   // seed 1–3 realistic comments
-   const initialComments = feed.map((_,i) => {
-     return Array.from({length: Math.floor(Math.random()*3)+1}).map(() => ({
-       user: sampleUsers[Math.floor(Math.random()*sampleUsers.length)],
-       text: sampleReplies[Math.floor(Math.random()*sampleReplies.length)]
-     }));
-   });
-   Storage.set('ft_feed', feed);
-   Storage.set('ft_comments', initialComments);
- }
   // ── Redirect if not logged in ──
   const cur = Storage.get('ft_current', null);
   if (!cur || !cur.name) return location.replace('home.html');
@@ -872,22 +746,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const miniList     = document.getElementById('miniLeaderboard');
   const achGrid      = document.getElementById('yourAchievements');
   const liveGrid     = document.getElementById('liveSessionsGrid');
-  const communityFeed= document.getElementById('communityFeed');
-  const postInput    = document.getElementById('newFeedInput');
-  const postBtn      = document.getElementById('postFeedBtn');
   const tipEl        = document.getElementById('tip-of-day');
   
 
-   // ── 1) Post button: prepend & re-render ──
-   postBtn.addEventListener('click', () => {
-     const txt = postInput.value.trim();
-     if (!txt) return;
-     const feed = Storage.get('ft_feed');
-     feed.unshift({ text: txt, timestamp: Date.now() });
-     Storage.set('ft_feed', feed);
-     postInput.value = '';
-     updateDashboard();
-   });
+  
 
   // ── Show/hide notification bar ──
   function syncNotif() {
@@ -936,30 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   pseudoToast.addEventListener('click', () => pseudoToast.classList.remove('active'));
 
-   // ── 2) Delegate Like & Comment (only once!) ──
-   communityFeed.addEventListener('click', e => {
-     const item = e.target.closest('.feed-item');
-     if (!item) return;
-     const idx = Number(item.dataset.index);
-
-     // Like
-     if (e.target.closest('.like-btn')) {
-       const span = item.querySelector('.like-count');
-       span.textContent = parseInt(span.textContent) + 1;
-       return;
-     }
-
-     // Comment
-     if (e.target.closest('.comment-btn')) {
-       const reply = prompt('Add a comment:');
-       if (!reply) return;
-       const allC = Storage.get('ft_comments');
-       allC[idx].push(reply);
-       Storage.set('ft_comments', allC);
-       item.insertAdjacentHTML('beforeend', `
-         <div class="pseudo-comment"><small>— You: ${reply}</small></div>`);
-     }
-   });
+  
  // —— Workout modal
   newWorkoutBtn.onclick     = () => workoutModal.classList.add('active');
   wCancel.onclick           = () => workoutModal.classList.remove('active');
@@ -1213,74 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // — Community feed: posts + comments
-    const feed = Storage.get('ft_feed', []);
-    const comments = Storage.get('ft_comments', []);
-    communityFeed.innerHTML = '';
-    feed.slice(0,5).forEach((post, idx) => { 
-      const minsAgo = Math.floor((Date.now() - post.timestamp) / 60000);
-      communityFeed.insertAdjacentHTML('beforeend', `
-       <li class="feed-item" data-index="${idx}">
-      <p>${post.text}</p>
-      <div class="feed-controls">
-        <span class="feed-time">${minsAgo}m ago</span>
-        <button class="toggle-comments">▼ ${comments[idx].length} comments</button>
-        <button class="like-btn"><i class="fas fa-heart"></i><span class="like-count">${post.likes}</span></button>
-      </div>
-      <div class="comments-container">
-        ${comments[idx].map(c => `
-          <div class="pseudo-comment"><strong>${c.user}:</strong> ${c.text}</div>
-        `).join('')}
-      </div>
-    </li>`);
-      comments[idx].forEach(c => {
-        communityFeed.lastElementChild.insertAdjacentHTML('beforeend', `
-          <div class="pseudo-comment"><small>— Friend: ${c}</small></div>`);
-      });
-    });
-
-    // ── Delegate like + comment ──
-    communityFeed.addEventListener('click', e => {
-    const item = e.target.closest('.feed-item');
-    if (!item) return;
-    const idx = Number(item.dataset.index);
-
-    // 👍 Like
-    if (e.target.closest('.like-btn')) {
-      const feed = Storage.get('ft_feed');
-      feed[idx].likes++;
-      Storage.set('ft_feed', feed);
-      item.querySelector('.like-count').textContent = feed[idx].likes;
-      return;
-    }
-
-   // ▼ Toggle comments accordion
-    if (e.target.matches('.toggle-comments')) {
-      const container = item.querySelector('.comments-container');
-      const btn       = item.querySelector('.toggle-comments');
-      container.classList.toggle('open');
-     // arrow toggle
-     btn.textContent = (container.classList.contains('open') ? '▲' : '▼')
-                     + ` ${Storage.get('ft_comments')[idx].length} comments`;
-      return;
-    }
-
-    // 📝 Add comment
-    if (e.target.closest('.comment-btn') || e.target.closest('.toggle-comments+button')) {
-      const reply = prompt('Add a comment:');
-      if (!reply) return;
-      const allC = Storage.get('ft_comments');
-      allC[idx].push({ user: Storage.get('ft_current').name, text: reply });
-      Storage.set('ft_comments', allC);
-      const container = item.querySelector('.comments-container');
-      container.insertAdjacentHTML('beforeend', `
-        <div class="pseudo-comment"><strong>${Storage.get('ft_current').name}:</strong> ${reply}</div>
-      `);
-      // update toggle text:
-      const btn = item.querySelector('.toggle-comments');
-      btn.textContent = `View ${allC[idx].length} comments`;
-    }
-  });
+   
 // ── Mobile sidebar hook (hamburger) ──
     document.getElementById('hamburger').addEventListener('click', toggleSidebar);
 
@@ -1308,8 +1080,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'ft_activities',
     'ft_leaderboard',
     'ft_mySchedules',
-    'ft_liveSessions',
-    'ft_feed'
+    'ft_liveSessions'
   ], updateDashboard);
 });
 </script>
