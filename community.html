@@ -217,6 +217,7 @@
    font-weight: 600;
    cursor: pointer;
  }
+    
  /* ─── Like button active state ─── */
  .like-btn .fa-heart.active,
  .c-like-btn .fa-heart.active {
@@ -227,7 +228,33 @@
    color: var(--white);
  }
 
-  </style>
+    /* ─── Delete button on own comments ─── */
+ .comment-item .delete-btn {
+   margin-left: auto;
+   background: none;
+   border: none;
+   color: var(--white);
+   font-size: 0.9rem;
+   cursor: pointer;
+ }
+ .comment-item .delete-btn:hover {
+   color: var(--gold);
+ }
+
+ /* ─── Easier-to-tap comment like ─── */
+ .c-like-btn {
+   display: inline-flex;
+   align-items: center;
+   gap: 0.3rem;
+   padding: 0.4rem 0.6rem;        /* expand hit area */
+   border-radius: 6px;
+   background: rgba(255,255,255,0.05);
+ }
+ .c-like-btn .fa-heart {
+   pointer-events: none;         /* let the button catch the click */
+ }
+
+ </style>
 
 </head>
 
@@ -448,7 +475,10 @@
             <div class="comment-content">
               <span class="author">${cm.user}</span>
               <span class="time">${timeAgo(cm.timestamp)}</span>
-              <p class="text">${cm.text}</p>
+             <p class="text">${cm.text}</p>
+                ${cm.user === me
+                  ? '<button class="delete-btn">Delete</button>'
+                  : ''}
               <button class="c-like-btn"><i class="fas fa-heart${cm.likedBy.includes(me)?' active':''}"></i> <span>${cm.likes}</span></button>
             </div>
           </div>
@@ -481,6 +511,7 @@
       });
     }
 
+    
     // — EVENT HANDLERS —
     document.getElementById('postFeedBtn').onclick = () => {
       const txt = document.getElementById('newFeedInput').value.trim();
@@ -502,6 +533,20 @@
       let f = Storage.get('ft_feed');
       let c = Storage.get('ft_comments');
 
+      // ─── Delete comment ───
+     if (e.target.closest('button.delete-btn')) {
+       const cmLi = e.target.closest('.comment-item');
+       const j    = +cmLi.dataset.cidx;
+       c[i].splice(j, 1);
+       Storage.set('ft_comments', c);
+       // remove from DOM without full render
+       cmLi.remove();
+       // update comment count label
+       const toggleBtn = postLi.querySelector('.toggle-comments');
+       toggleBtn.textContent = `▼ ${c[i].length} comments`;
+       return;
+     }
+
        // ─── Inline comment Post button ───
    if (e.target.closest('button.new-comment-btn')) {
      const input = item.querySelector('.new-comment-input');
@@ -516,8 +561,25 @@
        likedBy: []
      });
      Storage.set('ft_comments', c);
+     const commentsContainer = postLi.querySelector('.comments-container');
+       const newIndex = c[i].length - 1;
+       const html = `
+         <div class="comment-item" data-post="${i}" data-cidx="${newIndex}">
+           <img class="comment-avatar" src="${myAvatar}"/>
+           <div class="comment-content">
+             <span class="author">${me}</span>
+             <span class="time">${timeAgo(Date.now())}</span>
+             <p class="text">${txt}</p>
+             <button class="delete-btn">Delete</button>
+           </div>
+           <button class="c-like-btn"><i class="fas fa-heart"></i> <span>0</span></button>
+         </div>`;
+       commentsContainer.insertAdjacentHTML('beforeend', html);
+       // update comment count label
+       const toggleBtn = postLi.querySelector('.toggle-comments');
+       toggleBtn.textContent = `▼ ${c[i].length} comments`;
      input.value = '';
-     return render();
+     return;
    }
 
 
@@ -529,6 +591,9 @@
         if (idx >= 0) { p.likedBy.splice(idx,1); p.likes--; }
         else { p.likedBy.push(me); p.likes++; }
         Storage.set('ft_feed', f);
+          const heart = postLi.querySelector('.like-btn .fa-heart');
+       heart.classList.toggle('active');
+       postLi.querySelector('.like-btn span').textContent = p.likes;
         return render();
       }
 
@@ -552,10 +617,14 @@
         const j    = +cmLi.dataset.cidx;
         const cm   = c[i][j];
         const idx2 = cm.likedBy.indexOf(me);
-        if (idx2 >= 0) { cm.likedBy.splice(idx2,1); cm.likes--; }
-        else { cm.likedBy.push(me); cm.likes++; }
+        if (idx2 >= 0) { cm.likedBy.splice(idx2,1); cm.likes--;
+                       cmLi.querySelector('.fa-heart').classList.remove('active'); }
+        else { cm.likedBy.push(me); cm.likes++; 
+              cmLi.querySelector('.fa-heart').classList.add('active');
+             }
         Storage.set('ft_comments', c);
-        return render();
+         cmLi.querySelector('.c-like-btn span').textContent = cm.likes;
+        return;
       }
 
       // Post inline comment
