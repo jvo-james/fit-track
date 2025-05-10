@@ -303,6 +303,9 @@
 
   <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close Sidebar">
+     <i class="fas fa-times"></i>
+   </button>
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
     <a href="log.html"       class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
@@ -423,6 +426,14 @@
   <script type="module">
     import { Storage } from './storage.js';
 
+    // QUICK FIX: define a toggleSidebar() so your HTML onclicks don’t blow up
+   function toggleSidebar(){
+     const sidebar = document.getElementById('sidebar'),
+           overlay = document.getElementById('overlay');
+     sidebar.classList.toggle('open');
+     overlay.classList.toggle('active');
+   }
+
     document.addEventListener('DOMContentLoaded', () => {
       // Redirect if not logged in
       const cur = Storage.get('ft_current', null);
@@ -432,7 +443,8 @@
       const overlay      = document.getElementById('overlay'),
             sidebar      = document.getElementById('sidebar'),
             openBtn      = document.getElementById('hamburger'),
-            profileBtns  = [ document.getElementById('profile-btn'),
+           closeBtn     = document.getElementById('sidebar-close'),
+           profileBtns  = [ document.getElementById('profile-btn'),
                               document.querySelector('.profile-menu') ],
             sideAvatarEl = document.getElementById('side-avatar'),
             topAvatarEl  = document.getElementById('top-avatar'),
@@ -455,8 +467,9 @@
             tourTp       = document.getElementById('tour-tooltip');
 
       // Sidebar toggle
-      openBtn.onclick  = ()=>{ sidebar.classList.add('open'); overlay.classList.add('active'); };
-      closeBtn.onclick = overlay.onclick = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+     openBtn.onclick  = () => toggleSidebar();
+     closeBtn.onclick = () => toggleSidebar();
+     overlay.onclick  = () => toggleSidebar();
 
       // Profile nav
       profileBtns.forEach(b=> b.onclick = ()=> location.replace('profile.html'));
