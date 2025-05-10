@@ -76,46 +76,60 @@
       display:none;
     }
 
-    /* Sidebar */
-    aside#sidebar {
-      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+    /* SIDEBAR */
+    .sidebar {
+      width:var(--sidebar-w);
+      background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
-      transition:transform var(--transition);
-      z-index:var(--sidebar-z);
+      padding:1rem 0; position:sticky; top:0; height:100vh;
+      z-index:var(--z-sidebar);
     }
-    @media(max-width: var(--mobile-break)) {
-      aside#sidebar { position:fixed; transform:translateX(-100%); width:var(--mobile-w); }
-      aside#sidebar.open { transform:translateX(0); }
+   .sidebar {
+
+  z-index: 1000; 
+}
+@media(max-width:600px){
+  .sidebar {
+    position: fixed;
+    left: -100%;
+    width: var(--mobile-w);
+    z-index: 1000; /* also here */
+  }
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+      @media(max-width:600px){
+      .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
+      .sidebar.open { left:0; }
     }
-    .sidebar-close {
-      display:none; position:absolute; top:1rem; right:1rem;
-      background:none; border:none; font-size:1.5rem; color:var(--white);
-    }
-    @media(max-width: var(--mobile-break)) { .sidebar-close { display:block; } }
-    .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-    a.menu-item, button.profile-menu {
+   
+    .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar a.menu-item, .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
       display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      color:var(--white); background:transparent; border:none;
-      transition:background var(--transition),transform .2s;
+      background:transparent; border:none; color:var(--white);
+      transition:background var(--transition);
     }
-    a.menu-item:hover, a.menu-item.active, button.profile-menu:hover {
-      background:rgba(255,152,0,0.2); transform:translateX(4px);
+    .sidebar a.menu-item.active,
+    .sidebar a.menu-item:hover,
+    .sidebar button.profile-menu:hover {
+      background:rgba(255,152,0,0.2);
     }
-    a.menu-item i, button.profile-menu i.avatar { font-size:1.2rem; }
-    a.menu-item span, button.profile-menu span { font-size:.75rem; }
-    .sign-out { margin-top:auto; margin-bottom:1rem; }
+    .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
+    .sidebar a.menu-item span,
+    .sidebar button.profile-menu span   { font-size:.75rem; }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
+    img.avatar, i.avatar {
+      width:32px; height:32px; border-radius:50%;
+      object-fit:cover; border:2px solid var(--white);
+    }
 
-    /* Force both sidebar & topbar avatars to 32×32 */
-    img.avatar {
-      width:32px!important;
-      height:32px!important;
-      border-radius:50%;
-      object-fit:cover;
-      border:2px solid var(--white);
-    }
+
+  
 
     /* Header */
     header {
