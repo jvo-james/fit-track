@@ -295,7 +295,7 @@
 </head>
 
 <body>
-  <div id="overlay"></div>
+
   <div id="tour-overlay"></div>
   <div id="tour-tooltip"></div>
 
@@ -318,13 +318,15 @@
   <div class="main">
     <!-- HEADER -->
     <header>
-    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+   <button id="hamburger" class="hamburger" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </button>
       <h1><i class="fas fa-pen"></i> Log Activity</h1>
       <div class="header-right">
         <span class="welcome-text">Good Morning!</span>
         <button class="icon-btn" aria-label="Quick Add"><i class="fas fa-bolt"></i></button>
          <button class="avatar-btn" id="hdrAvatarBtn">
-          <i class="fas fa-user-circle avatar" id="hdrAvatarIcon"></i>
+       <i class="fas fa-user-circle avatar" id="top-avatar"></i>
         </button>
       </div>
     </header>
@@ -430,7 +432,6 @@
       const overlay      = document.getElementById('overlay'),
             sidebar      = document.getElementById('sidebar'),
             openBtn      = document.getElementById('hamburger'),
-            closeBtn     = document.getElementById('sidebar-close'),
             profileBtns  = [ document.getElementById('profile-btn'),
                               document.querySelector('.profile-menu') ],
             sideAvatarEl = document.getElementById('side-avatar'),
@@ -469,17 +470,25 @@
   // pull exactly what profile.html writes into ft_current
   const p   = Storage.get('ft_current', {});
   // use the uploaded picture, or fallback to a pravatar based on their email
-  const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||'')}`;
-  
-  ['side-avatar','top-avatar'].forEach(id=>{
-    const oldEl = document.getElementById(id);
-    if (!oldEl) return;
-    const img = document.createElement('img');
-    img.id        = id;
-    img.className = 'avatar';
-    img.src       = src;
-    oldEl.replaceWith(img);
-  });
+ ['side-avatar','top-avatar'].forEach(id=>{
+      const oldEl = document.getElementById(id);
+      if (!oldEl) return;
+      if (p.avatarDataUrl) {
+        const img = document.createElement('img');
+        img.id     = id;
+        img.className = 'avatar';
+        img.src    = p.avatarDataUrl;
+        oldEl.replaceWith(img);
+      } else {
+        // no data URL: ensure it’s the original <i> icon
+        if (oldEl.tagName === 'IMG') {
+          const icon = document.createElement('i');
+          icon.id    = id;
+          icon.className = 'fas fa-user-circle avatar';
+          oldEl.replaceWith(icon);
+        }
+      }
+    });
 }
 
 // whenever ft_current changes, refresh both sidebar & topbar
