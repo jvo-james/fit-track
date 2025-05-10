@@ -118,8 +118,12 @@
     .sidebar button.profile-menu:hover {
       background:rgba(255,152,0,0.2);
     }
-    .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
+  .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar {
+    
+      font-size:2rem;
+      line-height:32px;
+    }
     .sidebar a.menu-item span,
     .sidebar button.profile-menu span   { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
@@ -303,9 +307,7 @@
 
   <div id="overlay"></div>
   <aside class="sidebar" id="sidebar">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close Sidebar">
-     <i class="fas fa-times"></i>
-   </button>
+    
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
     <a href="log.html"       class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
@@ -326,11 +328,9 @@
   </button>
       <h1><i class="fas fa-pen"></i> Log Activity</h1>
       <div class="header-right">
-        <span class="welcome-text">Good Morning!</span>
+        <span class="welcome-text"></span>
         <button class="icon-btn" aria-label="Quick Add"><i class="fas fa-bolt"></i></button>
-         <button class="avatar-btn" id="hdrAvatarBtn">
-       <i class="fas fa-user-circle avatar" id="top-avatar"></i>
-        </button>
+         
       </div>
     </header>
 
@@ -445,11 +445,9 @@
       const overlay      = document.getElementById('overlay'),
             sidebar      = document.getElementById('sidebar'),
             openBtn      = document.getElementById('hamburger'),
-           closeBtn     = document.getElementById('sidebar-close'),
-           profileBtns  = [ document.getElementById('profileBtn'),
-                              document.querySelector('.profile-menu') ],
+            profileBtns  = [ document.getElementById('profileBtn'),
+                     document.querySelector('.profile-menu') ],
             sideAvatarEl = document.getElementById('side-avatar'),
-            topAvatarEl  = document.getElementById('top-avatar'),
             statWk       = document.getElementById('stat-workouts'),
             statDist     = document.getElementById('stat-distance'),
             statCal      = document.getElementById('stat-calories'),
@@ -470,7 +468,6 @@
 
       // Sidebar toggle
      openBtn.onclick  = () => toggleSidebar();
-     closeBtn.onclick = () => toggleSidebar();
      overlay.onclick  = () => toggleSidebar();
 
       // Profile nav
@@ -480,6 +477,17 @@
       const loadActs = ()=> Storage.get('ft_activities', []);
       const saveActs = arr=> Storage.set('ft_activities', arr);
 
+       // Dynamic greeting based on local time
+    const welcomeEl = document.querySelector('.welcome-text');
+    const h = new Date().getHours();
+    if (h < 12) {
+      welcomeEl.textContent = 'Good Morning!';
+    } else if (h < 18) {
+      welcomeEl.textContent = 'Good Afternoon!';
+    } else {
+      welcomeEl.textContent = 'Good Evening!';
+    }
+      
       // Avatar swapping (exactly like dashboard.html)
       function updateAvatars(){
   // pull exactly what profile.html writes into ft_current
