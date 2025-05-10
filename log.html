@@ -76,60 +76,46 @@
       display:none;
     }
 
-    /* SIDEBAR */
-    .sidebar {
-      width:var(--sidebar-w);
-      background:rgba(0,0,0,0.9);
+    /* Sidebar */
+    aside#sidebar {
+      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding:1rem 0; position:sticky; top:0; height:100vh;
-      z-index:var(--z-sidebar);
+      padding-top:1rem; position:sticky; top:0; height:100vh;
+      transition:transform var(--transition);
+      z-index:var(--sidebar-z);
     }
-   .sidebar {
-
-  z-index: 1000; 
-}
-@media(max-width:600px){
-  .sidebar {
-    position: fixed;
-    left: -100%;
-    width: var(--mobile-w);
-    z-index: 1000; /* also here */
-  }
-  .sidebar.open {
-    left: 0;
-  }
-}
-
-      @media(max-width:600px){
-      .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
-      .sidebar.open { left:0; }
+    @media(max-width: var(--mobile-break)) {
+      aside#sidebar { position:fixed; transform:translateX(-100%); width:var(--mobile-w); }
+      aside#sidebar.open { transform:translateX(0); }
     }
-   
-    .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
-    .sidebar a.menu-item, .sidebar button.profile-menu {
+    .sidebar-close {
+      display:none; position:absolute; top:1rem; right:1rem;
+      background:none; border:none; font-size:1.5rem; color:var(--white);
+    }
+    @media(max-width: var(--mobile-break)) { .sidebar-close { display:block; } }
+    .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
+    a.menu-item, button.profile-menu {
       width:100%; padding:.8rem 0;
       display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      background:transparent; border:none; color:var(--white);
-      transition:background var(--transition);
+      color:var(--white); background:transparent; border:none;
+      transition:background var(--transition),transform .2s;
     }
-    .sidebar a.menu-item.active,
-    .sidebar a.menu-item:hover,
-    .sidebar button.profile-menu:hover {
-      background:rgba(255,152,0,0.2);
+    a.menu-item:hover, a.menu-item.active, button.profile-menu:hover {
+      background:rgba(255,152,0,0.2); transform:translateX(4px);
     }
-    .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
-    .sidebar a.menu-item span,
-    .sidebar button.profile-menu span   { font-size:.75rem; }
-    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
-    img.avatar, i.avatar {
-      width:32px; height:32px; border-radius:50%;
-      object-fit:cover; border:2px solid var(--white);
-    }
+    a.menu-item i, button.profile-menu i.avatar { font-size:1.2rem; }
+    a.menu-item span, button.profile-menu span { font-size:.75rem; }
+    .sign-out { margin-top:auto; margin-bottom:1rem; }
 
-
-  
+    /* Force both sidebar & topbar avatars to 32×32 */
+    img.avatar {
+      width:32px!important;
+      height:32px!important;
+      border-radius:50%;
+      object-fit:cover;
+      border:2px solid var(--white);
+    }
 
     /* Header */
     header {
@@ -302,7 +288,6 @@
     <a href="log.html"         class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
     <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <a href="community.html" class="menu-item"><i class="fas fa-users"></i><span>Community</span></a>
     <button class="menu-item profile-menu">
       <i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span>
     </button>
@@ -460,26 +445,20 @@
 
       // Avatar swapping (exactly like dashboard.html)
       function updateAvatars(){
-  // pull exactly what profile.html writes into ft_current
-  const p   = Storage.get('ft_current', {});
-  // use the uploaded picture, or fallback to a pravatar based on their email
-  const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||'')}`;
-  
-  ['side-avatar','top-avatar'].forEach(id=>{
-    const oldEl = document.getElementById(id);
-    if (!oldEl) return;
-    const img = document.createElement('img');
-    img.id        = id;
-    img.className = 'avatar';
-    img.src       = src;
-    oldEl.replaceWith(img);
-  });
-}
-
-// whenever ft_current changes, refresh both sidebar & topbar
-Storage.onChange('ft_current', updateAvatars);
-// initial swap on page load
-updateAvatars();
+        const p = Storage.get('ft_profile', {});
+        const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${cur.email}`;
+        ['side-avatar','top-avatar'].forEach(id=>{
+          const oldEl = document.getElementById(id);
+          if(!oldEl) return;
+          const img = document.createElement('img');
+          img.id = id;
+          img.className = 'avatar';
+          img.src = src;
+          oldEl.replaceWith(img);
+        });
+      }
+      Storage.onChange('ft_profile', updateAvatars);
+      updateAvatars();
 
       // Stopwatch
       let seconds=0, intervalID=null;
