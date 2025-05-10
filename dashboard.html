@@ -759,6 +759,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const notifBar     = document.getElementById('notif-bar');
   const notifClose   = document.getElementById('notif-close');
   const pseudoToast  = document.getElementById('pseudo-toast');
+  const hamburger    = document.getElementById('hamburger');
+  const sidebar      = document.getElementById('sidebar');
+  const overlay      = document.getElementById('overlay');
+  const profileBtn   = document.getElementById('profile-btn');
+  const profileMenu  = document.querySelector('.profile-menu');
   const newWorkoutBtn= document.querySelector('.new-workout');
   const workoutModal = document.getElementById('workout-modal');
   const wCancel      = document.getElementById('w-cancel');
@@ -771,32 +776,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const achGrid      = document.getElementById('yourAchievements');
   const liveGrid     = document.getElementById('liveSessionsGrid');
   const tipEl        = document.getElementById('tip-of-day');
- const sidebar      = document.getElementById('sidebar');
-  const overlay      = document.getElementById('overlay');
-  const hamburger    = document.getElementById('hamburger');
-  const profileBtn   = document.getElementById('profile-btn');
-  const profileMenu  = document.querySelector('.profile-menu');
-
-  const chatToggle   = document.getElementById('chatToggle');
-  const chatClose    = document.getElementById('chatClose');
-  const chatbotBox   = document.getElementById('chatbotBox');
-  const messages     = document.getElementById('chatbotMessages');
-  const inputEl      = document.getElementById('chatInput');
-  const askBtn       = document.getElementById('askBtn');
-
-  // ── Hamburger ────────────────────────────────────────────────
-  hamburger.addEventListener('click', toggleSidebar);
-
-  // ── Chatbot open/close ───────────────────────────────────────
-  chatToggle.addEventListener('click', () => {
-    chatbotBox.classList.add('active');
-    chatToggle.style.display = 'none';
-    inputEl.focus();
-  });
-  chatClose.addEventListener('click', () => {
-    chatbotBox.classList.remove('active');
-    chatToggle.style.display = 'flex';
-  });
 
   // ── Show/hide notification bar ──
   function syncNotif() {
@@ -840,35 +819,8 @@ document.addEventListener('DOMContentLoaded', () => {
   profileBtn.addEventListener('click', () => location.replace('profile.html'));
   profileMenu.addEventListener('click', () => location.replace('profile.html'));
 
-  // ── Tour setup ─────────────────────────────────────
-  const tourSteps = [
-    { title: 'Welcome to FitTrack!',    desc: 'Here you can log workouts, track progress, and join live sessions.' },
-    { title: 'Log New Workout',         desc: 'Click the "New Workout" button in the header to log your first workout.' },
-    { title: 'Sidebar Navigation',      desc: 'Use the sidebar to switch between pages.' },
-    { title: 'Tip of the Day',          desc: 'Your daily fitness tip lives right here.' },
-    { title: 'Mini Leaderboard',        desc: 'See the Top 5 here, or click through for the full board.' }
-  ];
-  let tourIndex = 0;
-  function showTourStep() {
-    const { title, desc } = tourSteps[tourIndex];
-    document.getElementById('tour-title').textContent = title;
-    document.getElementById('tour-desc').textContent  = desc;
-    document.getElementById('tour-next').textContent  = tourIndex === tourSteps.length-1 ? 'Finish' : 'Next';
-    document.getElementById('tour-overlay').classList.add('active');
-  }
-  document.getElementById('tour-next').onclick = () => {
-    tourIndex++;
-    if (tourIndex < tourSteps.length) return showTourStep();
-    document.getElementById('tour-overlay').classList.remove('active');
-  };
-  document.getElementById('tour-skip').onclick = () =>
-   document.getElementById('tour-overlay').classList.remove('active');
-
-
- 
   // ── Seed sample workout for new users ──
-const firstTime = cur.isNew || cur.isNew === undefined;
-  if (firstTime) {
+  if (cur.isNew) {
     greetingEl.textContent = `Hello, ${cur.name}!`;
     let acts = Storage.get('ft_activities', []);
     if (!acts.length) {
@@ -880,9 +832,6 @@ const firstTime = cur.isNew || cur.isNew === undefined;
       Storage.set('ft_activities', acts);
       updateDashboard();  
     }
-
-     // fire tour immediately after paint
-    setTimeout(showTourStep, 0);
     setTimeout(() => pseudoToast.classList.add('active'), 5000);
     cur.isNew = false;
     Storage.set('ft_current', cur);
@@ -1160,7 +1109,14 @@ const firstTime = cur.isNew || cur.isNew === undefined;
 hamburger.addEventListener('click', toggleSidebar);
 
    
- 
+    // ── CHATBOT LOGIC ──
+  const chatbotBox = document.getElementById('chatbotBox');
+  const chatToggle = document.getElementById('chatToggle');
+  const chatClose  = document.getElementById('chatClose');
+  const messages   = document.getElementById('chatbotMessages');
+  const inputEl    = document.getElementById('chatInput');
+  const askBtn     = document.getElementById('askBtn');
+
    
 
   // sample Q&A
@@ -1194,9 +1150,6 @@ hamburger.addEventListener('click', toggleSidebar);
     o.value = item.q;
     data.appendChild(o);
   });
-
-    askBtn.addEventListener('click', handleAsk);
-  inputEl.addEventListener('keypress', e => { if (e.key === 'Enter') handleAsk(); });
     
   function appendMsg(who, text) {
     const div = document.createElement('div');
