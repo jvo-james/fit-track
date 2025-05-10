@@ -136,7 +136,9 @@
       background:rgba(255,152,0,0.2);
     }
    .sidebar a.menu-item i { font-size:1.4rem; }
- 
+ .hamburger i {
+  color: #fff;
+}
     
     .sidebar button.profile-menu i.avatar { font-size: 1.6rem;
   display: flex;
@@ -445,7 +447,7 @@ header h1 { margin:0 auto; }
     }
     .chatbot-box.active { display: flex; }
     .chatbot-header {
-      background: #222; color: #fff;
+      background: hsl(0, 0%, 30%); color: #fff;
       padding: 0.75rem 1rem;
       display: flex; justify-content: space-between;
       align-items: center; font-weight: 600;
@@ -477,7 +479,19 @@ header h1 { margin:0 auto; }
       border: none; background: black;
       color: white; padding: 0 1rem; cursor: pointer; border-top-right-radius: 0; border-bottom-right-radius: 0;
     }
-  
+  .chatbot-header button {
+
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: hsl(0,0%,98%);
+  cursor: pointer;
+  padding: 0;
+  transition: color .2s;
+}
+  .chatbot-header button:hover {
+  color: hsl(0,0%,80%);
+ }
   .chatbot-box select#faqSelect {
   width: 100%;
   padding: 0.5rem;
