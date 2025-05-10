@@ -203,7 +203,10 @@ header h1 { margin:0 auto; }
   /* hide the top-right profile avatar on super small */
   #profile-btn { display: none; }
 }
-    .hamburger { display:block; color: white; }
+    .hamburger,
+    .profile-btn {
+      display: none;
+    }
 
     /* Profile summary */
     .profile-summary {
@@ -732,11 +735,13 @@ document.addEventListener('DOMContentLoaded', () => {
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
  // ── Sidebar toggle (mobile) ──
-  window.toggleSidebar = () => {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-  };
-hamburger.addEventListener('click', toggleSidebar);
+ window.toggleSidebar = () => {
+   sidebar.classList.toggle('open');
+   overlay.classList.toggle('active');
+ };
+ hamburger.addEventListener('click', window.toggleSidebar);
+ sidebarClose.addEventListener('click', window.toggleSidebar);
+ overlay.addEventListener('click', window.toggleSidebar);
 
   // ── Profile navigation ──
   profileBtn.addEventListener('click', () => location.replace('profile.html'));
