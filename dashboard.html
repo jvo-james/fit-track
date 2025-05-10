@@ -65,8 +65,8 @@
     }
 .hamburger {
   position: relative;
-  z-index: var(--z-hamburger);
-  pointer-events: all;
+  z-index: 1001;            
+  pointer-events: all;  
 }
     /* Pseudo-toast */
     .pseudo-toast {
@@ -135,7 +135,9 @@
     .sidebar button.profile-menu:hover {
       background:rgba(255,152,0,0.2);
     }
-    .sidebar a.menu-item i,
+   .sidebar a.menu-item i { font-size:1.4rem; }
+ 
+    
     .sidebar button.profile-menu i.avatar { font-size: 1.6rem;
   display: flex;
   align-items: center;
@@ -579,7 +581,7 @@ header h1 { margin:0 auto; }
   <!-- Main content -->
   <div class="main">
     <header>
-     <button id="hamburger" class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+<button id="hamburger" class="hamburger"><i class="fas fa-bars"></i></button>
       <h1 id="greeting">Loading…</h1>
       <button class="new-workout"><i class="fas fa-plus"></i><span>New Workout</span></button>
        <button id="profile-btn" class="profile-btn">
@@ -1065,8 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
    
-// ── Mobile sidebar hook (hamburger) ──
-    document.getElementById('hamburger').addEventListener('click', toggleSidebar);
+hamburger.addEventListener('click', toggleSidebar);
 
    
     // ── CHATBOT LOGIC ──
