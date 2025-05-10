@@ -85,7 +85,7 @@
    
 
 
-    /* SIDEBAR */
+   /* SIDEBAR */
     .sidebar {
       width:var(--sidebar-w);
       background:rgba(0,0,0,0.9);
@@ -110,12 +110,11 @@
   }
 }
 
-
       @media(max-width:600px){
       .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
       .sidebar.open { left:0; }
     }
-  
+   
     .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item, .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
@@ -129,17 +128,15 @@
       background:rgba(255,152,0,0.2);
     }
     .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size: 1.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: center; }
+    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
     .sidebar a.menu-item span,
     .sidebar button.profile-menu span   { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
     img.avatar, i.avatar {
-      width: 32px; height: 32px; border-radius:50%;
+      width:32px; height:32px; border-radius:50%;
       object-fit:cover; border:2px solid var(--white);
     }
+
   .profile-summary i.avatar {
   width: 45px;
   height: 45px;
@@ -150,8 +147,7 @@
   border: 2px solid var(--gold);
   border-radius: 50%;
 }
-   /* Main & Header */
-   .main { flex:1; display:flex; flex-direction:column; }
+  .main { flex:1; display:flex; flex-direction:column; }
     @media(max-width:600px){ .main { margin-left:0; } }
     header {
       display:flex; align-items:center; justify-content:space-between;
@@ -161,12 +157,6 @@
     }
     .hamburger { display:none; font-size:1.4rem; }
     .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
-  header h1 { margin: 0 auto; }
-}
-   @media (max-width: 600px) {
- .hamburger {
-    display: block;
- }  }
 
 
 header h1 { margin:0 auto; }
@@ -189,9 +179,10 @@ header h1 { margin:0 auto; }
   /* hide the top-right profile avatar on super small */
   #profile-btn { display: none; }
 }
-    .hamburger,
-    .profile-btn {
-      display: none;
+    .avatar-btn img { width:32px; height:32px; border-radius:50%; object-fit:cover; }
+    @media(max-width:600px){
+      .hamburger { display:block; color: white; }
+     
     }
 
     /* Profile summary */
