@@ -164,7 +164,7 @@
       border-bottom:2px solid var(--gold);
       position:sticky; top:0; width:100%; z-index:var(--header-z);
     }
-    .hamburger {font-size:1.4rem; }
+    .hamburger { font-size:1.4rem; display: none; }
     .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
   header h1 { margin: 0 auto; }
 }
@@ -429,7 +429,7 @@ header h1 { margin:0 auto; }
       border: none; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.4rem; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2); color: black;
     }
     .chatbot-box {
       width: 300px; max-height: 400px;
@@ -441,7 +441,7 @@ header h1 { margin:0 auto; }
     }
     .chatbot-box.active { display: flex; }
     .chatbot-header {
-      background: var(--gold); color: var(--bg);
+      background: black; color: white;
       padding: 0.75rem 1rem;
       display: flex; justify-content: space-between;
       align-items: center; font-weight: 600;
@@ -457,7 +457,7 @@ header h1 { margin:0 auto; }
     }
     .chatbot-msg.user {
       align-self: flex-end;
-      background: var(--gold); color: var(--bg);
+      background: black; color: white;
     }
     .chatbot-msg.bot {
       align-self: flex-start;
@@ -470,9 +470,18 @@ header h1 { margin:0 auto; }
       flex: 1; border: none; padding: 0.6rem;
     }
     .chatbot-input button {
-      border: none; background: var(--gold);
-      color: var(--bg); padding: 0 1rem; cursor: pointer;
+      border: none; background: black;
+      color: white; padding: 0 1rem; cursor: pointer;
     }
+  
+  .chatbot-box select#faqSelect {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+}
+
 
     /* Footer */
     footer {
@@ -747,9 +756,21 @@ document.addEventListener('DOMContentLoaded', () => {
    sidebar.classList.toggle('open');
    overlay.classList.toggle('active');
  };
- hamburger.addEventListener('click', window.toggleSidebar);
+  hamburger.addEventListener('click', window.toggleSidebar);
  overlay.addEventListener('click', window.toggleSidebar);
 
+  function updateHamburgerVisibility() {
+    if (window.innerWidth <= 600) {
+      hamburger.style.display = 'block';
+    } else {
+      hamburger.style.display = 'none';
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    }
+  }
+  window.addEventListener('resize', updateHamburgerVisibility);
+  updateHamburgerVisibility();
+  
   // ── Profile navigation ──
   profileBtn.addEventListener('click', () => location.replace('profile.html'));
   profileMenu.addEventListener('click', () => location.replace('profile.html'));
@@ -1052,6 +1073,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputEl    = document.getElementById('chatInput');
   const askBtn     = document.getElementById('askBtn');
 
+    // Populate the select of possible questions
+  const faqSelect = document.createElement('select');
+  faqSelect.id = 'faqSelect';
+  faq.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.q;
+    opt.textContent = item.q;
+    faqSelect.appendChild(opt);
+  });
+  const inputContainer = chatToggle.parentNode.querySelector('.chatbot-box .chatbot-input');
+  inputContainer.parentNode.insertBefore(faqSelect, inputContainer);
+
   // sample Q&A
   const faq = [
     {q: "How many workouts this month?",                   a: "You’ve completed X workouts this month."},
@@ -1086,10 +1119,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   chatToggle.addEventListener('click', () => {
     chatbotBox.classList.toggle('active');
+    chatToggle.style.display = chatbotBox.classList.contains('active') ? 'none' : 'block';
     inputEl.focus();
   });
   chatClose.addEventListener('click', () => {
     chatbotBox.classList.remove('active');
+    chatToggle.style.display = 'block';
   });
 
   function handleAsk() {
@@ -1097,10 +1132,49 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!q) return;
     appendMsg('user', q);
     inputEl.value = '';
-    const found = faq.find(item => item.q.toLowerCase() === q.toLowerCase());
-    setTimeout(() => {
-      appendMsg('bot', found ? found.a : "Sorry, I don't have an answer for that yet.");
-    }, 300);
+    const key = q.toLowerCase();
+    let answer = "Sorry, I don't have an answer for that yet.";
+
+    // static FAQ fallback
+    const found = faq.find(item => item.q.toLowerCase() === key);
+    if (found) answer = found.a;
+
+    // dynamic overrides:
+    if (key.includes("workouts this month")) {
+      answer = `You’ve completed ${document.getElementById('workoutsCount').textContent} workouts this month.`;
+    }
+    if (key.includes("total distance")) {
+      answer = `Your total distance this month is ${document.getElementById('distanceCount').textContent}.`;
+    }
+    if (key.includes("calories have i burned")) {
+      answer = `You’ve burned ${document.getElementById('caloriesCount').textContent} calories this month.`;
+    }
+    if (key.includes("weekly goal")) {
+      answer = `You’re at ${document.getElementById('progressBar').style.width} of your weekly goal.`;
+    }
+    if (key.includes("active days")) {
+      answer = `You’ve been active ${document.getElementById('activeDaysCount').textContent} days this month.`;
+    }
+    if (key.includes("today") && key.includes("duration")) {
+      answer = `Today you’ve logged ${document.getElementById('todayTime').textContent}.`;
+    }
+    if (key.includes("average calories")) {
+      answer = `Your average is ${document.getElementById('avgCalories').textContent} calories per workout.`;
+    }
+    if (key.includes("tip of the day")) {
+      answer = `Tip of the Day: ${document.getElementById('tip-of-day').textContent}`;
+    }
+    if (key.includes("upcoming live sessions")) {
+      const count = document.querySelectorAll('.live-grid .live-btn').length;
+      answer = `You have ${count} upcoming live session${count === 1 ? '' : 's'}.`;
+    }
+    if (key.includes("achievements")) {
+      const unlocked = document.querySelectorAll('.achievement-badge.unlocked').length;
+      answer = `You’ve unlocked ${unlocked} achievement${unlocked === 1 ? '' : 's'} so far.`;
+    }
+
+    // send it
+    setTimeout(() => appendMsg('bot', answer), 300);
   }
 
   askBtn.addEventListener('click', handleAsk);
