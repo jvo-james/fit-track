@@ -76,60 +76,79 @@
       display:none;
     }
 
-    /* Sidebar */
-    aside#sidebar {
-      width:var(--sidebar-w); background:rgba(0,0,0,0.9);
+     /* SIDEBAR */
+    .sidebar {
+      width:var(--sidebar-w);
+      background:rgba(0,0,0,0.9);
       border-right:2px solid var(--gold);
       display:flex; flex-direction:column; align-items:center;
-      padding-top:1rem; position:sticky; top:0; height:100vh;
-      transition:transform var(--transition);
-      z-index:var(--sidebar-z);
+      padding:1rem 0; position:sticky; top:0; height:100vh;
+      z-index:var(--z-sidebar);
     }
-    @media(max-width: var(--mobile-break)) {
-      aside#sidebar { position:fixed; transform:translateX(-100%); width:var(--mobile-w); }
-      aside#sidebar.open { transform:translateX(0); }
+   .sidebar {
+
+  z-index: 1000; 
+}
+@media(max-width:600px){
+  .sidebar {
+    position: fixed;
+    left: -100%;
+    width: var(--mobile-w);
+    z-index: 1000; /* also here */
+  }
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+      @media(max-width:600px){
+      .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
+      .sidebar.open { left:0; }
     }
-    .sidebar-close {
-      display:none; position:absolute; top:1rem; right:1rem;
-      background:none; border:none; font-size:1.5rem; color:var(--white);
-    }
-    @media(max-width: var(--mobile-break)) { .sidebar-close { display:block; } }
-    .logo { font-size:1.6rem; color:var(--gold); margin-bottom:1.5rem; }
-    a.menu-item, button.profile-menu {
+   
+    .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
+    .sidebar a.menu-item, .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
       display:flex; flex-direction:column; align-items:center; gap:.3rem;
-      color:var(--white); background:transparent; border:none;
-      transition:background var(--transition),transform .2s;
+      background:transparent; border:none; color:var(--white);
+      transition:background var(--transition);
     }
-    a.menu-item:hover, a.menu-item.active, button.profile-menu:hover {
-      background:rgba(255,152,0,0.2); transform:translateX(4px);
+    .sidebar a.menu-item.active,
+    .sidebar a.menu-item:hover,
+    .sidebar button.profile-menu:hover {
+      background:rgba(255,152,0,0.2);
     }
-    a.menu-item i, button.profile-menu i.avatar { font-size:1.2rem; }
-    a.menu-item span, button.profile-menu span { font-size:.75rem; }
-    .sign-out { margin-top:auto; margin-bottom:1rem; }
-
-    /* Force both sidebar & topbar avatars to 32×32 */
-    img.avatar {
-      width:32px!important;
-      height:32px!important;
-      border-radius:50%;
-      object-fit:cover;
-      border:2px solid var(--white);
+    .sidebar a.menu-item i,
+    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
+    .sidebar a.menu-item span,
+    .sidebar button.profile-menu span   { font-size:.75rem; }
+    .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
+    img.avatar, i.avatar {
+      width:32px; height:32px; border-radius:50%;
+      object-fit:cover; border:2px solid var(--white);
     }
 
     /* Header */
-    header {
+     header {
       display:flex; align-items:center; justify-content:space-between;
       padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
       position:sticky; top:0; width:100%; z-index:var(--header-z);
     }
-    .hamburger, .profile-btn {
+    .hamburger { display:none; font-size:1.4rem; }
+ 
+    .avatar-btn img { width:32px; height:32px; border-radius:50%; object-fit:cover; }
+    @media(max-width:600px){
+      .hamburger { display:block; color: white; }
+      .search, .controls select { display:none; }
+    }
+
+.profile-btn {
       display:none; background:transparent; border:none;
       color:var(--white); font-size:1.5rem;
     }
     @media(max-width: var(--mobile-break)) {
-      .hamburger, .profile-btn {
+    .profile-btn {
         display:block; position:fixed; top:1rem; z-index:9999;
       }
       .hamburger { left:1rem; }
@@ -280,31 +299,32 @@
   <div id="tour-overlay"></div>
   <div id="tour-tooltip"></div>
 
-  <!-- SIDEBAR -->
-  <aside id="sidebar">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close">&times;</button>
+  <!-- Sidebar -->
+
+  <div id="overlay" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
-    <a href="dashboard.html"   class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-    <a href="log.html"         class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
-    <a href="workouts.html"    class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
+    <a href="dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
+    <a href="log.html"       class="menu-item active"><i class="fas fa-pen"></i><span>Log</span></a>
+    <a href="workouts.html"  class="menu-item"><i class="fas fa-dumbbell"></i><span>Workouts</span></a>
     <a href="leaderboard.html" class="menu-item"><i class="fas fa-trophy"></i><span>Board</span></a>
-    <a href="community.html" class="menu-item"><i class="fas fa-users"></i><span>Community</span></a>
-    <button class="menu-item profile-menu">
-      <i id="side-avatar" class="fas fa-user-circle avatar"></i><span>Profile</span>
+       <a href="community.html" class="menu-item"><i class="fas fa-users"></i><span>Community</span></a>
+    <button class="menu-item profile-menu" id="profileBtn">
+      <i class="fas fa-user-circle avatar" id="side-avatar"></i><span>Profile</span>
     </button>
-    <a href="home.html"        class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
   <div class="main">
     <!-- HEADER -->
     <header>
-      <button id="hamburger" class="hamburger" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
       <h1><i class="fas fa-pen"></i> Log Activity</h1>
       <div class="header-right">
         <span class="welcome-text">Good Morning!</span>
         <button class="icon-btn" aria-label="Quick Add"><i class="fas fa-bolt"></i></button>
-        <button id="profile-btn" class="profile-btn" aria-label="Profile">
-          <i id="top-avatar" class="fas fa-user-circle avatar"></i>
+         <button class="avatar-btn" id="hdrAvatarBtn">
+          <i class="fas fa-user-circle avatar" id="hdrAvatarIcon"></i>
         </button>
       </div>
     </header>
