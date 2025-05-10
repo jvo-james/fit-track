@@ -101,7 +101,12 @@
       width:32px; height:32px; border-radius:50%;
       object-fit:cover; border:2px solid var(--white);
     }
-
+ img.avatar, i.avatar {
+   width:32px; height:32px; border-radius:50%;
+   object-fit:cover; border:2px solid var(--white);
+   font-size:32px;             
+   line-height:32px;
+}
 #badgeContainer {
   display: flex;
   flex-wrap: wrap;
@@ -532,7 +537,7 @@
       name: current.name,
       workouts: acts.length,
       distanceKm: +acts.reduce((sum,a)=>sum+(+a.distance||0),0).toFixed(1),
-      avatar: current.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(current.name)}`,
+      avatar: current.avatarDataUrl || '',  
       profile: {
         bio: current.bio || '',
         location: current.location || '',
@@ -629,10 +634,13 @@
     // Hall of Fame
     const hof = document.getElementById('hallOfFame');
     hof.innerHTML = '';
-    lb.slice(0,3).forEach((u,i) => {
+   lb.slice(0,3).forEach((u,i) => {
       const d = document.createElement('div');
       d.className = 'hall-card';
-      d.innerHTML = `<img src="${u.avatar}" alt="${u.name}"/><span>#${i+1} ${u.name}</span>`;
+      const avatarHTML = u.avatar
+        ? `<img src="${u.avatar}" alt="${u.name}"/>`
+        : `<i class="fas fa-user-circle avatar"></i>`;
+      d.innerHTML = `${avatarHTML}<span>#${i+1} ${u.name}</span>`;
       d.onclick = ()=> showUserModal(u);
       hof.appendChild(d);
     });
@@ -643,11 +651,13 @@
     lb.forEach((u,i) => {
       const tr = document.createElement('tr');
       if (u.name===current.name) tr.classList.add('me');
+       const userAvatar = u.avatar
+        ? `<img src="${u.avatar}" width="24" height="24"/>`
+        : `<i class="fas fa-user-circle avatar"></i>`;
       tr.innerHTML = `
         <td class="rank">${i+1}</td>
         <td class="user-cell">
-          <img src="${u.avatar}" width="24" height="24" />
-          <span>${u.name}</span>
+          ${userAvatar} <span>${u.name}</span>
         </td>
         <td>${u.workouts}</td>
         <td>${u.distanceKm.toFixed(1)}</td>
@@ -709,9 +719,12 @@ document.querySelectorAll('.achievement-badge').forEach((badge, idx) => {
     const rivals = lb.filter(u=>u.name!==current.name);
     if (rivals.length) {
       const r = rivals[Math.floor(Math.random()*rivals.length)];
+      const avatarHTML = r.avatar
+        ? `<img src="${r.avatar}" width="48" height="48"/>`
+        : `<i class="fas fa-user-circle avatar"></i>`;
       document.getElementById('rivalSpotlight').innerHTML = `
         <div class="user-cell">
-          <img src="${r.avatar}" width="48" height="48"/>
+          ${avatarHTML}
           <div style="margin-left:.8rem">
             <strong>${r.name}</strong><br>
             Workouts: ${r.workouts}<br>
