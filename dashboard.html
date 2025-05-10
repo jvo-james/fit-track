@@ -597,7 +597,7 @@ padding: .5rem .8rem;
     <button class="menu-item profile-menu" id="profileBtn">
       <i class="fas fa-user-circle avatar" id="side-avatar"></i><span>Profile</span>
     </button>
-    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
 
@@ -780,12 +780,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Show/hide notification bar ──
   function syncNotif() {
     const p = Storage.get('ft_current', {});
-    notifBar.classList.toggle('hidden', !!p.profileComplete);
+   const complete = !!(
+      p.name &&
+      p.avatarDataUrl &&
+      p.bio &&
+      p.location &&
+      p.age !== undefined &&
+      p.gender
+    );
+    notifBar.classList.toggle('hidden', complete);
   }
   Storage.onChange('ft_current', syncNotif);
   syncNotif();
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
+   // ── First‑signup render “hack”: ensure we paint immediately ──
+  //    (this runs after updateDashboard() and syncProfileDisplay() are defined)
+  setTimeout(() => {
+    // re‑sync avatar & name
+    syncProfileDisplay();
+    // paint all stats, charts, lists
+    updateDashboard();
+  }, 0);
 
   function updateHamburgerVisibility() {
     if (window.innerWidth <= 600) {
