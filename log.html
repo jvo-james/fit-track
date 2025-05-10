@@ -301,7 +301,7 @@
 
   <!-- Sidebar -->
 
-  <div id="overlay" onclick="toggleSidebar()"></div>
+  <div id="overlay"></div>
   <aside class="sidebar" id="sidebar">
     <button id="sidebar-close" class="sidebar-close" aria-label="Close Sidebar">
      <i class="fas fa-times"></i>
@@ -321,7 +321,7 @@
   <div class="main">
     <!-- HEADER -->
     <header>
-   <button id="hamburger" class="hamburger" onclick="toggleSidebar()">
+   <button id="hamburger" class="hamburger">
     <i class="fas fa-bars"></i>
   </button>
       <h1><i class="fas fa-pen"></i> Log Activity</h1>
@@ -422,18 +422,20 @@
       <ul id="activityList" class="activity-list"></ul>
     </section>
   </div>
+<!-- put this at the top of <body>, before your module script -->
+<script>
+  window.toggleSidebar = function(){
+    const sb = document.getElementById('sidebar'),
+          ov = document.getElementById('overlay');
+    sb.classList.toggle('open');
+    ov.classList.toggle('active');
+  };
+</script>
 
   <script type="module">
     import { Storage } from './storage.js';
 
-    // QUICK FIX: define a toggleSidebar() so your HTML onclicks don’t blow up
-   function toggleSidebar(){
-     const sidebar = document.getElementById('sidebar'),
-           overlay = document.getElementById('overlay');
-     sidebar.classList.toggle('open');
-     overlay.classList.toggle('active');
-   }
-
+  
     document.addEventListener('DOMContentLoaded', () => {
       // Redirect if not logged in
       const cur = Storage.get('ft_current', null);
@@ -444,7 +446,7 @@
             sidebar      = document.getElementById('sidebar'),
             openBtn      = document.getElementById('hamburger'),
            closeBtn     = document.getElementById('sidebar-close'),
-           profileBtns  = [ document.getElementById('profile-btn'),
+           profileBtns  = [ document.getElementById('profileBtn'),
                               document.querySelector('.profile-menu') ],
             sideAvatarEl = document.getElementById('side-avatar'),
             topAvatarEl  = document.getElementById('top-avatar'),
@@ -508,6 +510,10 @@
 Storage.onChange('ft_current', updateAvatars);
 // initial swap on page load
 updateAvatars();
+
+      openBtn.onclick  = () => toggleSidebar();
+closeBtn.onclick = () => toggleSidebar();
+overlay.onclick  = () => toggleSidebar();
 
       // Stopwatch
       let seconds=0, intervalID=null;
