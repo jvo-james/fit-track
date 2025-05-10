@@ -63,7 +63,11 @@
       background:none; border:none; font-size:1.2rem; color:#000;
       cursor:pointer;
     }
-
+.hamburger {
+  position: relative;
+  z-index: var(--z-hamburger);
+  pointer-events: all;
+}
     /* Pseudo-toast */
     .pseudo-toast {
       position:fixed; top:80px; right:20px;
@@ -439,7 +443,7 @@ header h1 { margin:0 auto; }
     }
     .chatbot-box.active { display: flex; }
     .chatbot-header {
-      background: black; color: white;
+      background: #222; color: #fff;
       padding: 0.75rem 1rem;
       display: flex; justify-content: space-between;
       align-items: center; font-weight: 600;
@@ -465,11 +469,11 @@ header h1 { margin:0 auto; }
       display: flex; border-top: 1px solid #ddd;
     }
     .chatbot-input input {
-      flex: 1; border: none; padding: 0.6rem;
+      flex: 1; border: none; padding: 0.6rem; border-top-left-radius: 0; border-bottom-left-radius: 0;
     }
     .chatbot-input button {
       border: none; background: black;
-      color: white; padding: 0 1rem; cursor: pointer;
+      color: white; padding: 0 1rem; cursor: pointer; border-top-right-radius: 0; border-bottom-right-radius: 0;
     }
   
   .chatbot-box select#faqSelect {
