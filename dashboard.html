@@ -564,8 +564,7 @@ header h1 { margin:0 auto; }
   <!-- Main content -->
   <div class="main">
     <header>
-     <button id="hamburger" class="hamburger" onclick="toggleSidebar()">
-<i class="fas fa-bars"></i></button>
+      <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
       <h1 id="greeting">Loading…</h1>
       <button class="new-workout"><i class="fas fa-plus"></i><span>New Workout</span></button>
        <button id="profile-btn" class="profile-btn">
@@ -732,15 +731,13 @@ document.addEventListener('DOMContentLoaded', () => {
   syncNotif();
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
-  // ── Sidebar toggle ──
-  function toggleSidebar() {
+  // Sidebar toggle (mobile)
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  window.toggleSidebar = () => {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
-  }
-  hamburger.addEventListener('click', toggleSidebar);
-  sidebarClose.addEventListener('click', toggleSidebar);
-  overlay.addEventListener('click', toggleSidebar);
-  window.toggleSidebar = toggleSidebar;
+  };
 
   // ── Profile navigation ──
   profileBtn.addEventListener('click', () => location.replace('profile.html'));
