@@ -118,7 +118,8 @@
     .sidebar button.profile-menu:hover {
       background:rgba(255,152,0,0.2);
     }
-  .sidebar a.menu-item i,
+     .sidebar a.menu-item i { font-size:1.4rem; }
+ 
     .sidebar button.profile-menu i.avatar {
     
       font-size:2rem;
@@ -493,7 +494,7 @@
   // pull exactly what profile.html writes into ft_current
   const p   = Storage.get('ft_current', {});
   // use the uploaded picture, or fallback to a pravatar based on their email
- ['side-avatar','top-avatar'].forEach(id=>{
+['side-avatar'].forEach(id=>{
       const oldEl = document.getElementById(id);
       if (!oldEl) return;
       if (p.avatarDataUrl) {
@@ -506,8 +507,8 @@
         // no data URL: ensure it’s the original <i> icon
         if (oldEl.tagName === 'IMG') {
           const icon = document.createElement('i');
-          icon.id    = id;
-          icon.className = 'fas fa-user-circle avatar';
+        icon.id    = id;
+        icon.className = 'fas fa-user-circle avatar';
           oldEl.replaceWith(icon);
         }
       }
