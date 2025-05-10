@@ -705,14 +705,7 @@ header h1 { margin:0 auto; }
     </button>
   </div>
 
-  <script>
-  window.toggleSidebar = () => {
-    const sb = document.getElementById('sidebar'),
-          ov = document.getElementById('overlay');
-    sb.classList.toggle('open');
-    ov.classList.toggle('active');
-  };
-</script>
+  
 
   <script type="module">
 import { Storage } from './storage.js';
@@ -743,7 +736,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const achGrid      = document.getElementById('yourAchievements');
   const liveGrid     = document.getElementById('liveSessionsGrid');
   const tipEl        = document.getElementById('tip-of-day');
-  
+
+    // ── Sidebar toggle helper must exist before we bind the button ──
+ window.toggleSidebar = () => {
+    const sb = document.getElementById('sidebar'),
+          ov = document.getElementById('overlay');
+    sb.classList.toggle('open');
+    ov.classList.toggle('active');
+  };
+
 
   
 
