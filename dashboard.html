@@ -30,7 +30,7 @@
       --z-overlay: 90;
       --z-sidebar: 100;
       --z-header: 200;
-      --mobile-w: 240px;
+      --mobile-w: 200px;
        --z-hamburger: 300;
     }
     
@@ -42,6 +42,11 @@
       font-family:var(--font-base); overflow-x:hidden;
     }
     a { color:inherit; text-decoration:none; }
+
+  
+    /* Overlay */
+    #overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:90; }
+    #overlay.active { display:block; }
 
     /* Notification */
     .notif-bar {
@@ -78,17 +83,7 @@
     .pseudo-toast a { color:var(--gold); font-weight:600; text-decoration:underline; }
 
    
-/* The transparent overlay that closes the sidebar on tap */
-#overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 100;
-}
-#overlay.active {
-  display: block;
-}
+
 
     /* SIDEBAR */
     .sidebar {
@@ -105,19 +100,21 @@
 }
 @media(max-width:600px){
   .sidebar {
-     position: fixed;
-     top: 0; left: -100%;
-     width: var(--mobile-w);
-     height: 100vh;
-     transition: left var(--transition);
-     z-index: var(--z-sidebar);
-   }
+    position: fixed;
+    left: -100%;
+    width: var(--mobile-w);
+    z-index: 1000; /* also here */
+  }
   .sidebar.open {
     left: 0;
   }
 }
 
-     
+      @media(max-width:600px){
+      .sidebar { position:fixed; left:-100%; width:var(--mobile-w); }
+      .sidebar.open { left:0; }
+    }
+  
     .sidebar .logo { font-size:1.8rem; color:var(--gold); margin-bottom:2rem; }
     .sidebar a.menu-item, .sidebar button.profile-menu {
       width:100%; padding:.8rem 0;
@@ -143,71 +140,26 @@
       object-fit:cover; border:2px solid var(--white);
     }
   .profile-summary i.avatar {
-  width: 48px;
-  height: 48px;
-  font-size: 48px;
-  line-height: 48px;
+  width: 45px;
+  height: 45px;
+  font-size: 45px;
+  line-height: 45px;
   text-align: center;
   color: var(--white);
   border: 2px solid var(--gold);
   border-radius: 50%;
 }
-    /* Main & header */
-    .main {
-      flex:1; display:flex; flex-direction:column;
-      margin-left:calc(var(--sidebar-w)-2px);
-    }
-
-    @media (max-width: 600px) {
-      .main { margin-left:0; }
-      .sidebar {
-        position: fixed;
-        left: -100%;
-        width: var(--mobile-w);
-        z-index: var(--z-sidebar);
-      }
-      .sidebar.open { left: 0; }
-      /* show hamburger & profile buttons on mobile */
-   #hamburger,
- #sidebar-close {
-   position: fixed;
-   top: 1rem;
-   z-index: var(--z-hamburger);
- }
-      .hamburger { left: 1rem; }
-      .profile-btn { right: 1rem; }
-      header h1 { margin: 0 auto; }
-    }
-  @media (max-width: 600px) {
-    #sidebar-close {
-
-     display: block;
-      right: 0.5rem;
-     left: auto;
-      top: 0.5rem;
-     z-index: var(--z-hamburger);
-    }
-  }
+   /* Main & Header */
+   .main { flex:1; display:flex; flex-direction:column; }
+    @media(max-width:600px){ .main { margin-left:0; } }
     header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding:1rem 1.5rem;
-      background:linear-gradient(135deg,#111,#222);
-      box-shadow:0 4px 12px rgba(0,0,0,0.7);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.5rem; background:rgba(0,0,0,0.9);
       border-bottom:2px solid var(--gold);
-      position:sticky; top:0; z-index:var(--z-header);
+      position:sticky; top:0; width:100%; z-index:var(--header-z);
     }
-    .hamburger, .profile-btn {
-      display:none; background:transparent; border:none;
-      color:var(--white); font-size:1.5rem; cursor:pointer;
-    }
-   @media (max-width: 600px) {
-  .hamburger, .profile-btn {
-    display: block;
-    position: fixed;
-    top: 1rem;
-  }
-  .hamburger { left: 1rem;  z-index: calc(var(--z-sidebar) + 1);  }
-  .profile-btn { right: 1rem; }
+    .hamburger { display:none; font-size:1.4rem; }
+    .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
   header h1 { margin: 0 auto; }
 }
     /* hide sidebar-close on desktop */
@@ -251,26 +203,15 @@ header h1 { margin:0 auto; }
   /* hide the top-right profile avatar on super small */
   #profile-btn { display: none; }
 }
- @media(max-width:600px) {
-      .sidebar {
-        position: fixed;
-        left: -100%;
-        top: 0;
-        height: 100vh;
-        transition: left var(--transition);
-        z-index: var(--z-sidebar);
-      }
-      .sidebar.open {
-        left: 0;
-      }
-    }
+    .hamburger { display:block; color: white; }
+
     /* Profile summary */
     .profile-summary {
       display:flex; align-items:center; gap:1rem;
       padding:1rem 1.5rem; background:rgba(255,255,255,0.05);
     }
     .profile-summary img {
-      width:48px; height:48px; border-radius:50%; object-fit:cover;
+      width:45px; height:45px; border-radius:50%; object-fit:cover;
       border:2px solid var(--gold);
     }
     .profile-summary span {
