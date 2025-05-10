@@ -564,13 +564,7 @@ padding: .5rem .8rem;
   font-size: .8rem;
   color: var(--light-gray);
 }
-/* layout for tour modal buttons */
-  .tour-controls {
-    display: flex;
-    justify-content: flex-end;
-    gap: .5rem;
-    margin-top: 1rem;
-  }
+
   </style>
 
 <body>
@@ -580,18 +574,14 @@ padding: .5rem .8rem;
     <button id="notif-close">&times;</button>
   </div>
 
-  
-  <!-- Tour Overlay -->
-  <div id="tour-overlay" class="modal-overlay">
-    <div class="modal" id="tour-modal">
-      <h2 id="tour-title"></h2>
-      <p id="tour-desc"></p>
-      <div class="tour-controls">
-        <button class="primary" id="tour-next">Next</button>
-        <button class="secondary" id="tour-skip">Skip</button>
-      </div>
-    </div>
+  <!-- Pseudo Workout Tip -->
+  <div id="pseudo-toast" class="pseudo-toast">
+    🏋️‍♀️ That workout was just a sample! Create your own under 
+    <a href="workouts.html">Workouts</a>, 
+    <a href="log.html">Log</a>, or click “New Workout”. Check out 
+    the <a href="leaderboard.html">Leaderboard</a> too!
   </div>
+  
  
  <!-- Sidebar -->
 
@@ -813,34 +803,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDashboard();
   }, 0);
 
-   // ── Tour feature ──
-  const tourSteps = [
-    { title: 'Welcome to FitTrack!', desc: 'Here you can log workouts, track progress, and join live sessions.' },
-    { title: 'Log New Workout',      desc: 'Click the "New Workout" button in the header to log your first workout.' },
-    { title: 'Sidebar Navigation',   desc: 'Use the sidebar to switch between Dashboard, Log, Workouts, and Leaderboard.' },
-    { title: 'Tip of the Day',       desc: 'Each day we’ll show you a new fitness tip right here.' },
-    { title: 'Mini Leaderboard',     desc: 'See the Top 5 here, or go full‑screen in the Leaderboard page.' }
-  ];
-  let tourIndex = 0;
-  function showTourStep() {
-    const step = tourSteps[tourIndex];
-    document.getElementById('tour-title').textContent = step.title;
-    document.getElementById('tour-desc').textContent  = step.desc;
-    document.getElementById('tour-next').textContent  = tourIndex === tourSteps.length - 1 ? 'Finish' : 'Next';
-    document.getElementById('tour-overlay').classList.add('active');
-  }
-  function nextTour() {
-    tourIndex++;
-    if (tourIndex >= tourSteps.length) {
-      return document.getElementById('tour-overlay').classList.remove('active');
-    }
-    showTourStep();
-  }
-  document.getElementById('tour-next').addEventListener('click', nextTour);
-  document.getElementById('tour-skip').addEventListener('click', () => {
-    document.getElementById('tour-overlay').classList.remove('active');
-  });
-
   function updateHamburgerVisibility() {
     if (window.innerWidth <= 600) {
       hamburger.style.display = 'block';
@@ -858,8 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
   profileMenu.addEventListener('click', () => location.replace('profile.html'));
 
   // ── Seed sample workout for new users ──
-  const firstTime = cur.isNew || cur.isNew === undefined;
-  if (firstTime) {
+  if (cur.isNew) {
     greetingEl.textContent = `Hello, ${cur.name}!`;
     let acts = Storage.get('ft_activities', []);
     if (!acts.length) {
@@ -869,10 +830,6 @@ document.addEventListener('DOMContentLoaded', () => {
         type: 'Cardio', duration: 20, distance: 2, calories: 150, notes: 'Welcome sample workout!'
       }];
       Storage.set('ft_activities', acts);
-      updateDashboard();
-      // → start the tour instantly
-      tourIndex = 0;
-      showTourStep();
       updateDashboard();  
     }
     setTimeout(() => pseudoToast.classList.add('active'), 5000);
