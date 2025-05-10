@@ -110,9 +110,7 @@
   }
 }
 @media (max-width: 600px) {
-  .hamburger {
-    display: block;
-  }
+  .hamburger { display: block !important; background: transparent; border: none; }
  
 }
 
@@ -707,7 +705,14 @@ header h1 { margin:0 auto; }
     </button>
   </div>
 
-  
+  <script>
+  window.toggleSidebar = () => {
+    const sb = document.getElementById('sidebar'),
+          ov = document.getElementById('overlay');
+    sb.classList.toggle('open');
+    ov.classList.toggle('active');
+  };
+</script>
 
   <script type="module">
 import { Storage } from './storage.js';
@@ -751,13 +756,6 @@ document.addEventListener('DOMContentLoaded', () => {
   syncNotif();
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
- // ── Sidebar toggle (mobile) ──
- window.toggleSidebar = () => {
-   sidebar.classList.toggle('open');
-   overlay.classList.toggle('active');
- };
-  hamburger.addEventListener('click', window.toggleSidebar);
- overlay.addEventListener('click', window.toggleSidebar);
 
   function updateHamburgerVisibility() {
     if (window.innerWidth <= 600) {
@@ -1073,17 +1071,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputEl    = document.getElementById('chatInput');
   const askBtn     = document.getElementById('askBtn');
 
-    // Populate the select of possible questions
-  const faqSelect = document.createElement('select');
-  faqSelect.id = 'faqSelect';
-  faq.forEach(item => {
-    const opt = document.createElement('option');
-    opt.value = item.q;
-    opt.textContent = item.q;
-    faqSelect.appendChild(opt);
-  });
-  const inputContainer = chatToggle.parentNode.querySelector('.chatbot-box .chatbot-input');
-  inputContainer.parentNode.insertBefore(faqSelect, inputContainer);
+   
 
   // sample Q&A
   const faq = [
@@ -1109,6 +1097,19 @@ document.addEventListener('DOMContentLoaded', () => {
     {q: "How do I log swimming?",                          a: "Select “Swimming” in the Log page type dropdown."}
   ];
 
+    // ── populate the dropdown ──
+  const faqSelect = document.createElement('select');
+  faqSelect.id = 'faqSelect';
+  faq.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.q;
+    opt.textContent = item.q;
+    faqSelect.appendChild(opt);
+  });
+  document.getElementById('chatbotBox')
+          .querySelector('.chatbot-input')
+          .before(faqSelect);
+    
   function appendMsg(who, text) {
     const div = document.createElement('div');
     div.className = `chatbot-msg ${who}`;
@@ -1117,14 +1118,15 @@ document.addEventListener('DOMContentLoaded', () => {
     messages.scrollTop = messages.scrollHeight;
   }
 
-  chatToggle.addEventListener('click', () => {
-    chatbotBox.classList.toggle('active');
-    chatToggle.style.display = chatbotBox.classList.contains('active') ? 'none' : 'block';
+ chatToggle.addEventListener('click', () => {
+    chatbotBox.classList.add('active');
+    chatToggle.style.display = 'none';
     inputEl.focus();
   });
+    
   chatClose.addEventListener('click', () => {
     chatbotBox.classList.remove('active');
-    chatToggle.style.display = 'block';
+    chatToggle.style.display = 'flex';
   });
 
   function handleAsk() {
