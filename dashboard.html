@@ -777,6 +777,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const liveGrid     = document.getElementById('liveSessionsGrid');
   const tipEl        = document.getElementById('tip-of-day');
 
+  hamburger.addEventListener('click', toggleSidebar);
+
+  chatToggle.addEventListener('click', () => {
+    document.getElementById('chatbotBox').classList.toggle('active');
+  });
+  
   // ── Show/hide notification bar ──
   function syncNotif() {
     const p = Storage.get('ft_current', {});
@@ -834,6 +840,7 @@ const firstTime = (cur.isNew === undefined) || cur.isNew;
       updateDashboard();  
     }
     showTourStep();
+     setTimeout(showTourStep, 0);
     setTimeout(() => pseudoToast.classList.add('active'), 5000);
     cur.isNew = false;
     Storage.set('ft_current', cur);
