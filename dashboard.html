@@ -438,7 +438,7 @@ header h1 { margin:0 auto; }
       box-shadow: 0 4px 12px rgba(0,0,0,0.2); color: black;
     }
     .chatbot-box {
-      width: 300px; max-height: 400px;
+      width: 320px; max-height: 420px;
       background: #fff; border-radius: 12px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.15);
       overflow: hidden; display: none;
@@ -493,7 +493,7 @@ padding: .5rem .8rem;
   background: transparent;
   border: none;
   font-size: 1.2rem;
-  color: hsl(0,0%,98%);
+  color: #000;
   cursor: pointer;
   padding: 0;
   transition: color .2s;
@@ -728,7 +728,6 @@ padding: .5rem .8rem;
     <!-- searchable input backed by a datalist -->
     <input list="faqDatalist" id="chatInput" placeholder="Type or pick a question…" autocomplete="off" />
     <datalist id="faqDatalist">
-      <!-- we’ll populate options via JS below -->
     </datalist>
     <button id="askBtn" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
   </div>
@@ -815,6 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
         type: 'Cardio', duration: 20, distance: 2, calories: 150, notes: 'Welcome sample workout!'
       }];
       Storage.set('ft_activities', acts);
+      updateDashboard();  
     }
     setTimeout(() => pseudoToast.classList.add('active'), 5000);
     cur.isNew = false;
