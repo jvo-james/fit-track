@@ -858,7 +858,8 @@ document.addEventListener('DOMContentLoaded', () => {
   profileMenu.addEventListener('click', () => location.replace('profile.html'));
 
   // ── Seed sample workout for new users ──
-  if (cur.isNew) {
+  const firstTime = cur.isNew || cur.isNew === undefined;
+  if (firstTime) {
     greetingEl.textContent = `Hello, ${cur.name}!`;
     let acts = Storage.get('ft_activities', []);
     if (!acts.length) {
