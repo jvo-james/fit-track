@@ -210,7 +210,7 @@ header h1 { margin:0 auto; }
       display:flex; align-items:center; gap:1rem;
       padding:1rem 1.5rem; background:rgba(255,255,255,0.05);
     }
-    .profile-summary img {
+    .profile-summary img, .profile-summary i.avatar  {
       width:45px; height:45px; border-radius:50%; object-fit:cover;
       border:2px solid var(--gold);
     }
@@ -564,7 +564,7 @@ header h1 { margin:0 auto; }
   <!-- Main content -->
   <div class="main">
     <header>
-      <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+     <button id="hamburger" class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
       <h1 id="greeting">Loading…</h1>
       <button class="new-workout"><i class="fas fa-plus"></i><span>New Workout</span></button>
        <button id="profile-btn" class="profile-btn">
@@ -731,13 +731,12 @@ document.addEventListener('DOMContentLoaded', () => {
   syncNotif();
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
-  // Sidebar toggle (mobile)
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
+ // ── Sidebar toggle (mobile) ──
   window.toggleSidebar = () => {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
   };
+
 
   // ── Profile navigation ──
   profileBtn.addEventListener('click', () => location.replace('profile.html'));
