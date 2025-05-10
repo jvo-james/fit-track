@@ -696,9 +696,14 @@ header h1 { margin:0 auto; }
         <div class="chatbot-msg bot">Hello! How can I assist you today?</div>
       </div>
       <div class="chatbot-input">
-        <input type="text" id="chatInput" placeholder="Type your question…" />
-        <button id="askBtn" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
-      </div>
+    <!-- searchable input backed by a datalist -->
+    <input list="faqDatalist" id="chatInput" placeholder="Type or pick a question…" autocomplete="off" />
+    <datalist id="faqDatalist">
+      <!-- we’ll populate options via JS below -->
+    </datalist>
+    <button id="askBtn" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+  </div>
+
     </div>
     <button class="chatbot-toggle" id="chatToggle" aria-label="Chat">
       <i class="fas fa-comments"></i>
@@ -710,6 +715,13 @@ header h1 { margin:0 auto; }
   <script type="module">
 import { Storage } from './storage.js';
 
+  window.toggleSidebar = () => {
+    const sb = document.getElementById('sidebar'),
+          ov = document.getElementById('overlay');
+    sb.classList.toggle('open');
+    ov.classList.toggle('active');
+  };
+    
 document.addEventListener('DOMContentLoaded', () => {
   // ── Redirect if not logged in ──
   const cur = Storage.get('ft_current', null);
@@ -736,17 +748,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const achGrid      = document.getElementById('yourAchievements');
   const liveGrid     = document.getElementById('liveSessionsGrid');
   const tipEl        = document.getElementById('tip-of-day');
-
-    // ── Sidebar toggle helper must exist before we bind the button ──
- window.toggleSidebar = () => {
-    const sb = document.getElementById('sidebar'),
-          ov = document.getElementById('overlay');
-    sb.classList.toggle('open');
-    ov.classList.toggle('active');
-  };
-
-
-  
 
   // ── Show/hide notification bar ──
   function syncNotif() {
@@ -1098,18 +1099,13 @@ document.addEventListener('DOMContentLoaded', () => {
     {q: "How do I log swimming?",                          a: "Select “Swimming” in the Log page type dropdown."}
   ];
 
-    // ── populate the dropdown ──
-  const faqSelect = document.createElement('select');
-  faqSelect.id = 'faqSelect';
+    // ── populate our <datalist> for searchable suggestions ──
+  const data = document.getElementById('faqDatalist');
   faq.forEach(item => {
-    const opt = document.createElement('option');
-    opt.value = item.q;
-    opt.textContent = item.q;
-    faqSelect.appendChild(opt);
+    const o = document.createElement('option');
+    o.value = item.q;
+    data.appendChild(o);
   });
-  document.getElementById('chatbotBox')
-          .querySelector('.chatbot-input')
-          .before(faqSelect);
     
   function appendMsg(who, text) {
     const div = document.createElement('div');
