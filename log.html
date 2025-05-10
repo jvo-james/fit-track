@@ -296,6 +296,21 @@
       #duration,#distance,#calories { grid-column:span 1; }
       .achievements-section { grid-template-columns:repeat(2,1fr); }
     }
+     @media(max-width:600px) {
+  header {
+    padding: .5rem 1rem;
+  }
+  header h1 {
+    font-size: 1.2rem;
+  }
+  .header-right .icon-btn {
+    margin-left: .5rem;
+    font-size: 1rem;
+  }
+   #logForm { grid-template-columns:1fr; }
+   #duration,#distance,#calories { grid-column:span 1; }
+   .achievements-section { grid-template-columns:repeat(2,1fr); }
+ }
   </style>
 </head>
 
@@ -443,12 +458,14 @@
       if (!cur || !cur.name) return location.replace('home.html');
 
       // Elements
-      const overlay      = document.getElementById('overlay'),
-            sidebar      = document.getElementById('sidebar'),
-            openBtn      = document.getElementById('hamburger'),
-            profileBtns  = [ document.getElementById('profileBtn'),
-                     document.querySelector('.profile-menu') ],
-            sideAvatarEl = document.getElementById('side-avatar'),
+       const overlay      = document.getElementById('overlay'),
+          sidebar      = document.getElementById('sidebar'),
+          openBtn      = document.getElementById('hamburger'),
+          profileBtns  = [
+            document.getElementById('profileBtn'),
+            document.querySelector('.profile-menu')
+          ],
+          sideAvatarEl = document.getElementById('side-avatar'),
             statWk       = document.getElementById('stat-workouts'),
             statDist     = document.getElementById('stat-distance'),
             statCal      = document.getElementById('stat-calories'),
@@ -469,7 +486,7 @@
 
       // Sidebar toggle
      openBtn.onclick  = () => toggleSidebar();
-     overlay.onclick  = () => toggleSidebar();
+   overlay.onclick  = () => toggleSidebar();
 
       // Profile nav
       profileBtns.forEach(b=> b.onclick = ()=> location.replace('profile.html'));
@@ -520,9 +537,7 @@ Storage.onChange('ft_current', updateAvatars);
 // initial swap on page load
 updateAvatars();
 
-      openBtn.onclick  = () => toggleSidebar();
-closeBtn.onclick = () => toggleSidebar();
-overlay.onclick  = () => toggleSidebar();
+     
 
       // Stopwatch
       let seconds=0, intervalID=null;
