@@ -44,13 +44,7 @@
       background:rgba(255,152,0,0.1); border-left:4px solid var(--gold);
       padding:.8rem 1.5rem; color:var(--white); z-index:2000;
     }
-      
-
  
-    
-   
-  
-
     /* SIDEBAR */
     .sidebar {
       width:var(--sidebar-w);
@@ -93,8 +87,13 @@
     .sidebar button.profile-menu:hover {
       background:rgba(255,152,0,0.2);
     }
-    .sidebar a.menu-item i,
-    .sidebar button.profile-menu i.avatar { font-size:1.4rem; }
+        .sidebar a.menu-item i { font-size:1.4rem; }
+ 
+    .sidebar button.profile-menu i.avatar {
+    
+      font-size:2rem;
+      line-height:32px;
+    }
     .sidebar a.menu-item span,
     .sidebar button.profile-menu span   { font-size:.75rem; }
     .sidebar a.sign-out { margin-top:auto; margin-bottom:1rem!important; }
@@ -190,7 +189,18 @@
     .section { background:var(--accent); padding:1rem; border-radius:6px; margin-bottom:1rem; }
     .section h2 { color:var(--gold); margin-bottom:.5rem; }
     .chart-container { height:180px; }
-
+    
+  @media(max-width:600px){
+  .leaderboard table {
+    table-layout: fixed;
+    white-space: nowrap;
+    font-size: 0.9rem;
+  }
+  .leaderboard th, .leaderboard td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
     /* Hover effect */
 .achievement-badge:hover {
   transform: scale(1.2);
@@ -580,10 +590,12 @@
 
   // ————————————————————————————————
   // Avatar swapping
-  function updateAvatars() {
-    const p   = getLS('ft_current', {});
-    const src = p.avatarDataUrl || `https://i.pravatar.cc/150?u=${encodeURIComponent(p.email||p.name)}`;
-    ['side-avatar','hdrAvatarIcon'].forEach(id=>{
+ function updateAvatars() {
+    const p = getLS('ft_current', {});
+    // → only swap in an <img> if the user has actually set avatarDataUrl
+    if (!p.avatarDataUrl) return;
+    const src = p.avatarDataUrl;
+    ['side-avatar','hdrAvatarIcon'].forEach(id => {
       const oldEl = document.getElementById(id);
       if (!oldEl) return;
       const img = document.createElement('img');
