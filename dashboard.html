@@ -830,6 +830,32 @@ document.addEventListener('DOMContentLoaded', () => {
   profileBtn.addEventListener('click', () => location.replace('profile.html'));
   profileMenu.addEventListener('click', () => location.replace('profile.html'));
 
+  // ── Tour setup ─────────────────────────────────────
+  const tourSteps = [
+    { title: 'Welcome to FitTrack!',    desc: 'Here you can log workouts, track progress, and join live sessions.' },
+    { title: 'Log New Workout',         desc: 'Click the "New Workout" button in the header to log your first workout.' },
+    { title: 'Sidebar Navigation',      desc: 'Use the sidebar to switch between pages.' },
+    { title: 'Tip of the Day',          desc: 'Your daily fitness tip lives right here.' },
+    { title: 'Mini Leaderboard',        desc: 'See the Top 5 here, or click through for the full board.' }
+  ];
+  let tourIndex = 0;
+  function showTourStep() {
+    const { title, desc } = tourSteps[tourIndex];
+    document.getElementById('tour-title').textContent = title;
+    document.getElementById('tour-desc').textContent  = desc;
+    document.getElementById('tour-next').textContent  = tourIndex === tourSteps.length-1 ? 'Finish' : 'Next';
+    document.getElementById('tour-overlay').classList.add('active');
+  }
+  document.getElementById('tour-next').onclick = () => {
+    tourIndex++;
+    if (tourIndex < tourSteps.length) return showTourStep();
+    document.getElementById('tour-overlay').classList.remove('active');
+  };
+  document.getElementById('tour-skip').onclick = () =>
+   document.getElementById('tour-overlay').classList.remove('active');
+
+
+ 
   // ── Seed sample workout for new users ──
 const firstTime = (cur.isNew === undefined) || cur.isNew;
   if (firstTime) {
@@ -1129,10 +1155,11 @@ hamburger.addEventListener('click', toggleSidebar);
   const messages   = document.getElementById('chatbotMessages');
   const inputEl    = document.getElementById('chatInput');
   const askBtn     = document.getElementById('askBtn');
-  const chatToggle   = document.getElementById('chatToggle');
-  const chatClose    = document.getElementById('chatClose');
-  const chatbotBox   = document.getElementById('chatbotBox');
-  // ── ensure chat toggle opens & hides the toggle button
+const chatToggle    = document.getElementById('chatToggle');
+  const chatClose     = document.getElementById('chatClose');
+  const chatbotBox    = document.getElementById('chatbotBox');
+
+  // ── Chatbot open/close ───────────────
   chatToggle.addEventListener('click', () => {
     chatbotBox.classList.add('active');
     chatToggle.style.display = 'none';
