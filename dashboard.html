@@ -164,31 +164,18 @@
       border-bottom:2px solid var(--gold);
       position:sticky; top:0; width:100%; z-index:var(--header-z);
     }
-    .hamburger { display:none; font-size:1.4rem; }
+    .hamburger {font-size:1.4rem; }
     .logo-header { font-family:var(--font-head); font-size:1.4rem; color:var(--gold); }
   header h1 { margin: 0 auto; }
 }
-    /* hide sidebar-close on desktop */
-.sidebar-close {
-  display: none;
-}
+ 
 
-/* show it under 600px only */
 @media (max-width: 600px) {
-  #sidebar-close {
+  .hamburger {
     display: block;
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
     background: transparent;
-    color: var(--white);
-    font-size: 1.5rem;
     border: none;
-    cursor: pointer;
-  }
-}
-
-
+  } }
 header h1 { margin:0 auto; }
     
     header h1 {
@@ -209,7 +196,7 @@ header h1 { margin:0 auto; }
   /* hide the top-right profile avatar on super small */
   #profile-btn { display: none; }
 }
-    .hamburger,
+   
     .profile-btn {
       display: none;
     }
@@ -424,60 +411,68 @@ header h1 { margin:0 auto; }
     }
     .modal button.primary { background:var(--gold); color:var(--bg); }
     .modal button.secondary { background:var(--dark-gray); color:var(--white); margin-top:.4rem; }
-    /* Chatbot */
-    #chatbot {
-      position:fixed; bottom:20px; right:20px;
-      width:320px; max-height:420px;
-      background:#fff; color:#222;
-      border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,0.15);
-      display:none; flex-direction:column; overflow:hidden;
-      font-family:'Poppins',sans-serif; border:1px solid #ddd;
-      z-index:400;
+   
+  
+   /* ──  CHATBOT STYLES ── */
+    .chatbot-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: flex-end;
+      z-index: 9999;
     }
-    #chatbot header {
-      padding:.75rem 1rem; background:#f5f5f5;
-      border-bottom:1px solid #e0e0e0;
-      display:flex; align-items:center; justify-content:space-between;
-      font-weight:600; font-size:1rem;
+    .chatbot-toggle {
+      width: 48px; height: 48px;
+      background: var(--white);
+      border: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    #chatbot .messages {
-      flex:1; overflow-y:auto; background:#fff; padding:1rem;
+    .chatbot-box {
+      width: 300px; max-height: 400px;
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      overflow: hidden; display: none;
+      flex-direction: column; margin-bottom: 8px;
+      font-family: 'Poppins', sans-serif;
     }
-    #chatbot .msg {
-      margin-bottom:.6rem; padding:.6rem .8rem;
-      border-radius:12px; max-width:75%; line-height:1.3;
-      word-break:break-word;
+    .chatbot-box.active { display: flex; }
+    .chatbot-header {
+      background: var(--gold); color: var(--bg);
+      padding: 0.75rem 1rem;
+      display: flex; justify-content: space-between;
+      align-items: center; font-weight: 600;
     }
-    #chatbot .user { align-self:flex-end; background:#e8e8e8; color:#111; }
-    #chatbot .bot  { align-self:flex-start; background:#f1f1f1; border:1px solid #ececec; }
-    #chatbot .input {
-      display:flex; border-top:1px solid #e0e0e0; padding:.5rem; gap:.5rem;
-      background:#fafafa;
+    .chatbot-messages {
+      flex: 1; overflow-y: auto; padding: 0.75rem;
+      background: #fafafa;
     }
-    #chatbot .input select, #chatbot .input input {
-      flex:1; font-size:.9rem;
-      background:#fff; color:#222; border:1px solid #ccc; border-radius:8px;
-      padding:.5rem;
+    .chatbot-msg {
+      margin-bottom: 0.5rem; padding: 0.5rem;
+      border-radius: 12px; max-width: 80%;
+      word-break: break-word;
     }
-    #chatbot .input button {
-      padding:.5rem .8rem; border:none; background:#222; color:#fff; border-radius:8px;
-      cursor:pointer; transition:background .2s;
+    .chatbot-msg.user {
+      align-self: flex-end;
+      background: var(--gold); color: var(--bg);
     }
-    #chatbot .input button:hover { background:#000; }
-
-
-#chatToggle {
-  position: fixed;
-  bottom: 20px; right: 20px;
-  width: 50px; height: 50px;
-  background: var(--white); color: var(--dark-gray);
-  border: none; border-radius:50%;
-  display: flex;                
-  align-items: center; justify-content:center;
-  font-size:1.4rem; cursor:pointer;
-  z-index: 9999;
-}
-
+    .chatbot-msg.bot {
+      align-self: flex-start;
+      background: #eee; color: #222;
+    }
+    .chatbot-input {
+      display: flex; border-top: 1px solid #ddd;
+    }
+    .chatbot-input input {
+      flex: 1; border: none; padding: 0.6rem;
+    }
+    .chatbot-input button {
+      border: none; background: var(--gold);
+      color: var(--bg); padding: 0 1rem; cursor: pointer;
+    }
 
     /* Footer */
     footer {
@@ -556,7 +551,7 @@ header h1 { margin:0 auto; }
 
   <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close menu">&times;</button>
+  
     <div class="logo"><i class="fas fa-heartbeat"></i></div>
     <a href="dashboard.html" class="menu-item active"><i class="fas fa-tachometer-alt"></i><span>Dash</span></a>
     <a href="log.html"       class="menu-item"><i class="fas fa-pen"></i><span>Log</span></a>
@@ -681,20 +676,27 @@ header h1 { margin:0 auto; }
       <button class="secondary" id="w-cancel">Cancel</button>
     </div>
   </div>
-<!-- Dashboard Chatbot -->
-<div id="chatbot" class="chatbot">
-  <header><i class="fas fa-comments"></i> Dash Bot
-    <button id="chatClose">&times;</button>
-  </header>
-  <div class="messages" id="chatMessages">
-    <div class="msg bot">Hi! Ask me about your dashboard…</div>
+  
+ <!-- ── NEW CHATBOT MARKUP ── -->
+  <div class="chatbot-container">
+    <div class="chatbot-box" id="chatbotBox">
+      <div class="chatbot-header">
+        <span>FitTrack Bot</span>
+        <button id="chatClose" aria-label="Close">✕</button>
+      </div>
+      <div class="chatbot-messages" id="chatbotMessages">
+        <div class="chatbot-msg bot">Hello! How can I assist you today?</div>
+      </div>
+      <div class="chatbot-input">
+        <input type="text" id="chatInput" placeholder="Type your question…" />
+        <button id="askBtn" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+    <button class="chatbot-toggle" id="chatToggle" aria-label="Chat">
+      <i class="fas fa-comments"></i>
+    </button>
   </div>
-  <div class="input">
-    <select id="questionSelect"><option disabled selected>Pick a question…</option></select>
-    <input type="text" id="chatInput" placeholder="Or type your own…"/>
-    <button type="button" id="askBtn"><i class="fas fa-paper-plane"></i></button>
-</div>
-<button id="chatToggle"><i class="fas fa-comments"></i></button>
+
   
 
   <script type="module">
@@ -712,7 +714,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const hamburger    = document.getElementById('hamburger');
   const sidebar      = document.getElementById('sidebar');
   const overlay      = document.getElementById('overlay');
-  const sidebarClose = document.getElementById('sidebar-close');
   const profileBtn   = document.getElementById('profile-btn');
   const profileMenu  = document.querySelector('.profile-menu');
   const newWorkoutBtn= document.querySelector('.new-workout');
@@ -746,7 +747,6 @@ document.addEventListener('DOMContentLoaded', () => {
    overlay.classList.toggle('active');
  };
  hamburger.addEventListener('click', window.toggleSidebar);
- sidebarClose.addEventListener('click', window.toggleSidebar);
  overlay.addEventListener('click', window.toggleSidebar);
 
   // ── Profile navigation ──
@@ -1042,13 +1042,71 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── Mobile sidebar hook (hamburger) ──
     document.getElementById('hamburger').addEventListener('click', toggleSidebar);
 
-    // ── Chatbot toggle ──
-    document.getElementById('chatToggle').addEventListener('click', () => {
-      document.getElementById('chatbot').classList.add('active');
-    });
-    document.getElementById('chatClose').addEventListener('click', () => {
-      document.getElementById('chatbot').classList.remove('active');
-    });
+   
+    // ── CHATBOT LOGIC ──
+  const chatbotBox = document.getElementById('chatbotBox');
+  const chatToggle = document.getElementById('chatToggle');
+  const chatClose  = document.getElementById('chatClose');
+  const messages   = document.getElementById('chatbotMessages');
+  const inputEl    = document.getElementById('chatInput');
+  const askBtn     = document.getElementById('askBtn');
+
+  // sample Q&A
+  const faq = [
+    {q: "How many workouts this month?",                   a: "You’ve completed X workouts this month."},
+    {q: "What's my total distance?",                       a: "Your total distance this month is Y km."},
+    {q: "How many calories have I burned?",                a: "You’ve burned Z calories this month."},
+    {q: "What's my weekly goal progress?",                 a: "You’re at P% of your weekly goal."},
+    {q: "How many active days?",                           a: "You’ve been active D days this month."},
+    {q: "Show me today's duration.",                       a: "Today you’ve logged T minutes."},
+    {q: "What's my average calories per workout?",         a: "Your average is C calories per workout."},
+    {q: "What tip of the day?",                            a: "Stay hydrated—drink water before workouts."},
+    {q: "List upcoming live sessions.",                    a: "You have L sessions coming up."},
+    {q: "How do I schedule a live session?",               a: "Click the “⏱ Schedule” button next to a session."},
+    {q: "What achievements have I unlocked?",              a: "You’ve unlocked A badges!"},
+    {q: "How do I add a new workout?",                     a: "Click the “New Workout” button in the header."},
+    {q: "How can I view leaderboard?",                     a: "Go to the Leaderboard page via the sidebar."},
+    {q: "How do I edit my profile?",                       a: "Click your avatar in the sidebar to go to Profile."},
+    {q: "What does the stopwatch do?",                     a: "Use it to time your workout duration automatically."},
+    {q: "How to delete an activity?",                      a: "Click the trash icon next to any activity in Recent Activities."},
+    {q: "Where I see quick stats?",                        a: "They’re at the top of the dashboard under “Stats.”"},
+    {q: "How to set goals?",                               a: "Goals are preset but coming soon to be customizable!"},
+    {q: "How to reset the timer?",                         a: "Press Reset in the stopwatch area of the Log page."},
+    {q: "How do I log swimming?",                          a: "Select “Swimming” in the Log page type dropdown."}
+  ];
+
+  function appendMsg(who, text) {
+    const div = document.createElement('div');
+    div.className = `chatbot-msg ${who}`;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  chatToggle.addEventListener('click', () => {
+    chatbotBox.classList.toggle('active');
+    inputEl.focus();
+  });
+  chatClose.addEventListener('click', () => {
+    chatbotBox.classList.remove('active');
+  });
+
+  function handleAsk() {
+    const q = inputEl.value.trim();
+    if (!q) return;
+    appendMsg('user', q);
+    inputEl.value = '';
+    const found = faq.find(item => item.q.toLowerCase() === q.toLowerCase());
+    setTimeout(() => {
+      appendMsg('bot', found ? found.a : "Sorry, I don't have an answer for that yet.");
+    }, 300);
+  }
+
+  askBtn.addEventListener('click', handleAsk);
+  inputEl.addEventListener('keypress', e => {
+    if (e.key === 'Enter') handleAsk();
+  });
+    
     // — Tip of the day
     const tips = [
       "Stay hydrated—drink 250 ml water before workouts.",
