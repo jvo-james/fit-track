@@ -13,7 +13,6 @@
   <script defer src="https://kit.fontawesome.com/a2e8f1b6b1.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-  <!-- Chart.js & storage helper -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -68,7 +67,6 @@
       box-shadow:0 2px 8px rgba(0,0,0,0.4);
     }
 
-    /* overlay */
     #overlay {
       position:fixed; inset:0;
       background:rgba(0,0,0,0.5);
@@ -91,40 +89,38 @@
     .sidebar-close {
       display:none;
     }
-    /* ===== Mobile sidebar exactly like leaderboard.html ===== */
 @media (max-width: 600px) {
   .sidebar {
-    position: fixed;       /* take out of flow */
+    position: fixed;      
     top: 0;
-    left: -100%;           /* hide completely off-canvas */
-    width: 200px;          /* same as var(--mobile-w) earlier */
+    left: -100%;          
+    width: 200px;          
     height: 100vh;
-    transition: left .3s;  /* slide in/out */
-    z-index: 300;          /* above overlay */
+    transition: left .3s;  
+    z-index: 300;         
   }
   .sidebar.open {
-    left: 0;               /* slide in */
+    left: 0;              
   }
-  /* ensure main always full-width on mobile */
   .main {
     margin-left: 0 !important;
   }
 
   .text { display: none; }
-  /* overlay covers the main content when active */
+
   #overlay {
-    z-index: 200;          /* below sidebar */
+    z-index: 200;         
   }
-  /* tighten header padding */
+
   header {
     padding: .75rem 1rem;
   }
-  /* show hamburger */
+
   .hamburger {
     display: inline-flex;
   }
   .sidebar-close {
-    display: block;        /* show the “×” close button you already have */
+    display: block;       
   }
 }
 
@@ -150,7 +146,7 @@
       object-fit:cover; border:2px solid var(--white);
     }
 
-    /* MAIN & HEADER */
+
     .main { flex:1; display:flex; flex-direction:column; }
     @media(max-width:var(--mobile-break)){ .main { margin-left:0; } }
 
@@ -171,7 +167,7 @@
       border-radius:30px; padding:.6rem 1rem;
       font-size:1.1rem;
     }
-    /* hamburger: desktop hidden, mobile shown */
+
     .hamburger { display:none; background:none; border:none; color:var(--white); font-size:1.5rem; }
  
 @media (max-width: 900px) {
@@ -182,14 +178,14 @@
 
     #profile-btn { background:none; border:none; color:var(--white); font-size:1.5rem; }
 
-    /* Welcome banner */
+
     #welcomeBanner {
       background:rgba(255,152,0,0.1);
       color:var(--white); text-align:center;
       padding:.75rem 1.5rem; font-size:1rem;
     }
 
-    /* CONTENT GRID */
+
     .content {
       padding:1.5rem;
       display:grid; gap:2rem;
@@ -197,7 +193,7 @@
     }
     @media(max-width:900px){ .content { grid-template-columns:1fr; } }
 
-    /* Workout of the Day */
+  
     #workoutOfDay {
       grid-column:1/-1;
       background:rgba(255,255,255,0.05);
@@ -213,13 +209,11 @@
       margin-top:.75rem;
     }
 
-    /* Filters */
     #filters {
       grid-column:1/-1;
       display:flex; flex-wrap:wrap; gap:1rem; align-items:center;
     }
 
-    /* Unified grid for Featured & Library */
     .card-grid {
       display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -252,7 +246,6 @@
       padding:.6rem; border-radius:6px;
     }
 
-    /* Detail Modal */
     #detailModal {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.8);
@@ -271,7 +264,6 @@
       font-size:1.5rem; color:var(--gold); cursor:pointer;
     }
 
-    /* My Plans */
     #myPlans {
       grid-column:1/-1;
       background:rgba(255,255,255,0.05);
@@ -316,7 +308,6 @@
   }
 }
 
-    /* Progress Chart */
     #progressSummary {
       grid-column:1/-1;
       background:rgba(255,255,255,0.05);
@@ -330,7 +321,6 @@
       width:100% !important; height:240px !important;
     }
 
-    /* Challenge Modes */
     #challengeModes {
       grid-column:1/-1;
       background:rgba(255,255,255,0.05);
@@ -366,7 +356,6 @@
       padding:.5rem .8rem; border-radius:6px;
     }
 
-    /* Live Sessions */
     #liveSessions {
       grid-column:1/-1;
       background:rgba(255,255,255,0.05);
@@ -406,7 +395,6 @@
       padding:.5rem .8rem; border-radius:6px;
     }
 
-    /* Go Live Modal */
     #goLiveModal {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.8);
@@ -437,7 +425,6 @@
   padding:.6rem 1rem;
 }
 
-    /* Chatbot */
     #chatbot {
       position:fixed; bottom:20px; right:20px;
       width:320px; max-height:420px;
@@ -511,7 +498,6 @@
 <body>
   <div id="overlay"></div>
 
-  <!-- SIDEBAR -->
 
   <aside id="sidebar" class="sidebar">
     <button id="sidebar-close" class="sidebar-close">&times;</button>
@@ -527,7 +513,6 @@
     <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
-  <!-- MAIN -->
 
   <div class="main">
     <header>
@@ -545,7 +530,6 @@
 <div id="welcomeBanner"></div>
 
 <div class="content">
-  <!-- Workout of the Day -->
   <section id="workoutOfDay">
     <h2><i class="fas fa-star"></i> Workout of the Day</h2>
     <p id="wodTitle">Loading…</p>
@@ -584,7 +568,6 @@
     whether you’ve got 5 min or 50 min, we’ve got you covered.
   </p>
 
-  <!-- quick search -->
   <div class="library‑search">
     <input type="text" id="libSearchInput" placeholder="Search workouts…" />
     <button id="libSearchBtn">Go</button>
@@ -593,7 +576,6 @@
   <div class="card-grid" id="libraryGrid"></div>
 </section>
 
-  <!-- Detail Modal -->
   <div id="detailModal" class="flex-center">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -637,7 +619,6 @@
 
   </div>
 
-  <!-- Go Live Modal -->
 
   <div id="goLiveModal" class="flex-center">
     <div class="modal">
@@ -664,10 +645,8 @@
       <div class="msg bot">Welcome! Choose a question…</div>
     </div>
     <div class="input">
-      <!-- single input for both typing & datalist suggestions -->
       <input list="questions" id="chatInput" placeholder="Your question…" />
       <datalist id="questions">
-        <!-- JS will inject <option value="..."> here -->
       </datalist>
       <button id="askBtn"><i class="fas fa-paper-plane"></i></button>
     </div>
@@ -685,7 +664,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!cur || !cur.name) return location.replace('home.html');
   let currentStream = null;
 
-  // — Sidebar toggle & profile nav
   const sidebar     = document.getElementById('sidebar'),
         overlay     = document.getElementById('overlay'),
         openBtn     = document.getElementById('hamburger'),
@@ -711,7 +689,6 @@ document.addEventListener('DOMContentLoaded', () => {
     location.replace('profile.html');
   }));
 
-  // ───── AVATAR SWAP ────────────────────────────────────────────────────────
   function updateAvatars() {
     const prof = Storage.get('ft_current', {});
     ['side-avatar','top-avatar'].forEach(id => {
@@ -727,9 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   updateAvatars();
   Storage.onChange('ft_current', updateAvatars);
-  // ─────────────────────────────────────────────────────────────────────────────
 
-  // — Workouts data (10 items)
   const workouts = [
     { id:1,  title:'Full-Body HIIT',      category:'Cardio',     duration:20, difficulty:'Intermediate',
       image:'hiit.jpg',    description:'Fast-paced intervals.',
@@ -763,7 +738,6 @@ document.addEventListener('DOMContentLoaded', () => {
       exercises:['Hamstring Stretch','Quad Stretch'], equipment:'Mat', calories:80 }
   ];
 
-  // — Workout of the Day
   const wodTitle = document.getElementById('wodTitle'),
         wodDesc  = document.getElementById('wodDesc'),
         rndBtn   = document.getElementById('randomizeWOD');
@@ -775,7 +749,6 @@ document.addEventListener('DOMContentLoaded', () => {
   rndBtn.addEventListener('click', pickWOD);
   pickWOD();
 
-  // — Featured Workouts (first 10)
   const featuredList = document.getElementById('featuredList');
   function renderFeatured() {
     featuredList.innerHTML = '';
@@ -793,7 +766,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // — Library & Filters
   const libraryGrid    = document.getElementById('libraryGrid'),
         catSel         = document.getElementById('filterCategory'),
         durSel         = document.getElementById('filterDuration'),
@@ -801,7 +773,6 @@ document.addEventListener('DOMContentLoaded', () => {
         libSearchInput = document.getElementById('libSearchInput'),
         libSearchBtn   = document.getElementById('libSearchBtn');
 
-  // populate category dropdown
   new Set(workouts.map(w => w.category)).forEach(c => {
     catSel.add(new Option(c, c));
   });
@@ -841,7 +812,6 @@ document.addEventListener('DOMContentLoaded', () => {
   [catSel, durSel, difSel].forEach(el => el.addEventListener('change', renderLibrary));
   renderLibrary();
 
-  // — Detail Modal Logic
   const detailModal = document.getElementById('detailModal'),
         detailClose = detailModal.querySelector('.close'),
         detailTitle = document.getElementById('detailTitle'),
@@ -889,7 +859,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // — My Plans
   const plansList = document.getElementById('plansList');
   function renderPlans() {
     const p = Storage.get('ft_plans', []);
@@ -910,7 +879,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // — Progress Chart
   const ctx = document.getElementById('progressChart').getContext('2d');
   let chart;
   function renderProgress() {
@@ -938,7 +906,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // — Challenge Modes (unchanged)
   const CHALLENGE_KEY = 'ft_joinedChallenges',
         chList        = document.getElementById('challengesList');
   if (!Storage.get(CHALLENGE_KEY)) Storage.set(CHALLENGE_KEY, []);
@@ -987,7 +954,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   Storage.onChange('ft_activities', renderChallenges);
 
-  // — Live Sessions (interactive)
   const SESS_KEY = 'ft_liveSessions',
         schedKey = 'ft_mySchedules',
         sessList = document.getElementById('sessionsList');
@@ -1067,7 +1033,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // — Go Live Modal controls
   const goLiveModal  = document.getElementById('goLiveModal'),
         goClose      = goLiveModal.querySelector('.close'),
         startLiveBtn = document.getElementById('startLiveBtn'),
@@ -1098,7 +1063,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('body > video').forEach(v=>v.remove());
   };
 
-   // — Chatbot Q&A (20 items)
   const chatBox       = document.getElementById('chatbot'),
         chatToggleBtn = document.getElementById('chatToggle'),
         chatCloseBtn  = document.getElementById('chatClose'),
@@ -1130,7 +1094,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { q: "How to report a bug?",              a: "Email bugs@fittrack.com with details and screenshots." }
   ];
 
-  // Populate <datalist> with options
   qaList.forEach(item => {
     const opt = document.createElement('option');
     opt.value = item.q;
@@ -1157,7 +1120,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!text) return;
     // Echo user
     chatMessages.innerHTML += `<div class="msg user">${text}</div>`;
-    // Find matching answer
     const found = qaList.find(item => item.q.toLowerCase() === text.toLowerCase());
     if (found) {
       postBotMessage(found.a);
@@ -1167,7 +1129,6 @@ document.addEventListener('DOMContentLoaded', () => {
     chatInput.value = '';
   };
 
-  // … at the end of your DOMContentLoaded handler, remember to re‐render everything:
   function syncAll() {
     renderFeatured();
     renderLibrary();
@@ -1178,7 +1139,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   syncAll();
 
-  // And re‐watch storage:
   [
     'ft_activities',
     'ft_plans',
