@@ -91,7 +91,7 @@
     position: fixed;
     left: -100%;
     width: var(--mobile-w);
-    z-index: 1000; /* also here */
+    z-index: 1000; 
   }
   .sidebar.open {
     left: 0;
@@ -145,7 +145,6 @@
   border: 2px solid var(--gold);
   border-radius: 50%;
 }
-   /* Main & Header */
    .main { flex:1; display:flex; flex-direction:column; }
     @media(max-width:600px){ .main { margin-left:0; } }
     header {
@@ -180,10 +179,10 @@ header h1 { margin:0 auto; }
   header h1 {
     font-size: 1.2rem;
   }
-  /* hide the “New Workout” text, leave just the plus icon */
+
   .new-workout span { display: none; }
   .new-workout { padding: 0.4rem; }
-  /* hide the top-right profile avatar on super small */
+ 
   #profile-btn { display: none; }
 }
    
@@ -191,7 +190,7 @@ header h1 { margin:0 auto; }
       display: none;
     }
 
-    /* Profile summary */
+
     .profile-summary {
       display:flex; align-items:center; gap:1rem;
       padding:1rem 1.5rem; background:rgba(255,255,255,0.05);
@@ -204,14 +203,14 @@ header h1 { margin:0 auto; }
       font-size:1.1rem; font-weight:600;
     }
 
-    /* Content grid */
+
     .content {
       padding:1rem 1.5rem; overflow-y:auto;
       display:grid; gap:1.5rem;
       grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
     }
 
-    /* Stats */
+
     .stats { grid-column:1/-1; display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
     }
@@ -225,7 +224,7 @@ header h1 { margin:0 auto; }
     .stat-card h3 { font-size:1.2rem; margin-bottom:.3rem; }
     .stat-card p { font-size:.85rem; opacity:.8; }
 
-    /* Progress & Goals */
+
     .progress, .goals { grid-column:1/-1; }
     .progress h3 {
       color:var(--gold); margin-bottom:.5rem; display:flex; align-items:center; gap:.5rem;
@@ -245,7 +244,7 @@ header h1 { margin:0 auto; }
     }
     .goal-fill { width:0; height:100%; background:var(--gold); transition:width 1s ease; }
 
-    /* Charts */
+
     .charts {
       grid-column:1/-1; display:grid; gap:1rem;
       grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
@@ -261,7 +260,7 @@ header h1 { margin:0 auto; }
       position:absolute; top:2.5rem; left:1rem; right:1rem; bottom:1rem;
     }
 
-    /* Recent Activities */
+    
     .quick-log {
       grid-column:1/-1; background:rgba(255,255,255,0.05);
       padding:1rem; border-radius:8px;
@@ -281,7 +280,7 @@ header h1 { margin:0 auto; }
     .fast-stats { display:flex; gap:1.5rem; font-size:.85rem; }
     .fast-stats strong { color:var(--gold); }
 
-    /* Tip of the Day */
+
     .daily-tip {
       grid-column:1/-1; background:rgba(255,255,255,0.05);
       padding:1rem; border-radius:8px;
@@ -292,7 +291,7 @@ header h1 { margin:0 auto; }
     }
     .daily-tip p { font-size:.9rem; line-height:1.4; opacity:.8; }
 
-    /* Upcoming Live Sessions */
+   
     .live-sessions {
       grid-column:1/-1; margin-top:1rem;
     }
@@ -325,7 +324,7 @@ header h1 { margin:0 auto; }
       cursor:pointer;
     }
 
-    /* Top 5 Leaderboard */
+  
     .mini-board {
       grid-column:1/-1; background:rgba(255,255,255,0.05);
       padding:1rem; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5);
@@ -365,7 +364,7 @@ header h1 { margin:0 auto; }
     .achievement-badge p { font-size:.8rem; margin:0; }
 
    
-    /* New Workout Modal */
+ 
     .modal-overlay {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,0.7); align-items:center; justify-content:center;
@@ -375,7 +374,7 @@ header h1 { margin:0 auto; }
    display: flex;
    align-items: flex-start;
    justify-content: center;
-   padding-top: 4rem; /* room for header height */
+   padding-top: 4rem; 
  }
     .modal {
       background:var(--bg); border:2px solid var(--gold);
@@ -403,7 +402,7 @@ header h1 { margin:0 auto; }
     .modal button.secondary { background:var(--dark-gray); color:var(--white); margin-top:.4rem; }
    
   
-   /* ──  CHATBOT STYLES ── */
+
     .chatbot-container {
       position: fixed;
       bottom: 20px;
@@ -494,7 +493,7 @@ padding: .5rem .8rem;
 }
 
 
-    /* Footer */
+   
     footer {
       grid-column:1/-1; text-align:center; padding:1rem 0;
       border-top:1px solid rgba(255,255,255,0.2);
@@ -552,13 +551,13 @@ padding: .5rem .8rem;
   </style>
 
 <body>
-  <!-- Notification -->
+
   <div id="notif-bar" class="notif-bar hidden">
     👋 Complete your <a href="profile.html">profile</a> to unlock all features!
     <button id="notif-close">&times;</button>
   </div>
 
-  <!-- Pseudo Workout Tip -->
+  
   <div id="pseudo-toast" class="pseudo-toast">
     🏋️‍♀️ That workout was just a sample! Create your own under 
     <a href="workouts.html">Workouts</a>, 
@@ -567,7 +566,6 @@ padding: .5rem .8rem;
   </div>
   
  
- <!-- Sidebar -->
 
   <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
@@ -585,7 +583,6 @@ padding: .5rem .8rem;
   </aside>
 
 
-  <!-- Main content -->
   <div class="main">
     <header>
 <button id="hamburger" class="hamburger"><i class="fas fa-bars"></i></button>
@@ -602,7 +599,6 @@ padding: .5rem .8rem;
     </div>
 
     <div class="content">
-      <!-- Stats -->
       <section class="stats">
         <div class="stat-card"><i class="fas fa-dumbbell"></i><h3 id="workoutsCount">0</h3><p>This Month</p></div>
         <div class="stat-card"><i class="fas fa-road"></i><h3 id="distanceCount">0 km</h3><p>Distance</p></div>
@@ -612,26 +608,22 @@ padding: .5rem .8rem;
         <div class="stat-card"><i class="fas fa-percentage"></i><h3 id="avgCalories">0</h3><p>Avg Cal</p></div>
       </section>
 
-      <!-- Weekly Goal -->
       <section class="progress">
         <h3><i class="fas fa-chart-line"></i> Weekly Goal</h3>
         <div class="bar-container"><div class="bar-fill" id="progressBar"></div></div>
       </section>
 
-      <!-- Goals -->
       <section class="goals">
         <div class="goal-card"><p>Daily: 30 min</p><div class="goal-container"><div class="goal-fill" id="goalDaily"></div></div></div>
         <div class="goal-card"><p>Weekly: 5 workouts</p><div class="goal-container"><div class="goal-fill" id="goalWeekly"></div></div></div>
         <div class="goal-card"><p>Monthly: 20 workouts</p><div class="goal-container"><div class="goal-fill" id="goalMonthly"></div></div></div>
       </section>
 
-      <!-- Charts -->
       <section class="charts">
         <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Activity Over Time</h3><canvas id="activityChart"></canvas></div>
         <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Workout Distribution</h3><canvas id="distributionChart"></canvas></div>
       </section>
 
-      <!-- Recent Activities -->
       <section class="quick-log">
         <h2><i class="fas fa-history"></i> Recent Activities</h2>
         <table><thead><tr><th>Date</th><th>Type</th><th>Duration</th><th>Km</th><th>Calories</th>      
@@ -643,19 +635,16 @@ padding: .5rem .8rem;
         </div>
       </section>
 
-      <!-- Tip of the Day -->
       <section class="daily-tip">
         <h2><i class="fas fa-lightbulb"></i> Tip of the Day</h2>
         <p id="tip-of-day"></p>
       </section>
 
-      <!-- Upcoming Live Sessions -->
       <section class="live-sessions">
         <h2><i class="fas fa-video"></i> Upcoming Live Sessions</h2>
         <div class="live-grid" id="liveSessionsGrid"></div>
       </section>
 
-      <!-- Top 5 Leaderboard -->
       <section class="mini-board">
         <h2><i class="fas fa-star"></i> Top 5</h2>
         <ol id="miniLeaderboard"></ol>
@@ -664,7 +653,6 @@ padding: .5rem .8rem;
     </div>
       </section>
     
-      <!-- Achievements -->
       <section class="top-achievements">
         <h2><i class="fas fa-medal"></i> Achievements</h2>
         <div class="achievements-grid" id="yourAchievements"></div>
@@ -675,7 +663,6 @@ padding: .5rem .8rem;
     </div>
   </div>
 
-  <!-- New Workout Modal -->
   <div id="workout-modal" class="modal-overlay">
     <div class="modal">
       <h2>Log New Workout</h2>
@@ -698,7 +685,6 @@ padding: .5rem .8rem;
     </div>
   </div>
   
- <!-- ── NEW CHATBOT MARKUP ── -->
   <div class="chatbot-container">
     <div class="chatbot-box" id="chatbotBox">
       <div class="chatbot-header">
@@ -709,7 +695,6 @@ padding: .5rem .8rem;
         <div class="chatbot-msg bot">Hello! How can I assist you today?</div>
       </div>
       <div class="chatbot-input">
-    <!-- searchable input backed by a datalist -->
     <input list="faqDatalist" id="chatInput" placeholder="Type or pick a question…" autocomplete="off" />
     <datalist id="faqDatalist">
     </datalist>
@@ -735,11 +720,11 @@ import { Storage } from './storage.js';
   };
     
 document.addEventListener('DOMContentLoaded', () => {
-  // ── Redirect if not logged in ──
+
   const cur = Storage.get('ft_current', null);
   if (!cur || !cur.name) return location.replace('home.html');
 
-  // ── Grab DOM elements ──
+ 
   const notifBar     = document.getElementById('notif-bar');
   const notifClose   = document.getElementById('notif-close');
   const pseudoToast  = document.getElementById('pseudo-toast');
@@ -761,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const liveGrid     = document.getElementById('liveSessionsGrid');
   const tipEl        = document.getElementById('tip-of-day');
 
-  // ── Show/hide notification bar ──
+
   function syncNotif() {
     const p = Storage.get('ft_current', {});
    const complete = !!(
@@ -778,12 +763,8 @@ document.addEventListener('DOMContentLoaded', () => {
   syncNotif();
   notifClose.addEventListener('click', () => notifBar.classList.add('hidden'));
 
-   // ── First‑signup render “hack”: ensure we paint immediately ──
-  //    (this runs after updateDashboard() and syncProfileDisplay() are defined)
   setTimeout(() => {
-    // re‑sync avatar & name
     syncProfileDisplay();
-    // paint all stats, charts, lists
     updateDashboard();
   }, 0);
 
@@ -799,11 +780,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', updateHamburgerVisibility);
   updateHamburgerVisibility();
   
-  // ── Profile navigation ──
   profileBtn.addEventListener('click', () => location.replace('profile.html'));
   profileMenu.addEventListener('click', () => location.replace('profile.html'));
 
-  // ── Seed sample workout for new users ──
   if (cur.isNew) {
     greetingEl.textContent = `Hello, ${cur.name}!`;
     let acts = Storage.get('ft_activities', []);
@@ -819,7 +798,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => pseudoToast.classList.add('active'), 5000);
     cur.isNew = false;
     Storage.set('ft_current', cur);
-    // announce in feed
     const joinFeed = Storage.get('ft_feed');
     joinFeed.unshift({ text: `${cur.name} joined the community!`, timestamp: Date.now() });
     Storage.set('ft_feed', joinFeed);
@@ -829,7 +807,6 @@ document.addEventListener('DOMContentLoaded', () => {
   pseudoToast.addEventListener('click', () => pseudoToast.classList.remove('active'));
 
   
- // —— Workout modal
   newWorkoutBtn.onclick     = () => workoutModal.classList.add('active');
   wCancel.onclick           = () => workoutModal.classList.remove('active');
   wSave.onclick             = () => {
@@ -847,7 +824,6 @@ document.addEventListener('DOMContentLoaded', () => {
     workoutModal.classList.remove('active');
   };
 
- // —— Charts instances
   const activityChart = new Chart(activityCtx, {
     type: 'line',
     data: {
@@ -870,10 +846,10 @@ document.addEventListener('DOMContentLoaded', () => {
       datasets: [{
         data: [0,0,0,0],
        backgroundColor: [
-          '#ff9800',  // orange
-          '#2196f3',  // blue
-          '#4caf50',  // green
-          '#e91e63'   // pink
+          '#ff9800',  
+          '#2196f3',  
+          '#4caf50',  
+          '#e91e63'   
         ],
         hoverOffset: 8,
         borderWidth: 2
@@ -897,7 +873,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // ── Profile avatar sync ──
   function syncProfileDisplay(){
     const p = Storage.get('ft_current', {});
    ['dash-avatar','side-avatar','hdrAvatarIcon'].forEach(id => {
@@ -905,11 +880,9 @@ document.addEventListener('DOMContentLoaded', () => {
      if (!old) return;
      let newEl;
      if (p.avatarDataUrl) {
-       // user has uploaded a picture
        newEl = document.createElement('img');
        newEl.src = p.avatarDataUrl;
      } else {
-       // fallback to FontAwesome icon
        newEl = document.createElement('i');
        newEl.className = 'fas fa-user-circle avatar';
      }
@@ -923,12 +896,10 @@ document.addEventListener('DOMContentLoaded', () => {
   syncProfileDisplay();
   Storage.onChange('ft_current', syncProfileDisplay);
 
-  // ── Main render function ──
   function updateDashboard(){
     const acts = Storage.get('ft_activities', []);
     const now  = new Date();
 
-  // — Monthly stats
     const monthActs = acts.filter(a => {
       const d = new Date(a.date);
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
@@ -941,21 +912,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const activeDays = new Set(monthActs.map(a=>a.date)).size;
     document.getElementById('activeDaysCount').textContent = activeDays;
 
-    // — Today & Avg
     const todayKey = now.toISOString().slice(0,10);
     const todayMin = acts.filter(a=>a.date===todayKey).reduce((s,a)=>s+(+a.duration||0),0);
     document.getElementById('todayTime').textContent      = `${todayMin} min`;
     const avgCal = monthActs.length ? Math.round(totCal/monthActs.length) : 0;
     document.getElementById('avgCalories').textContent    = avgCal;
 
-    // — Goals bars
     const weekCount = acts.filter(a => (now - new Date(a.date)) / (1000*60*60*24) <= 7).length;
     document.getElementById('progressBar').style.width   = `${Math.min(100,Math.round(weekCount/5*100))}%`;
     document.getElementById('goalDaily').style.width     = `${Math.min(100,Math.round(todayMin/30*100))}%`;
     document.getElementById('goalWeekly').style.width    = `${Math.min(100,Math.round(weekCount/5*100))}%`;
     document.getElementById('goalMonthly').style.width   = `${Math.min(100,Math.round(monthActs.length/20*100))}%`;
 
-    // — Activity over time
     const labels = [], data7 = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate() - i);
@@ -967,21 +935,16 @@ document.addEventListener('DOMContentLoaded', () => {
     activityChart.data.datasets[0].data  = data7;
     activityChart.update();
 
-  // — Distribution pie (dynamic)
-  // 1) Count each workout type in this month
   const countsByType = monthActs.reduce((acc, a) => {
     acc[a.type] = (acc[a.type] || 0) + 1;
     return acc;
   }, {});
-  // 2) Build labels & data arrays
   const types  = Object.keys(countsByType);
   const counts = types.map(t => countsByType[t]);
-  // 3) Feed into Chart.js
   distributionChart.data.labels           = types;
   distributionChart.data.datasets[0].data = counts;
   distributionChart.update();
 
-   // — Summary stats for Recent Activities (min avg / km / cal)
   const recent = acts.slice(0,7);
   let sumDur=0, sumDist=0, sumCal=0;
   recent.forEach(a => {
@@ -1006,7 +969,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // — Top-5 leaderboard (names + scores only)
     const rawLB = Storage.get('ft_leaderboard', []).map(u=>({
       ...u, score: (u.workouts||0)*10 + Math.round((u.distanceKm||0)*2)
     }));
@@ -1019,7 +981,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </li>`);
     });
 
-    // — Achievements badges
     const total = acts.length;
     const badges = [
       {n:1, icon:'fas fa-star',   txt:'First Workout'},
@@ -1035,7 +996,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`);
     });
 
-   // —— Upcoming Live Sessions
     liveGrid.innerHTML = '';
     const sessions = Storage.get('ft_liveSessions', []);
     const schedIds  = Storage.get('ft_mySchedules', []);
@@ -1071,7 +1031,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDashboard();
       };
     });
-// —— Delegate live-session clicks (schedule / join)
   liveGrid.addEventListener('click', e => {
     const btn = e.target.closest('button.live-btn');
     if (!btn) return;
@@ -1093,7 +1052,6 @@ document.addEventListener('DOMContentLoaded', () => {
 hamburger.addEventListener('click', toggleSidebar);
 
    
-    // ── CHATBOT LOGIC ──
   const chatbotBox = document.getElementById('chatbotBox');
   const chatToggle = document.getElementById('chatToggle');
   const chatClose  = document.getElementById('chatClose');
@@ -1103,7 +1061,6 @@ hamburger.addEventListener('click', toggleSidebar);
 
    
 
-  // sample Q&A
   const faq = [
     {q: "How many workouts this month?",                   a: "You’ve completed X workouts this month."},
     {q: "What's my total distance?",                       a: "Your total distance this month is Y km."},
@@ -1127,7 +1084,6 @@ hamburger.addEventListener('click', toggleSidebar);
     {q: "How do I log swimming?",                          a: "Select “Swimming” in the Log page type dropdown."}
   ];
 
-    // ── populate our <datalist> for searchable suggestions ──
   const data = document.getElementById('faqDatalist');
   faq.forEach(item => {
     const o = document.createElement('option');
@@ -1162,11 +1118,9 @@ hamburger.addEventListener('click', toggleSidebar);
     const key = q.toLowerCase();
     let answer = "Sorry, I don't have an answer for that yet.";
 
-    // static FAQ fallback
     const found = faq.find(item => item.q.toLowerCase() === key);
     if (found) answer = found.a;
 
-    // dynamic overrides:
     if (key.includes("workouts this month")) {
       answer = `You’ve completed ${document.getElementById('workoutsCount').textContent} workouts this month.`;
     }
@@ -1200,7 +1154,6 @@ hamburger.addEventListener('click', toggleSidebar);
       answer = `You’ve unlocked ${unlocked} achievement${unlocked === 1 ? '' : 's'} so far.`;
     }
 
-    // send it
     setTimeout(() => appendMsg('bot', answer), 300);
   }
 
@@ -1209,7 +1162,6 @@ hamburger.addEventListener('click', toggleSidebar);
     if (e.key === 'Enter') handleAsk();
   });
     
-    // — Tip of the day
     const tips = [
       "Stay hydrated—drink 250 ml water before workouts.",
       "Warm up 5 min to activate muscles.",
@@ -1220,7 +1172,6 @@ hamburger.addEventListener('click', toggleSidebar);
     tipEl.textContent = tips[Math.floor(Math.random()*tips.length)];
   }
 
-  // ── Initialize & react to data changes ──
   updateDashboard();
   Storage.onChange([
     'ft_activities',
