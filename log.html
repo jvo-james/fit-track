@@ -346,7 +346,7 @@
     <button class="menu-item profile-menu" id="profileBtn">
       <i class="fas fa-user-circle avatar" id="side-avatar"></i><span>Profile</span>
     </button>
-    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
   <div class="main">
@@ -445,13 +445,11 @@
       <button id="recentEdit">Edit Last</button>
     </section>
 
-    <!-- ACTIVITIES LIST -->
     <section class="activities">
       <h2><i class="fas fa-list"></i> My Activities</h2>
       <ul id="activityList" class="activity-list"></ul>
     </section>
   </div>
-<!-- put this at the top of <body>, before your module script -->
 <script>
   window.toggleSidebar = function(){
     const sb = document.getElementById('sidebar'),
@@ -466,7 +464,7 @@
 
   
     document.addEventListener('DOMContentLoaded', () => {
-      // Redirect if not logged in
+
       const cur = Storage.get('ft_current', null);
       if (!cur || !cur.name) return location.replace('home.html');
 
@@ -519,12 +517,11 @@
       welcomeEl.textContent = 'Good Evening!';
     }
       
-      // Avatar swapping (exactly like dashboard.html)
       function updateAvatars(){
-  // pull exactly what profile.html writes into ft_current
-  const p   = Storage.get('ft_current', {});
-  // use the uploaded picture, or fallback to a pravatar based on their email
-['side-avatar'].forEach(id=>{
+
+        const p   = Storage.get('ft_current', {});
+
+        ['side-avatar'].forEach(id=>{
       const oldEl = document.getElementById(id);
       if (!oldEl) return;
       if (p.avatarDataUrl) {
@@ -534,7 +531,7 @@
         img.src    = p.avatarDataUrl;
         oldEl.replaceWith(img);
       } else {
-        // no data URL: ensure it’s the original <i> icon
+
         if (oldEl.tagName === 'IMG') {
           const icon = document.createElement('i');
         icon.id    = id;
@@ -545,9 +542,7 @@
     });
 }
 
-// whenever ft_current changes, refresh both sidebar & topbar
 Storage.onChange('ft_current', updateAvatars);
-// initial swap on page load
 updateAvatars();
 
      
@@ -657,7 +652,6 @@ updateAvatars();
       ];
       motivation.textContent = quotes[Math.floor(Math.random()*quotes.length)];
 
-      // Guided tour for new users
       function runTour(steps){
         let idx = 0;
         tourOv.style.display = tourTp.style.display = 'block';
@@ -686,7 +680,6 @@ updateAvatars();
         show();
       }
 
-      // New-user bootstrap
       if(cur.isNew){
         const a = loadActs();
         if(!a.length){
@@ -708,7 +701,6 @@ updateAvatars();
         Storage.set('ft_current', cur);
       }
 
-      // Form submission
       form.onsubmit = e=>{
         e.preventDefault();
         const f = e.target;
@@ -725,7 +717,6 @@ updateAvatars();
         f.reset(); seconds=0; refreshTimer();
       };
 
-      // Master updater
       function updateAll(){
         updateOverview();
         renderActivities();
