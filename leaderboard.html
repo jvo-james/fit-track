@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Leaderboard</title>
 
-  <!-- Google Fonts & FontAwesome -->
+
 
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -34,11 +34,11 @@
     a { color:inherit; text-decoration:none; }
     button { font-family:var(--font-head); cursor:pointer; border:none; background:none; transition:var(--transition); }
 
-    /* Overlay */
+ 
     #overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:90; }
     #overlay.active { display:block; }
 
-    /* Notification Banner */
+ 
     #completeProfileBanner {
       display:none; position:fixed; top:1rem; left:50%; transform:translateX(-50%);
       background:rgba(255,152,0,0.1); border-left:4px solid var(--gold);
@@ -63,7 +63,7 @@
     position: fixed;
     left: -100%;
     width: var(--mobile-w);
-    z-index: 1000; /* also here */
+    z-index: 1000; 
   }
   .sidebar.open {
     left: 0;
@@ -112,11 +112,10 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: .8rem;
-  padding: 0;   /* if you want tighter control */
+  padding: 0;   
   margin: 0;
 }
 
-/* each badge takes up 1/4 of the row on desktop… */
 #badgeContainer .achievement-badge {
   flex: 0 0 calc(25% - .8rem);
   display: flex;
@@ -125,14 +124,12 @@
   padding: .6rem;
   border-radius: 6px;
 }
-/* …and 1/2 the row on narrow screens */
 @media (max-width: 600px) {
   #badgeContainer .achievement-badge {
     flex: 0 0 calc(50% - .8rem);
   }
 }
 
-    /* Main & Header */
    .main { flex:1; display:flex; flex-direction:column; }
     @media(max-width:600px){ .main { margin-left:0; } }
     header {
@@ -158,7 +155,6 @@
       .search, .controls select { display:none; }
     }
 
-    /* Content */
     .container { flex:1; overflow-y:auto; padding:1rem;}
     .stats-bar {
       display:flex; gap:1rem; justify-content:space-around; margin-bottom:1rem;
@@ -206,14 +202,12 @@
     text-overflow: ellipsis;
   }
 }
-    /* Hover effect */
 .achievement-badge:hover {
   transform: scale(1.2);
   transition: transform 0.2s ease;
   cursor: pointer;
 }
 
-/* Locked vs Unlocked styling */
 .achievement-badge {
   opacity: 0.4;
 }
@@ -222,7 +216,6 @@
   box-shadow: 0 0 8px var(--gold);
 }
 
-    /* User‑Detail Modal */
     #userModalOverlay {
       display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:3000;
       align-items:center; justify-content:center;
@@ -243,7 +236,6 @@
       .hall-of-fame { flex-wrap:wrap; }
       table th, table td { padding:.5rem; font-size:.8rem; }
     }
-    /* Chatbot */
 #lb-chatbot {
   position: fixed;
   bottom: 20px;
@@ -359,13 +351,11 @@
 </head>
 <body>
 
-  <!-- Profile‑completion banner -->
 
   <div id="completeProfileBanner">
     👋 Don’t forget to <a href="profile.html">complete your profile</a>!
   </div>
 
-  <!-- Sidebar -->
 
   <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
@@ -378,10 +368,9 @@
     <button class="menu-item profile-menu" id="profileBtn">
       <i class="fas fa-user-circle avatar" id="side-avatar"></i><span>Profile</span>
     </button>
-    <a href="signout.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
-  <!-- Main content -->
 
   <div class="main">
     <header>
@@ -449,7 +438,6 @@
 
   </div>
 
-  <!-- User‑detail Modal -->
 
   <div id="userModalOverlay">
     <div id="userModal">
@@ -464,7 +452,6 @@
       <button class="close-btn" id="modalClose">Close</button>
     </div>
   </div>
-<!-- Chatbot for Leaderboard -->
 <div id="lb-chatbot" class="chatbot">
   <header><i class="fas fa-comments"></i> Board Bot
     <button id="lb-chat-close">&times;</button>
@@ -480,15 +467,12 @@
 </div>
 <button id="lb-chat-toggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
 
-  <!-- storage.js helper -->
 
   <script type="module" src="storage.js"></script>
 
-<!-- Place this at the very bottom of your leaderboard.html, just before </body> -->
 
 <script>
 (function() {
-  // ————————————————————————————————
   // localStorage helpers
   function getLS(key, def) {
     const v = localStorage.getItem(key);
@@ -499,8 +483,6 @@
     localStorage.setItem(key, JSON.stringify(val));
   }
 
-  // ————————————————————————————————
-  // DEV MODE: ensure we have a current user
   if (!localStorage.getItem('ft_current')) {
     setLS('ft_current', {
       name: 'DevUser',
@@ -514,8 +496,6 @@
   }
   const current = getLS('ft_current', {});
 
-  // ————————————————————————————————
-  // Seed some fake users if leaderboard is empty
   function seedLeaderboard() {
     if (getLS('ft_leaderboard', []).length) return;
     const seed = [
@@ -529,8 +509,6 @@
     setLS('ft_leaderboard', seed);
   }
 
-  // ————————————————————————————————
-  // Merge current user into leaderboard
   function syncCurrentUser() {
     const acts = getLS('ft_activities', []).filter(a => a.user === current.name);
     const me = {
@@ -552,14 +530,10 @@
     setLS('ft_leaderboard', lb);
   }
 
-  // ————————————————————————————————
-  // Compute a simple score
   function computeScore(u) {
     return u.workouts * 10 + Math.round(u.distanceKm * 2);
   }
 
-  // ————————————————————————————————
-  // Sidebar toggle (mobile)
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
   window.toggleSidebar = () => {
@@ -567,8 +541,6 @@
     overlay.classList.toggle('active');
   };
 
-  // ————————————————————————————————
-  // User-detail modal
   const userModalOv = document.getElementById('userModalOverlay');
   const modalName     = document.getElementById('modalName');
   const modalAvatar   = document.getElementById('modalAvatar');
@@ -593,11 +565,8 @@
     userModalOv.style.display = 'flex';
   }
 
-  // ————————————————————————————————
-  // Avatar swapping
  function updateAvatars() {
     const p = getLS('ft_current', {});
-    // → only swap in an <img> if the user has actually set avatarDataUrl
     if (!p.avatarDataUrl) return;
     const src = p.avatarDataUrl;
     ['side-avatar','hdrAvatarIcon'].forEach(id => {
@@ -612,8 +581,6 @@
   }
   updateAvatars();
 
-  // ————————————————————————————————
-  // Main render: stats, hall of fame, leaderboard, charts, badges, rival, stories
   let chart7, chartT;
   function renderAll() {
     seedLeaderboard();
@@ -624,14 +591,12 @@
                  .map(u => ({ ...u, score: computeScore(u) }))
                  .sort((a,b)=>b.score - a.score);
 
-    // Stats bar
     document.getElementById('statMembers').textContent  = lb.length;
     document.getElementById('statWorkouts').textContent = acts.length;
     document.getElementById('statHours').textContent    = (acts.reduce((s,a)=>s+(+a.duration||0),0)/60).toFixed(1);
     const myIdx = lb.findIndex(u=>u.name===current.name);
     document.getElementById('statRank').textContent = myIdx<0? 'N/A' : `#${myIdx+1}`;
 
-    // Hall of Fame
     const hof = document.getElementById('hallOfFame');
     hof.innerHTML = '';
    lb.slice(0,3).forEach((u,i) => {
@@ -645,7 +610,6 @@
       hof.appendChild(d);
     });
 
-    // Leaderboard table
     const tbody = document.getElementById('leaderboardBody');
     tbody.innerHTML = '';
     lb.forEach((u,i) => {
@@ -667,7 +631,6 @@
       tbody.appendChild(tr);
     });
 
-    // Charts
     const labels = [], data7 = [], trend = [];
     for (let d=6; d>=0; d--) {
       const D = new Date();
@@ -692,7 +655,6 @@
       options: { responsive:true, plugins:{legend:{display:false}} }
     });
 
-    // Badges
     const bc = document.getElementById('badgeContainer');
     bc.innerHTML = '';
     [1,5,10,30].forEach(n => {
@@ -715,7 +677,6 @@ document.querySelectorAll('.achievement-badge').forEach((badge, idx) => {
   });
 });
 
-    // Rival Spotlight
     const rivals = lb.filter(u=>u.name!==current.name);
     if (rivals.length) {
       const r = rivals[Math.floor(Math.random()*rivals.length)];
@@ -734,7 +695,6 @@ document.querySelectorAll('.achievement-badge').forEach((badge, idx) => {
       `;
     }
 
-    // Hall of Fame Stories
     document.getElementById('hofStories').innerHTML = [
       `🥇 ${lb[0].name} smashed ${lb[0].workouts} workouts!`,
       `🥈 ${lb[1].name} ran ${lb[1].distanceKm.toFixed(1)} km!`,
@@ -742,8 +702,6 @@ document.querySelectorAll('.achievement-badge').forEach((badge, idx) => {
     ].map(s=>`<li>${s}</li>`).join('');
   }
 
-  // ————————————————————————————————
-  // Search filter
   document.getElementById('searchInput').addEventListener('input', e => {
     renderAll();
     const q = e.target.value.toLowerCase();
@@ -752,19 +710,15 @@ document.querySelectorAll('.achievement-badge').forEach((badge, idx) => {
     });
   });
 
-  // ————————————————————————————————
-  // Profile button nav
   document.getElementById('profileBtn').onclick   = ()=> location.replace('profile.html');
   document.getElementById('hdrAvatarBtn').onclick = ()=> location.replace('profile.html');
 
-  // ————————————————————————————————
-  // Storage‐change listeners
   window.addEventListener('storage', e => {
     if (e.key === 'ft_current') updateAvatars();
     if (['ft_current','ft_leaderboard','ft_activities'].includes(e.key)) renderAll();
   });
-// — Chatbot for Leaderboard — 
-const lbChatBox      = document.getElementById('lb-chatbot'),
+
+  const lbChatBox      = document.getElementById('lb-chatbot'),
       lbChatToggle   = document.getElementById('lb-chat-toggle'),
       lbChatClose    = document.getElementById('lb-chat-close'),
       lbChatMsgs     = document.getElementById('lb-chat-messages'),
@@ -772,7 +726,6 @@ const lbChatBox      = document.getElementById('lb-chatbot'),
       lbAskBtn       = document.getElementById('lb-ask-btn'),
       lbDataList     = document.getElementById('lb-questions');
 
-// 20 Q&A entries
 const lbQaList = [
   { q:"What's my current rank?",      a:() => `You are #${document.getElementById('statRank').textContent.slice(1)}!` },
   { q:"How many members are there?",   a:() => `${document.getElementById('statMembers').textContent} members total.` },
@@ -792,7 +745,6 @@ const lbQaList = [
  
 ];
 
-// populate datalist
 lbQaList.forEach(item => {
   const opt = document.createElement('option');
   opt.value = item.q;
@@ -821,8 +773,6 @@ lbAskBtn.onclick = () => {
   lbChatInput.value = '';
 };
 
-  // ————————————————————————————————
-  // Initial render
   document.addEventListener('DOMContentLoaded', renderAll);
 })();
 </script>
