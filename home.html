@@ -16,7 +16,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
-    /* ─── VARIABLES & RESET ─── */
     :root {
       --bg: #111;
       --hero-bg: url('hero-bg.jpg');
@@ -38,7 +37,6 @@
     a { color:inherit; text-decoration:none; transition:var(--transition); }
     img { max-width:100%; display:block; }
 
-    /* ─── BUTTONS ─── */
     button {
       font-family: var(--font-head);
       font-weight:600;
@@ -56,7 +54,6 @@
     }
     button:hover { transform:scale(1.05); }
 
-    /* ─── NAVBAR ─── */
     nav {
       position:fixed; top:0; left:0; width:100%;
       height: var(--nav-height);
@@ -81,7 +78,6 @@
       transition: width .3s;
     }
     .nav-links a:hover::after { width:100%; }
-    /* close button inside mobile menu */
     .nav-close {
       display:none;
       position:absolute; top:1rem; right:1rem;
@@ -104,11 +100,10 @@
       .nav-close { display:block; }
     }
 
-    /* ─── HERO ─── */
     #hero {
       display:flex; align-items:center; justify-content:center;
-      height:66.667vh; /* 2/3 viewport */
-      padding: var(--nav-height) 2rem 0; /* push below navbar */
+      height:66.667vh; 
+      padding: var(--nav-height) 2rem 0;
       background:
         linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
         var(--hero-bg) center/cover no-repeat;
@@ -141,7 +136,6 @@
       #hero { padding: var(--nav-height) 1rem 0; }
     }
 
-    /* ─── ABOUT ─── */
     #about {
       display:flex; align-items:center; justify-content:space-between;
       padding:6rem 2rem; gap:2rem;
@@ -159,7 +153,7 @@
       flex:1; text-align:center;
     }
     #about .about-img img {
-      width:80%;                /* slightly smaller */
+      width:80%;               
       border-radius:16px;
       box-shadow:0 8px 24px rgba(0,0,0,0.7);
       transition:var(--transition);
@@ -172,7 +166,6 @@
       #about .about-text h2 { text-align:center; }
     }
 
-    /* ─── FEATURES ─── */
     #features { background:#0b0b0b; }
     .section-title { font-family:var(--font-head); font-size:2.2rem; color:var(--accent); text-align:center; margin-bottom:2rem; }
     .features-grid {
@@ -194,7 +187,6 @@
       .feature-card img { height:200px; }
     }
 
-    /* ─── TESTIMONIALS ─── */
     #testimonials { background:rgba(0,0,0,0.9); }
     .testimonials-grid {
       display:grid;
@@ -203,7 +195,6 @@
     }
     .testimonial { background:rgba(255,255,255,0.05); padding:1.5rem; border-radius:12px; }
 
-    /* ─── PRICING ─── */
     #pricing { background:var(--bg); }
     .pricing-grid {
       display:grid;
@@ -216,7 +207,6 @@
     .plan ul { list-style:none; margin-bottom:1.2rem; padding:0; }
     .plan ul li { display:flex; align-items:center; gap:.5rem; color:rgba(255,255,255,0.8); }
 
-    /* ─── CONTACT ─── */
     #contact { background:rgba(0,0,0,0.9); }
     .contact-form {
       max-width:500px; margin:0 auto;
@@ -231,7 +221,6 @@
       outline:none; border-color:var(--accent);
     }
 
-    /* ─── FOOTER ─── */
     footer { padding:2rem; text-align:center; border-top:2px solid var(--accent); }
     footer .socials a {
       margin:0 .5rem; font-size:1.4rem; color:var(--accent);
@@ -240,7 +229,6 @@
     footer .socials a:hover { transform:scale(1.2); }
     footer p { margin-top:1rem; opacity:.6; }
 
-    /* ─── MODAL ─── */
     .modal-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,0.8);
       display:flex; align-items:center; justify-content:center;
@@ -266,7 +254,6 @@
       cursor:pointer; color:rgba(255,255,255,0.7);
     }
 
-    /* ─── REVEAL ─── */
     [data-reveal] {
       opacity:0; transform:translateY(20px);
       transition:opacity .6s ease-out,transform .6s ease-out;
@@ -275,7 +262,6 @@
 </head>
 <body>
 
-  <!-- MODAL -->
   <div class="modal-overlay" id="modal">
     <div class="modal">
       <span class="close" data-close>&times;</span>
@@ -292,7 +278,6 @@
     </div>
   </div>
 
-  <!-- NAVBAR -->
   <nav id="navbar">
     <div class="logo"><i class="fas fa-heartbeat"></i> FitTrack</div>
     <div class="nav-links">
@@ -310,7 +295,6 @@
     <div class="nav-toggle"><i class="fas fa-bars"></i></div>
   </nav>
 
-  <!-- HERO -->
   <section id="hero">
     <div class="hero-content" data-reveal>
       <h1><span id="typewriter" class="typewriter"></span></h1>
@@ -323,7 +307,6 @@
     </div>
   </section>
 
-  <!-- ABOUT -->
   <section id="about" data-reveal>
     <div class="about-text">
       <h2>About FitTrack</h2>
@@ -335,7 +318,6 @@
     </div>
   </section>
 
-  <!-- FEATURES -->
   <section id="features">
     <h2 class="section-title" data-reveal>Our Top Features</h2>
     <div class="features-grid" data-reveal>
@@ -350,7 +332,6 @@
     </div>
   </section>
 
-  <!-- TESTIMONIALS -->
   <section id="testimonials">
     <h2 class="section-title" data-reveal>What Users Say</h2>
     <div class="testimonials-grid" data-reveal>
@@ -360,7 +341,6 @@
     </div>
   </section>
 
-  <!-- PRICING -->
   <section id="pricing">
     <h2 class="section-title" data-reveal>Choose Your Plan</h2>
     <div class="pricing-grid" data-reveal>
@@ -370,7 +350,6 @@
     </div>
   </section>
 
-  <!-- CONTACT -->
   <section id="contact">
     <h2 class="section-title" data-reveal>Get in Touch</h2>
     <form class="contact-form" data-reveal>
@@ -381,7 +360,6 @@
     </form>
   </section>
 <br>
-  <!-- FOOTER -->
   <footer>
     <div class="socials" data-reveal>
       <a href="#"><i class="fab fa-facebook"></i></a>
@@ -394,13 +372,11 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Navbar scroll
       const nav = document.getElementById('navbar');
       window.addEventListener('scroll', () =>
         nav.classList.toggle('scrolled', window.scrollY > 50)
       );
 
-      // Mobile menu toggle & close
       const navLinks = document.querySelector('.nav-links');
       document.querySelector('.nav-toggle').onclick = e => {
         navLinks.classList.toggle('open');
@@ -436,7 +412,6 @@
       }
       setTimeout(type, 500);
 
-      // Modal (Sign In / Sign Up)
       const modal = document.getElementById('modal'),
             actionBtn = document.getElementById('modal-action'),
             switchLink = document.getElementById('switch-link'),
@@ -460,7 +435,6 @@
       });
       document.querySelectorAll('[data-close], .close').forEach(x=>x.onclick=()=>modal.classList.remove('active'));
 
-      // Sign Up / Sign In logic
       actionBtn.onclick=e=>{
         e.preventDefault();
         const isSignup = actionBtn.textContent.includes('Create');
@@ -495,7 +469,6 @@
         document.querySelector(`[data-modal="${switchLink.dataset.mode}"]`).click();
       };
 
-      // Scroll-reveal
       document.querySelectorAll('[data-reveal]').forEach(el=>{
         const obs = new IntersectionObserver((entries,o)=>{
           entries.forEach(entry=>{
@@ -513,7 +486,6 @@
 </body>
   <script type="module">
   import { Storage } from './storage.js';
-  // … your existing modal logic …
   // On Sign Up:
   users.push({name,email,password:pwd});
 Storage.set('ft_users', users);
