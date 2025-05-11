@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>FitTrack | Community</title>
 
-  <!-- Google Fonts & FontAwesome -->
 
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -13,7 +12,7 @@
 
 
   <style>
-    /* ← exactly your leaderboard.html styles… */
+
     :root {
       --bg: #000;
       --gold: #ff9800;
@@ -123,7 +122,7 @@ img.avatar, i.avatar {
     /* CONTENT WRAPPER */
     .container { flex:1; overflow-y:auto; padding:1rem; }
 
-    /*— COMMUNITY FEED SPECIFIC —*/
+  
     .post-box {
       background: var(--accent);
       padding: 1rem;
@@ -208,7 +207,7 @@ img.avatar, i.avatar {
     .chatbot { display: none !important; }
     .chatbot.active { display: flex !important; }
 
-    /* ─── Stylized add-comment box ─── */
+
  .add-comment {
    background: var(--accent);
    padding: 0.6rem;
@@ -233,7 +232,7 @@ img.avatar, i.avatar {
    font-weight: 600;
    cursor: pointer;
  }
- /* ─── Like button active state ─── */
+
  .like-btn .fa-heart.active,
  .c-like-btn .fa-heart.active {
    color: var(--gold);
@@ -266,12 +265,12 @@ img.avatar, i.avatar {
 
 
 <body>
-  <!-- Profile‐completion banner -->
+
   <div id="completeProfileBanner">
     👋 Don’t forget to <a href="profile.html">complete your profile</a>!
   </div>
 
- <!-- Sidebar -->
+
 
   <div id="overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
@@ -303,7 +302,7 @@ img.avatar, i.avatar {
       </div>
     </header>
 
-  <!-- 1. Getting-started banner -->
+
   <div class="community-intro" style="background:var(--accent);padding:1rem;border-radius:8px;margin:1rem;">
     <h2 style="color:var(--gold);margin-bottom:.5rem;">Welcome to FitTrack Community!</h2>
     <p>Share your workouts, cheer each other on, and join the conversation.  
@@ -311,7 +310,7 @@ img.avatar, i.avatar {
   </div>
 
    
-  <!-- 2. Trending Topics -->
+
   <div id="trending-topics" style="color: white; display:flex;gap:.5rem;flex-wrap:wrap;margin:0 1rem 1rem;">
     <strong style="color: white; align-self:center;">Trending:</strong>
     <button class="tag-btn" data-tag="#HIIT">#HIIT</button>
@@ -354,7 +353,7 @@ img.avatar, i.avatar {
   import { Storage } from './storage.js';
 
   document.addEventListener('DOMContentLoaded', () => {
-    // — INITIAL SETUP & HELPERS —
+
    function getCurrent() {
       const c = Storage.get('ft_current') || {};
       return {
@@ -384,11 +383,11 @@ img.avatar, i.avatar {
       return `${Math.floor(D/365)}y ago`;
     }
 
-    // ─── Sidebar Profile button ─────────────────────────
+
     document.getElementById('profileBtn').onclick = () => {
       location.replace('profile.html');
     };
-    // — AVATAR SYNC —
+
     function updateAvatars() {
        const { avatarUrl } = getCurrent();
       ['side-avatar','hdrAvatarIcon'].forEach(id => {
@@ -416,13 +415,13 @@ img.avatar, i.avatar {
         render(); 
     });
 
-    // — SIDEBAR TOGGLE —
+
     window.toggleSidebar = () => {
       document.getElementById('sidebar').classList.toggle('open');
       document.getElementById('overlay').classList.toggle('active');
     };
 
-    // — LOAD OR SEED DATA —
+
     let feed  = Storage.get('ft_feed')     || [];
     let cmnts = Storage.get('ft_comments') || [];
 
@@ -461,7 +460,7 @@ img.avatar, i.avatar {
    
     if (!feed.length || feed.length !== cmnts.length) seedData();
 
-    // ─── 1. Auto-welcome once per session ───
+
  if (!sessionStorage.getItem('welcome_done_' + me)) {
    const wf = Storage.get('ft_feed');
    const wc = Storage.get('ft_comments');
@@ -488,7 +487,7 @@ img.avatar, i.avatar {
       const c = Storage.get('ft_comments') || [];
       feedEl.innerHTML = '';
       f.forEach((post, i) => {
-         // decide which avatar to show for this post
+        
       const postAvatarHtml = post.user === me
         ? (avatarUrl
             ? `<img class="feed-avatar" src="${avatarUrl}"/>`
@@ -501,11 +500,11 @@ img.avatar, i.avatar {
           <div class="comment-item" data-post="${i}" data-cidx="${j}">
                    ${
             cm.user === me
-              // your own comment: use your current avatar or fallback
+             
               ? (avatarUrl
                   ? `<img class="comment-avatar" src="${avatarUrl}"/>`
                   : `<i class="fas fa-user-circle comment-avatar avatar"></i>`)
-              // someone else's comment: use their stored avatar or fallback
+             
               : (cm.avatar
                   ? `<img class="comment-avatar" src="${cm.avatar}"/>`
                   : `<i class="fas fa-user-circle comment-avatar avatar"></i>`)
@@ -568,7 +567,7 @@ img.avatar, i.avatar {
       let f = Storage.get('ft_feed');
       let c = Storage.get('ft_comments');
 
-       // ─── Inline comment Post button ───
+
    if (e.target.closest('button.new-comment-btn')) {
      const input = item.querySelector('.new-comment-input');
      const txt   = input.value.trim();
@@ -599,13 +598,13 @@ img.avatar, i.avatar {
         <button class="c-like-btn"><i class="fas fa-heart"></i> <span>0</span></button>
       </div>`);
     input.value = '';
-    // update comment count badge
+  
     item.querySelector('.toggle-comments').textContent = `▼ ${c[i].length} comments`;
     return;
    }
 
 
-      // Like/unlike post
+ 
       const postBtn = e.target.closest('.like-btn');
       if (postBtn) {
         const p = f[i];
@@ -635,7 +634,7 @@ img.avatar, i.avatar {
         return;
       }
 
-      // Like/unlike comment
+    
       const cmBtn = e.target.closest('.c-like-btn');
       if (cmBtn) {
         const cmLi = cmBtn.closest('.comment-item');
@@ -652,7 +651,7 @@ img.avatar, i.avatar {
         return;
       }
 
-      // Post inline comment
+  
       if (e.target.closest('.new-comment-btn')) {
         const input = item.querySelector('.new-comment-input');
         const txt   = input.value.trim();
@@ -664,7 +663,7 @@ img.avatar, i.avatar {
     };
 
   
-    // — TRENDING TAGS —
+
     document.querySelectorAll('.tag-btn').forEach(btn => {
       btn.onclick = () => {
         document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('active'));
@@ -684,7 +683,7 @@ img.avatar, i.avatar {
       document.getElementById('lb-chat-toggle').style.display = 'flex';
     };
 
-    // — INITIAL RENDER —
+
     render();
   });
 </script>
