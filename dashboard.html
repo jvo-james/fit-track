@@ -579,7 +579,7 @@ padding: .5rem .8rem;
     <button class="menu-item profile-menu" id="profileBtn">
       <i class="fas fa-user-circle avatar" id="side-avatar"></i><span>Profile</span>
     </button>
-    <a href="home.html" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+    <a href="home.html" id="signOutBtn" class="menu-item sign-out"><i class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
   </aside>
 
 
@@ -746,7 +746,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const liveGrid     = document.getElementById('liveSessionsGrid');
   const tipEl        = document.getElementById('tip-of-day');
 
+// — Clear all user data on sign out
+    const signOut = document.getElementById('signOutBtn');
+    signOut.addEventListener('click', () => {
+     // wipe every key we use
+      Storage.set('ft_current', null);
+      Storage.set('ft_activities', []);
+      Storage.set('ft_leaderboard', []);
+      Storage.set('ft_liveSessions', []);
+      Storage.set('ft_mySchedules', []);
+      Storage.set('ft_feed', []);
 
+    });
+  
   function syncNotif() {
     const p = Storage.get('ft_current', {});
    const complete = !!(
