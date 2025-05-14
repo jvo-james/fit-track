@@ -34,7 +34,7 @@ export const Storage = (() => {
     onChange(key, fn) {
       listeners[key] = listeners[key] || [];
       listeners[key].push(fn);
-    }
+    },
       // ▶︎ Allow clearing every ft_* and user data at once
     clear() {
       localStorage.clear();
@@ -47,7 +47,7 @@ export const Storage = (() => {
 })();
 
 
-+document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
   document
     .querySelectorAll('.menu-item.sign-out')
     .forEach(btn =>
