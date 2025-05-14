@@ -532,9 +532,15 @@
 
   function computeScore(u) {
   
-    const allActs = getLS('ft_activities', []);
+   const allActs = getLS('ft_activities', []);
     const acts    = allActs.filter(a => a.user === u.name);
 
+ 
+    if (!acts.length) {
+      const basePts = u.workouts * 5;
+      const distPts = (u.distanceKm || 0) * 2;
+      return Math.round(basePts + distPts);
+    }
     
     const totalDistance = acts.reduce((sum,a) => sum + (+a.distance  || 0), 0);
     const totalTime     = acts.reduce((sum,a) => sum + (+a.duration  || 0), 0);
