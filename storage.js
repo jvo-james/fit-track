@@ -65,3 +65,15 @@ Storage.onChange('ft_current', (newVal, oldVal) => {
     Storage.set('ft_mySchedules',  []);  // no scheduled sessions
   }
 });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const cur = Storage.get('ft_current', null);
+  if (cur) {
+    // Only set each key if it's missing (so we don't clobber real data)
+    if (Storage.get('ft_activities', null)   === null) Storage.set('ft_activities',   []);
+    if (Storage.get('ft_leaderboard', null)  === null) Storage.set('ft_leaderboard',  []);
+    if (Storage.get('ft_liveSessions', null) === null) Storage.set('ft_liveSessions', []);
+    if (Storage.get('ft_mySchedules', null)  === null) Storage.set('ft_mySchedules',  []);
+  }
+});
