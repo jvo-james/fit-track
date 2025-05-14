@@ -531,7 +531,26 @@
   }
 
   function computeScore(u) {
-    return u.workouts * 10;
+  
+    const allActs = getLS('ft_activities', []);
+    const acts    = allActs.filter(a => a.user === u.name);
+
+    
+    const totalDistance = acts.reduce((sum,a) => sum + (+a.distance  || 0), 0);
+    const totalTime     = acts.reduce((sum,a) => sum + (+a.duration  || 0), 0);
+    const totalCalories = acts.reduce((sum,a) => sum + (+a.calories  || 0), 0);
+
+
+    const typeWeights = { Cardio:3, Strength:4, Flexibility:2, Other:1 };
+    const typeScore   = acts.reduce((sum,a) => sum + (typeWeights[a.type] || 1), 0);
+
+   
+    const base    = acts.length * 5;
+    const distPts = totalDistance * 2;
+    const timePts = totalTime     * 0.1;
+    const calPts  = totalCalories * 0.05;
+
+    return Math.round(base + distPts + timePts + calPts + typeScore);
   }
 
   const sidebar = document.getElementById('sidebar');
@@ -742,7 +761,9 @@ const lbQaList = [
   { q:"How to challenge a user?",      a:() => "Click on Community on the Sidebar." },
   { q:"How to see weekly stats?",      a:() => "Use the Timeframe dropdown to switch to Weekly." },
   { q:"How to share the leaderboard?", a:() => "Copy the URL and send it to your friends!" },
-  { q:"How is my score calculated?",   a:() => "Score = total number of workouts × 10 points (distance no longer counts)." },
+  { q:"How is my score calculated?",   a:() =>
+      "Score = (workouts×5) + (km×2) + (minutes×0.1) + (cal×0.05) + (type weight).\n" +
+      "Type weights: Cardio=3, Strength=4, Flexibility=2, Other=1." },
  { q:"Where do you get my workout data?", 
     a:() => "All workouts logged on Dashboard, Workouts, or Log pages are stored in one list and used here." },
 
