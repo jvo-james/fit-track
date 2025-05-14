@@ -510,7 +510,7 @@
   }
 
   function syncCurrentUser() {
-    const acts = getLS('ft_activities', []).filter(a => a.user === current.name);
+   const acts = getLS('ft_activities', []);
     const me = {
       name: current.name,
       workouts: acts.length,
@@ -531,7 +531,7 @@
   }
 
   function computeScore(u) {
-    return u.workouts * 10 + Math.round(u.distanceKm * 2);
+    return u.workouts * 10;
   }
 
   const sidebar = document.getElementById('sidebar');
@@ -739,10 +739,13 @@ const lbQaList = [
   { q:"Who is in the Hall of Fame?",   a:() => "Check out the top 3 avatars at the top of the page!" },
   { q:"How do I filter the table?",    a:() => "Use the search box to filter by username." },
   { q:"What are the badges?",          a:() => "Badges show at bottom – click them to learn milestones." },
-  { q:"How to challenge a user?",      a:() => "That feature is coming soon! Stay tuned." },
+  { q:"How to challenge a user?",      a:() => "Click on "Community" on the Sidebar." },
   { q:"How to see weekly stats?",      a:() => "Use the Timeframe dropdown to switch to Weekly." },
   { q:"How to share the leaderboard?", a:() => "Copy the URL and send it to your friends!" },
- 
+  { q:"How is my score calculated?",   a:() => "Score = total number of workouts × 10 points (distance no longer counts)." },
+ { q:"Where do you get my workout data?", 
+    a:() => "All workouts logged on Dashboard, Workouts, or Log pages are stored in one list and used here." },
+
 ];
 
 lbQaList.forEach(item => {
