@@ -1,4 +1,3 @@
-
 export const Storage = (() => {
   const listeners = {};
 
@@ -34,25 +33,6 @@ export const Storage = (() => {
     onChange(key, fn) {
       listeners[key] = listeners[key] || [];
       listeners[key].push(fn);
-    },
-      // ▶︎ Allow clearing every ft_* and user data at once
-    clear() {
-      localStorage.clear();
-      // notify all listeners of a “reset”
-      Object.keys(listeners).forEach(key =>
-        listeners[key].forEach(fn => fn(null, null))
-      );
     }
   };
-})();
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  document
-    .querySelectorAll('.menu-item.sign-out')
-    .forEach(btn =>
-      btn.addEventListener('click', () => Storage.clear())
-    );
-});
-
-
+})(); 
