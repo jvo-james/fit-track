@@ -1,3 +1,4 @@
+
 export const Storage = (() => {
   const listeners = {};
 
@@ -35,4 +36,4 @@ export const Storage = (() => {
       listeners[key].push(fn);
     }
   };
-})(); 
+})();
